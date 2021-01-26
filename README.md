@@ -17,3 +17,15 @@ yarn doc
 # constant builder
 yarn watch:build
 ```
+
+Publishing workflow:
+
+```
+yarn global add commitizen
+
+# bump version and update changelog
+yarn version
+
+# OR do full release prep
+yarn prepare-release
+```
