@@ -2,7 +2,18 @@
 
 IBC Relayer in TypeScript
 
-See [docs for starter pack](https://www.npmjs.com/package/typescript-starter). Examples:
+See [docs for starter pack](https://www.npmjs.com/package/typescript-starter).
+
+Please use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary) for all commit messages. Some basic examples:
+
+```
+feat(api): add client upgrade to API
+docs: update README
+fix(client): properly reconnect
+refactor!: Rewrite public API
+```
+
+Examples:
 
 ```
 # normal flow
