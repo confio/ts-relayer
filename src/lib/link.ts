@@ -16,8 +16,8 @@ export type Side = 'A' | 'B';
  * if you don't know the client/connection IDs a priori.
  */
 export class Link {
-  private endA: Endpoint;
-  private endB: Endpoint;
+  public readonly endA: Endpoint;
+  public readonly endB: Endpoint;
 
   /**
    * findConnection attempts to reuse an existing Client/Connection.
@@ -57,6 +57,32 @@ export class Link {
     throw new Error('unimplemented');
   }
 
+  /*
+// CreateConnection constructs and executes connection handshake messages in order to create
+// OPEN channels on chainA and chainB. The connection information of for chainA and chainB
+// are returned within a TestConnection struct. The function expects the connections to be
+// successfully opened otherwise testing will fail.
+func (coord *Coordinator) CreateConnection(
+	chainA, chainB *TestChain,
+	clientA, clientB string,
+) (*ibctesting.TestConnection, *ibctesting.TestConnection) {
+
+	connA, connB, err := coord.ConnOpenInit(chainA, chainB, clientA, clientB)
+	require.NoError(coord.t, err)
+
+	err = coord.ConnOpenTry(chainB, chainA, connB, connA)
+	require.NoError(coord.t, err)
+
+	err = coord.ConnOpenAck(chainA, chainB, connA, connB)
+	require.NoError(coord.t, err)
+
+	err = coord.ConnOpenConfirm(chainB, chainA, connB, connA)
+	require.NoError(coord.t, err)
+
+	return connA, connB
+}
+*/
+
   /**
    * findOrCreateConnection will try to reuse an existing Connection, but create a new one
    * if not present.
@@ -76,7 +102,9 @@ export class Link {
     }
   }
 
-  protected constructor(endA: Endpoint, endB: Endpoint) {
+  // you can use this if you already have the info out of bounds
+  // TODO; check the validity of that data?
+  public constructor(endA: Endpoint, endB: Endpoint) {
     this.endA = endA;
     this.endB = endB;
   }
@@ -103,6 +131,11 @@ export class Link {
   ): Promise<ChannelPair> {
     throw new Error('unimplemented');
   }
+
+  // TODO: relayAllPendingPackets (filter)
+  // TODO: relayAllPendingAcks (filter)
+  // TODO: relayAllRoundTrip (filter)
+  // TODO: relayRoundTrip (packet)
 
   //   // CreateChannel constructs and executes channel handshake messages in order to create
   // // OPEN channels on chainA and chainB. The function expects the channels to be successfully

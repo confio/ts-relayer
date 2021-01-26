@@ -7,9 +7,9 @@ import { SigningStargateClient } from '@cosmjs/stargate';
  * orchestration is handled in Link.
  */
 export class Endpoint {
-  private readonly client: SigningStargateClient;
-  private readonly clientID: string;
-  private readonly connectionID: string;
+  public readonly client: SigningStargateClient;
+  public readonly clientID: string;
+  public readonly connectionID: string;
 
   public constructor(
     client: SigningStargateClient,
@@ -21,13 +21,7 @@ export class Endpoint {
     this.connectionID = connectionID;
   }
 
-  // this only exists to remvoe linter errors
-  public removeMe(): string[] {
-    const foo = [this.clientID, this.connectionID];
-    return foo;
-  }
-
-  public async getChainId(): Promise<string> {
+  public async chainId(): Promise<string> {
     return this.client.getChainId();
   }
 
@@ -42,18 +36,26 @@ export class Endpoint {
 
   // TODO: expose all Channel lifecycle methods
   // TODO: expose post packet, post ack, post timeout methods
+  // https://github.com/cosmos/cosmjs/issues/632
 
-  // TODO: filter as closure, optional
   /* eslint @typescript-eslint/no-unused-vars: "off" */
-  public async getPendingPackets(_filter: string): Promise<Packet[]> {
+  public async getPendingPackets(
+    _filter?: Filter,
+    _minHeight?: number
+  ): Promise<Packet[]> {
     throw new Error('unimplemented!');
   }
 
-  // TODO: filter as closure, optional
   /* eslint @typescript-eslint/no-unused-vars: "off" */
-  public async getPendingAcks(_filter: string): Promise<Ack[]> {
+  public async getPendingAcks(
+    _filter?: Filter,
+    _minHeight?: number
+  ): Promise<Ack[]> {
     throw new Error('unimplemented!');
   }
+
+  // TODO: subscription based packets/acks?
+  // until then, poll every 5 minutes
 }
 
 export interface Commit {
@@ -69,6 +71,23 @@ export interface Packet {
 export interface Ack {
   readonly acknowledgement: Uint8Array;
   readonly originalPacket: Packet;
+}
+
+/**
+ * Requires a match of srcPortId and destPortId (if set)
+ * if the channel ids are set, matches all of the channels in the set
+ *
+ * This is designed to easily produce search/subscription query strings,
+ * not principally for in-memory filtering.
+ *
+ * TODO: how to filter on ConnectionID???
+ * https://github.com/cosmos/cosmos-sdk/issues/8445
+ */
+export interface Filter {
+  readonly srcPortId?: string;
+  readonly srcChannelId?: string[];
+  readonly destPortId?: string;
+  readonly destChannelId?: string[];
 }
 
 /**** These are needed to bootstrap the endpoints */
@@ -115,29 +134,3 @@ export async function findConnection(
   // TODO: actually verify the header, not just the chain-id
   throw new Error('unimplemented!');
 }
-
-/*
-// CreateConnection constructs and executes connection handshake messages in order to create
-// OPEN channels on chainA and chainB. The connection information of for chainA and chainB
-// are returned within a TestConnection struct. The function expects the connections to be
-// successfully opened otherwise testing will fail.
-func (coord *Coordinator) CreateConnection(
-	chainA, chainB *TestChain,
-	clientA, clientB string,
-) (*ibctesting.TestConnection, *ibctesting.TestConnection) {
-
-	connA, connB, err := coord.ConnOpenInit(chainA, chainB, clientA, clientB)
-	require.NoError(coord.t, err)
-
-	err = coord.ConnOpenTry(chainB, chainA, connB, connA)
-	require.NoError(coord.t, err)
-
-	err = coord.ConnOpenAck(chainA, chainB, connA, connB)
-	require.NoError(coord.t, err)
-
-	err = coord.ConnOpenConfirm(chainB, chainA, connB, connA)
-	require.NoError(coord.t, err)
-
-	return connA, connB
-}
-*/

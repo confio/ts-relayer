@@ -42,7 +42,7 @@
     "node": ">=10"
   },
   "dependencies": {
-    "@cosmjs/stargate": "0.24.0-alpha.18"
+    "@cosmjs/stargate": "0.24.0-alpha.19"
   },
   "devDependencies": {
     "@ava/typescript": "^1.1.1",
