@@ -93,7 +93,43 @@ export class Link {
     dest.updateClient(commit);
   }
 
-  private getEnds(src: Side): Pair {
+  // TODO: define ordering type
+  /* eslint @typescript-eslint/no-unused-vars: "off" */
+  public async createChannel(
+    _sender: Side,
+    _srcPort: string,
+    _destPort: string,
+    _order: string
+  ): Promise<ChannelPair> {
+    throw new Error('unimplemented');
+  }
+
+  //   // CreateChannel constructs and executes channel handshake messages in order to create
+  // // OPEN channels on chainA and chainB. The function expects the channels to be successfully
+  // // opened otherwise testing will fail.
+  // func (coord *Coordinator) CreateChannel(
+  // 	chainA, chainB *TestChain,
+  // 	connA, connB *ibctesting.TestConnection,
+  // 	sourcePortID, counterpartyPortID string,
+  // 	order channeltypes.Order,
+  // ) (ibctesting.TestChannel, ibctesting.TestChannel) {
+
+  // 	channelA, channelB, err := coord.ChanOpenInit(chainA, chainB, connA, connB, sourcePortID, counterpartyPortID, order)
+  // 	require.NoError(coord.t, err)
+
+  // 	err = coord.ChanOpenTry(chainB, chainA, channelB, channelA, connB, order)
+  // 	require.NoError(coord.t, err)
+
+  // 	err = coord.ChanOpenAck(chainA, chainB, channelA, channelB)
+  // 	require.NoError(coord.t, err)
+
+  // 	err = coord.ChanOpenConfirm(chainB, chainA, channelB, channelA)
+  // 	require.NoError(coord.t, err)
+
+  // 	return channelA, channelB
+  // }
+
+  private getEnds(src: Side): EndpointPair {
     if (src === 'A') {
       return {
         src: this.endA,
@@ -108,7 +144,17 @@ export class Link {
   }
 }
 
-interface Pair {
+interface EndpointPair {
   readonly src: Endpoint;
   readonly dest: Endpoint;
+}
+
+interface ChannelInfo {
+  readonly portId: string;
+  readonly channelId: string;
+}
+
+interface ChannelPair {
+  readonly src: ChannelInfo;
+  readonly dest: ChannelInfo;
 }
