@@ -1,6 +1,5 @@
-import { SigningStargateClient } from '@cosmjs/stargate';
-
 import { Endpoint, findClient, findConnection } from './endpoint';
+import { IbcClient } from './ibcclient';
 
 /**
  * Many actions on link focus on a src and a dest. Rather than add two functions,
@@ -27,8 +26,8 @@ export class Link {
    * @param nodeB
    */
   public static async findConnection(
-    nodeA: SigningStargateClient,
-    nodeB: SigningStargateClient
+    nodeA: IbcClient,
+    nodeB: IbcClient
   ): Promise<Link> {
     const clientA = await findClient(nodeA, await nodeB.getChainId());
     const clientB = await findClient(nodeB, await nodeA.getChainId());
@@ -51,8 +50,8 @@ export class Link {
    */
   /* eslint @typescript-eslint/no-unused-vars: "off" */
   public static async createConnection(
-    _nodeA: SigningStargateClient,
-    _nodeB: SigningStargateClient
+    _nodeA: IbcClient,
+    _nodeB: IbcClient
   ): Promise<Link> {
     throw new Error('unimplemented');
   }
@@ -91,8 +90,8 @@ func (coord *Coordinator) CreateConnection(
    * @param nodeB
    */
   public static async findOrCreateConnection(
-    nodeA: SigningStargateClient,
-    nodeB: SigningStargateClient
+    nodeA: IbcClient,
+    nodeB: IbcClient
   ): Promise<Link> {
     try {
       const existing = await Link.findConnection(nodeA, nodeB);

@@ -1,4 +1,6 @@
-import { SigningStargateClient } from '@cosmjs/stargate';
+import { CommitResponse } from '@cosmjs/tendermint-rpc';
+
+import { IbcClient } from './ibcclient';
 
 /**
  * Endpoint is a wrapper around SigningStargateClient as well as ClientID
@@ -7,12 +9,12 @@ import { SigningStargateClient } from '@cosmjs/stargate';
  * orchestration is handled in Link.
  */
 export class Endpoint {
-  public readonly client: SigningStargateClient;
+  public readonly client: IbcClient;
   public readonly clientID: string;
   public readonly connectionID: string;
 
   public constructor(
-    client: SigningStargateClient,
+    client: IbcClient,
     clientID: string,
     connectionID: string
   ) {
@@ -25,12 +27,12 @@ export class Endpoint {
     return this.client.getChainId();
   }
 
-  public async getLatestCommit(): Promise<Commit> {
-    throw new Error('unimplemented!');
+  public async getLatestCommit(): Promise<CommitResponse> {
+    return this.client.getCommit();
   }
 
   /* eslint @typescript-eslint/no-unused-vars: "off" */
-  public async updateClient(_commit: Commit): Promise<void> {
+  public async updateClient(_commit: CommitResponse): Promise<void> {
     throw new Error('unimplemented!');
   }
 
@@ -43,6 +45,18 @@ export class Endpoint {
     _filter?: Filter,
     _minHeight?: number
   ): Promise<Packet[]> {
+    this.client.queryClient.ibc.unverified.connectionChannels(
+      this.connectionID
+    );
+
+    // these all work for one (port, channel).
+    // shall we make this general (via filter) or hit up each channel one after another
+    // (and add a helper for (Endpoint, ChannelInfo) to do this easily)
+    // this.client.queryClient.ibc.unverified.packetCommitments();
+    // this.client.queryClient.ibc.unverified.packetAcknowledgements();
+    // this.client.queryClient.ibc.unverified.unreceivedPackets();
+    // this.client.queryClient.ibc.unverified.packetAcknowledgements();
+
     throw new Error('unimplemented!');
   }
 
@@ -110,7 +124,7 @@ export interface Filter {
  */
 /* eslint @typescript-eslint/no-unused-vars: "off" */
 export async function createClient(
-  _client: SigningStargateClient,
+  _client: IbcClient,
   _remoteChainID: string,
   _remoteCommit: Commit
 ): Promise<string> {
@@ -119,7 +133,7 @@ export async function createClient(
 
 /* eslint @typescript-eslint/no-unused-vars: "off" */
 export async function findClient(
-  _client: SigningStargateClient,
+  _client: IbcClient,
   _remoteChainID: string
 ): Promise<string> {
   // TODO: actually verify the header, not just the chain-id
@@ -128,7 +142,7 @@ export async function findClient(
 
 /* eslint @typescript-eslint/no-unused-vars: "off" */
 export async function findConnection(
-  _client: SigningStargateClient,
+  _client: IbcClient,
   _clientId: string
 ): Promise<string> {
   // TODO: actually verify the header, not just the chain-id
