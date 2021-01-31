@@ -10,3 +10,4 @@ each pair you wish to connect.
 2. [Key Management](./keys.md)
 3. [High-level Functionality](./functions.md)
 4. [CLI commands](./cli.md)
+5. [Logging Framework](./logging.md)
