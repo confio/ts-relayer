@@ -6,8 +6,18 @@ It is designed to run on a secure machine and must be provided with a funded acc
 each chain. If you wish to connect multiple chains, please run one (or more) relayer for
 each pair you wish to connect.
 
+We have split the relayer into 2 binaries for two different use cases, to ensure we cover both
+cases best:
+
+- `ibc-setup` - this is an interacticve admin tool, used to create keys, setup clients and connections,
+  and any other one-time tasks run by a human.
+- `ibc-relayer` - this is designed to run as a daemon (service), controlled by env variable and config files
+  and with instrumentation (logging, metrics, etc) fit for running unattended in a production environment
+
 1. [Configuration](./config.md)
 2. [Key Management](./keys.md)
-3. [High-level Functionality](./functions.md)
-4. [CLI commands](./cli.md)
+3. [IBC Setup Functions](./ibc-setup.md)
+4. [IBC Relayer Functionality](./ibc-relayer.md)
 5. [Logging Framework](./logging.md)
+6. [Ops and Metrics](./metrics.md)
+7. [Customization](./customization.md)

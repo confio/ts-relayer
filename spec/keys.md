@@ -12,22 +12,15 @@ In general, it is good practice to provide each relayer instance with it's own m
 
 ## Configuration
 
-There are multiple ways to pass this in, as [described in configuration](./config.md). We illustrate
-them in order of precidence:
+Every command that submits a transaction to a blockchain (that is, almost all of them) require key material
+to run. We pass that in via a mnemonic phrase, and then derive all private keys via the chain-specific
+hd paths in the `registry.yaml`.
 
-`--key-file=relayer1.key` you can pass a file as a CLI flag. The file should contain only a BIP39 mnemonic and nothing else
+There are two ways to pass in the mnemonic, either directly, or referencing a file that contains such a phrase.
+One of these command line flags (or env var, or config file value) should be present:
 
-`RELAYER_MNEMONIC="apple travel fun ..."` you can pass the mnemonic directly as an env variable, for example, set in a service.conf file.
+- `--mnemonic` - this must contain a BIP39 mnemonic phrase
+- `--key-file` - this must contain a path to a file which contains only a BIP39 mnemonic phrase
 
-`RELAYER_KEY_FILE=/etc/secret/relayer2.key` you can pass a key file in as an environmental variable, like above
-
-Default: if nothing is set, look for `relayer.key` in the home directory, which should contain a BIP39 mnemonic. Again, this
-is only suitable for single-relayer machine setups.
-
-## Commands
-
-List some commands to work with relayer keys:
-
-- `key generate` - generate a new mnemonic, either writing to a file or stdout. Does not require an exisiting mnemonic flag (as above)
-- `key list` - given a mnemonic and the `registry.conf` file, prints out the relayer's address on all chains listed
-  in the registry. This can be used to send it tokens to prepare it for running.
+If both flags are present, then the mnemonic phrase will take precidence. However, the standard lookup order still
+applies, so `--key-file` will be used over `RELAYER_MNEMONIC` variable.
