@@ -17,6 +17,8 @@ TODO: research and select libraries to use:
 
 [Prometheus](https://prometheus.io/) metric collection (or similar):
 
+- [`prom-client`](https://github.com/siimon/prom-client) - The official prometheus client for Node.js. All js, but there
+  is an `index.d.ts`
 - [`promts`](https://github.com/base698/promts) - A native TypeScript implementation of a Prometheus client.
   Seems quite a young project to depend on.
 - [`appmetrics`](https://github.com/RuntimeTools/appmetrics) - Provides a lot of Node.js and DB related metrics.
