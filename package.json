@@ -39,10 +39,12 @@
     "prepare-release": "run-s reset-hard test cov:check doc:html version doc:publish"
   },
   "engines": {
-    "node": ">=10"
+    "node": ">=12"
   },
   "dependencies": {
-    "@cosmjs/stargate": "0.24.0-alpha.19"
+    "@cosmjs/proto-signing": "0.24.0-alpha.22",
+    "@cosmjs/stargate": "0.24.0-alpha.22",
+    "@cosmjs/tendermint-rpc": "0.24.0-alpha.22"
   },
   "devDependencies": {
     "@ava/typescript": "^1.1.1",
