@@ -6,6 +6,10 @@ It is designed to run on a secure machine and must be provided with a funded acc
 each chain. If you wish to connect multiple chains, please run one (or more) relayer for
 each pair you wish to connect.
 
+Informal systems provides a good [overview of a relayer](https://github.com/informalsystems/ibc-rs/blob/master/docs/architecture/adr-002-ibc-relayer.md) in their `ibc-rs` repo. This image is borrowed from there
+
+![Relayer Architecture](https://raw.githubusercontent.com/informalsystems/ibc-rs/master/docs/architecture/assets/IBC_relayer.jpeg)
+
 We have split the relayer into 2 binaries for two different use cases, to ensure we cover both
 cases best:
 
@@ -20,5 +24,4 @@ cases best:
 4. [IBC Relayer Functionality](./ibc-relayer.md)
 5. [Logging Framework](./logging.md)
 6. [Ops and Metrics](./metrics.md)
-7. [Customization](./customization.md)
-8. [Future Work](./future-work.md)
+7. [Future Work](./future-work.md)

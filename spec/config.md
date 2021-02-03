@@ -1,7 +1,7 @@
 # Configuration
 
 While most of the commands will be specified via command-line flags, it would be very
-tedious to pass in all configuration options everytime. Thus, we allow 3 ways to configure
+tedious to pass in all configuration options every time. Thus, we allow 3 ways to configure
 most items - config file (yaml), environmental variables, and command line flags. With the
 later taking precedence over the former. Environmental variables will all begin with `RELAYER_`
 for both binaries.
@@ -55,7 +55,7 @@ as environmental variables or in `app.yaml`. If they are not defined in any of t
 There is a simple pattern for this. Take two examples:
 
 - CLI flags: `--from` and `--log-level`
-- Env Vars (Prepend `RELAYER`, use `_` not `-`): `RELAYER_FROM` and `RELAYER_LOG_LEVEL`
+- Env Vars (Prefix `RELAYER_`, use `_` not `-`): `RELAYER_FROM` and `RELAYER_LOG_LEVEL`
 - `app.yaml` (Same name as flag, but using `_` not `-`): `from:` and `log_level:`
 
 ### Chain Selection

@@ -21,6 +21,8 @@ One of these command line flags (or env var, or config file value) should be pre
 
 - `--mnemonic` - this must contain a BIP39 mnemonic phrase
 - `--key-file` - this must contain a path to a file which contains only a BIP39 mnemonic phrase
+- `--interactive` or `-i` - must be run in a tty by an operator. Will read the mnemonic from stdin.
+  For those who never want this to hit disk.
 
-If both flags are present, then the mnemonic phrase will take precidence. However, the standard lookup order still
-applies, so `--key-file` will be used over `RELAYER_MNEMONIC` variable.
+If multiple flags are present, precedence is `interactive`, `mnemonic`, then `key-file`.
+However, the standard lookup order still applies, so `--key-file` will be used over `RELAYER_MNEMONIC` variable.

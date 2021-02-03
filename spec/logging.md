@@ -17,8 +17,12 @@ for such a library is [Winston JS](https://github.com/winstonjs/winston).
 Both processes support some logging flags. By default, they both log at INFO level, and only write
 to the console.
 
-- `--log-level=debug|info|error` - sets the minimum level to log at, everything below this level is ignored
+- `--log-level=debug|verbose|info|warn|error` - sets the minimum level to log at, everything below this level is ignored
+- `--verbose` or `-v` is an alias to `--log-level=verbose`
+- `--quiet` or `-q` is an alias to `--log-level=error`
 - `--log-file=<path>` - specified a file to write to, logs will be written in JSON format to the file
   (but a human-readable format to the console)
+
+Note: if multiple flags that set log-level are set (eg. `-v -q --log-level=info`), then the most permissive level is taken. (In this case `verbose`).
 
 We may add additional flags later if we need more control of formats of transports.
