@@ -90,8 +90,31 @@ The `ibc-setup` binaries has a few commands to work with relayer keys and accoun
 
 ### Connection Setup
 
-TODO
+For now, we only handle the case of 1 client : 1 connection. This is a nice simplification and
+until there is a real need, allows us simpler tooling.
+
+- `ibc-setup connect --from=ABC --to=XYZ` - this connects to both chains (from registry) and creates a new client
+  for the counterparty on each side. It then goes through the Connection handshake process. At the end,
+  it returns the newly established `client_id` and `connection_id` to stdout as well as storing them in `app.yaml`
 
 ### Channel Setup
 
-TODO
+Once there is an established connection, we can create multiple ports here. This takes a little visibility,
+so we provide some query commands as well.
+
+- `ibc-setup ports --chain=ABC`
+  - this takes one chain and lists all bound ports on the chain
+- `ibc-setup channels --chain=XYZ [--port=transfer]`
+  - this lists all channels on the given chain. You may focus on just one port if you wish to see just those channels. It shows all channels, both open, as well as channels in the handshaking process or closed ones (with a comment on non-open ones)
+- `ibc-setup channel --from=ABC --to=XYZ --connection=connection=3 --from-port=transfer --to-port=vault [--ordered] --version=ics20-1`
+  - this will before the channel handshake on an existing connection. It will first validate the connection is open and does connect the two chains we provided. It will start `OnChanInit` on the `from` chain using `from-port` and `version`.
+    By default it makes unordered channels, add the `--ordered` flag to make them ordered.
+  - after the init, it continues with `OnChanTry` on the `to` flag with the `to-port` and the same `version`. We can add support for different versions for both sides in the future when that case exists.
+  - on success, it goes back to the `from` chain with `OnChanAck`
+  - and finally on the `to` chain with `OnChanConfirm`
+  - once the channel is established, it is output to stdout
+
+## Questions
+
+Shall all the query commands (`balances`, `ports`, `channels`) be prefixed to separate them from the other (unprefixed)
+commands that make state changes. `ibc-setup query ports`??
