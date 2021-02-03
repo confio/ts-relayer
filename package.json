@@ -42,9 +42,9 @@
     "node": ">=12"
   },
   "dependencies": {
-    "@cosmjs/proto-signing": "0.24.0-alpha.19",
-    "@cosmjs/stargate": "0.24.0-alpha.19",
-    "@cosmjs/tendermint-rpc": "0.24.0-alpha.19"
+    "@cosmjs/proto-signing": "0.24.0-alpha.22",
+    "@cosmjs/stargate": "0.24.0-alpha.22",
+    "@cosmjs/tendermint-rpc": "0.24.0-alpha.22"
   },
   "devDependencies": {
     "@ava/typescript": "^1.1.1",
