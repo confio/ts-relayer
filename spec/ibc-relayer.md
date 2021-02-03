@@ -6,7 +6,7 @@ data and then seek to continually relay all packets over all channels on it's pr
 The most interesting elements of the Relayer is [configuring it's logging](./logging.md) for easy debugging,
 as well as [checking metrics](./metrics.md) to set up alerts or Grafana dashboards.
 
-`ibc-relayer start --from=ABC --to=XYZ --connection=connection-3 --key-file=relayer.key`
+`ibc-relayer start --src=ABC --dest=XYZ --connection=connection-3 --key-file=relayer.key`
 
 This process will do the following:
 

@@ -13,7 +13,7 @@ Tendermint uses Prometheus to produce relevant metrics. Since Prometheus is Go-c
 must find an equivalent library for TypeScript. This task is to _produce_ the data.
 Actually hooking it up to a dashboard is left as a DevOps task for each team deploying the relayer.
 
-TODO: research and select libraries to use:
+TODO: select library to use:
 
 [Prometheus](https://prometheus.io/) metric collection (or similar):
 

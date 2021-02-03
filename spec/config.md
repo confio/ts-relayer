@@ -54,9 +54,9 @@ as environmental variables or in `app.yaml`. If they are not defined in any of t
 
 There is a simple pattern for this. Take two examples:
 
-- CLI flags: `--from` and `--log-level`
-- Env Vars (Prefix `RELAYER_`, use `_` not `-`): `RELAYER_FROM` and `RELAYER_LOG_LEVEL`
-- `app.yaml` (Same name as flag, but using `_` not `-`): `from:` and `log_level:`
+- CLI flags: `--src` and `--log-level`
+- Env Vars (Prefix `RELAYER_`, use `_` not `-`): `RELAYER_SRC` and `RELAYER_LOG_LEVEL`
+- `app.yaml` (Same name as flag, but using `_` not `-`): `src:` and `log_level:`
 
 ### Chain Selection
 
@@ -64,8 +64,8 @@ Every command will need to know what chains to connect to. The registry file may
 chains and be reused by validators making various connections. We just need to pass in a pair of names to each
 command, so it can look up all needed configuration.
 
-`--from=musselnet` and `--to=bifrost` will define the two chains to connect to, as well as the direction.
-If creating a connection/channel, we init on the "from" side. If relaying packets, we may relay packets from
+`--src=musselnet` and `--dest=bifrost` will define the two chains to connect to, as well as the direction.
+If creating a connection/channel, we init on the "src" side. If relaying packets, we may relay packets from
 one chain to another (some configurations will be bi-directional).
 
 As mentioned above, if a CLI flag is not found, we will check for an environmental variable, and ultimately `app.yaml`
