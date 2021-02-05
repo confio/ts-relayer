@@ -20,6 +20,7 @@ SIMD_LOGFILE="$TMP_DIR/simd.log"
 
 # Use a fresh volume for every start
 docker volume rm -f simapp_data
+docker pull "$REPOSITORY:$VERSION"
 
 docker run --rm \
   --name "$CONTAINER_NAME" \

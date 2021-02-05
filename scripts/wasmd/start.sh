@@ -20,6 +20,7 @@ WASMD_LOGFILE="$TMP_DIR/wasmd.log"
 
 # Use a fresh volume for every start
 docker volume rm -f wasmd_data
+docker pull "$REPOSITORY:$VERSION"
 
 # This starts up wasmd
 docker run --rm \
