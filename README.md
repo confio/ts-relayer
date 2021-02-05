@@ -55,7 +55,18 @@ yarn watch:build
 yarn watch:test
 ```
 
-## Changelog and Publishing
+### Test Framework
+
+I am using [Ava](https://github.com/avajs/ava) here simply because that was automatically set up with
+the TypeScript helper. Rather than immediately rush to the well-known jasmine from CosmJS, I tried it out
+and so far like the functionality. Nice test watcher, clean error messages, and clickable links right to
+the failing source. Let's try this out a bit on this project.
+
+You will want to read [how to write tests](https://github.com/avajs/ava/blob/master/docs/01-writing-tests.md)
+and maybe a little [the list of valid assertions](https://github.com/avajs/ava/blob/master/docs/03-assertions.md#built-in-assertions)
+before coding.
+
+### Changelog and Publishing
 
 Please use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary) for all commit messages. Some basic examples:
 
