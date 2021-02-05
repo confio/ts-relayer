@@ -14,6 +14,49 @@ Please [look at the spec](./spec/index.md) for more information on the binary
 
 See [docs for starter pack](https://www.npmjs.com/package/typescript-starter).
 
+### Set up local chains
+
+To start two local blockchains, so we can test, run the following commands in two different consoles.
+
+```bash
+# in one console
+./scripts/simapp/start.sh
+# in another console
+./scripts/wasmd/start.sh
+```
+
+When you are done, you can run the following in any console:
+
+```bash
+./scripts/simapp/stop.sh
+./scripts/wasmd/stop.sh
+```
+
+### Testing
+
+Manually building, linting and testing:
+
+```bash
+yarn build
+yarn test
+
+# linting happens while testing, you can run it alone like this
+yarn test:lint
+```
+
+Automatic build and test (you must watch build, as test setup watches for js changes).
+Code will be build and tests run everytime you save a file:
+
+```bash
+# in one console
+yarn watch:build
+
+# in another console
+yarn watch:test
+```
+
+## Changelog and Publishing
+
 Please use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary) for all commit messages. Some basic examples:
 
 ```
