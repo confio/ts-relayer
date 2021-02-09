@@ -34,6 +34,8 @@ When you are done, you can run the following in any console:
 
 ### Testing
 
+You must have the local blockchains running for the tests to pass.
+
 Manually building, linting and testing:
 
 ```bash
