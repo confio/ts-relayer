@@ -1,14 +1,16 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import { toAscii } from '@cosmjs/encoding';
 import { Uint64 } from '@cosmjs/math';
-import { createPagination, createRpc, QueryClient } from '@cosmjs/stargate';
+// TODO: import these when we update
+// import { createPagination, createRpc, QueryClient } from '@cosmjs/stargate';
+import { QueryClient } from '@cosmjs/stargate';
 import Long from 'long';
 
+import { PageRequest } from '../../codec/cosmos/base/query/v1beta1/pagination';
 import { Channel } from '../../codec/ibc/core/channel/v1/channel';
 import {
+  QueryClientImpl as ChannelQuery,
   QueryChannelResponse,
   QueryChannelsResponse,
-  QueryClientImpl as ChannelQuery,
   QueryConnectionChannelsResponse,
   QueryNextSequenceReceiveResponse,
   QueryPacketAcknowledgementResponse,
@@ -19,11 +21,48 @@ import {
   QueryUnreceivedPacketsResponse,
 } from '../../codec/ibc/core/channel/v1/query';
 import {
-  QueryClientConnectionsResponse,
   QueryClientImpl as ConnectionQuery,
+  QueryClientConnectionsResponse,
   QueryConnectionResponse,
   QueryConnectionsResponse,
 } from '../../codec/ibc/core/connection/v1/query';
+
+/*** TODO: remove these: temporary work-around *****/
+export function createPagination(
+  paginationKey?: Uint8Array
+): PageRequest | undefined {
+  return paginationKey
+    ? {
+        key: paginationKey,
+        offset: Long.fromNumber(0, true),
+        limit: Long.fromNumber(0, true),
+        countTotal: false,
+      }
+    : undefined;
+}
+
+export interface Rpc {
+  request(
+    service: string,
+    method: string,
+    data: Uint8Array
+  ): Promise<Uint8Array>;
+}
+
+export function createRpc(base: QueryClient): Rpc {
+  return {
+    request: (
+      service: string,
+      method: string,
+      data: Uint8Array
+    ): Promise<Uint8Array> => {
+      const path = `/${service}/${method}`;
+      return base.queryUnverified(path, data);
+    },
+  };
+}
+
+/***** End TODO ******/
 
 export interface IbcExtension {
   readonly ibc: {
