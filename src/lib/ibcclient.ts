@@ -1,9 +1,13 @@
+import { coins, logs, StdFee } from '@cosmjs/launchpad';
 import { OfflineSigner, Registry } from '@cosmjs/proto-signing';
 import {
   AuthExtension,
   BankExtension,
-  codec,
+  BroadcastTxFailure,
+  defaultRegistryTypes,
   IbcExtension,
+  isBroadcastTxFailure,
+  parseRawLog,
   QueryClient,
   setupAuthExtension,
   setupBankExtension,
@@ -18,15 +22,29 @@ import {
   Client as TendermintClient,
 } from '@cosmjs/tendermint-rpc';
 
-const { MsgMultiSend } = codec.cosmos.bank.v1beta1;
-// const {} = codec.ibc.core.connection.v1;
-// const {} = codec.ibc.core.connection.v1.;
+import { Any } from '../codec/google/protobuf/any';
+import {
+  MsgCreateClient,
+  // MsgUpdateClient,
+} from '../codec/ibc/core/client/v1/tx';
 
 function ibcRegistry(): Registry {
   return new Registry([
-    ['/cosmos.bank.v1beta1.MsgMultiSend', MsgMultiSend],
-    // TODO: add ibc messages when present
+    ...defaultRegistryTypes,
+    // ['/ibc.core.client.v1.MsgClearAdmin', MsgCreateClient],
+    // ['/ibc.core.client.v1.MsgExecuteContract', MsgUpdateClient],
   ]);
+}
+
+/// This is the default message result with no extra data
+export interface MsgResult {
+  readonly logs: readonly logs.Log[];
+  /** Transaction hash (might be used as transaction ID). Guaranteed to be non-empty upper-case hex */
+  readonly transactionHash: string;
+}
+
+function createBroadcastTxErrorMessage(result: BroadcastTxFailure): string {
+  return `Error when broadcasting tx ${result.transactionHash} at height ${result.height}. Code: ${result.code}; Raw log: ${result.rawLog}`;
 }
 
 export class IbcClient {
@@ -73,5 +91,47 @@ export class IbcClient {
 
   public getChainId(): Promise<string> {
     return this.signingClient.getChainId();
+  }
+
+  // TODO: make a tendermint specific version
+  public async createClient(
+    senderAddress: string,
+    clientState: Any,
+    consensusState: Any
+  ): Promise<MsgResult> {
+    const createMsg = {
+      typeUrl: '/ibc.core.client.v1.MsgClearAdmin',
+      value: MsgCreateClient.fromPartial({
+        signer: senderAddress,
+        clientState,
+        consensusState,
+      }),
+    };
+
+    // TODO: use lookup table, proper values here
+    const fee: StdFee = {
+      amount: coins(5000, 'ucosm'),
+      gas: '1000000',
+    };
+
+    const result = await this.signingClient.signAndBroadcast(
+      senderAddress,
+      [createMsg],
+      fee
+    );
+    if (isBroadcastTxFailure(result)) {
+      throw new Error(createBroadcastTxErrorMessage(result));
+    }
+    const parsedLogs = parseRawLog(result.rawLog);
+    // const contractAddressAttr = logs.findAttribute(
+    //   parsedLogs,
+    //   'message',
+    //   'contract_address'
+    // );
+    return {
+      // contractAddress: contractAddressAttr.value,
+      logs: parsedLogs,
+      transactionHash: result.transactionHash,
+    };
   }
 }
