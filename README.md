@@ -34,6 +34,8 @@ When you are done, you can run the following in any console:
 
 ### Testing
 
+You must have the local blockchains running for the tests to pass.
+
 Manually building, linting and testing:
 
 ```bash
@@ -65,6 +67,19 @@ the failing source. Let's try this out a bit on this project.
 You will want to read [how to write tests](https://github.com/avajs/ava/blob/master/docs/01-writing-tests.md)
 and maybe a little [the list of valid assertions](https://github.com/avajs/ava/blob/master/docs/03-assertions.md#built-in-assertions)
 before coding.
+
+### Protobuf
+
+To re-build the protobuf definitions, first look at [scripts/proto/env](./scripts/proto/env) and ensure you
+have set the desired Cosmos SDK tag there (eg. `v0.41.0`). After that, run:
+
+```bash
+./scripts/proto/get-proto.sh
+./scripts/proto/define-proto.sh
+```
+
+This will overwrite the data in `src/codec` with newly generated definitions. We delete the folder first
+to avoid outdated artifacts, meaning any manual changes will be lost.
 
 ### Changelog and Publishing
 
