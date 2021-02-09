@@ -37,8 +37,8 @@ import { IbcExtension, setupIbcExtension } from './queries/ibc';
 function ibcRegistry(): Registry {
   return new Registry([
     ...defaultRegistryTypes,
-    // ['/ibc.core.client.v1.MsgClearAdmin', MsgCreateClient],
-    // ['/ibc.core.client.v1.MsgExecuteContract', MsgUpdateClient],
+    // ['/ibc.core.client.v1.MsgCreateClient', MsgCreateClient],
+    // ['/ibc.core.client.v1.MsgUpdateClient', MsgUpdateClient],
   ]);
 }
 
@@ -54,12 +54,12 @@ function createBroadcastTxErrorMessage(result: BroadcastTxFailure): string {
 }
 
 export class IbcClient {
-  public readonly signingClient: SigningStargateClient;
-  public readonly queryClient: QueryClient &
+  public readonly sign: SigningStargateClient;
+  public readonly query: QueryClient &
     AuthExtension &
     BankExtension &
     IbcExtension;
-  public readonly tmClient: TendermintClient;
+  public readonly tm: TendermintClient;
 
   public static async connectWithSigner(
     endpoint: string,
@@ -81,9 +81,9 @@ export class IbcClient {
     signingClient: SigningStargateClient,
     tmClient: TendermintClient
   ) {
-    this.signingClient = signingClient;
-    this.tmClient = tmClient;
-    this.queryClient = QueryClient.withExtensions(
+    this.sign = signingClient;
+    this.tm = tmClient;
+    this.query = QueryClient.withExtensions(
       tmClient,
       setupAuthExtension,
       setupBankExtension,
@@ -92,16 +92,16 @@ export class IbcClient {
   }
 
   public async latestHeader(): Promise<Header> {
-    const block = await this.tmClient.block();
+    const block = await this.tm.block();
     return block.block.header;
   }
 
   public getCommit(height?: number): Promise<CommitResponse> {
-    return this.tmClient.commit(height);
+    return this.tm.commit(height);
   }
 
   public getChainId(): Promise<string> {
-    return this.signingClient.getChainId();
+    return this.sign.getChainId();
   }
 
   public async createTendermintClient(
@@ -110,7 +110,7 @@ export class IbcClient {
     consensusState: TendermintConsensusState
   ): Promise<MsgResult> {
     const createMsg = {
-      typeUrl: '/ibc.core.client.v1.MsgClearAdmin',
+      typeUrl: '/ibc.core.client.v1.MsgCreateClient',
       value: MsgCreateClient.fromPartial({
         signer: senderAddress,
         clientState: {
@@ -130,7 +130,7 @@ export class IbcClient {
       gas: '1000000',
     };
 
-    const result = await this.signingClient.signAndBroadcast(
+    const result = await this.sign.signAndBroadcast(
       senderAddress,
       [createMsg],
       fee
