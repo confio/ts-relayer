@@ -46,7 +46,9 @@
     "@cosmjs/math": "0.24.0-alpha.22",
     "@cosmjs/proto-signing": "0.24.0-alpha.22",
     "@cosmjs/stargate": "0.24.0-alpha.22",
-    "@cosmjs/tendermint-rpc": "0.24.0-alpha.22"
+    "@cosmjs/tendermint-rpc": "0.24.0-alpha.22",
+    "@types/node": "^14.14.25",
+    "protobufjs": "~6.10.2"
   },
   "devDependencies": {
     "@ava/typescript": "^1.1.1",
@@ -69,6 +71,7 @@
     "prettier": "^2.1.1",
     "standard-version": "^9.0.0",
     "ts-node": "^9.0.0",
+    "ts-proto": "^1.53.0",
     "typedoc": "^0.19.0",
     "typescript": "^4.0.2"
   },
