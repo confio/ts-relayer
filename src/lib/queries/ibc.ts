@@ -21,6 +21,10 @@ import {
   QueryUnreceivedPacketsResponse,
 } from '../../codec/ibc/core/channel/v1/query';
 import {
+  QueryClientImpl as ClientQuery,
+  QueryClientStatesResponse,
+} from '../../codec/ibc/core/client/v1/query';
+import {
   QueryClientImpl as ConnectionQuery,
   QueryClientConnectionsResponse,
   QueryConnectionResponse,
@@ -86,6 +90,7 @@ export interface IbcExtension {
     ) => Promise<number | null>;
     readonly unverified: {
       // Queries for ibc.core.channel.v1
+      readonly clientStates: () => Promise<QueryClientStatesResponse>;
       readonly channel: (
         portId: string,
         channelId: string
@@ -152,6 +157,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
   // Use these services to get easy typed access to query methods
   // These cannot be used for proof verification
   const channelQueryService = new ChannelQuery(rpc);
+  const clientQueryService = new ClientQuery(rpc);
   const connectionQueryService = new ConnectionQuery(rpc);
 
   return {
@@ -206,6 +212,9 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
       },
 
       unverified: {
+        clientStates: () => {
+          return clientQueryService.ClientStates({});
+        },
         // Queries for ibc.core.channel.v1
         channel: async (portId: string, channelId: string) => {
           const response = await channelQueryService.Channel({

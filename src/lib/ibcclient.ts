@@ -1,5 +1,3 @@
-import Long from 'long';
-
 import { coins, logs, StdFee } from '@cosmjs/launchpad';
 import { OfflineSigner, Registry } from '@cosmjs/proto-signing';
 import {
@@ -7,13 +5,11 @@ import {
   BankExtension,
   BroadcastTxFailure,
   defaultRegistryTypes,
-  IbcExtension,
   isBroadcastTxFailure,
   parseRawLog,
   QueryClient,
   setupAuthExtension,
   setupBankExtension,
-  setupIbcExtension,
   SigningStargateClient,
 } from '@cosmjs/stargate';
 // TODO: this is wrong, expose in top level
@@ -21,8 +17,10 @@ import { SigningStargateClientOptions } from '@cosmjs/stargate/types/signingstar
 import {
   adaptor34,
   CommitResponse,
+  Header,
   Client as TendermintClient,
 } from '@cosmjs/tendermint-rpc';
+import Long from 'long';
 
 import { HashOp, LengthOp } from '../codec/confio/proofs';
 import {
@@ -33,6 +31,8 @@ import {
   ClientState as TendermintClientState,
   ConsensusState as TendermintConsensusState,
 } from '../codec/ibc/lightclients/tendermint/v1/tendermint';
+
+import { IbcExtension, setupIbcExtension } from './queries/ibc';
 
 function ibcRegistry(): Registry {
   return new Registry([
@@ -91,6 +91,11 @@ export class IbcClient {
     );
   }
 
+  public async latestHeader(): Promise<Header> {
+    const block = await this.tmClient.block();
+    return block.block.header;
+  }
+
   public getCommit(height?: number): Promise<CommitResponse> {
     return this.tmClient.commit(height);
   }
@@ -99,7 +104,6 @@ export class IbcClient {
     return this.signingClient.getChainId();
   }
 
-  // TODO: make a tendermint specific version
   public async createTendermintClient(
     senderAddress: string,
     clientState: TendermintClientState,
@@ -141,11 +145,20 @@ export class IbcClient {
     //   'contract_address'
     // );
     return {
-      // contractAddress: contractAddressAttr.value,
       logs: parsedLogs,
       transactionHash: result.transactionHash,
     };
   }
+}
+
+export function buildConsensusState(header: Header): TendermintConsensusState {
+  return TendermintConsensusState.fromPartial({
+    timestamp: new Date(header.time.getMilliseconds()),
+    root: {
+      hash: header.appHash,
+    },
+    nextValidatorsHash: header.nextValidatorsHash,
+  });
 }
 
 // Note: we hardcode a number of assumptions, like trust level, clock drift, and assume revisionNumber is 1
@@ -155,6 +168,7 @@ export function buildClientState(
   trustPeriodSec: number,
   height: number
 ): TendermintClientState {
+  // Copied here until https://github.com/confio/ics23/issues/36 is resolved
   // https://github.com/confio/ics23/blob/master/js/src/proofs.ts#L11-L26
   const iavlSpec = {
     leafSpec: {
@@ -172,7 +186,6 @@ export function buildClientState(
       hash: HashOp.SHA256,
     },
   };
-
   const tendermintSpec = {
     leafSpec: {
       prefix: Uint8Array.from([0]),
