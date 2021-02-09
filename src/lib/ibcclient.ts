@@ -1,3 +1,5 @@
+import Long from 'long';
+
 import { coins, logs, StdFee } from '@cosmjs/launchpad';
 import { OfflineSigner, Registry } from '@cosmjs/proto-signing';
 import {
@@ -22,11 +24,15 @@ import {
   Client as TendermintClient,
 } from '@cosmjs/tendermint-rpc';
 
-import { Any } from '../codec/google/protobuf/any';
+import { HashOp, LengthOp } from '../codec/confio/proofs';
 import {
   MsgCreateClient,
   // MsgUpdateClient,
 } from '../codec/ibc/core/client/v1/tx';
+import {
+  ClientState as TendermintClientState,
+  ConsensusState as TendermintConsensusState,
+} from '../codec/ibc/lightclients/tendermint/v1/tendermint';
 
 function ibcRegistry(): Registry {
   return new Registry([
@@ -94,17 +100,23 @@ export class IbcClient {
   }
 
   // TODO: make a tendermint specific version
-  public async createClient(
+  public async createTendermintClient(
     senderAddress: string,
-    clientState: Any,
-    consensusState: Any
+    clientState: TendermintClientState,
+    consensusState: TendermintConsensusState
   ): Promise<MsgResult> {
     const createMsg = {
       typeUrl: '/ibc.core.client.v1.MsgClearAdmin',
       value: MsgCreateClient.fromPartial({
         signer: senderAddress,
-        clientState,
-        consensusState,
+        clientState: {
+          typeUrl: '/ibc.lightclients.tendermint.v1.ClientState',
+          value: TendermintClientState.encode(clientState).finish(),
+        },
+        consensusState: {
+          typeUrl: '/ibc.lightclients.tendermint.v1.ConsensusState',
+          value: TendermintConsensusState.encode(consensusState).finish(),
+        },
       }),
     };
 
@@ -134,4 +146,72 @@ export class IbcClient {
       transactionHash: result.transactionHash,
     };
   }
+}
+
+// Note: we hardcode a number of assumptions, like trust level, clock drift, and assume revisionNumber is 1
+export function buildClientState(
+  chainId: string,
+  unbondingPeriodSec: number,
+  trustPeriodSec: number,
+  height: number
+): TendermintClientState {
+  // https://github.com/confio/ics23/blob/master/js/src/proofs.ts#L11-L26
+  const iavlSpec = {
+    leafSpec: {
+      prefix: Uint8Array.from([0]),
+      hash: HashOp.SHA256,
+      prehashValue: HashOp.SHA256,
+      prehashKey: HashOp.NO_HASH,
+      length: LengthOp.VAR_PROTO,
+    },
+    innerSpec: {
+      childOrder: [0, 1],
+      minPrefixLength: 4,
+      maxPrefixLength: 12,
+      childSize: 33,
+      hash: HashOp.SHA256,
+    },
+  };
+
+  const tendermintSpec = {
+    leafSpec: {
+      prefix: Uint8Array.from([0]),
+      hash: HashOp.SHA256,
+      prehashValue: HashOp.SHA256,
+      prehashKey: HashOp.NO_HASH,
+      length: LengthOp.VAR_PROTO,
+    },
+    innerSpec: {
+      childOrder: [0, 1],
+      minPrefixLength: 1,
+      maxPrefixLength: 1,
+      childSize: 32,
+      hash: HashOp.SHA256,
+    },
+  };
+
+  return TendermintClientState.fromPartial({
+    chainId,
+    trustLevel: {
+      numerator: Long.fromInt(1),
+      denominator: Long.fromInt(3),
+    },
+    unbondingPeriod: {
+      seconds: new Long(unbondingPeriodSec),
+    },
+    trustingPeriod: {
+      seconds: new Long(trustPeriodSec),
+    },
+    maxClockDrift: {
+      seconds: new Long(20),
+    },
+    latestHeight: {
+      revisionNumber: new Long(0), // ??
+      revisionHeight: new Long(height),
+    },
+    proofSpecs: [iavlSpec, tendermintSpec],
+    upgradePath: ['upgrade', 'upgradedIBCState'],
+    allowUpdateAfterExpiry: false,
+    allowUpdateAfterMisbehaviour: false,
+  });
 }
