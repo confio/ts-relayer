@@ -55,17 +55,21 @@ test.only('update simapp client on wasmd', async (t) => {
     cliState,
     conState
   );
-  // TODO: clientState details with this one ID
-  const clients = await dest.query.ibc.unverified.clientStates();
-  const mine = clients.clientStates.find((c) => c.clientId == clientId);
-  t.assert(typeof mine !== 'undefined');
-  console.error(mine);
+  const state = await dest.query.ibc.unverified.clientState(clientId);
+  console.error(state);
+  // TODO: check more details?
+  t.is(state.latestHeight?.revisionHeight.toNumber(), header.height);
 
   // wait for a few blocks, then try
   console.error(`created client ${clientId}`);
   await sleep(4000);
   const newHeader = await src.buildHeader(header.height);
+  const newHeight = newHeader.signedHeader?.header?.height;
+  t.not(newHeight?.toNumber(), header.height);
   await dest.updateTendermintClient(address, clientId, newHeader);
 
-  // TODO: clientState details with this id, should be higher height
+  // any other checks?
+  const upstate = await dest.query.ibc.unverified.clientState(clientId);
+  console.error(upstate);
+  t.is(state.latestHeight?.revisionHeight, newHeight);
 });
