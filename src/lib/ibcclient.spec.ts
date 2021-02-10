@@ -27,7 +27,8 @@ test.serial('create simapp client on wasmd', async (t) => {
     500,
     header.height
   );
-  await dest.createTendermintClient(address, cliState, conState);
+  const res = await dest.createTendermintClient(address, cliState, conState);
+  t.assert(res.clientId.startsWith('07-tendermint-'));
 
   const postClients = await dest.query.ibc.unverified.clientStates();
   t.is(postClients.clientStates.length, preLen + 1);

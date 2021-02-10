@@ -51,6 +51,10 @@ export interface MsgResult {
   readonly transactionHash: string;
 }
 
+export type CreateMsgResult = MsgResult & {
+  readonly clientId: string;
+};
+
 function createBroadcastTxErrorMessage(result: BroadcastTxFailure): string {
   return `Error when broadcasting tx ${result.transactionHash} at height ${result.height}. Code: ${result.code}; Raw log: ${result.rawLog}`;
 }
@@ -172,7 +176,7 @@ export class IbcClient {
     senderAddress: string,
     clientState: TendermintClientState,
     consensusState: TendermintConsensusState
-  ): Promise<MsgResult> {
+  ): Promise<CreateMsgResult> {
     const createMsg = {
       typeUrl: '/ibc.core.client.v1.MsgCreateClient',
       value: MsgCreateClient.fromPartial({
@@ -202,16 +206,18 @@ export class IbcClient {
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
     }
-    // TODO: return clientId
     const parsedLogs = parseRawLog(result.rawLog);
-    // const contractAddressAttr = logs.findAttribute(
-    //   parsedLogs,
-    //   'message',
-    //   'contract_address'
-    // );
+    const clientId = logs.findAttribute(
+      parsedLogs,
+      // TODO: they enforce 'message' | 'transfer'
+      /* eslint @typescript-eslint/no-explicit-any: "off" */
+      'create_client' as any,
+      'client_id'
+    ).value;
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
+      clientId,
     };
   }
 
