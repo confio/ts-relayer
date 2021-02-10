@@ -112,6 +112,9 @@ func (coord *Coordinator) CreateConnection(
    * Writes the latest header from the sender chain to the other endpoint
    *
    * @param sender Which side we get the header/commit from
+   *
+   * TODO: replace with heartbeat which checks if needed and updates
+   * Just needs trusting period on both side
    */
   public async updateClient(sender: Side): Promise<void> {
     const { src, dest } = this.getEnds(sender);
@@ -126,7 +129,8 @@ func (coord *Coordinator) CreateConnection(
     _sender: Side,
     _srcPort: string,
     _destPort: string,
-    _order: string
+    _order: string,
+    _version: string
   ): Promise<ChannelPair> {
     throw new Error('unimplemented');
   }

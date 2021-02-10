@@ -29,7 +29,9 @@ import {
 import {
   ClientState as TendermintClientState,
   ConsensusState as TendermintConsensusState,
+  Header as TendermintHeader,
 } from '../codec/ibc/lightclients/tendermint/v1/tendermint';
+import { Commit, SignedHeader } from '../codec/tendermint/types/types';
 
 import { IbcExtension, setupIbcExtension } from './queries/ibc';
 
@@ -99,8 +101,47 @@ export class IbcClient {
     return this.tm.commit(height);
   }
 
+  public async getSignedHeader(
+    height?: number
+  ): Promise<{ height: number; signedHeader: SignedHeader }> {
+    const { header: rpcHeader, commit: rpcCommit } = await this.getCommit(
+      height
+    );
+    const header = TendermintHeader.fromPartial({
+      chainId: rpcHeader.chainId,
+      // TODO
+    });
+    const commit = Commit.fromPartial({
+      height: new Long(rpcHeader.height),
+      round: 1, // ???
+      blockId: rpcCommit.blockId,
+      // TODO
+      signatures: rpcCommit.signatures,
+    });
+    return {
+      height: rpcHeader.height,
+      signedHeader: { header, commit },
+    };
+  }
+
   public getChainId(): Promise<string> {
     return this.sign.getChainId();
+  }
+
+  // this builds a header to update a remote client.
+  // you must pass the last known height on the remote side so we can properly generate it.
+  // it will update to the latest state of this chain.
+  public async buildHeader(lastHeight: number): Promise<TendermintHeader> {
+    const { height, signedHeader } = await this.getSignedHeader();
+    return TendermintHeader.fromPartial({
+      signedHeader,
+      validatorSet: await this.getValidatorSet(height),
+      trustedHeight: {
+        revisionHeight: new Long(lastHeight),
+        revisionNumber: new Long(0), // TODO
+      },
+      trustedValidators: await this.getValidatorSet(lastHeight),
+    });
   }
 
   public async createTendermintClient(
@@ -132,6 +173,50 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [createMsg],
+      fee
+    );
+    if (isBroadcastTxFailure(result)) {
+      throw new Error(createBroadcastTxErrorMessage(result));
+    }
+    // TODO: return clientId
+    const parsedLogs = parseRawLog(result.rawLog);
+    // const contractAddressAttr = logs.findAttribute(
+    //   parsedLogs,
+    //   'message',
+    //   'contract_address'
+    // );
+    return {
+      logs: parsedLogs,
+      transactionHash: result.transactionHash,
+    };
+  }
+
+  public async updateTendermintClient(
+    senderAddress: string,
+    clientId: string,
+    header: TendermintHeader
+  ): Promise<MsgResult> {
+    const updateMsg = {
+      typeUrl: '/ibc.core.client.v1.MsgUpdateClient',
+      value: MsgUpdateClient.fromPartial({
+        signer: senderAddress,
+        clientId,
+        header: {
+          typeUrl: '/ibc.lightclients.tendermint.v1.Header',
+          value: TendermintHeader.encode(header).finish(),
+        },
+      }),
+    };
+
+    // TODO: use lookup table, proper values here
+    const fee: StdFee = {
+      amount: coins(5000, 'ucosm'),
+      gas: '1000000',
+    };
+
+    const result = await this.sign.signAndBroadcast(
+      senderAddress,
+      [updateMsg],
       fee
     );
     if (isBroadcastTxFailure(result)) {
