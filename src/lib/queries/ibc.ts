@@ -19,6 +19,7 @@ import {
 } from '../../codec/ibc/core/channel/v1/query';
 import {
   QueryClientImpl as ClientQuery,
+  QueryClientStateResponse,
   QueryClientStatesResponse,
 } from '../../codec/ibc/core/client/v1/query';
 import {
@@ -53,6 +54,9 @@ export interface IbcExtension {
       // Queries for ibc.core.channel.v1
       readonly clientStates: () => Promise<QueryClientStatesResponse>;
       readonly clientState: (
+        clientId: string
+      ) => Promise<QueryClientStateResponse>;
+      readonly clientStateTm: (
         clientId: string
       ) => Promise<TendermintClientState>;
       readonly channel: (
@@ -179,8 +183,11 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
         clientStates: () => {
           return clientQueryService.ClientStates({});
         },
-        // TODO: add a non-parsing version, so we get the raw data and proof
-        clientState: async (clientId: string) => {
+        // TODO: how to pass in a query height over rpc?
+        clientState: (clientId: string) => {
+          return clientQueryService.ClientState({ clientId });
+        },
+        clientStateTm: async (clientId: string) => {
           const res = await clientQueryService.ClientState({ clientId });
           if (
             res.clientState?.typeUrl !==
