@@ -125,8 +125,25 @@ export class IbcClient {
     return { header, commit };
   }
 
-  public async getValidatorSet(_height: number): Promise<ValidatorSet> {
-    throw new Error('not yet implemented');
+  public async getValidatorSet(height: number): Promise<ValidatorSet> {
+    const validators = await this.tm.validators(height);
+    const mappedValidators = validators.results.map((val) => ({
+      address: val.address,
+      // TODO: map to handle secp as well (check val.pubkey.type)
+      pubKey: {
+        ed25519: val.pubkey.data,
+      },
+      votingPower: new Long(val.votingPower),
+      proposerPriority: new Long(0), // TODO
+    }));
+    const totalPower = validators.results.reduce(
+      (x, v) => x + v.votingPower,
+      0
+    );
+    return ValidatorSet.fromPartial({
+      validators: mappedValidators,
+      totalVotingPower: new Long(totalPower),
+    });
   }
 
   public getChainId(): Promise<string> {
