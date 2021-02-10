@@ -9,7 +9,7 @@ import {
   wasmd,
 } from './testutils.spec';
 
-test.serial('create simapp client on wasmd', async (t) => {
+test.only('create simapp client on wasmd', async (t) => {
   // create apps and fund an account
   const mnemonic = generateMnemonic();
   const { client: src } = await signingClient(simapp, mnemonic);

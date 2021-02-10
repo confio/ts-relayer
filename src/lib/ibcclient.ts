@@ -152,7 +152,7 @@ export class IbcClient {
 
 export function buildConsensusState(header: Header): TendermintConsensusState {
   return TendermintConsensusState.fromPartial({
-    timestamp: new Date(header.time.getMilliseconds()),
+    timestamp: new Date(header.time.getTime()),
     root: {
       hash: header.appHash,
     },
