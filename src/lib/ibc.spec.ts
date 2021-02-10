@@ -9,7 +9,7 @@ import {
   wasmd,
 } from './testutils.spec';
 
-test.only('create simapp client on wasmd', async (t) => {
+test.serial('create simapp client on wasmd', async (t) => {
   // create apps and fund an account
   const mnemonic = generateMnemonic();
   const { client: src } = await signingClient(simapp, mnemonic);
@@ -17,7 +17,7 @@ test.only('create simapp client on wasmd', async (t) => {
   await fundAccount(wasmd, address, '100000');
 
   const preClients = await dest.query.ibc.unverified.clientStates();
-  t.is(preClients.clientStates.length, 0);
+  const preLen = preClients.clientStates.length;
 
   const header = await src.latestHeader();
   const conState = buildConsensusState(header);
@@ -30,5 +30,5 @@ test.only('create simapp client on wasmd', async (t) => {
   await dest.createTendermintClient(address, cliState, conState);
 
   const postClients = await dest.query.ibc.unverified.clientStates();
-  t.is(postClients.clientStates.length, 1);
+  t.is(postClients.clientStates.length, preLen + 1);
 });
