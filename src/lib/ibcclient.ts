@@ -31,7 +31,12 @@ import {
   ConsensusState as TendermintConsensusState,
   Header as TendermintHeader,
 } from '../codec/ibc/lightclients/tendermint/v1/tendermint';
-import { Commit, Header, SignedHeader } from '../codec/tendermint/types/types';
+import {
+  blockIDFlagFromJSON,
+  Commit,
+  Header,
+  SignedHeader,
+} from '../codec/tendermint/types/types';
 import { ValidatorSet } from '../codec/tendermint/types/validator';
 
 import { IbcExtension, setupIbcExtension } from './queries/ibc';
@@ -119,12 +124,15 @@ export class IbcClient {
       height: new Long(rpcHeader.height),
       time: new Date(rpcHeader.time.getTime()),
     });
+    const signatures = rpcCommit.signatures.map((sig) => ({
+      ...sig,
+      blockIdFlag: blockIDFlagFromJSON(sig.blockIdFlag),
+    }));
     const commit = Commit.fromPartial({
       height: new Long(rpcHeader.height),
       round: 1, // ???
       blockId: rpcCommit.blockId,
-      // TODO
-      // signatures: rpcCommit.signatures,
+      signatures,
     });
     return { header, commit };
   }
