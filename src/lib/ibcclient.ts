@@ -11,9 +11,8 @@ import {
   setupAuthExtension,
   setupBankExtension,
   SigningStargateClient,
+  SigningStargateClientOptions,
 } from '@cosmjs/stargate';
-// TODO: this is wrong, expose in top level
-import { SigningStargateClientOptions } from '@cosmjs/stargate/types/signingstargateclient';
 import {
   adaptor34,
   CommitResponse,
@@ -25,7 +24,7 @@ import Long from 'long';
 import { HashOp, LengthOp } from '../codec/confio/proofs';
 import {
   MsgCreateClient,
-  // MsgUpdateClient,
+  MsgUpdateClient,
 } from '../codec/ibc/core/client/v1/tx';
 import {
   ClientState as TendermintClientState,
@@ -37,8 +36,8 @@ import { IbcExtension, setupIbcExtension } from './queries/ibc';
 function ibcRegistry(): Registry {
   return new Registry([
     ...defaultRegistryTypes,
-    // ['/ibc.core.client.v1.MsgCreateClient', MsgCreateClient],
-    // ['/ibc.core.client.v1.MsgUpdateClient', MsgUpdateClient],
+    ['/ibc.core.client.v1.MsgCreateClient', MsgCreateClient],
+    ['/ibc.core.client.v1.MsgUpdateClient', MsgUpdateClient],
   ]);
 }
 

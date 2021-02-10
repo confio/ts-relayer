@@ -3,8 +3,11 @@ import { Bip39, Random } from '@cosmjs/crypto';
 import { Bech32 } from '@cosmjs/encoding';
 import { Decimal } from '@cosmjs/math';
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
-import { isBroadcastTxFailure, StargateClient } from '@cosmjs/stargate';
-import { SigningStargateClientOptions } from '@cosmjs/stargate/types/signingstargateclient';
+import {
+  isBroadcastTxFailure,
+  SigningStargateClientOptions,
+  StargateClient,
+} from '@cosmjs/stargate';
 import test from 'ava';
 
 import { IbcClient } from './ibcclient';
