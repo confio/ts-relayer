@@ -148,6 +148,10 @@ export function randomAddress(prefix: string): string {
   return Bech32.encode(prefix, random);
 }
 
+export async function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 test('query account balance - simapp', async (t) => {
   const client = await queryClient(simapp);
   const account = await client.getAllBalancesUnverified(simapp.unused.address);
