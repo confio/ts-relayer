@@ -22,6 +22,8 @@ source "$SCRIPT_DIR"/env
 docker volume rm -f simapp_data
 docker pull "$REPOSITORY:$VERSION"
 
+echo "starting simd running on http://localhost:$TENDERMINT_PORT_HOST"
+
 docker run --rm \
   --name "$CONTAINER_NAME" \
   -p "$TENDERMINT_PORT_HOST":"$TENDERMINT_PORT_GUEST" \
@@ -30,6 +32,4 @@ docker run --rm \
   --mount type=volume,source=simapp_data,target=/root \
   "$REPOSITORY:$VERSION" \
   /template/run_simd.sh \
-  2>&1 | grep 'Executed block' &
-
-echo "simd running on http://localhost:$TENDERMINT_PORT_HOST"
+  2>&1 | grep 'Executed block'
