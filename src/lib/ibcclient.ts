@@ -1,3 +1,4 @@
+import { toAscii } from '@cosmjs/encoding';
 import { coins, logs, StdFee } from '@cosmjs/launchpad';
 import { OfflineSigner, Registry } from '@cosmjs/proto-signing';
 import {
@@ -23,7 +24,9 @@ import {
 import Long from 'long';
 
 import { HashOp, LengthOp } from '../codec/confio/proofs';
+import { Any } from '../codec/google/protobuf/any';
 import { Timestamp } from '../codec/google/protobuf/timestamp';
+import { Height } from '../codec/ibc/core/client/v1/client';
 import {
   MsgCreateClient,
   MsgUpdateClient,
@@ -31,8 +34,7 @@ import {
 import { Version } from '../codec/ibc/core/connection/v1/connection';
 import {
   MsgConnectionOpenInit,
-  // MsgConnectionOpenInitResponse,
-  // MsgConnectionOpenTry,
+  MsgConnectionOpenTry,
 } from '../codec/ibc/core/connection/v1/tx';
 import {
   ClientState as TendermintClientState,
@@ -48,6 +50,17 @@ import {
 import { ValidatorSet } from '../codec/tendermint/types/validator';
 
 import { IbcExtension, setupIbcExtension } from './queries/ibc';
+
+// these are from the cosmos sdk implementation
+const defaultMerklePrefix = {
+  keyPrefix: toAscii('ibc'),
+};
+const defaultConnectionVersion: Version = {
+  identifier: '1',
+  features: ['ORDER_ORDERED', 'ORDER_UNORDERED'],
+};
+// this is a sane default, but we can revisit it
+const defaultDelayPeriod = new Long(0);
 
 function ibcRegistry(): Registry {
   return new Registry([
@@ -78,6 +91,21 @@ export type CreateClientResult = MsgResult & {
 export type CreateConnectionResult = MsgResult & {
   readonly connectionId: string;
 };
+
+interface ConnectionHandshakeProof {
+  clientId: string;
+  connectionId: string;
+  clientState?: Any;
+  proofHeight?: Height;
+  // proof of the initialization the connection on Chain A: `UNITIALIZED ->
+  // INIT`
+  proofInit: Uint8Array;
+  // proof of client state included in message
+  proofClient: Uint8Array;
+  // proof of client consensus state
+  proofConsensus: Uint8Array;
+  consensusHeight?: Height;
+}
 
 function createBroadcastTxErrorMessage(result: BroadcastTxFailure): string {
   return `Error when broadcasting tx ${result.transactionHash} at height ${result.height}. Code: ${result.code}; Raw log: ${result.rawLog}`;
@@ -119,6 +147,10 @@ export class IbcClient {
       setupBankExtension,
       setupIbcExtension
     );
+  }
+
+  public getChainId(): Promise<string> {
+    return this.sign.getChainId();
   }
 
   public async latestHeader(): Promise<RpcHeader> {
@@ -185,10 +217,6 @@ export class IbcClient {
     });
   }
 
-  public getChainId(): Promise<string> {
-    return this.sign.getChainId();
-  }
-
   // this builds a header to update a remote client.
   // you must pass the last known height on the remote side so we can properly generate it.
   // it will update to the latest state of this chain.
@@ -212,6 +240,38 @@ export class IbcClient {
       },
       trustedValidators: await this.getValidatorSet(lastHeight),
     });
+  }
+
+  public async getConnectionProof(
+    clientId: string,
+    connectionId: string
+  ): Promise<ConnectionHandshakeProof> {
+    // TODO
+    const consensusHeight = Height.fromPartial({
+      revisionHeight: new Long(123),
+    });
+    const proofInit = toAscii('TODO');
+    const proofConsensus = toAscii('TODO');
+
+    const {
+      clientState,
+      proof: proofClient,
+      proofHeight,
+    } = await this.query.ibc.unverified.clientState(clientId);
+    console.error('client proof');
+    console.error(proofHeight);
+    console.error(proofClient);
+
+    return {
+      clientId,
+      connectionId,
+      clientState,
+      proofHeight,
+      proofInit,
+      proofClient,
+      proofConsensus,
+      consensusHeight,
+    };
   }
 
   public async createTendermintClient(
@@ -309,17 +369,18 @@ export class IbcClient {
   public async connOpenInit(
     senderAddress: string,
     clientId: string,
-    // counterparty: Counterparty, // clientId, connectionId??
-    version: Version, // indentifier and features? what is default?
-    delayPeriod: Long
+    remoteClientId: string
   ): Promise<CreateConnectionResult> {
     const createMsg = {
       typeUrl: '/ibc.core.connection.v1.MsgConnectionOpenInit',
       value: MsgConnectionOpenInit.fromPartial({
         clientId,
-        // counterparty,
-        version,
-        delayPeriod,
+        counterparty: {
+          clientId: remoteClientId,
+          prefix: defaultMerklePrefix,
+        },
+        version: defaultConnectionVersion,
+        delayPeriod: defaultDelayPeriod,
         signer: senderAddress,
       }),
     };
@@ -352,6 +413,92 @@ export class IbcClient {
       connectionId,
     };
   }
+
+  public async connOpenTry(
+    senderAddress: string,
+    myClientId: string,
+    proof: ConnectionHandshakeProof
+  ): Promise<CreateConnectionResult> {
+    const {
+      clientId,
+      connectionId,
+      clientState,
+      proofHeight,
+      proofInit,
+      proofClient,
+      proofConsensus,
+      consensusHeight,
+    } = proof;
+    const createMsg = {
+      typeUrl: '/ibc.core.connection.v1.MsgConnectionOpenTry',
+      value: MsgConnectionOpenTry.fromPartial({
+        clientId: myClientId,
+        counterparty: {
+          clientId: clientId,
+          connectionId: connectionId,
+          prefix: defaultMerklePrefix,
+        },
+        delayPeriod: defaultDelayPeriod,
+        counterpartyVersions: [defaultConnectionVersion],
+        signer: senderAddress,
+        clientState,
+        proofHeight,
+        proofInit,
+        proofClient,
+        proofConsensus,
+        consensusHeight,
+      }),
+    };
+
+    // TODO: use lookup table, proper values here
+    const fee: StdFee = {
+      amount: coins(5000, 'ucosm'),
+      gas: '1000000',
+    };
+
+    const result = await this.sign.signAndBroadcast(
+      senderAddress,
+      [createMsg],
+      fee
+    );
+    if (isBroadcastTxFailure(result)) {
+      throw new Error(createBroadcastTxErrorMessage(result));
+    }
+    const parsedLogs = parseRawLog(result.rawLog);
+    const myConnectionId = logs.findAttribute(
+      parsedLogs,
+      // TODO: they enforce 'message' | 'transfer'
+      /* eslint @typescript-eslint/no-explicit-any: "off" */
+      'connection_open_try' as any,
+      'connection_id'
+    ).value;
+    return {
+      logs: parsedLogs,
+      transactionHash: result.transactionHash,
+      connectionId: myConnectionId,
+    };
+  }
+}
+
+export interface CreateClientArgs {
+  clientState: TendermintClientState;
+  consensusState: TendermintConsensusState;
+}
+
+export async function buildCreateClientArgs(
+  src: IbcClient,
+  unbondingPeriodSec: number,
+  trustPeriodSec: number
+): Promise<CreateClientArgs> {
+  const header = await src.latestHeader();
+  const consensusState = buildConsensusState(header);
+  const clientState = buildClientState(
+    await src.getChainId(),
+    unbondingPeriodSec,
+    trustPeriodSec,
+    header.height
+  );
+  return { consensusState, clientState };
 }
 
 export function buildConsensusState(
