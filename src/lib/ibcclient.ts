@@ -16,7 +16,7 @@ import {
 import {
   adaptor34,
   CommitResponse,
-  Header,
+  Header as RpcHeader,
   Client as TendermintClient,
 } from '@cosmjs/tendermint-rpc';
 import Long from 'long';
@@ -31,7 +31,8 @@ import {
   ConsensusState as TendermintConsensusState,
   Header as TendermintHeader,
 } from '../codec/ibc/lightclients/tendermint/v1/tendermint';
-import { Commit, SignedHeader } from '../codec/tendermint/types/types';
+import { Commit, Header, SignedHeader } from '../codec/tendermint/types/types';
+import { ValidatorSet } from '../codec/tendermint/types/validator';
 
 import { IbcExtension, setupIbcExtension } from './queries/ibc';
 
@@ -92,7 +93,7 @@ export class IbcClient {
     );
   }
 
-  public async latestHeader(): Promise<Header> {
+  public async latestHeader(): Promise<RpcHeader> {
     const block = await this.tm.block();
     return block.block.header;
   }
@@ -101,27 +102,31 @@ export class IbcClient {
     return this.tm.commit(height);
   }
 
-  public async getSignedHeader(
-    height?: number
-  ): Promise<{ height: number; signedHeader: SignedHeader }> {
+  public async getSignedHeader(height?: number): Promise<SignedHeader> {
+    // throw new Error('not yet implemented!');
     const { header: rpcHeader, commit: rpcCommit } = await this.getCommit(
       height
     );
-    const header = TendermintHeader.fromPartial({
-      chainId: rpcHeader.chainId,
-      // TODO
+    const header = Header.fromPartial({
+      ...rpcHeader,
+      version: {
+        block: new Long(rpcHeader.version.block),
+      },
+      height: new Long(rpcHeader.height),
+      time: new Date(rpcHeader.time.getTime()),
     });
     const commit = Commit.fromPartial({
       height: new Long(rpcHeader.height),
       round: 1, // ???
       blockId: rpcCommit.blockId,
       // TODO
-      signatures: rpcCommit.signatures,
+      // signatures: rpcCommit.signatures,
     });
-    return {
-      height: rpcHeader.height,
-      signedHeader: { header, commit },
-    };
+    return { header, commit };
+  }
+
+  public async getValidatorSet(_height: number): Promise<ValidatorSet> {
+    throw new Error('not yet implemented');
   }
 
   public getChainId(): Promise<string> {
@@ -132,10 +137,12 @@ export class IbcClient {
   // you must pass the last known height on the remote side so we can properly generate it.
   // it will update to the latest state of this chain.
   public async buildHeader(lastHeight: number): Promise<TendermintHeader> {
-    const { height, signedHeader } = await this.getSignedHeader();
+    const signedHeader = await this.getSignedHeader();
+    /* eslint @typescript-eslint/no-non-null-assertion: "off" */
+    const curHeight = signedHeader.header!.height.toNumber();
     return TendermintHeader.fromPartial({
       signedHeader,
-      validatorSet: await this.getValidatorSet(height),
+      validatorSet: await this.getValidatorSet(curHeight),
       trustedHeight: {
         revisionHeight: new Long(lastHeight),
         revisionNumber: new Long(0), // TODO
@@ -235,7 +242,9 @@ export class IbcClient {
   }
 }
 
-export function buildConsensusState(header: Header): TendermintConsensusState {
+export function buildConsensusState(
+  header: RpcHeader
+): TendermintConsensusState {
   return TendermintConsensusState.fromPartial({
     timestamp: new Date(header.time.getTime()),
     root: {
