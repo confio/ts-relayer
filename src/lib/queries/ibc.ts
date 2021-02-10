@@ -3,6 +3,7 @@ import { Uint64 } from '@cosmjs/math';
 import { createPagination, createRpc, QueryClient } from '@cosmjs/stargate';
 import Long from 'long';
 
+import { Any } from '../../codec/google/protobuf/any';
 import { Channel } from '../../codec/ibc/core/channel/v1/channel';
 import {
   QueryClientImpl as ChannelQuery,
@@ -17,6 +18,7 @@ import {
   QueryUnreceivedAcksResponse,
   QueryUnreceivedPacketsResponse,
 } from '../../codec/ibc/core/channel/v1/query';
+import { Height } from '../../codec/ibc/core/client/v1/client';
 import {
   QueryClientImpl as ClientQuery,
   QueryClientStateResponse,
@@ -29,6 +31,7 @@ import {
   QueryConnectionsResponse,
 } from '../../codec/ibc/core/connection/v1/query';
 import { ClientState as TendermintClientState } from '../../codec/ibc/lightclients/tendermint/v1/tendermint';
+import { ProofOps } from '../../codec/tendermint/crypto/proof';
 
 export interface IbcExtension {
   readonly ibc: {
@@ -59,6 +62,9 @@ export interface IbcExtension {
       readonly clientStateTm: (
         clientId: string
       ) => Promise<TendermintClientState>;
+      readonly clientStateWithProof: (
+        clientId: string
+      ) => Promise<QueryClientStateResponse>;
       readonly channel: (
         portId: string,
         channelId: string
@@ -186,6 +192,22 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
         // TODO: how to pass in a query height over rpc?
         clientState: (clientId: string) => {
           return clientQueryService.ClientState({ clientId });
+        },
+        clientStateWithProof: async (clientId: string) => {
+          const key = `clients/${clientId}/clientState`;
+          const proven = await base.queryRawProof('ibc', toAscii(key));
+          console.error(proven);
+
+          const clientState = Any.decode(proven.value);
+          const proof = ProofOps.encode(proven.proof).finish();
+          const proofHeight = Height.fromPartial({
+            revisionHeight: new Long(proven.height),
+          });
+          return {
+            clientState,
+            proof,
+            proofHeight,
+          };
         },
         clientStateTm: async (clientId: string) => {
           const res = await clientQueryService.ClientState({ clientId });
