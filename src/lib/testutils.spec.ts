@@ -1,15 +1,16 @@
 // This file outputs some basic test functionality, and includes tests that they work
-import { Random } from '@cosmjs/crypto';
+import { Bip39, Random } from '@cosmjs/crypto';
 import { Bech32 } from '@cosmjs/encoding';
 import { Decimal } from '@cosmjs/math';
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 import {
   isBroadcastTxFailure,
-  SigningStargateClient,
+  SigningStargateClientOptions,
   StargateClient,
 } from '@cosmjs/stargate';
-import { SigningStargateClientOptions } from '@cosmjs/stargate/types/signingstargateclient';
 import test from 'ava';
+
+import { IbcClient } from './ibcclient';
 
 export const simapp = {
   tendermintUrlWs: 'ws://localhost:26658',
@@ -89,7 +90,7 @@ type FundingOpts = SigningOpts & {
 };
 
 interface SigningInfo {
-  client: SigningStargateClient;
+  client: IbcClient;
   address: string;
 }
 
@@ -114,7 +115,7 @@ export async function signingClient(
       denom: opts.denomFee,
     },
   };
-  const client = await SigningStargateClient.connectWithSigner(
+  const client = await IbcClient.connectWithSigner(
     opts.tendermintUrlHttp,
     signer,
     options
@@ -132,10 +133,14 @@ export async function fundAccount(
     amount,
     denom: opts.denomFee,
   };
-  const resp = await client.sendTokens(address, rcpt, [feeTokens]);
+  const resp = await client.sign.sendTokens(address, rcpt, [feeTokens]);
   if (isBroadcastTxFailure(resp)) {
     throw new Error(`funding failed (${resp.code}) ${resp.rawLog}`);
   }
+}
+
+export function generateMnemonic(): string {
+  return Bip39.encode(Random.getBytes(16)).toString();
 }
 
 export function randomAddress(prefix: string): string {
