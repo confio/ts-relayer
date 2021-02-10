@@ -13,16 +13,17 @@ SCRIPT_DIR="$(realpath "$(dirname "$0")")"
 # shellcheck disable=SC1091
 source "$SCRIPT_DIR"/env
 
-TMP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/wasmd.XXXXXXXXX")
-chmod 777 "$TMP_DIR"
-echo "Using temporary dir $TMP_DIR"
-WASMD_LOGFILE="$TMP_DIR/wasmd.log"
+# TMP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/wasmd.XXXXXXXXX")
+# chmod 777 "$TMP_DIR"
+# echo "Using temporary dir $TMP_DIR"
+# WASMD_LOGFILE="$TMP_DIR/wasmd.log"
 
 # Use a fresh volume for every start
 docker volume rm -f wasmd_data
 docker pull "$REPOSITORY:$VERSION"
 
 # This starts up wasmd
+echo "starting wasmd with rpc on port $TENDERMINT_PORT_HOST"
 docker run --rm \
   --name "$CONTAINER_NAME" \
   -p "$TENDERMINT_PORT_HOST":"$TENDERMINT_PORT_GUEST" \
@@ -31,26 +32,4 @@ docker run --rm \
   --mount type=volume,source=wasmd_data,target=/root \
   "$REPOSITORY:$VERSION" \
   ./run_wasmd.sh /template \
-  >"$WASMD_LOGFILE" &
-
-echo "wasmd running and logging into $WASMD_LOGFILE"
-
-# Debug chain start
-# sleep 3 && cat "$WASMD_LOGFILE"
-
-# Use a large timeout because of potentially long image download in `docker run`
-if ! timeout 180 bash -c "until [ \"\$( docker container inspect -f '{{.State.Status}}' \"$CONTAINER_NAME\" 2> /dev/null )\" = \"running\" ]; do sleep 0.5; done"; then
-  echo "Container named '$CONTAINER_NAME' not running. We cannot continue." \
-    "This can happen when 'docker run' needs too long to download and start." \
-    "It might be worth retrying this step once the image is in the local docker cache."
-  docker kill "$CONTAINER_NAME"
-  exit 1
-fi
-
-if [ -n "${CI:-}" ]; then
-  # Give process some time to come alive. No idea why this helps. Needed for CI.
-  sleep 0.5
-
-  # Follow the logs in CI's background job
-  tail -f "$WASMD_LOGFILE"
-fi
+  2>&1 | grep 'Executed block'
