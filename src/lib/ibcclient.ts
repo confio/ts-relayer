@@ -29,6 +29,12 @@ import {
   MsgCreateClient,
   MsgUpdateClient,
 } from '../codec/ibc/core/client/v1/tx';
+import { Version } from '../codec/ibc/core/connection/v1/connection';
+import {
+  MsgConnectionOpenInit,
+  // MsgConnectionOpenInitResponse,
+  // MsgConnectionOpenTry,
+} from '../codec/ibc/core/connection/v1/tx';
 import {
   ClientState as TendermintClientState,
   ConsensusState as TendermintConsensusState,
@@ -67,8 +73,12 @@ export interface MsgResult {
   readonly transactionHash: string;
 }
 
-export type CreateMsgResult = MsgResult & {
+export type CreateClientResult = MsgResult & {
   readonly clientId: string;
+};
+
+export type CreateConnectionResult = MsgResult & {
+  readonly connectionId: string;
 };
 
 function createBroadcastTxErrorMessage(result: BroadcastTxFailure): string {
@@ -233,7 +243,7 @@ export class IbcClient {
     senderAddress: string,
     clientState: TendermintClientState,
     consensusState: TendermintConsensusState
-  ): Promise<CreateMsgResult> {
+  ): Promise<CreateClientResult> {
     const createMsg = {
       typeUrl: '/ibc.core.client.v1.MsgCreateClient',
       value: MsgCreateClient.fromPartial({
@@ -318,6 +328,53 @@ export class IbcClient {
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
+    };
+  }
+
+  public async connOpenInit(
+    senderAddress: string,
+    clientId: string,
+    // counterparty: Counterparty, // clientId, connectionId??
+    version: Version, // indentifier and features? what is default?
+    delayPeriod: Long
+  ): Promise<CreateConnectionResult> {
+    const createMsg = {
+      typeUrl: '/ibc.core.connection.v1.MsgConnectionOpenInit',
+      value: MsgConnectionOpenInit.fromPartial({
+        clientId,
+        // counterparty,
+        version,
+        delayPeriod,
+        signer: senderAddress,
+      }),
+    };
+
+    // TODO: use lookup table, proper values here
+    const fee: StdFee = {
+      amount: coins(5000, 'ucosm'),
+      gas: '1000000',
+    };
+
+    const result = await this.sign.signAndBroadcast(
+      senderAddress,
+      [createMsg],
+      fee
+    );
+    if (isBroadcastTxFailure(result)) {
+      throw new Error(createBroadcastTxErrorMessage(result));
+    }
+    const parsedLogs = parseRawLog(result.rawLog);
+    const connectionId = logs.findAttribute(
+      parsedLogs,
+      // TODO: they enforce 'message' | 'transfer'
+      /* eslint @typescript-eslint/no-explicit-any: "off" */
+      'connection_open_init' as any,
+      'connection_id'
+    ).value;
+    return {
+      logs: parsedLogs,
+      transactionHash: result.transactionHash,
+      connectionId,
     };
   }
 }
