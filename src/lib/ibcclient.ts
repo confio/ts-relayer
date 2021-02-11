@@ -144,18 +144,6 @@ export class IbcClient {
       timestamp: sig.timestamp && timestampFromDateNanos(sig.timestamp),
       blockIdFlag: blockIDFlagFromJSON(sig.blockIdFlag),
     }));
-    // debug
-    console.error('sig and address');
-    signatures.forEach((sig) => {
-      console.error(
-        `sig: ${sig.signature.length}, addr: ${sig.validatorAddress.length}`
-      );
-      // TODO: I need nanoseconds here
-      console.error(sig.timestamp);
-      console.error(toHex(sig.signature));
-      console.error(toHex(sig.validatorAddress));
-    });
-
     const commit = Commit.fromPartial({
       height: new Long(rpcCommit.height),
       round: rpcCommit.round,
@@ -165,7 +153,6 @@ export class IbcClient {
       },
       signatures,
     });
-    console.error(commit);
     // For the vote sign bytes, it checks (from the commit):
     //   Height, Round, BlockId, TimeStamp, ChainID
 

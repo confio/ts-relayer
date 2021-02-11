@@ -35,7 +35,7 @@ test.serial('create simapp client on wasmd', async (t) => {
   t.is(postClients.clientStates.length, preLen + 1);
 });
 
-test.only('update simapp client on wasmd', async (t) => {
+test.serial('update simapp client on wasmd', async (t) => {
   // create apps and fund an account
   const mnemonic = generateMnemonic();
   const { client: src } = await signingClient(simapp, mnemonic);
@@ -60,8 +60,7 @@ test.only('update simapp client on wasmd', async (t) => {
   t.is(state.latestHeight?.revisionHeight.toNumber(), header.height);
 
   // wait for a few blocks, then try
-  console.error(`created client ${clientId}`);
-  await sleep(4000);
+  await sleep(1500);
   const newHeader = await src.buildHeader(header.height);
   const newHeight = newHeader.signedHeader?.header?.height;
   t.not(newHeight?.toNumber(), header.height);
@@ -69,6 +68,16 @@ test.only('update simapp client on wasmd', async (t) => {
 
   // any other checks?
   const upstate = await dest.query.ibc.unverified.clientState(clientId);
-  console.error(upstate);
-  t.is(state.latestHeight?.revisionHeight, newHeight);
+  t.assert(sameLong(upstate.latestHeight?.revisionHeight, newHeight));
 });
+
+// handles both as optional fields, does Long.equal to ignore signed/unsigned difference
+function sameLong(a?: Long, b?: Long) {
+  if (a === undefined) {
+    return false;
+  }
+  if (b === undefined) {
+    return false;
+  }
+  return a.equals(b);
+}
