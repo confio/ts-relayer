@@ -15,13 +15,12 @@ export interface App {
 }
 
 /**
- * Consensus captures the consensus rules for processing a block in the blockchain,
- * including all blockchain data structures and the rules of the application's
- * state transition machine.
+ * Consensus captures the consensus rules for processing a block in the
+ * blockchain, including all blockchain data structures and the rules of the
+ * application's state transition machine.
  */
 export interface Consensus {
   block: Long;
-  app: Long;
 }
 
 const baseApp: object = { protocol: Long.UZERO, software: '' };
@@ -93,7 +92,7 @@ export const App = {
   },
 };
 
-const baseConsensus: object = { block: Long.UZERO, app: Long.UZERO };
+const baseConsensus: object = { block: Long.UZERO };
 
 export const Consensus = {
   encode(
@@ -101,7 +100,6 @@ export const Consensus = {
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
     writer.uint32(8).uint64(message.block);
-    writer.uint32(16).uint64(message.app);
     return writer;
   },
 
@@ -114,9 +112,6 @@ export const Consensus = {
       switch (tag >>> 3) {
         case 1:
           message.block = reader.uint64() as Long;
-          break;
-        case 2:
-          message.app = reader.uint64() as Long;
           break;
         default:
           reader.skipType(tag & 7);
@@ -133,11 +128,6 @@ export const Consensus = {
     } else {
       message.block = Long.UZERO;
     }
-    if (object.app !== undefined && object.app !== null) {
-      message.app = Long.fromString(object.app);
-    } else {
-      message.app = Long.UZERO;
-    }
     return message;
   },
 
@@ -148,11 +138,6 @@ export const Consensus = {
     } else {
       message.block = Long.UZERO;
     }
-    if (object.app !== undefined && object.app !== null) {
-      message.app = object.app as Long;
-    } else {
-      message.app = Long.UZERO;
-    }
     return message;
   },
 
@@ -160,8 +145,6 @@ export const Consensus = {
     const obj: any = {};
     message.block !== undefined &&
       (obj.block = (message.block || Long.UZERO).toString());
-    message.app !== undefined &&
-      (obj.app = (message.app || Long.UZERO).toString());
     return obj;
   },
 };
