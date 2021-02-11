@@ -1,3 +1,4 @@
+import { toHex } from '@cosmjs/encoding';
 import { coins, logs, StdFee } from '@cosmjs/launchpad';
 import { OfflineSigner, Registry } from '@cosmjs/proto-signing';
 import {
@@ -52,9 +53,10 @@ function ibcRegistry(): Registry {
 }
 
 function timestampFromDateNanos(date: ReadonlyDateWithNanoseconds): Timestamp {
+  const nanos = (date.getTime() % 1000) * 1000000 + (date.nanoseconds ?? 0);
   return Timestamp.fromPartial({
     seconds: new Long(date.getTime() / 1000),
-    nanos: date.nanoseconds || date.getTime() % 1000,
+    nanos,
   });
 }
 
@@ -124,6 +126,8 @@ export class IbcClient {
     const { header: rpcHeader, commit: rpcCommit } = await this.getCommit(
       height
     );
+    console.error(rpcHeader);
+    console.error(toHex(rpcHeader.proposerAddress));
     const header = Header.fromPartial({
       ...rpcHeader,
       version: {
@@ -141,6 +145,7 @@ export class IbcClient {
       timestamp: sig.timestamp && timestampFromDateNanos(sig.timestamp),
       blockIdFlag: blockIDFlagFromJSON(sig.blockIdFlag),
     }));
+    console.error(toHex(signatures[0].signature));
     const commit = Commit.fromPartial({
       height: new Long(rpcHeader.height),
       round: 1, // ???
@@ -151,6 +156,9 @@ export class IbcClient {
   }
 
   public async getValidatorSet(height: number): Promise<ValidatorSet> {
+    // TODO: use header not commit
+    // we need to query the header to find out who the proposer was, and pull them out
+    const { proposerAddress } = (await this.getCommit(height)).header;
     const validators = await this.tm.validators(height);
     const mappedValidators = validators.validators.map((val) => ({
       address: val.address,
@@ -169,9 +177,13 @@ export class IbcClient {
       (x, v) => x + v.votingPower,
       0
     );
+    const proposer = mappedValidators.find(
+      (val) => toHex(val.address) === toHex(proposerAddress)
+    );
     return ValidatorSet.fromPartial({
       validators: mappedValidators,
       totalVotingPower: new Long(totalPower),
+      proposer,
     });
   }
 
@@ -186,13 +198,6 @@ export class IbcClient {
     const signedHeader = await this.getSignedHeader();
     /* eslint @typescript-eslint/no-non-null-assertion: "off" */
     const curHeight = signedHeader.header!.height.toNumber();
-    console.error('header');
-    console.error(curHeight);
-    console.error(signedHeader.header?.lastBlockId?.hash);
-    console.error('commit');
-    console.error(signedHeader.commit?.height);
-    console.error(signedHeader.commit?.blockId?.hash);
-    console.error(signedHeader.header);
     return TendermintHeader.fromPartial({
       signedHeader,
       validatorSet: await this.getValidatorSet(curHeight),
