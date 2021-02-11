@@ -112,7 +112,6 @@ export class IbcClient {
   }
 
   public async getSignedHeader(height?: number): Promise<SignedHeader> {
-    // throw new Error('not yet implemented!');
     const { header: rpcHeader, commit: rpcCommit } = await this.getCommit(
       height
     );
@@ -123,6 +122,10 @@ export class IbcClient {
       },
       height: new Long(rpcHeader.height),
       time: new Date(rpcHeader.time.getTime()),
+      lastBlockId: {
+        hash: rpcHeader.lastBlockId.hash,
+        partSetHeader: rpcHeader.lastBlockId.parts,
+      },
     });
     const signatures = rpcCommit.signatures.map((sig) => ({
       ...sig,
@@ -169,6 +172,13 @@ export class IbcClient {
     const signedHeader = await this.getSignedHeader();
     /* eslint @typescript-eslint/no-non-null-assertion: "off" */
     const curHeight = signedHeader.header!.height.toNumber();
+    console.error('header');
+    console.error(curHeight);
+    console.error(signedHeader.header?.lastBlockId?.hash);
+    console.error('commit');
+    console.error(signedHeader.commit?.height);
+    console.error(signedHeader.commit?.blockId?.hash);
+    console.error(signedHeader.header);
     return TendermintHeader.fromPartial({
       signedHeader,
       validatorSet: await this.getValidatorSet(curHeight),
