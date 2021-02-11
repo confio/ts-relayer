@@ -257,7 +257,7 @@ export class IbcClient {
       clientState,
       proof: proofClient,
       proofHeight,
-    } = await this.query.ibc.unverified.clientStateWithProof(clientId);
+    } = await this.query.ibc.proof.client.state(clientId);
 
     return {
       clientId,
