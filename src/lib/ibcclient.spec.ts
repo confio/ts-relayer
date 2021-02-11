@@ -65,7 +65,8 @@ test.serial('create and update wasmd client on simapp', async (t) => {
   t.is(state.latestHeight?.revisionHeight.toNumber(), header.height);
 
   // wait for a few blocks, then try
-  await sleep(1500);
+  console.error(`created client ${clientId}`);
+  await sleep(1000);
   const newHeader = await src.buildHeader(header.height);
   const newHeight = newHeader.signedHeader?.header?.height;
   t.not(newHeight?.toNumber(), header.height);
@@ -88,7 +89,7 @@ function sameLong(a?: Long, b?: Long) {
 }
 
 // make 2 clients, and try to establish a connection
-test.only('start connection handshake', async (t) => {
+test.serial('start connection handshake', async (t) => {
   // create apps and fund an account
   const mnemonic = generateMnemonic();
   const { address: srcAddress, client: src } = await signingClient(
@@ -109,7 +110,6 @@ test.only('start connection handshake', async (t) => {
     args.clientState,
     args.consensusState
   );
-  console.error(destClientId);
   t.assert(destClientId.startsWith('07-tendermint-'));
 
   // client on src -> dest
@@ -119,7 +119,6 @@ test.only('start connection handshake', async (t) => {
     args2.clientState,
     args2.consensusState
   );
-  console.error(srcClientId);
   t.assert(srcClientId.startsWith('07-tendermint-'));
 
   // getConnectionProof (TODO: much more)
