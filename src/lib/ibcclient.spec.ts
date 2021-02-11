@@ -21,7 +21,7 @@ test.serial('create simapp client on wasmd', async (t) => {
   const { address, client: dest } = await signingClient(wasmd, mnemonic);
   await fundAccount(wasmd, address, '100000');
 
-  const preClients = await dest.query.ibc.unverified.clientStates();
+  const preClients = await dest.query.ibc.client.states();
   const preLen = preClients.clientStates.length;
 
   const header = await src.latestHeader();
@@ -35,7 +35,7 @@ test.serial('create simapp client on wasmd', async (t) => {
   const res = await dest.createTendermintClient(address, cliState, conState);
   t.assert(res.clientId.startsWith('07-tendermint-'));
 
-  const postClients = await dest.query.ibc.unverified.clientStates();
+  const postClients = await dest.query.ibc.client.states();
   t.is(postClients.clientStates.length, preLen + 1);
 });
 
@@ -59,7 +59,7 @@ test.serial('create and update wasmd client on simapp', async (t) => {
     cliState,
     conState
   );
-  const state = await dest.query.ibc.unverified.clientStateTm(clientId);
+  const state = await dest.query.ibc.client.stateTm(clientId);
   console.error(state);
   // TODO: check more details?
   t.is(state.latestHeight?.revisionHeight.toNumber(), header.height);
@@ -73,7 +73,7 @@ test.serial('create and update wasmd client on simapp', async (t) => {
   await dest.updateTendermintClient(address, clientId, newHeader);
 
   // any other checks?
-  const upstate = await dest.query.ibc.unverified.clientStateTm(clientId);
+  const upstate = await dest.query.ibc.client.stateTm(clientId);
   t.assert(sameLong(upstate.latestHeight?.revisionHeight, newHeight));
 });
 
