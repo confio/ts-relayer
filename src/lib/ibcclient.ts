@@ -16,12 +16,14 @@ import {
 import {
   adaptor34,
   CommitResponse,
+  ReadonlyDateWithNanoseconds,
   Header as RpcHeader,
   Client as TendermintClient,
 } from '@cosmjs/tendermint-rpc';
 import Long from 'long';
 
 import { HashOp, LengthOp } from '../codec/confio/proofs';
+import { Timestamp } from '../codec/google/protobuf/timestamp';
 import {
   MsgCreateClient,
   MsgUpdateClient,
@@ -47,6 +49,13 @@ function ibcRegistry(): Registry {
     ['/ibc.core.client.v1.MsgCreateClient', MsgCreateClient],
     ['/ibc.core.client.v1.MsgUpdateClient', MsgUpdateClient],
   ]);
+}
+
+function timestampFromDateNanos(date: ReadonlyDateWithNanoseconds): Timestamp {
+  return Timestamp.fromPartial({
+    seconds: new Long(date.getTime() / 1000),
+    nanos: date.nanoseconds || date.getTime() % 1000,
+  });
 }
 
 /// This is the default message result with no extra data
@@ -121,7 +130,7 @@ export class IbcClient {
         block: new Long(rpcHeader.version.block),
       },
       height: new Long(rpcHeader.height),
-      time: new Date(rpcHeader.time.getTime()),
+      time: timestampFromDateNanos(rpcHeader.time),
       lastBlockId: {
         hash: rpcHeader.lastBlockId.hash,
         partSetHeader: rpcHeader.lastBlockId.parts,
@@ -129,6 +138,7 @@ export class IbcClient {
     });
     const signatures = rpcCommit.signatures.map((sig) => ({
       ...sig,
+      timestamp: sig.timestamp && timestampFromDateNanos(sig.timestamp),
       blockIdFlag: blockIDFlagFromJSON(sig.blockIdFlag),
     }));
     const commit = Commit.fromPartial({
@@ -291,7 +301,7 @@ export function buildConsensusState(
   header: RpcHeader
 ): TendermintConsensusState {
   return TendermintConsensusState.fromPartial({
-    timestamp: new Date(header.time.getTime()),
+    timestamp: timestampFromDateNanos(header.time),
     root: {
       hash: header.appHash,
     },
