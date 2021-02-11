@@ -42,12 +42,12 @@
     "node": ">=12"
   },
   "dependencies": {
-    "@cosmjs/crypto": "0.24.0-alpha.23",
-    "@cosmjs/encoding": "0.24.0-alpha.23",
-    "@cosmjs/math": "0.24.0-alpha.23",
-    "@cosmjs/proto-signing": "0.24.0-alpha.23",
-    "@cosmjs/stargate": "0.24.0-alpha.23",
-    "@cosmjs/tendermint-rpc": "0.24.0-alpha.23",
+    "@cosmjs/crypto": "0.24.0-alpha.24",
+    "@cosmjs/encoding": "0.24.0-alpha.24",
+    "@cosmjs/math": "0.24.0-alpha.24",
+    "@cosmjs/proto-signing": "0.24.0-alpha.24",
+    "@cosmjs/stargate": "0.24.0-alpha.24",
+    "@cosmjs/tendermint-rpc": "0.24.0-alpha.24",
     "@types/node": "^14.14.25",
     "protobufjs": "~6.10.2"
   },

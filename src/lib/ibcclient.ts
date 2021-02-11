@@ -142,16 +142,20 @@ export class IbcClient {
 
   public async getValidatorSet(height: number): Promise<ValidatorSet> {
     const validators = await this.tm.validators(height);
-    const mappedValidators = validators.results.map((val) => ({
+    const mappedValidators = validators.validators.map((val) => ({
       address: val.address,
       // TODO: map to handle secp as well (check val.pubkey.type)
-      pubKey: {
-        ed25519: val.pubkey.data,
-      },
+      pubKey: val.pubkey
+        ? {
+            ed25519: val.pubkey.data,
+          }
+        : undefined,
       votingPower: new Long(val.votingPower),
-      proposerPriority: new Long(0), // TODO
+      proposerPriority: val.proposerPriority
+        ? new Long(val.proposerPriority)
+        : undefined,
     }));
-    const totalPower = validators.results.reduce(
+    const totalPower = validators.validators.reduce(
       (x, v) => x + v.votingPower,
       0
     );
