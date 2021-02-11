@@ -126,8 +126,6 @@ export class IbcClient {
     const { header: rpcHeader, commit: rpcCommit } = await this.getCommit(
       height
     );
-    console.error(rpcHeader);
-    console.error(toHex(rpcHeader.proposerAddress));
     const header = Header.fromPartial({
       ...rpcHeader,
       version: {
@@ -140,18 +138,37 @@ export class IbcClient {
         partSetHeader: rpcHeader.lastBlockId.parts,
       },
     });
+
     const signatures = rpcCommit.signatures.map((sig) => ({
       ...sig,
       timestamp: sig.timestamp && timestampFromDateNanos(sig.timestamp),
       blockIdFlag: blockIDFlagFromJSON(sig.blockIdFlag),
     }));
-    console.error(toHex(signatures[0].signature));
+    // debug
+    console.error('sig and address');
+    signatures.forEach((sig) => {
+      console.error(
+        `sig: ${sig.signature.length}, addr: ${sig.validatorAddress.length}`
+      );
+      // TODO: I need nanoseconds here
+      console.error(sig.timestamp);
+      console.error(toHex(sig.signature));
+      console.error(toHex(sig.validatorAddress));
+    });
+
     const commit = Commit.fromPartial({
-      height: new Long(rpcHeader.height),
-      round: 1, // ???
-      blockId: rpcCommit.blockId,
+      height: new Long(rpcCommit.height),
+      round: rpcCommit.round,
+      blockId: {
+        hash: rpcCommit.blockId.hash,
+        partSetHeader: rpcCommit.blockId.parts,
+      },
       signatures,
     });
+    console.error(commit);
+    // For the vote sign bytes, it checks (from the commit):
+    //   Height, Round, BlockId, TimeStamp, ChainID
+
     return { header, commit };
   }
 
@@ -194,6 +211,17 @@ export class IbcClient {
   // this builds a header to update a remote client.
   // you must pass the last known height on the remote side so we can properly generate it.
   // it will update to the latest state of this chain.
+  //
+  // This is the logic that validates the returned struct:
+  // ibc check: https://github.com/cosmos/cosmos-sdk/blob/v0.41.0/x/ibc/light-clients/07-tendermint/types/update.go#L87-L167
+  // tendermint check: https://github.com/tendermint/tendermint/blob/v0.34.3/light/verifier.go#L19-L79
+  // sign bytes: https://github.com/tendermint/tendermint/blob/v0.34.3/types/validator_set.go#L762-L821
+  //   * https://github.com/tendermint/tendermint/blob/v0.34.3/types/validator_set.go#L807-L810
+  //   * https://github.com/tendermint/tendermint/blob/v0.34.3/types/block.go#L780-L809
+  //   * https://github.com/tendermint/tendermint/blob/bf9e36d02d2eb22f6fe8961d0d7d3d34307ba38e/types/canonical.go#L54-L65
+  //
+  // For the vote sign bytes, it checks (from the commit):
+  //   Height, Round, BlockId, TimeStamp, ChainID
   public async buildHeader(lastHeight: number): Promise<TendermintHeader> {
     const signedHeader = await this.getSignedHeader();
     /* eslint @typescript-eslint/no-non-null-assertion: "off" */
@@ -203,9 +231,10 @@ export class IbcClient {
       validatorSet: await this.getValidatorSet(curHeight),
       trustedHeight: {
         revisionHeight: new Long(lastHeight),
-        revisionNumber: new Long(0), // TODO
       },
-      trustedValidators: await this.getValidatorSet(lastHeight),
+      // "assert that trustedVals is NextValidators of last trusted header"
+      // https://github.com/cosmos/cosmos-sdk/blob/v0.41.0/x/ibc/light-clients/07-tendermint/types/update.go#L74
+      trustedValidators: await this.getValidatorSet(lastHeight + 1),
     });
   }
 

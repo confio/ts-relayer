@@ -56,7 +56,6 @@ test.only('update simapp client on wasmd', async (t) => {
     conState
   );
   const state = await dest.query.ibc.unverified.clientState(clientId);
-  console.error(state);
   // TODO: check more details?
   t.is(state.latestHeight?.revisionHeight.toNumber(), header.height);
 
