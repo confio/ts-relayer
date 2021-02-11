@@ -258,9 +258,6 @@ export class IbcClient {
       proof: proofClient,
       proofHeight,
     } = await this.query.ibc.unverified.clientStateWithProof(clientId);
-    console.error('client proof');
-    console.error(proofHeight);
-    console.error(proofClient);
 
     return {
       clientId,
