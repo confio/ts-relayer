@@ -60,12 +60,12 @@ test.serial('create and update wasmd client on simapp', async (t) => {
     conState
   );
   const state = await dest.query.ibc.client.stateTm(clientId);
-  console.error(state);
+  // console.error(state);
   // TODO: check more details?
   t.is(state.latestHeight?.revisionHeight.toNumber(), header.height);
+  t.deepEqual(state.chainId, await src.getChainId());
 
   // wait for a few blocks, then try
-  console.error(`created client ${clientId}`);
   await sleep(1000);
   const newHeader = await src.buildHeader(header.height);
   const newHeight = newHeader.signedHeader?.header?.height;
@@ -89,7 +89,7 @@ function sameLong(a?: Long, b?: Long) {
 }
 
 // make 2 clients, and try to establish a connection
-test.serial('start connection handshake', async (t) => {
+test.only('start connection handshake', async (t) => {
   // create apps and fund an account
   const mnemonic = generateMnemonic();
   const { address: srcAddress, client: src } = await signingClient(
@@ -121,8 +121,16 @@ test.serial('start connection handshake', async (t) => {
   );
   t.assert(srcClientId.startsWith('07-tendermint-'));
 
+  // init connection on src
+  const { connectionId: srcConnId } = await src.connOpenInit(
+    srcAddress,
+    srcClientId,
+    destClientId
+  );
+  t.assert(srcConnId.startsWith('connection-'), srcConnId);
+
   // getConnectionProof (TODO: much more)
   const proof = await src.getConnectionProof(srcClientId, '');
-  console.error(proof);
+  // console.error(proof);
   t.is(srcClientId, proof.clientId);
 });

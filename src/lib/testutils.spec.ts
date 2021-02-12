@@ -181,7 +181,7 @@ test.serial('send initial funds - simapp', async (t) => {
   t.deepEqual(account[0], { amount: '500', denom: simapp.denomFee });
 });
 
-test.serial('send initial funds - wasmd', async (t) => {
+test.skip('send initial funds - wasmd', async (t) => {
   const client = await queryClient(wasmd);
   const newbie = randomAddress(wasmd.prefix);
 

@@ -34,6 +34,8 @@ import {
 } from '../codec/ibc/core/client/v1/tx';
 import { Version } from '../codec/ibc/core/connection/v1/connection';
 import {
+  MsgConnectionOpenAck,
+  MsgConnectionOpenConfirm,
   MsgConnectionOpenInit,
   MsgConnectionOpenTry,
 } from '../codec/ibc/core/connection/v1/tx';
@@ -68,6 +70,13 @@ function ibcRegistry(): Registry {
     ...defaultRegistryTypes,
     ['/ibc.core.client.v1.MsgCreateClient', MsgCreateClient],
     ['/ibc.core.client.v1.MsgUpdateClient', MsgUpdateClient],
+    ['/ibc.core.connection.v1.MsgConnectionOpenInit', MsgConnectionOpenInit],
+    ['/ibc.core.connection.v1.MsgConnectionOpenTry', MsgConnectionOpenTry],
+    ['/ibc.core.connection.v1.MsgConnectionOpenAck', MsgConnectionOpenAck],
+    [
+      '/ibc.core.connection.v1.MsgConnectionOpenConfirm',
+      MsgConnectionOpenConfirm,
+    ],
   ]);
 }
 
@@ -331,6 +340,7 @@ export class IbcClient {
       throw new Error(createBroadcastTxErrorMessage(result));
     }
     const parsedLogs = parseRawLog(result.rawLog);
+
     const clientId = logs.findAttribute(
       parsedLogs,
       // TODO: they enforce 'message' | 'transfer'
@@ -424,9 +434,7 @@ export class IbcClient {
     const parsedLogs = parseRawLog(result.rawLog);
     const connectionId = logs.findAttribute(
       parsedLogs,
-      // TODO: they enforce 'message' | 'transfer'
-      /* eslint @typescript-eslint/no-explicit-any: "off" */
-      'connection_open_init' as any,
+      'connection_open_init',
       'connection_id'
     ).value;
     return {
