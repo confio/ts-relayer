@@ -35,12 +35,12 @@ test.serial('create simapp client on wasmd', async (t) => {
   t.is(postClients.clientStates.length, preLen + 1);
 });
 
-test.serial('update simapp client on wasmd', async (t) => {
+test.serial('create and update wasmd client on simapp', async (t) => {
   // create apps and fund an account
   const mnemonic = generateMnemonic();
-  const { client: src } = await signingClient(simapp, mnemonic);
-  const { address, client: dest } = await signingClient(wasmd, mnemonic);
-  await fundAccount(wasmd, address, '100000');
+  const { client: src } = await signingClient(wasmd, mnemonic);
+  const { address, client: dest } = await signingClient(simapp, mnemonic);
+  await fundAccount(simapp, address, '100000');
 
   const header = await src.latestHeader();
   const conState = buildConsensusState(header);
