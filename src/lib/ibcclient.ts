@@ -301,7 +301,6 @@ export class IbcClient {
     connectionId: string,
     height: number
   ): Promise<ConnectionHandshakeProof> {
-    // TODO
     console.log(`requested: ${height}`);
 
     const {
@@ -324,23 +323,19 @@ export class IbcClient {
     console.log(`connection height: ${toIntHeight(connectionHeight)}`);
 
     // get the consensus proof
-    const grpc = await this.query.ibc.client.consensusState(
+    const {
+      proof: proofConsensus,
+    } = await this.query.ibc.proof.client.consensusState(
       clientId,
-      toIntHeight(consensusHeight)
+      toIntHeight(consensusHeight),
+      height
     );
-    console.error(grpc);
-    const cons = await this.query.ibc.proof.client.consensusState(
-      clientId,
-      toIntHeight(consensusHeight)
-      // height
-    );
-    console.error(cons);
-    const proofConsensus = cons.proof;
 
     return {
       clientId,
       clientState,
       connectionId,
+      // TODO: sort this out better.. we need to abci query one height less than the header
       proofHeight: toProtoHeight(height + 1),
       proofInit,
       proofClient,

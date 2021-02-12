@@ -432,7 +432,8 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             consensusHeight: number,
             proveHeight?: number
           ) => {
-            const key = `clients/${clientId}/consensusStates/${consensusHeight}`;
+            // TODO: accept other revisionNumber
+            const key = `clients/${clientId}/consensusStates/0-${consensusHeight}`;
             console.log(key);
             const proven = await base.queryRawProof(
               'ibc',
