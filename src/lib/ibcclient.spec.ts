@@ -5,6 +5,7 @@ import {
   buildClientState,
   buildConsensusState,
   buildCreateClientArgs,
+  toIntHeight,
 } from './ibcclient';
 import {
   fundAccount,
@@ -104,7 +105,8 @@ test.only('start connection handshake', async (t) => {
   await fundAccount(simapp, srcAddress, '100000');
 
   // client on dest -> src
-  const args = await buildCreateClientArgs(src, 1000, 500);
+  // Note: unbonding time (first parameter is checked against the actual keeper - must use real values from genesis.json)
+  const args = await buildCreateClientArgs(src, 1814400, 5000);
   const { clientId: destClientId } = await dest.createTendermintClient(
     destAddress,
     args.clientState,
@@ -113,7 +115,7 @@ test.only('start connection handshake', async (t) => {
   t.assert(destClientId.startsWith('07-tendermint-'));
 
   // client on src -> dest
-  const args2 = await buildCreateClientArgs(dest, 1000, 500);
+  const args2 = await buildCreateClientArgs(dest, 1814400, 5000);
   const { clientId: srcClientId } = await src.createTendermintClient(
     srcAddress,
     args2.clientState,
@@ -121,7 +123,7 @@ test.only('start connection handshake', async (t) => {
   );
   t.assert(srcClientId.startsWith('07-tendermint-'));
 
-  // init connection on src
+  // connectionInit on src
   const { connectionId: srcConnId } = await src.connOpenInit(
     srcAddress,
     srcClientId,
@@ -129,8 +131,25 @@ test.only('start connection handshake', async (t) => {
   );
   t.assert(srcConnId.startsWith('connection-'), srcConnId);
 
-  // getConnectionProof (TODO: much more)
-  const proof = await src.getConnectionProof(srcClientId, '');
-  // console.error(proof);
-  t.is(srcClientId, proof.clientId);
+  // connectionTry on dest - many steps
+
+  // first, get a header that can prove connOpenInit and update dest Client
+  await src.waitOneBlock();
+  // update client on dest
+  // TODO: extract to a function
+  const { latestHeight } = await dest.query.ibc.client.stateTm(destClientId);
+  const tryProofHeader = await src.buildHeader(toIntHeight(latestHeight));
+  await dest.updateTendermintClient(destAddress, destClientId, tryProofHeader);
+  // const updatedHeight =
+  //   tryProofHeader.signedHeader?.header?.height?.toNumber() ?? 0;
+
+  // get a proof (for the proven height)
+  const proof = await src.getConnectionProof(srcClientId, srcConnId);
+  // now post and hope it is accepted
+  const { connectionId: destConnId } = await dest.connOpenTry(
+    destAddress,
+    destClientId,
+    proof
+  );
+  t.assert(destConnId.startsWith('connection-'), destConnId);
 });

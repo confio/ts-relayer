@@ -21,7 +21,7 @@ import {
   Header as RpcHeader,
   Client as TendermintClient,
 } from '@cosmjs/tendermint-rpc';
-import { arrayContentEquals } from '@cosmjs/utils';
+import { arrayContentEquals, sleep } from '@cosmjs/utils';
 import Long from 'long';
 
 import { HashOp, LengthOp } from '../codec/confio/proofs';
@@ -88,6 +88,16 @@ function timestampFromDateNanos(date: ReadonlyDateWithNanoseconds): Timestamp {
   });
 }
 
+export function toIntHeight(height?: Height): number {
+  return height?.revisionHeight?.toNumber() ?? 0;
+}
+
+export function toProtoHeight(height: number): Height {
+  return Height.fromPartial({
+    revisionHeight: new Long(height),
+  });
+}
+
 /// This is the default message result with no extra data
 export interface MsgResult {
   readonly logs: readonly logs.Log[];
@@ -107,7 +117,7 @@ interface ConnectionHandshakeProof {
   clientId: string;
   connectionId: string;
   clientState?: Any;
-  proofHeight?: Height;
+  proofHeight: Height;
   // proof of the initialization the connection on Chain A: `UNITIALIZED ->
   // INIT`
   proofInit: Uint8Array;
@@ -172,6 +182,11 @@ export class IbcClient {
   public async header(height: number): Promise<RpcHeader> {
     const resp = await this.tm.blockchain(height, height);
     return resp.blockMetas[0].header;
+  }
+
+  public async waitOneBlock(): Promise<void> {
+    // TODO: subscription/poll, but really check
+    await sleep(500);
   }
 
   public getCommit(height?: number): Promise<CommitResponse> {
@@ -276,22 +291,27 @@ export class IbcClient {
     });
   }
 
+  // trustedHeight must be proven by the client on the destination chain
+  // and include a proof for the connOpenInit (eg. must be 1 or more blocks after the
+  // block connOpenInit Tx was in).
   public async getConnectionProof(
     clientId: string,
     connectionId: string
   ): Promise<ConnectionHandshakeProof> {
     // TODO
-    const consensusHeight = Height.fromPartial({
-      revisionHeight: new Long(123),
-    });
     const proofInit = toAscii('TODO');
     const proofConsensus = toAscii('TODO');
 
+    // todo: add height here
     const {
       clientState,
       proof: proofClient,
       proofHeight,
     } = await this.query.ibc.proof.client.state(clientId);
+    // This is the most recent state we have on this chain of the other
+    const {
+      latestHeight: consensusHeight,
+    } = await this.query.ibc.client.stateTm(clientId);
 
     return {
       clientId,

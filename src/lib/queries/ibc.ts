@@ -119,7 +119,9 @@ export interface IbcExtension {
         ) => Promise<QueryNextSequenceReceiveResponse>;
       };
       readonly client: {
-        readonly state: (clientId: string) => Promise<QueryClientStateResponse>;
+        readonly state: (
+          clientId: string
+        ) => Promise<QueryClientStateResponse & { proofHeight: Height }>;
       };
     };
   };
