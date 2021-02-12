@@ -302,7 +302,6 @@ export class IbcClient {
     height: number
   ): Promise<ConnectionHandshakeProof> {
     // TODO
-    const proofConsensus = toAscii('TODO');
     console.log(`requested: ${height}`);
 
     const {
@@ -323,6 +322,20 @@ export class IbcClient {
       proofHeight: connectionHeight,
     } = await this.query.ibc.proof.connection.connection(connectionId, height);
     console.log(`connection height: ${toIntHeight(connectionHeight)}`);
+
+    // get the consensus proof
+    const grpc = await this.query.ibc.client.consensusState(
+      clientId,
+      toIntHeight(consensusHeight)
+    );
+    console.error(grpc);
+    const cons = await this.query.ibc.proof.client.consensusState(
+      clientId,
+      toIntHeight(consensusHeight)
+      // height
+    );
+    console.error(cons);
+    const proofConsensus = cons.proof;
 
     return {
       clientId,

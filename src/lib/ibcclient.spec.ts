@@ -90,7 +90,7 @@ function sameLong(a?: Long, b?: Long) {
 }
 
 // make 2 clients, and try to establish a connection
-test.only('start connection handshake', async (t) => {
+test.serial('start connection handshake', async (t) => {
   // create apps and fund an account
   const mnemonic = generateMnemonic();
   const { address: srcAddress, client: src } = await signingClient(

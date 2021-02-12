@@ -23,6 +23,8 @@ import {
   QueryClientImpl as ClientQuery,
   QueryClientStateResponse,
   QueryClientStatesResponse,
+  QueryConsensusStateRequest,
+  QueryConsensusStateResponse,
 } from '../../codec/ibc/core/client/v1/query';
 import { MerkleProof } from '../../codec/ibc/core/commitment/v1/commitment';
 import { ConnectionEnd } from '../../codec/ibc/core/connection/v1/connection';
@@ -88,6 +90,10 @@ export interface IbcExtension {
       readonly states: () => Promise<QueryClientStatesResponse>;
       readonly state: (clientId: string) => Promise<QueryClientStateResponse>;
       readonly stateTm: (clientId: string) => Promise<TendermintClientState>;
+      readonly consensusState: (
+        clientId: string,
+        height?: number
+      ) => Promise<QueryConsensusStateResponse>;
     };
     readonly connection: {
       readonly connection: (
@@ -126,6 +132,11 @@ export interface IbcExtension {
           clientId: string,
           height?: number
         ) => Promise<QueryClientStateResponse & { proofHeight: Height }>;
+        readonly consensusState: (
+          clientId: string,
+          consensusHeight: number,
+          proveHeight?: number
+        ) => Promise<QueryConsensusStateResponse>;
       };
       readonly connection: {
         readonly connection: (
@@ -280,6 +291,20 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           }
           return TendermintClientState.decode(res.clientState.value);
         },
+        consensusState: (clientId: string, consensusHeight?: number) => {
+          const request = consensusHeight
+            ? {
+                clientId,
+                revisionHeight: new Long(consensusHeight),
+              }
+            : {
+                clientId,
+                latestHeight: true,
+              };
+          return clientQueryService.ConsensusState(
+            QueryConsensusStateRequest.fromPartial(request)
+          );
+        },
       },
       connection: {
         connection: async (connectionId: string) => {
@@ -398,6 +423,29 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             });
             return {
               clientState,
+              proof,
+              proofHeight,
+            };
+          },
+          consensusState: async (
+            clientId: string,
+            consensusHeight: number,
+            proveHeight?: number
+          ) => {
+            const key = `clients/${clientId}/consensusStates/${consensusHeight}`;
+            console.log(key);
+            const proven = await base.queryRawProof(
+              'ibc',
+              toAscii(key),
+              proveHeight
+            );
+            const consensusState = Any.decode(proven.value);
+            const proof = convertProofsToIcs23(proven.proof);
+            const proofHeight = Height.fromPartial({
+              revisionHeight: new Long(proven.height),
+            });
+            return {
+              consensusState,
               proof,
               proofHeight,
             };
