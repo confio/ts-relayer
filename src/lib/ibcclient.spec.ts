@@ -140,7 +140,9 @@ test.only('start connection handshake', async (t) => {
   const { latestHeight } = await dest.query.ibc.client.stateTm(destClientId);
   const tryProofHeader = await src.buildHeader(toIntHeight(latestHeight));
   await dest.updateTendermintClient(destAddress, destClientId, tryProofHeader);
-  const proofHeight = tryProofHeader.signedHeader?.header?.height?.toNumber();
+  // this is a hack, query at H commits to app_hash in header H+1
+  const proofHeight =
+    (tryProofHeader.signedHeader?.header?.height?.toNumber() ?? 1) - 1;
 
   // get a proof (for the proven height)
   const proof = await src.getConnectionProof(

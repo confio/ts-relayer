@@ -299,31 +299,36 @@ export class IbcClient {
   public async getConnectionProof(
     clientId: string,
     connectionId: string,
-    height?: number
+    height: number
   ): Promise<ConnectionHandshakeProof> {
     // TODO
     const proofConsensus = toAscii('TODO');
+    console.log(`requested: ${height}`);
 
     const {
       clientState,
       proof: proofClient,
-      proofHeight,
+      // proofHeight,
     } = await this.query.ibc.proof.client.state(clientId, height);
+
     // This is the most recent state we have on this chain of the other
     const {
       latestHeight: consensusHeight,
     } = await this.query.ibc.client.stateTm(clientId);
+    console.log(`consensus height: ${toIntHeight(consensusHeight)}`);
 
     // get the init proof
     const {
       proof: proofInit,
+      proofHeight: connectionHeight,
     } = await this.query.ibc.proof.connection.connection(connectionId, height);
+    console.log(`connection height: ${toIntHeight(connectionHeight)}`);
 
     return {
       clientId,
       clientState,
       connectionId,
-      proofHeight,
+      proofHeight: toProtoHeight(height + 1),
       proofInit,
       proofClient,
       proofConsensus,
