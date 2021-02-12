@@ -1,5 +1,6 @@
 /* eslint-disable */
 import Long from 'long';
+import { Timestamp } from '../../google/protobuf/timestamp';
 import { Header } from '../../tendermint/types/types';
 import { ProofOps } from '../../tendermint/crypto/proof';
 import {
@@ -8,7 +9,6 @@ import {
   VersionParams,
 } from '../../tendermint/types/params';
 import { PublicKey } from '../../tendermint/crypto/keys';
-import { Timestamp } from '../../google/protobuf/timestamp';
 import _m0 from 'protobufjs/minimal';
 
 export const protobufPackage = 'tendermint.abci';
@@ -120,7 +120,7 @@ export interface RequestSetOption {
 }
 
 export interface RequestInitChain {
-  time?: Date;
+  time?: Timestamp;
   chainId: string;
   consensusParams?: ConsensusParams;
   validators: ValidatorUpdate[];
@@ -523,7 +523,7 @@ export interface Evidence {
   /** The height when the offense occurred */
   height: Long;
   /** The corresponding time where the offense occurred */
-  time?: Date;
+  time?: Timestamp;
   /**
    * Total voting power of the validator set in case the ABCI application does
    * not store historical validators.
@@ -1220,10 +1220,7 @@ export const RequestInitChain = {
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
     if (message.time !== undefined && message.time !== undefined) {
-      Timestamp.encode(
-        toTimestamp(message.time),
-        writer.uint32(10).fork()
-      ).ldelim();
+      Timestamp.encode(message.time, writer.uint32(10).fork()).ldelim();
     }
     writer.uint32(18).string(message.chainId);
     if (
@@ -1252,9 +1249,7 @@ export const RequestInitChain = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.time = fromTimestamp(
-            Timestamp.decode(reader, reader.uint32())
-          );
+          message.time = Timestamp.decode(reader, reader.uint32());
           break;
         case 2:
           message.chainId = reader.string();
@@ -1327,7 +1322,7 @@ export const RequestInitChain = {
     const message = { ...baseRequestInitChain } as RequestInitChain;
     message.validators = [];
     if (object.time !== undefined && object.time !== null) {
-      message.time = object.time;
+      message.time = Timestamp.fromPartial(object.time);
     } else {
       message.time = undefined;
     }
@@ -1368,7 +1363,9 @@ export const RequestInitChain = {
     const obj: any = {};
     message.time !== undefined &&
       (obj.time =
-        message.time !== undefined ? message.time.toISOString() : null);
+        message.time !== undefined
+          ? fromTimestamp(message.time).toISOString()
+          : null);
     message.chainId !== undefined && (obj.chainId = message.chainId);
     message.consensusParams !== undefined &&
       (obj.consensusParams = message.consensusParams
@@ -5092,10 +5089,7 @@ export const Evidence = {
     }
     writer.uint32(24).int64(message.height);
     if (message.time !== undefined && message.time !== undefined) {
-      Timestamp.encode(
-        toTimestamp(message.time),
-        writer.uint32(34).fork()
-      ).ldelim();
+      Timestamp.encode(message.time, writer.uint32(34).fork()).ldelim();
     }
     writer.uint32(40).int64(message.totalVotingPower);
     return writer;
@@ -5118,9 +5112,7 @@ export const Evidence = {
           message.height = reader.int64() as Long;
           break;
         case 4:
-          message.time = fromTimestamp(
-            Timestamp.decode(reader, reader.uint32())
-          );
+          message.time = Timestamp.decode(reader, reader.uint32());
           break;
         case 5:
           message.totalVotingPower = reader.int64() as Long;
@@ -5184,7 +5176,7 @@ export const Evidence = {
       message.height = Long.ZERO;
     }
     if (object.time !== undefined && object.time !== null) {
-      message.time = object.time;
+      message.time = Timestamp.fromPartial(object.time);
     } else {
       message.time = undefined;
     }
@@ -5210,7 +5202,9 @@ export const Evidence = {
       (obj.height = (message.height || Long.ZERO).toString());
     message.time !== undefined &&
       (obj.time =
-        message.time !== undefined ? message.time.toISOString() : null);
+        message.time !== undefined
+          ? fromTimestamp(message.time).toISOString()
+          : null);
     message.totalVotingPower !== undefined &&
       (obj.totalVotingPower = (
         message.totalVotingPower || Long.ZERO
@@ -5609,13 +5603,13 @@ function fromTimestamp(t: Timestamp): Date {
   return new Date(millis);
 }
 
-function fromJsonTimestamp(o: any): Date {
+function fromJsonTimestamp(o: any): Timestamp {
   if (o instanceof Date) {
-    return o;
+    return toTimestamp(o);
   } else if (typeof o === 'string') {
-    return new Date(o);
+    return toTimestamp(new Date(o));
   } else {
-    return fromTimestamp(Timestamp.fromJSON(o));
+    return Timestamp.fromJSON(o);
   }
 }
 

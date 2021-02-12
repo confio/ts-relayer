@@ -18,6 +18,12 @@ SUFFIX=${REF}
 
 mkdir -p "$COSMOS_DIR"
 
+FINAL="$COSMOS_SDK_DIR/cosmos-sdk-$SUFFIX"
+if [ -d "$FINAL" ]; then
+  echo "$FINAL already downloaded, using existing version"
+  exit
+fi
+
 wget -qO "$ZIP_FILE" "https://github.com/cosmos/cosmos-sdk/archive/$REF.zip"
 unzip "$ZIP_FILE" "*.proto" -d "$COSMOS_DIR"
 mv "$COSMOS_SDK_DIR-$SUFFIX" "$COSMOS_SDK_DIR"

@@ -2,8 +2,8 @@
 import { Proof } from '../../tendermint/crypto/proof';
 import { Consensus } from '../../tendermint/version/types';
 import Long from 'long';
-import { ValidatorSet } from '../../tendermint/types/validator';
 import { Timestamp } from '../../google/protobuf/timestamp';
+import { ValidatorSet } from '../../tendermint/types/validator';
 import _m0 from 'protobufjs/minimal';
 
 export const protobufPackage = 'tendermint.types';
@@ -124,7 +124,7 @@ export interface Header {
   version?: Consensus;
   chainId: string;
   height: Long;
-  time?: Date;
+  time?: Timestamp;
   /** prev block info */
   lastBlockId?: BlockID;
   /** hashes of block data */
@@ -167,7 +167,7 @@ export interface Vote {
   round: number;
   /** zero if vote is nil. */
   blockId?: BlockID;
-  timestamp?: Date;
+  timestamp?: Timestamp;
   validatorAddress: Uint8Array;
   validatorIndex: number;
   signature: Uint8Array;
@@ -185,7 +185,7 @@ export interface Commit {
 export interface CommitSig {
   blockIdFlag: BlockIDFlag;
   validatorAddress: Uint8Array;
-  timestamp?: Date;
+  timestamp?: Timestamp;
   signature: Uint8Array;
 }
 
@@ -195,7 +195,7 @@ export interface Proposal {
   round: number;
   polRound: number;
   blockId?: BlockID;
-  timestamp?: Date;
+  timestamp?: Timestamp;
   signature: Uint8Array;
 }
 
@@ -478,10 +478,7 @@ export const Header = {
     writer.uint32(18).string(message.chainId);
     writer.uint32(24).int64(message.height);
     if (message.time !== undefined && message.time !== undefined) {
-      Timestamp.encode(
-        toTimestamp(message.time),
-        writer.uint32(34).fork()
-      ).ldelim();
+      Timestamp.encode(message.time, writer.uint32(34).fork()).ldelim();
     }
     if (
       message.lastBlockId !== undefined &&
@@ -518,9 +515,7 @@ export const Header = {
           message.height = reader.int64() as Long;
           break;
         case 4:
-          message.time = fromTimestamp(
-            Timestamp.decode(reader, reader.uint32())
-          );
+          message.time = Timestamp.decode(reader, reader.uint32());
           break;
         case 5:
           message.lastBlockId = BlockID.decode(reader, reader.uint32());
@@ -644,7 +639,7 @@ export const Header = {
       message.height = Long.ZERO;
     }
     if (object.time !== undefined && object.time !== null) {
-      message.time = object.time;
+      message.time = Timestamp.fromPartial(object.time);
     } else {
       message.time = undefined;
     }
@@ -721,7 +716,9 @@ export const Header = {
       (obj.height = (message.height || Long.ZERO).toString());
     message.time !== undefined &&
       (obj.time =
-        message.time !== undefined ? message.time.toISOString() : null);
+        message.time !== undefined
+          ? fromTimestamp(message.time).toISOString()
+          : null);
     message.lastBlockId !== undefined &&
       (obj.lastBlockId = message.lastBlockId
         ? BlockID.toJSON(message.lastBlockId)
@@ -860,10 +857,7 @@ export const Vote = {
       BlockID.encode(message.blockId, writer.uint32(34).fork()).ldelim();
     }
     if (message.timestamp !== undefined && message.timestamp !== undefined) {
-      Timestamp.encode(
-        toTimestamp(message.timestamp),
-        writer.uint32(42).fork()
-      ).ldelim();
+      Timestamp.encode(message.timestamp, writer.uint32(42).fork()).ldelim();
     }
     writer.uint32(50).bytes(message.validatorAddress);
     writer.uint32(56).int32(message.validatorIndex);
@@ -891,9 +885,7 @@ export const Vote = {
           message.blockId = BlockID.decode(reader, reader.uint32());
           break;
         case 5:
-          message.timestamp = fromTimestamp(
-            Timestamp.decode(reader, reader.uint32())
-          );
+          message.timestamp = Timestamp.decode(reader, reader.uint32());
           break;
         case 6:
           message.validatorAddress = reader.bytes();
@@ -979,7 +971,7 @@ export const Vote = {
       message.blockId = undefined;
     }
     if (object.timestamp !== undefined && object.timestamp !== null) {
-      message.timestamp = object.timestamp;
+      message.timestamp = Timestamp.fromPartial(object.timestamp);
     } else {
       message.timestamp = undefined;
     }
@@ -1018,7 +1010,7 @@ export const Vote = {
     message.timestamp !== undefined &&
       (obj.timestamp =
         message.timestamp !== undefined
-          ? message.timestamp.toISOString()
+          ? fromTimestamp(message.timestamp).toISOString()
           : null);
     message.validatorAddress !== undefined &&
       (obj.validatorAddress = base64FromBytes(
@@ -1164,10 +1156,7 @@ export const CommitSig = {
     writer.uint32(8).int32(message.blockIdFlag);
     writer.uint32(18).bytes(message.validatorAddress);
     if (message.timestamp !== undefined && message.timestamp !== undefined) {
-      Timestamp.encode(
-        toTimestamp(message.timestamp),
-        writer.uint32(26).fork()
-      ).ldelim();
+      Timestamp.encode(message.timestamp, writer.uint32(26).fork()).ldelim();
     }
     writer.uint32(34).bytes(message.signature);
     return writer;
@@ -1187,9 +1176,7 @@ export const CommitSig = {
           message.validatorAddress = reader.bytes();
           break;
         case 3:
-          message.timestamp = fromTimestamp(
-            Timestamp.decode(reader, reader.uint32())
-          );
+          message.timestamp = Timestamp.decode(reader, reader.uint32());
           break;
         case 4:
           message.signature = reader.bytes();
@@ -1242,7 +1229,7 @@ export const CommitSig = {
       message.validatorAddress = new Uint8Array();
     }
     if (object.timestamp !== undefined && object.timestamp !== null) {
-      message.timestamp = object.timestamp;
+      message.timestamp = Timestamp.fromPartial(object.timestamp);
     } else {
       message.timestamp = undefined;
     }
@@ -1267,7 +1254,7 @@ export const CommitSig = {
     message.timestamp !== undefined &&
       (obj.timestamp =
         message.timestamp !== undefined
-          ? message.timestamp.toISOString()
+          ? fromTimestamp(message.timestamp).toISOString()
           : null);
     message.signature !== undefined &&
       (obj.signature = base64FromBytes(
@@ -1297,10 +1284,7 @@ export const Proposal = {
       BlockID.encode(message.blockId, writer.uint32(42).fork()).ldelim();
     }
     if (message.timestamp !== undefined && message.timestamp !== undefined) {
-      Timestamp.encode(
-        toTimestamp(message.timestamp),
-        writer.uint32(50).fork()
-      ).ldelim();
+      Timestamp.encode(message.timestamp, writer.uint32(50).fork()).ldelim();
     }
     writer.uint32(58).bytes(message.signature);
     return writer;
@@ -1329,9 +1313,7 @@ export const Proposal = {
           message.blockId = BlockID.decode(reader, reader.uint32());
           break;
         case 6:
-          message.timestamp = fromTimestamp(
-            Timestamp.decode(reader, reader.uint32())
-          );
+          message.timestamp = Timestamp.decode(reader, reader.uint32());
           break;
         case 7:
           message.signature = reader.bytes();
@@ -1410,7 +1392,7 @@ export const Proposal = {
       message.blockId = undefined;
     }
     if (object.timestamp !== undefined && object.timestamp !== null) {
-      message.timestamp = object.timestamp;
+      message.timestamp = Timestamp.fromPartial(object.timestamp);
     } else {
       message.timestamp = undefined;
     }
@@ -1437,7 +1419,7 @@ export const Proposal = {
     message.timestamp !== undefined &&
       (obj.timestamp =
         message.timestamp !== undefined
-          ? message.timestamp.toISOString()
+          ? fromTimestamp(message.timestamp).toISOString()
           : null);
     message.signature !== undefined &&
       (obj.signature = base64FromBytes(
@@ -1882,13 +1864,13 @@ function fromTimestamp(t: Timestamp): Date {
   return new Date(millis);
 }
 
-function fromJsonTimestamp(o: any): Date {
+function fromJsonTimestamp(o: any): Timestamp {
   if (o instanceof Date) {
-    return o;
+    return toTimestamp(o);
   } else if (typeof o === 'string') {
-    return new Date(o);
+    return toTimestamp(new Date(o));
   } else {
-    return fromTimestamp(Timestamp.fromJSON(o));
+    return Timestamp.fromJSON(o);
   }
 }
 

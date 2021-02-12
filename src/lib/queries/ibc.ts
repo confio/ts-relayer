@@ -27,6 +27,7 @@ import {
   QueryConnectionResponse,
   QueryConnectionsResponse,
 } from '../../codec/ibc/core/connection/v1/query';
+import { ClientState as TendermintClientState } from '../../codec/ibc/lightclients/tendermint/v1/tendermint';
 
 export interface IbcExtension {
   readonly ibc: {
@@ -51,6 +52,9 @@ export interface IbcExtension {
     readonly unverified: {
       // Queries for ibc.core.channel.v1
       readonly clientStates: () => Promise<QueryClientStatesResponse>;
+      readonly clientState: (
+        clientId: string
+      ) => Promise<TendermintClientState>;
       readonly channel: (
         portId: string,
         channelId: string
@@ -174,6 +178,19 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
       unverified: {
         clientStates: () => {
           return clientQueryService.ClientStates({});
+        },
+        // TODO: add a non-parsing version, so we get the raw data and proof
+        clientState: async (clientId: string) => {
+          const res = await clientQueryService.ClientState({ clientId });
+          if (
+            res.clientState?.typeUrl !==
+            '/ibc.lightclients.tendermint.v1.ClientState'
+          ) {
+            throw new Error(
+              `Unexpected client state type: ${res.clientState?.typeUrl}`
+            );
+          }
+          return TendermintClientState.decode(res.clientState.value);
         },
         // Queries for ibc.core.channel.v1
         channel: async (portId: string, channelId: string) => {

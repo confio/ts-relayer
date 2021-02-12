@@ -16,12 +16,14 @@ OUT_DIR="$ROOT/src/codec/"
 rm -rf "$OUT_DIR"
 mkdir -p "$OUT_DIR"
 
+  # --ts_proto_opt="esModuleInterop=true,forceLong=long,useOptionals=true,useDate=false,outputJsonMethods=false" \
+
 protoc \
   --plugin="$(yarn bin protoc-gen-ts_proto)" \
   --ts_proto_out="$OUT_DIR" \
   --proto_path="$COSMOS_PROTO_DIR" \
   --proto_path="$THIRD_PARTY_PROTO_DIR" \
-  --ts_proto_opt="esModuleInterop=true,forceLong=long,useOptionals=true" \
+  --ts_proto_opt="esModuleInterop=true,forceLong=long,useOptionals=true,useDate=false" \
   "$COSMOS_PROTO_DIR/ibc/applications/transfer/v1/transfer.proto" \
   "$COSMOS_PROTO_DIR/ibc/applications/transfer/v1/genesis.proto" \
   "$COSMOS_PROTO_DIR/ibc/applications/transfer/v1/query.proto" \

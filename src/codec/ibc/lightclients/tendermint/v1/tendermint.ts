@@ -1,11 +1,11 @@
 /* eslint-disable */
 import { Duration } from '../../../../google/protobuf/duration';
 import { Height } from '../../../../ibc/core/client/v1/client';
+import { Timestamp } from '../../../../google/protobuf/timestamp';
 import { MerkleRoot } from '../../../../ibc/core/commitment/v1/commitment';
 import { SignedHeader } from '../../../../tendermint/types/types';
 import { ValidatorSet } from '../../../../tendermint/types/validator';
 import Long from 'long';
-import { Timestamp } from '../../../../google/protobuf/timestamp';
 import { ProofSpec } from '../../../../confio/proofs';
 import _m0 from 'protobufjs/minimal';
 
@@ -59,7 +59,7 @@ export interface ConsensusState {
    * timestamp that corresponds to the block height in which the ConsensusState
    * was stored.
    */
-  timestamp?: Date;
+  timestamp?: Timestamp;
   /** commitment root (i.e app hash) */
   root?: MerkleRoot;
   nextValidatorsHash: Uint8Array;
@@ -415,10 +415,7 @@ export const ConsensusState = {
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
     if (message.timestamp !== undefined && message.timestamp !== undefined) {
-      Timestamp.encode(
-        toTimestamp(message.timestamp),
-        writer.uint32(10).fork()
-      ).ldelim();
+      Timestamp.encode(message.timestamp, writer.uint32(10).fork()).ldelim();
     }
     if (message.root !== undefined && message.root !== undefined) {
       MerkleRoot.encode(message.root, writer.uint32(18).fork()).ldelim();
@@ -435,9 +432,7 @@ export const ConsensusState = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.timestamp = fromTimestamp(
-            Timestamp.decode(reader, reader.uint32())
-          );
+          message.timestamp = Timestamp.decode(reader, reader.uint32());
           break;
         case 2:
           message.root = MerkleRoot.decode(reader, reader.uint32());
@@ -477,7 +472,7 @@ export const ConsensusState = {
   fromPartial(object: DeepPartial<ConsensusState>): ConsensusState {
     const message = { ...baseConsensusState } as ConsensusState;
     if (object.timestamp !== undefined && object.timestamp !== null) {
-      message.timestamp = object.timestamp;
+      message.timestamp = Timestamp.fromPartial(object.timestamp);
     } else {
       message.timestamp = undefined;
     }
@@ -502,7 +497,7 @@ export const ConsensusState = {
     message.timestamp !== undefined &&
       (obj.timestamp =
         message.timestamp !== undefined
-          ? message.timestamp.toISOString()
+          ? fromTimestamp(message.timestamp).toISOString()
           : null);
     message.root !== undefined &&
       (obj.root = message.root ? MerkleRoot.toJSON(message.root) : undefined);
@@ -903,13 +898,13 @@ function fromTimestamp(t: Timestamp): Date {
   return new Date(millis);
 }
 
-function fromJsonTimestamp(o: any): Date {
+function fromJsonTimestamp(o: any): Timestamp {
   if (o instanceof Date) {
-    return o;
+    return toTimestamp(o);
   } else if (typeof o === 'string') {
-    return new Date(o);
+    return toTimestamp(new Date(o));
   } else {
-    return fromTimestamp(Timestamp.fromJSON(o));
+    return Timestamp.fromJSON(o);
   }
 }
 
