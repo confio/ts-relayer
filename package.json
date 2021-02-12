@@ -48,6 +48,7 @@
     "@cosmjs/proto-signing": "0.24.0-alpha.24",
     "@cosmjs/stargate": "0.24.0-alpha.24",
     "@cosmjs/tendermint-rpc": "0.24.0-alpha.24",
+    "@cosmjs/utils": "0.24.0-alpha.24",
     "@types/node": "^14.14.25",
     "protobufjs": "~6.10.2"
   },

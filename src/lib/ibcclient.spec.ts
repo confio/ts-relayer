@@ -1,3 +1,4 @@
+import { sleep } from '@cosmjs/utils';
 import test from 'ava';
 
 import { buildClientState, buildConsensusState } from './ibcclient';
@@ -6,7 +7,6 @@ import {
   generateMnemonic,
   signingClient,
   simapp,
-  sleep,
   wasmd,
 } from './testutils.spec';
 

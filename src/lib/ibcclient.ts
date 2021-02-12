@@ -1,4 +1,3 @@
-import { toHex } from '@cosmjs/encoding';
 import { coins, logs, StdFee } from '@cosmjs/launchpad';
 import { OfflineSigner, Registry } from '@cosmjs/proto-signing';
 import {
@@ -21,6 +20,7 @@ import {
   Header as RpcHeader,
   Client as TendermintClient,
 } from '@cosmjs/tendermint-rpc';
+import { arrayContentEquals } from '@cosmjs/utils';
 import Long from 'long';
 
 import { HashOp, LengthOp } from '../codec/confio/proofs';
@@ -118,6 +118,11 @@ export class IbcClient {
     return block.block.header;
   }
 
+  public async header(height: number): Promise<RpcHeader> {
+    const resp = await this.tm.blockchain(height, height);
+    return resp.blockMetas[0].header;
+  }
+
   public getCommit(height?: number): Promise<CommitResponse> {
     return this.tm.commit(height);
   }
@@ -160,9 +165,8 @@ export class IbcClient {
   }
 
   public async getValidatorSet(height: number): Promise<ValidatorSet> {
-    // TODO: use header not commit
     // we need to query the header to find out who the proposer was, and pull them out
-    const { proposerAddress } = (await this.getCommit(height)).header;
+    const { proposerAddress } = await this.header(height);
     const validators = await this.tm.validators(height);
     const mappedValidators = validators.validators.map((val) => ({
       address: val.address,
@@ -181,8 +185,8 @@ export class IbcClient {
       (x, v) => x + v.votingPower,
       0
     );
-    const proposer = mappedValidators.find(
-      (val) => toHex(val.address) === toHex(proposerAddress)
+    const proposer = mappedValidators.find((val) =>
+      arrayContentEquals(val.address, proposerAddress)
     );
     return ValidatorSet.fromPartial({
       validators: mappedValidators,
