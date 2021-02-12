@@ -140,11 +140,14 @@ test.only('start connection handshake', async (t) => {
   const { latestHeight } = await dest.query.ibc.client.stateTm(destClientId);
   const tryProofHeader = await src.buildHeader(toIntHeight(latestHeight));
   await dest.updateTendermintClient(destAddress, destClientId, tryProofHeader);
-  // const updatedHeight =
-  //   tryProofHeader.signedHeader?.header?.height?.toNumber() ?? 0;
+  const proofHeight = tryProofHeader.signedHeader?.header?.height?.toNumber();
 
   // get a proof (for the proven height)
-  const proof = await src.getConnectionProof(srcClientId, srcConnId);
+  const proof = await src.getConnectionProof(
+    srcClientId,
+    srcConnId,
+    proofHeight
+  );
   // now post and hope it is accepted
   const { connectionId: destConnId } = await dest.connOpenTry(
     destAddress,

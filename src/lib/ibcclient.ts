@@ -294,29 +294,35 @@ export class IbcClient {
   // trustedHeight must be proven by the client on the destination chain
   // and include a proof for the connOpenInit (eg. must be 1 or more blocks after the
   // block connOpenInit Tx was in).
+  //
+  // pass a specific height to get a proof from that height, otherwise undefined for latest block
   public async getConnectionProof(
     clientId: string,
-    connectionId: string
+    connectionId: string,
+    height?: number
   ): Promise<ConnectionHandshakeProof> {
     // TODO
-    const proofInit = toAscii('TODO');
     const proofConsensus = toAscii('TODO');
 
-    // todo: add height here
     const {
       clientState,
       proof: proofClient,
       proofHeight,
-    } = await this.query.ibc.proof.client.state(clientId);
+    } = await this.query.ibc.proof.client.state(clientId, height);
     // This is the most recent state we have on this chain of the other
     const {
       latestHeight: consensusHeight,
     } = await this.query.ibc.client.stateTm(clientId);
 
+    // get the init proof
+    const {
+      proof: proofInit,
+    } = await this.query.ibc.proof.connection.connection(connectionId, height);
+
     return {
       clientId,
-      connectionId,
       clientState,
+      connectionId,
       proofHeight,
       proofInit,
       proofClient,

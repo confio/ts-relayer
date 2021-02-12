@@ -2,6 +2,7 @@ import { toAscii } from '@cosmjs/encoding';
 import { createPagination, createRpc, QueryClient } from '@cosmjs/stargate';
 import Long from 'long';
 
+import { CommitmentProof } from '../../codec/confio/proofs';
 import { Any } from '../../codec/google/protobuf/any';
 import { Channel } from '../../codec/ibc/core/channel/v1/channel';
 import {
@@ -23,6 +24,8 @@ import {
   QueryClientStateResponse,
   QueryClientStatesResponse,
 } from '../../codec/ibc/core/client/v1/query';
+import { MerkleProof } from '../../codec/ibc/core/commitment/v1/commitment';
+import { ConnectionEnd } from '../../codec/ibc/core/connection/v1/connection';
 import {
   QueryClientImpl as ConnectionQuery,
   QueryClientConnectionsResponse,
@@ -120,8 +123,15 @@ export interface IbcExtension {
       };
       readonly client: {
         readonly state: (
-          clientId: string
+          clientId: string,
+          height?: number
         ) => Promise<QueryClientStateResponse & { proofHeight: Height }>;
+      };
+      readonly connection: {
+        readonly connection: (
+          connectionId: string,
+          height?: number
+        ) => Promise<QueryConnectionResponse>;
       };
     };
   };
@@ -301,7 +311,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             );
             const proven = await base.queryRawProof('ibc', key);
             const channel = Channel.decode(proven.value);
-            const proof = ProofOps.encode(proven.proof).finish();
+            const proof = convertProofsToIcs23(proven.proof);
             const proofHeight = Height.fromPartial({
               revisionHeight: new Long(proven.height),
             });
@@ -322,7 +332,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             );
             const proven = await base.queryRawProof('ibc', key);
             const commitment = proven.value;
-            const proof = ProofOps.encode(proven.proof).finish();
+            const proof = convertProofsToIcs23(proven.proof);
             const proofHeight = Height.fromPartial({
               revisionHeight: new Long(proven.height),
             });
@@ -344,7 +354,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             );
             const proven = await base.queryRawProof('ibc', key);
             const acknowledgement = proven.value;
-            const proof = ProofOps.encode(proven.proof).finish();
+            const proof = convertProofsToIcs23(proven.proof);
             const proofHeight = Height.fromPartial({
               revisionHeight: new Long(proven.height),
             });
@@ -362,7 +372,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             );
             const proven = await base.queryRawProof('ibc', key);
             const nextSequenceReceive = Long.fromBytesBE([...proven.value]);
-            const proof = ProofOps.encode(proven.proof).finish();
+            const proof = convertProofsToIcs23(proven.proof);
             const proofHeight = Height.fromPartial({
               revisionHeight: new Long(proven.height),
             });
@@ -374,11 +384,15 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           },
         },
         client: {
-          state: async (clientId: string) => {
+          state: async (clientId: string, height?: number) => {
             const key = `clients/${clientId}/clientState`;
-            const proven = await base.queryRawProof('ibc', toAscii(key));
+            const proven = await base.queryRawProof(
+              'ibc',
+              toAscii(key),
+              height
+            );
             const clientState = Any.decode(proven.value);
-            const proof = ProofOps.encode(proven.proof).finish();
+            const proof = convertProofsToIcs23(proven.proof);
             const proofHeight = Height.fromPartial({
               revisionHeight: new Long(proven.height),
             });
@@ -389,7 +403,35 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             };
           },
         },
+        connection: {
+          connection: async (connectionId: string, height?: number) => {
+            const key = `connections/${connectionId}`;
+            const proven = await base.queryRawProof(
+              'ibc',
+              toAscii(key),
+              height
+            );
+            const connection = ConnectionEnd.decode(proven.value);
+            const proof = convertProofsToIcs23(proven.proof);
+            const proofHeight = Height.fromPartial({
+              revisionHeight: new Long(proven.height),
+            });
+            return {
+              connection,
+              proof,
+              proofHeight,
+            };
+          },
+        },
       },
     },
   };
+}
+
+function convertProofsToIcs23(ops: ProofOps): Uint8Array {
+  const proofs = ops.ops.map((op) => CommitmentProof.decode(op.data));
+  const resp = MerkleProof.fromPartial({
+    proofs,
+  });
+  return MerkleProof.encode(resp).finish();
 }
