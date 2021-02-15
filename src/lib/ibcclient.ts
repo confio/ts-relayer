@@ -801,6 +801,77 @@ export class IbcClient {
       channelId,
     };
   }
+
+  public async channelOpenAck(
+    portId: string,
+    channelId: string,
+    counterpartyChannelId: string,
+    counterpartyVersion: string,
+    proof: ChannelHandshakeProof
+  ): Promise<MsgResult> {
+    const senderAddress = this.senderAddress;
+    const { proofHeight, proofChannel: proofTry } = proof;
+    const createMsg = {
+      typeUrl: '/ibc.core.channel.v1.MsgChannelOpenAck',
+      value: MsgChannelOpenAck.fromPartial({
+        portId,
+        channelId,
+        counterpartyChannelId,
+        counterpartyVersion,
+        proofTry,
+        proofHeight,
+        signer: senderAddress,
+      }),
+    };
+    console.log(createMsg);
+
+    const result = await this.sign.signAndBroadcast(
+      senderAddress,
+      [createMsg],
+      fees.channelHandshake
+    );
+    if (isBroadcastTxFailure(result)) {
+      throw new Error(createBroadcastTxErrorMessage(result));
+    }
+    const parsedLogs = parseRawLog(result.rawLog);
+    return {
+      logs: parsedLogs,
+      transactionHash: result.transactionHash,
+    };
+  }
+
+  public async channelOpenConfirm(
+    portId: string,
+    channelId: string,
+    proof: ChannelHandshakeProof
+  ): Promise<MsgResult> {
+    const senderAddress = this.senderAddress;
+    const { proofHeight, proofChannel: proofAck } = proof;
+    const createMsg = {
+      typeUrl: '/ibc.core.channel.v1.MsgChannelOpenConfirm',
+      value: MsgChannelOpenConfirm.fromPartial({
+        portId,
+        channelId,
+        proofAck,
+        proofHeight,
+        signer: senderAddress,
+      }),
+    };
+
+    const result = await this.sign.signAndBroadcast(
+      senderAddress,
+      [createMsg],
+      fees.channelHandshake
+    );
+    if (isBroadcastTxFailure(result)) {
+      throw new Error(createBroadcastTxErrorMessage(result));
+    }
+    const parsedLogs = parseRawLog(result.rawLog);
+    return {
+      logs: parsedLogs,
+      transactionHash: result.transactionHash,
+    };
+  }
 }
 
 function mapRpcPubKeyToProto(pubkey?: RpcPubKey): ProtoPubKey | undefined {
@@ -923,7 +994,7 @@ export function buildClientState(
   });
 }
 
-export async function prepareHandshake(
+export async function prepareConnHandshake(
   src: IbcClient,
   dest: IbcClient,
   clientIdSrc: string,
@@ -940,5 +1011,21 @@ export async function prepareHandshake(
     connIdSrc,
     headerHeight
   );
+  return proof;
+}
+
+export async function prepareChannelHandshake(
+  src: IbcClient,
+  dest: IbcClient,
+  clientIdDest: string,
+  portId: string,
+  channelId: string
+): Promise<ChannelHandshakeProof> {
+  // ensure the last transaction was committed to the header (one block after it was included)
+  await src.waitOneBlock();
+  // update client on dest
+  const headerHeight = await dest.doUpdateClient(clientIdDest, src);
+  // get a proof (for the proven height)
+  const proof = await src.getChannelProof({ portId, channelId }, headerHeight);
   return proof;
 }

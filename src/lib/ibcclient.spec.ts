@@ -5,7 +5,7 @@ import {
   buildClientState,
   buildConsensusState,
   buildCreateClientArgs,
-  prepareHandshake,
+  prepareConnHandshake,
 } from './ibcclient';
 import { setup } from './testutils.spec';
 
@@ -77,7 +77,7 @@ function sameLong(a?: Long, b?: Long) {
 const genesisUnbondingTime = 1814400;
 
 // make 2 clients, and try to establish a connection
-test.serial('perform connection handshake', async (t) => {
+test.only('perform connection handshake', async (t) => {
   const [src, dest] = await setup();
 
   // client on dest -> src
@@ -104,7 +104,7 @@ test.serial('perform connection handshake', async (t) => {
   t.assert(srcConnId.startsWith('connection-'), srcConnId);
 
   // connectionTry on dest
-  const proof = await prepareHandshake(
+  const proof = await prepareConnHandshake(
     src,
     dest,
     srcClientId,
@@ -119,7 +119,7 @@ test.serial('perform connection handshake', async (t) => {
   t.assert(destConnId.startsWith('connection-'), destConnId);
 
   // connectionAck on src
-  const proofAck = await prepareHandshake(
+  const proofAck = await prepareConnHandshake(
     dest,
     src,
     destClientId,
@@ -129,7 +129,7 @@ test.serial('perform connection handshake', async (t) => {
   await src.connOpenAck(srcConnId, proofAck);
 
   // connectionConfirm on dest
-  const proofConfirm = await prepareHandshake(
+  const proofConfirm = await prepareConnHandshake(
     src,
     dest,
     srcClientId,

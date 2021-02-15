@@ -1,4 +1,4 @@
-import { toAscii } from '@cosmjs/encoding';
+import { toAscii, toHex } from '@cosmjs/encoding';
 import { createPagination, createRpc, QueryClient } from '@cosmjs/stargate';
 import Long from 'long';
 
@@ -277,7 +277,6 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           // TODO: perform pagination here
           return clientQueryService.ClientStates({});
         },
-        // TODO: how to pass in a query height over rpc?
         state: (clientId: string) => {
           return clientQueryService.ClientState({ clientId });
         },
@@ -341,6 +340,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
               `channelEnds/ports/${portId}/channels/${channelId}`
             );
             const proven = await base.queryRawProof('ibc', key, proveHeight);
+            console.log(toHex(proven.value));
             const channel = Channel.decode(proven.value);
             const proof = convertProofsToIcs23(proven.proof);
             const proofHeight = Height.fromPartial({

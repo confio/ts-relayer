@@ -2,6 +2,7 @@ import test from 'ava';
 
 import { Order } from '../codec/ibc/core/channel/v1/channel';
 
+import { prepareChannelHandshake } from './ibcclient';
 import { Link } from './link';
 import { setup } from './testutils.spec';
 
@@ -72,6 +73,7 @@ test.only('manual channel handshake on initialized connection', async (t) => {
   const [src, dest] = await setup();
   const link = await Link.createConnection(src, dest);
 
+  // init on src/A
   const { channelId: channelIdSrc } = await src.channelOpenInit(
     ics20.portId,
     ics20.portId,
@@ -81,16 +83,14 @@ test.only('manual channel handshake on initialized connection', async (t) => {
   );
   t.assert(channelIdSrc.startsWith('channel-'), channelIdSrc);
 
-  // ensure the last transaction was committed to the header (one block after it was included)
-  await src.waitOneBlock();
-  // update client on dest
-  const headerHeight = await dest.doUpdateClient(link.endB.clientID, src);
-  // get a proof (for the proven height)
-  const proof = await src.getChannelProof(
-    { portId: ics20.portId, channelId: channelIdSrc },
-    headerHeight
+  // try on dest/B
+  const proof = await prepareChannelHandshake(
+    src,
+    dest,
+    link.endB.clientID,
+    ics20.portId,
+    channelIdSrc
   );
-
   const { channelId: channelIdDest } = await dest.channelOpenTry(
     ics20.portId,
     { portId: ics20.portId, channelId: channelIdSrc },
@@ -101,4 +101,30 @@ test.only('manual channel handshake on initialized connection', async (t) => {
     proof
   );
   t.assert(channelIdDest.startsWith('channel-'), channelIdDest);
+
+  // ack on src/A
+  const proofAck = await prepareChannelHandshake(
+    dest,
+    src,
+    link.endA.clientID,
+    ics20.portId,
+    channelIdDest
+  );
+  await src.channelOpenAck(
+    ics20.portId,
+    channelIdSrc,
+    channelIdDest,
+    ics20.version,
+    proofAck
+  );
+
+  // confirm on dest/B
+  const proofConfirm = await prepareChannelHandshake(
+    src,
+    dest,
+    link.endB.clientID,
+    ics20.portId,
+    channelIdSrc
+  );
+  await dest.channelOpenConfirm(ics20.portId, channelIdDest, proofConfirm);
 });

@@ -2,7 +2,7 @@ import { Endpoint, findClient, findConnection } from './endpoint';
 import {
   buildCreateClientArgs,
   IbcClient,
-  prepareHandshake,
+  prepareConnHandshake,
 } from './ibcclient';
 
 /**
@@ -95,7 +95,7 @@ export class Link {
     );
 
     // connectionTry on nodeB
-    const proof = await prepareHandshake(
+    const proof = await prepareConnHandshake(
       nodeA,
       nodeB,
       clientIdA,
@@ -105,7 +105,7 @@ export class Link {
     const { connectionId: connIdB } = await nodeB.connOpenTry(clientIdB, proof);
 
     // connectionAck on nodeA
-    const proofAck = await prepareHandshake(
+    const proofAck = await prepareConnHandshake(
       nodeB,
       nodeA,
       clientIdB,
@@ -115,7 +115,7 @@ export class Link {
     await nodeA.connOpenAck(connIdA, proofAck);
 
     // connectionConfirm on dest
-    const proofConfirm = await prepareHandshake(
+    const proofConfirm = await prepareConnHandshake(
       nodeA,
       nodeB,
       clientIdA,
