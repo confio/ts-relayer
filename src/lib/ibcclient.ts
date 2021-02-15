@@ -14,6 +14,7 @@ import {
   SigningStargateClient,
   SigningStargateClientOptions,
 } from '@cosmjs/stargate';
+// import { firstEvent } from '@cosmjs/stream';
 import {
   adaptor34,
   CommitResponse,
@@ -209,7 +210,8 @@ export class IbcClient {
   }
 
   public async waitOneBlock(): Promise<void> {
-    // TODO: subscription/poll, but really check
+    // TODO: this works but only for websocket connections, is there some code that falls back to polling in cosmjs?
+    // await firstEvent(this.tm.subscribeNewBlockHeader());
     await sleep(500);
   }
 
