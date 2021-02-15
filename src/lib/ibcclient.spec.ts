@@ -93,7 +93,7 @@ function sameLong(a?: Long, b?: Long) {
 const genesisUnbondingTime = 1814400;
 
 // make 2 clients, and try to establish a connection
-test.serial('start connection handshake', async (t) => {
+test.only('start connection handshake', async (t) => {
   // create apps and fund an account
   const mnemonic = generateMnemonic();
   const { address: srcAddress, client: src } = await signingClient(
@@ -115,6 +115,10 @@ test.serial('start connection handshake', async (t) => {
     args.consensusState
   );
   t.assert(destClientId.startsWith('07-tendermint-'));
+  const state1 = await dest.query.ibc.client.stateTm(destClientId);
+  console.error(
+    `Init dest height: ${state1.latestHeight?.revisionHeight.toNumber()}`
+  );
 
   // client on src -> dest
   const args2 = await buildCreateClientArgs(dest, genesisUnbondingTime, 5000);
@@ -124,6 +128,10 @@ test.serial('start connection handshake', async (t) => {
     args2.consensusState
   );
   t.assert(srcClientId.startsWith('07-tendermint-'));
+  const state2 = await src.query.ibc.client.stateTm(srcClientId);
+  console.error(
+    `Init src height: ${state2.latestHeight?.revisionHeight.toNumber()}`
+  );
 
   // connectionInit on src
   const { connectionId: srcConnId } = await src.connOpenInit(
@@ -143,6 +151,12 @@ test.serial('start connection handshake', async (t) => {
     destClientId,
     src
   );
+  console.error(`updateDest msg height: ${headerHeight}`);
+  const state3 = await dest.query.ibc.client.stateTm(destClientId);
+  console.error(
+    `updateDest state height: ${state3.latestHeight?.revisionHeight.toNumber()}`
+  );
+
   // get a proof (for the proven height)
   const proof = await src.getConnectionProof(
     srcClientId,
@@ -156,4 +170,48 @@ test.serial('start connection handshake', async (t) => {
     proof
   );
   t.assert(destConnId.startsWith('connection-'), destConnId);
+
+  // connectionAck on src - many steps
+
+  // first, get a header that can prove connOpenTry and update src Client
+  await dest.waitOneBlock();
+  // update client on dest
+  const headerHeightAck = await src.doUpdateClient(
+    srcAddress,
+    srcClientId,
+    dest
+  );
+  console.error(`updateSrc msg height: ${headerHeightAck}`);
+  const state4 = await src.query.ibc.client.stateTm(srcClientId);
+  console.error(
+    `updateSrc state height: ${state4.latestHeight?.revisionHeight.toNumber()}`
+  );
+
+  // get a proof (for the proven height)
+  const proofAck = await dest.getConnectionProof(
+    destClientId,
+    destConnId,
+    headerHeightAck
+  );
+  // now post and hope it is accepted
+  await src.connOpenAck(srcAddress, srcConnId, proofAck);
+
+  // connectionConfirm on dest - many steps
+
+  // first, get a header that can prove connOpenInit and update dest Client
+  await src.waitOneBlock();
+  // update client on dest
+  const headerHeightConfirm = await dest.doUpdateClient(
+    destAddress,
+    destClientId,
+    src
+  );
+  // get a proof (for the proven height)
+  const proofConfirm = await src.getConnectionProof(
+    srcClientId,
+    srcConnId,
+    headerHeightConfirm
+  );
+  // now post and hope it is accepted
+  await dest.connOpenConfirm(destAddress, proofConfirm);
 });

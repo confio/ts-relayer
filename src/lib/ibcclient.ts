@@ -121,9 +121,8 @@ interface ConnectionHandshakeProof {
   connectionId: string;
   clientState?: Any;
   proofHeight: Height;
-  // proof of the initialization the connection on Chain A: `UNITIALIZED ->
-  // INIT`
-  proofInit: Uint8Array;
+  // proof of the state of the connection on remote chain
+  proofConnection: Uint8Array;
   // proof of client state included in message
   proofClient: Uint8Array;
   // proof of client consensus state
@@ -338,7 +337,7 @@ export class IbcClient {
 
     // get the init proof
     const {
-      proof: proofInit,
+      proof: proofConnection,
     } = await this.query.ibc.proof.connection.connection(
       connectionId,
       queryHeight
@@ -358,7 +357,7 @@ export class IbcClient {
       clientState,
       connectionId,
       proofHeight: toProtoHeight(headerHeight),
-      proofInit,
+      proofConnection,
       proofClient,
       proofConsensus,
       consensusHeight,
@@ -417,9 +416,7 @@ export class IbcClient {
 
     const clientId = logs.findAttribute(
       parsedLogs,
-      // TODO: they enforce 'message' | 'transfer'
-      /* eslint @typescript-eslint/no-explicit-any: "off" */
-      'create_client' as any,
+      'create_client',
       'client_id'
     ).value;
     return {
@@ -455,11 +452,6 @@ export class IbcClient {
       throw new Error(createBroadcastTxErrorMessage(result));
     }
     const parsedLogs = parseRawLog(result.rawLog);
-    // const contractAddressAttr = logs.findAttribute(
-    //   parsedLogs,
-    //   'message',
-    //   'contract_address'
-    // );
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
@@ -516,7 +508,7 @@ export class IbcClient {
       connectionId,
       clientState,
       proofHeight,
-      proofInit,
+      proofConnection: proofInit,
       proofClient,
       proofConsensus,
       consensusHeight,
@@ -553,15 +545,88 @@ export class IbcClient {
     const parsedLogs = parseRawLog(result.rawLog);
     const myConnectionId = logs.findAttribute(
       parsedLogs,
-      // TODO: they enforce 'message' | 'transfer'
-      /* eslint @typescript-eslint/no-explicit-any: "off" */
-      'connection_open_try' as any,
+      'connection_open_try',
       'connection_id'
     ).value;
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
       connectionId: myConnectionId,
+    };
+  }
+
+  public async connOpenAck(
+    senderAddress: string,
+    myConnectionId: string,
+    proof: ConnectionHandshakeProof
+  ): Promise<MsgResult> {
+    const {
+      connectionId,
+      clientState,
+      proofHeight,
+      proofConnection: proofTry,
+      proofClient,
+      proofConsensus,
+      consensusHeight,
+    } = proof;
+    const createMsg = {
+      typeUrl: '/ibc.core.connection.v1.MsgConnectionOpenAck',
+      value: MsgConnectionOpenAck.fromPartial({
+        connectionId,
+        counterpartyConnectionId: myConnectionId,
+        version: defaultConnectionVersion,
+        signer: senderAddress,
+        clientState,
+        proofHeight,
+        proofTry,
+        proofClient,
+        proofConsensus,
+        consensusHeight,
+      }),
+    };
+
+    const result = await this.sign.signAndBroadcast(
+      senderAddress,
+      [createMsg],
+      fees.connectionHandshake
+    );
+    if (isBroadcastTxFailure(result)) {
+      throw new Error(createBroadcastTxErrorMessage(result));
+    }
+    const parsedLogs = parseRawLog(result.rawLog);
+    return {
+      logs: parsedLogs,
+      transactionHash: result.transactionHash,
+    };
+  }
+
+  public async connOpenConfirm(
+    senderAddress: string,
+    proof: ConnectionHandshakeProof
+  ): Promise<MsgResult> {
+    const { connectionId, proofHeight, proofConnection: proofAck } = proof;
+    const createMsg = {
+      typeUrl: '/ibc.core.connection.v1.MsgConnectionOpenConfirm',
+      value: MsgConnectionOpenConfirm.fromPartial({
+        connectionId,
+        signer: senderAddress,
+        proofHeight,
+        proofAck,
+      }),
+    };
+
+    const result = await this.sign.signAndBroadcast(
+      senderAddress,
+      [createMsg],
+      fees.connectionHandshake
+    );
+    if (isBroadcastTxFailure(result)) {
+      throw new Error(createBroadcastTxErrorMessage(result));
+    }
+    const parsedLogs = parseRawLog(result.rawLog);
+    return {
+      logs: parsedLogs,
+      transactionHash: result.transactionHash,
     };
   }
 }
