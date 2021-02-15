@@ -164,7 +164,7 @@ test('query account balance - wasmd', async (t) => {
   t.deepEqual(account[1], { amount: '1000000000', denom: wasmd.denomStaking });
 });
 
-test.skip('send initial funds - simapp', async (t) => {
+test.serial('send initial funds - simapp', async (t) => {
   const client = await queryClient(simapp);
   const newbie = randomAddress(simapp.prefix);
 
@@ -181,7 +181,7 @@ test.skip('send initial funds - simapp', async (t) => {
   t.deepEqual(account[0], { amount: '500', denom: simapp.denomFee });
 });
 
-test.skip('send initial funds - wasmd', async (t) => {
+test.serial('send initial funds - wasmd', async (t) => {
   const client = await queryClient(wasmd);
   const newbie = randomAddress(wasmd.prefix);
 

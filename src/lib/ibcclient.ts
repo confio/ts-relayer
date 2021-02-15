@@ -572,8 +572,8 @@ export class IbcClient {
     const createMsg = {
       typeUrl: '/ibc.core.connection.v1.MsgConnectionOpenAck',
       value: MsgConnectionOpenAck.fromPartial({
-        connectionId,
-        counterpartyConnectionId: myConnectionId,
+        connectionId: myConnectionId,
+        counterpartyConnectionId: connectionId,
         version: defaultConnectionVersion,
         signer: senderAddress,
         clientState,
