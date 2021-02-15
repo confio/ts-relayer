@@ -1,11 +1,19 @@
 import { Endpoint, findClient, findConnection } from './endpoint';
-import { IbcClient } from './ibcclient';
+import {
+  buildCreateClientArgs,
+  IbcClient,
+  prepareHandshake,
+} from './ibcclient';
 
 /**
  * Many actions on link focus on a src and a dest. Rather than add two functions,
  * we have `Side` to select if we initialize from A or B.
  */
 export type Side = 'A' | 'B';
+
+// measured in seconds
+// Note: client parameter is checked against the actual keeper - must use real values from genesis.json
+const genesisUnbondingTime = 1814400;
 
 /**
  * Link represents a Connection between a pair of blockchains (Nodes).
@@ -41,6 +49,31 @@ export class Link {
     return new Link(endA, endB);
   }
 
+  public static async createClients(
+    nodeA: IbcClient,
+    nodeB: IbcClient
+  ): Promise<string[]> {
+    // client on B pointing to A
+    const args = await buildCreateClientArgs(nodeA, genesisUnbondingTime, 5000);
+    const { clientId: clientIdB } = await nodeB.createTendermintClient(
+      args.clientState,
+      args.consensusState
+    );
+
+    // client on A pointing to B
+    const args2 = await buildCreateClientArgs(
+      nodeB,
+      genesisUnbondingTime,
+      5000
+    );
+    const { clientId: clientIdA } = await nodeA.createTendermintClient(
+      args2.clientState,
+      args2.consensusState
+    );
+
+    return [clientIdA, clientIdB];
+  }
+
   /**
    * createConnection will always create a new pair of clients and a Connection between the
    * two sides
@@ -50,55 +83,50 @@ export class Link {
    */
   /* eslint @typescript-eslint/no-unused-vars: "off" */
   public static async createConnection(
-    _nodeA: IbcClient,
-    _nodeB: IbcClient
-  ): Promise<Link> {
-    throw new Error('unimplemented');
-  }
-
-  /*
-// CreateConnection constructs and executes connection handshake messages in order to create
-// OPEN channels on chainA and chainB. The connection information of for chainA and chainB
-// are returned within a TestConnection struct. The function expects the connections to be
-// successfully opened otherwise testing will fail.
-func (coord *Coordinator) CreateConnection(
-	chainA, chainB *TestChain,
-	clientA, clientB string,
-) (*ibctesting.TestConnection, *ibctesting.TestConnection) {
-
-	connA, connB, err := coord.ConnOpenInit(chainA, chainB, clientA, clientB)
-	require.NoError(coord.t, err)
-
-	err = coord.ConnOpenTry(chainB, chainA, connB, connA)
-	require.NoError(coord.t, err)
-
-	err = coord.ConnOpenAck(chainA, chainB, connA, connB)
-	require.NoError(coord.t, err)
-
-	err = coord.ConnOpenConfirm(chainB, chainA, connB, connA)
-	require.NoError(coord.t, err)
-
-	return connA, connB
-}
-*/
-
-  /**
-   * findOrCreateConnection will try to reuse an existing Connection, but create a new one
-   * if not present.
-   *
-   * @param nodeA
-   * @param nodeB
-   */
-  public static async findOrCreateConnection(
     nodeA: IbcClient,
     nodeB: IbcClient
   ): Promise<Link> {
-    try {
-      const existing = await Link.findConnection(nodeA, nodeB);
-      return existing;
-    } catch {
-      return Link.createConnection(nodeA, nodeB);
-    }
+    const [clientIdA, clientIdB] = await Link.createClients(nodeA, nodeB);
+
+    // connectionInit on nodeA
+    const { connectionId: connIdA } = await nodeA.connOpenInit(
+      clientIdA,
+      clientIdB
+    );
+
+    // connectionTry on nodeB
+    const proof = await prepareHandshake(
+      nodeA,
+      nodeB,
+      clientIdA,
+      clientIdB,
+      connIdA
+    );
+    const { connectionId: connIdB } = await nodeB.connOpenTry(clientIdB, proof);
+
+    // connectionAck on nodeA
+    const proofAck = await prepareHandshake(
+      nodeB,
+      nodeA,
+      clientIdB,
+      clientIdA,
+      connIdB
+    );
+    await nodeA.connOpenAck(connIdA, proofAck);
+
+    // connectionConfirm on dest
+    const proofConfirm = await prepareHandshake(
+      nodeA,
+      nodeB,
+      clientIdA,
+      clientIdB,
+      connIdA
+    );
+    await nodeB.connOpenConfirm(proofConfirm);
+
+    const endA = new Endpoint(nodeA, clientIdA, connIdA);
+    const endB = new Endpoint(nodeB, clientIdB, connIdB);
+    return new Link(endA, endB);
   }
 
   // you can use this if you already have the info out of bounds
@@ -118,9 +146,7 @@ func (coord *Coordinator) CreateConnection(
    */
   public async updateClient(sender: Side): Promise<void> {
     const { src, dest } = this.getEnds(sender);
-
-    const commit = await src.getLatestCommit();
-    dest.updateClient(commit);
+    await dest.client.doUpdateClient(dest.clientID, src.client);
   }
 
   // TODO: define ordering type
