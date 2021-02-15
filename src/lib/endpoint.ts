@@ -45,7 +45,7 @@ export class Endpoint {
     _filter?: Filter,
     _minHeight?: number
   ): Promise<Packet[]> {
-    this.client.query.ibc.unverified.connectionChannels(this.connectionID);
+    this.client.query.ibc.channel.connectionChannels(this.connectionID);
 
     // these all work for one (port, channel).
     // shall we make this general (via filter) or hit up each channel one after another

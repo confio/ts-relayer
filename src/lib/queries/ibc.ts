@@ -1,8 +1,9 @@
 import { toAscii } from '@cosmjs/encoding';
-import { Uint64 } from '@cosmjs/math';
 import { createPagination, createRpc, QueryClient } from '@cosmjs/stargate';
 import Long from 'long';
 
+import { CommitmentProof } from '../../codec/confio/proofs';
+import { Any } from '../../codec/google/protobuf/any';
 import { Channel } from '../../codec/ibc/core/channel/v1/channel';
 import {
   QueryClientImpl as ChannelQuery,
@@ -17,10 +18,16 @@ import {
   QueryUnreceivedAcksResponse,
   QueryUnreceivedPacketsResponse,
 } from '../../codec/ibc/core/channel/v1/query';
+import { Height } from '../../codec/ibc/core/client/v1/client';
 import {
   QueryClientImpl as ClientQuery,
+  QueryClientStateResponse,
   QueryClientStatesResponse,
+  QueryConsensusStateRequest,
+  QueryConsensusStateResponse,
 } from '../../codec/ibc/core/client/v1/query';
+import { MerkleProof } from '../../codec/ibc/core/commitment/v1/commitment';
+import { ConnectionEnd } from '../../codec/ibc/core/connection/v1/connection';
 import {
   QueryClientImpl as ConnectionQuery,
   QueryClientConnectionsResponse,
@@ -28,33 +35,11 @@ import {
   QueryConnectionsResponse,
 } from '../../codec/ibc/core/connection/v1/query';
 import { ClientState as TendermintClientState } from '../../codec/ibc/lightclients/tendermint/v1/tendermint';
+import { ProofOps } from '../../codec/tendermint/crypto/proof';
 
 export interface IbcExtension {
   readonly ibc: {
-    readonly channel: (
-      portId: string,
-      channelId: string
-    ) => Promise<Channel | null>;
-    readonly packetCommitment: (
-      portId: string,
-      channelId: string,
-      sequence: number
-    ) => Promise<Uint8Array>;
-    readonly packetAcknowledgement: (
-      portId: string,
-      channelId: string,
-      sequence: number
-    ) => Promise<Uint8Array>;
-    readonly nextSequenceReceive: (
-      portId: string,
-      channelId: string
-    ) => Promise<number | null>;
-    readonly unverified: {
-      // Queries for ibc.core.channel.v1
-      readonly clientStates: () => Promise<QueryClientStatesResponse>;
-      readonly clientState: (
-        clientId: string
-      ) => Promise<TendermintClientState>;
+    readonly channel: {
       readonly channel: (
         portId: string,
         channelId: string
@@ -100,9 +85,17 @@ export interface IbcExtension {
         portId: string,
         channelId: string
       ) => Promise<QueryNextSequenceReceiveResponse>;
-
-      // Queries for ibc.core.connection.v1
-
+    };
+    readonly client: {
+      readonly states: () => Promise<QueryClientStatesResponse>;
+      readonly state: (clientId: string) => Promise<QueryClientStateResponse>;
+      readonly stateTm: (clientId: string) => Promise<TendermintClientState>;
+      readonly consensusState: (
+        clientId: string,
+        height?: number
+      ) => Promise<QueryConsensusStateResponse>;
+    };
+    readonly connection: {
       readonly connection: (
         connectionId: string
       ) => Promise<QueryConnectionResponse>;
@@ -112,6 +105,45 @@ export interface IbcExtension {
       readonly clientConnections: (
         clientId: string
       ) => Promise<QueryClientConnectionsResponse>;
+    };
+    readonly proof: {
+      readonly channel: {
+        readonly channel: (
+          portId: string,
+          channelId: string
+        ) => Promise<QueryChannelResponse>;
+        readonly packetCommitment: (
+          portId: string,
+          channelId: string,
+          sequence: number
+        ) => Promise<QueryPacketCommitmentResponse>;
+        readonly packetAcknowledgement: (
+          portId: string,
+          channelId: string,
+          sequence: number
+        ) => Promise<QueryPacketAcknowledgementResponse>;
+        readonly nextSequenceReceive: (
+          portId: string,
+          channelId: string
+        ) => Promise<QueryNextSequenceReceiveResponse>;
+      };
+      readonly client: {
+        readonly state: (
+          clientId: string,
+          height?: number
+        ) => Promise<QueryClientStateResponse & { proofHeight: Height }>;
+        readonly consensusState: (
+          clientId: string,
+          consensusHeight: number,
+          proveHeight?: number
+        ) => Promise<QueryConsensusStateResponse>;
+      };
+      readonly connection: {
+        readonly connection: (
+          connectionId: string,
+          height?: number
+        ) => Promise<QueryConnectionResponse>;
+      };
     };
   };
 }
@@ -126,73 +158,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
 
   return {
     ibc: {
-      channel: async (portId: string, channelId: string) => {
-        // keeper: https://github.com/cosmos/cosmos-sdk/blob/3bafd8255a502e5a9cee07391cf8261538245dfd/x/ibc/04-channel/keeper/keeper.go#L55-L65
-        // key: https://github.com/cosmos/cosmos-sdk/blob/ef0a7344af345882729598bc2958a21143930a6b/x/ibc/24-host/keys.go#L117-L120
-        const key = toAscii(
-          `channelEnds/ports/${portId}/channels/${channelId}`
-        );
-        const responseData = await base.queryVerified('ibc', key);
-        return responseData.length ? Channel.decode(responseData) : null;
-      },
-      packetCommitment: async (
-        portId: string,
-        channelId: string,
-        sequence: number
-      ) => {
-        // keeper: https://github.com/cosmos/cosmos-sdk/blob/3bafd8255a502e5a9cee07391cf8261538245dfd/x/ibc/04-channel/keeper/keeper.go#L128-L133
-        // key: https://github.com/cosmos/cosmos-sdk/blob/ef0a7344af345882729598bc2958a21143930a6b/x/ibc/24-host/keys.go#L183-L185
-        const key = toAscii(
-          `commitments/ports/${portId}/channels/${channelId}/packets/${sequence}`
-        );
-        const responseData = await base.queryVerified('ibc', key);
-        // keeper code doesn't parse, but returns raw
-        return responseData;
-      },
-      packetAcknowledgement: async (
-        portId: string,
-        channelId: string,
-        sequence: number
-      ) => {
-        // keeper: https://github.com/cosmos/cosmos-sdk/blob/3bafd8255a502e5a9cee07391cf8261538245dfd/x/ibc/04-channel/keeper/keeper.go#L159-L166
-        // key: https://github.com/cosmos/cosmos-sdk/blob/ef0a7344af345882729598bc2958a21143930a6b/x/ibc/24-host/keys.go#L153-L156
-        const key = toAscii(
-          `acks/ports/${portId}/channels/${channelId}/acknowledgements/${sequence}`
-        );
-        const responseData = await base.queryVerified('ibc', key);
-        // keeper code doesn't parse, but returns raw
-        return responseData;
-      },
-      nextSequenceReceive: async (portId: string, channelId: string) => {
-        // keeper: https://github.com/cosmos/cosmos-sdk/blob/3bafd8255a502e5a9cee07391cf8261538245dfd/x/ibc/04-channel/keeper/keeper.go#L92-L101
-        // key: https://github.com/cosmos/cosmos-sdk/blob/ef0a7344af345882729598bc2958a21143930a6b/x/ibc/24-host/keys.go#L133-L136
-        const key = toAscii(
-          `seqAcks/ports/${portId}/channels/${channelId}/nextSequenceAck`
-        );
-        const responseData = await base.queryVerified('ibc', key);
-        return responseData.length
-          ? Uint64.fromBytes(responseData).toNumber()
-          : null;
-      },
-
-      unverified: {
-        clientStates: () => {
-          return clientQueryService.ClientStates({});
-        },
-        // TODO: add a non-parsing version, so we get the raw data and proof
-        clientState: async (clientId: string) => {
-          const res = await clientQueryService.ClientState({ clientId });
-          if (
-            res.clientState?.typeUrl !==
-            '/ibc.lightclients.tendermint.v1.ClientState'
-          ) {
-            throw new Error(
-              `Unexpected client state type: ${res.clientState?.typeUrl}`
-            );
-          }
-          return TendermintClientState.decode(res.clientState.value);
-        },
-        // Queries for ibc.core.channel.v1
+      channel: {
         channel: async (portId: string, channelId: string) => {
           const response = await channelQueryService.Channel({
             portId: portId,
@@ -304,9 +270,43 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           });
           return response;
         },
-
-        // Queries for ibc.core.connection.v1
-
+      },
+      client: {
+        states: () => {
+          return clientQueryService.ClientStates({});
+        },
+        // TODO: how to pass in a query height over rpc?
+        state: (clientId: string) => {
+          return clientQueryService.ClientState({ clientId });
+        },
+        stateTm: async (clientId: string) => {
+          const res = await clientQueryService.ClientState({ clientId });
+          if (
+            res.clientState?.typeUrl !==
+            '/ibc.lightclients.tendermint.v1.ClientState'
+          ) {
+            throw new Error(
+              `Unexpected client state type: ${res.clientState?.typeUrl}`
+            );
+          }
+          return TendermintClientState.decode(res.clientState.value);
+        },
+        consensusState: (clientId: string, consensusHeight?: number) => {
+          const request = consensusHeight
+            ? {
+                clientId,
+                revisionHeight: new Long(consensusHeight),
+              }
+            : {
+                clientId,
+                latestHeight: true,
+              };
+          return clientQueryService.ConsensusState(
+            QueryConsensusStateRequest.fromPartial(request)
+          );
+        },
+      },
+      connection: {
         connection: async (connectionId: string) => {
           const response = await connectionQueryService.Connection({
             connectionId: connectionId,
@@ -327,6 +327,159 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           return response;
         },
       },
+      proof: {
+        channel: {
+          channel: async (portId: string, channelId: string) => {
+            // key: https://github.com/cosmos/cosmos-sdk/blob/ef0a7344af345882729598bc2958a21143930a6b/x/ibc/24-host/keys.go#L117-L120
+            const key = toAscii(
+              `channelEnds/ports/${portId}/channels/${channelId}`
+            );
+            const proven = await base.queryRawProof('ibc', key);
+            const channel = Channel.decode(proven.value);
+            const proof = convertProofsToIcs23(proven.proof);
+            const proofHeight = Height.fromPartial({
+              revisionHeight: new Long(proven.height),
+            });
+            return {
+              channel: channel,
+              proof: proof,
+              proofHeight: proofHeight,
+            };
+          },
+          packetCommitment: async (
+            portId: string,
+            channelId: string,
+            sequence: number
+          ) => {
+            // key: https://github.com/cosmos/cosmos-sdk/blob/ef0a7344af345882729598bc2958a21143930a6b/x/ibc/24-host/keys.go#L183-L185
+            const key = toAscii(
+              `commitments/ports/${portId}/channels/${channelId}/packets/${sequence}`
+            );
+            const proven = await base.queryRawProof('ibc', key);
+            const commitment = proven.value;
+            const proof = convertProofsToIcs23(proven.proof);
+            const proofHeight = Height.fromPartial({
+              revisionHeight: new Long(proven.height),
+            });
+            return {
+              commitment: commitment,
+              proof: proof,
+              proofHeight: proofHeight,
+            };
+          },
+          packetAcknowledgement: async (
+            portId: string,
+            channelId: string,
+            sequence: number
+          ) => {
+            // keeper: https://github.com/cosmos/cosmos-sdk/blob/3bafd8255a502e5a9cee07391cf8261538245dfd/x/ibc/04-channel/keeper/keeper.go#L159-L166
+            // key: https://github.com/cosmos/cosmos-sdk/blob/ef0a7344af345882729598bc2958a21143930a6b/x/ibc/24-host/keys.go#L153-L156
+            const key = toAscii(
+              `acks/ports/${portId}/channels/${channelId}/acknowledgements/${sequence}`
+            );
+            const proven = await base.queryRawProof('ibc', key);
+            const acknowledgement = proven.value;
+            const proof = convertProofsToIcs23(proven.proof);
+            const proofHeight = Height.fromPartial({
+              revisionHeight: new Long(proven.height),
+            });
+            return {
+              acknowledgement: acknowledgement,
+              proof: proof,
+              proofHeight: proofHeight,
+            };
+          },
+          nextSequenceReceive: async (portId: string, channelId: string) => {
+            // keeper: https://github.com/cosmos/cosmos-sdk/blob/3bafd8255a502e5a9cee07391cf8261538245dfd/x/ibc/04-channel/keeper/keeper.go#L92-L101
+            // key: https://github.com/cosmos/cosmos-sdk/blob/ef0a7344af345882729598bc2958a21143930a6b/x/ibc/24-host/keys.go#L133-L136
+            const key = toAscii(
+              `seqAcks/ports/${portId}/channels/${channelId}/nextSequenceAck`
+            );
+            const proven = await base.queryRawProof('ibc', key);
+            const nextSequenceReceive = Long.fromBytesBE([...proven.value]);
+            const proof = convertProofsToIcs23(proven.proof);
+            const proofHeight = Height.fromPartial({
+              revisionHeight: new Long(proven.height),
+            });
+            return {
+              nextSequenceReceive: nextSequenceReceive,
+              proof: proof,
+              proofHeight: proofHeight,
+            };
+          },
+        },
+        client: {
+          state: async (clientId: string, height?: number) => {
+            const key = `clients/${clientId}/clientState`;
+            const proven = await base.queryRawProof(
+              'ibc',
+              toAscii(key),
+              height
+            );
+            const clientState = Any.decode(proven.value);
+            const proof = convertProofsToIcs23(proven.proof);
+            const proofHeight = Height.fromPartial({
+              revisionHeight: new Long(proven.height),
+            });
+            return {
+              clientState,
+              proof,
+              proofHeight,
+            };
+          },
+          consensusState: async (
+            clientId: string,
+            consensusHeight: number,
+            proveHeight?: number
+          ) => {
+            // TODO: accept other revisionNumber
+            const key = `clients/${clientId}/consensusStates/0-${consensusHeight}`;
+            const proven = await base.queryRawProof(
+              'ibc',
+              toAscii(key),
+              proveHeight
+            );
+            const consensusState = Any.decode(proven.value);
+            const proof = convertProofsToIcs23(proven.proof);
+            const proofHeight = Height.fromPartial({
+              revisionHeight: new Long(proven.height),
+            });
+            return {
+              consensusState,
+              proof,
+              proofHeight,
+            };
+          },
+        },
+        connection: {
+          connection: async (connectionId: string, height?: number) => {
+            const key = `connections/${connectionId}`;
+            const proven = await base.queryRawProof(
+              'ibc',
+              toAscii(key),
+              height
+            );
+            const connection = ConnectionEnd.decode(proven.value);
+            const proof = convertProofsToIcs23(proven.proof);
+            const proofHeight = Height.fromPartial({
+              revisionHeight: new Long(proven.height),
+            });
+            return {
+              connection,
+              proof,
+              proofHeight,
+            };
+          },
+        },
+      },
     },
   };
+}
+
+function convertProofsToIcs23(ops: ProofOps): Uint8Array {
+  const proofs = ops.ops.map((op) => CommitmentProof.decode(op.data));
+  const resp = MerkleProof.fromPartial({
+    proofs,
+  });
+  return MerkleProof.encode(resp).finish();
 }
