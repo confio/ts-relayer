@@ -110,7 +110,8 @@ export interface IbcExtension {
       readonly channel: {
         readonly channel: (
           portId: string,
-          channelId: string
+          channelId: string,
+          proveHeight?: number
         ) => Promise<QueryChannelResponse>;
         readonly packetCommitment: (
           portId: string,
@@ -273,6 +274,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
       },
       client: {
         states: () => {
+          // TODO: perform pagination here
           return clientQueryService.ClientStates({});
         },
         // TODO: how to pass in a query height over rpc?
@@ -329,12 +331,16 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
       },
       proof: {
         channel: {
-          channel: async (portId: string, channelId: string) => {
+          channel: async (
+            portId: string,
+            channelId: string,
+            proveHeight?: number
+          ) => {
             // key: https://github.com/cosmos/cosmos-sdk/blob/ef0a7344af345882729598bc2958a21143930a6b/x/ibc/24-host/keys.go#L117-L120
             const key = toAscii(
               `channelEnds/ports/${portId}/channels/${channelId}`
             );
-            const proven = await base.queryRawProof('ibc', key);
+            const proven = await base.queryRawProof('ibc', key, proveHeight);
             const channel = Channel.decode(proven.value);
             const proof = convertProofsToIcs23(proven.proof);
             const proofHeight = Height.fromPartial({

@@ -97,6 +97,7 @@ test.only('manual channel handshake on initialized connection', async (t) => {
     ics20.ordering,
     link.endA.connectionID,
     ics20.version,
+    ics20.version,
     proof
   );
   t.assert(channelIdDest.startsWith('channel-'), channelIdDest);

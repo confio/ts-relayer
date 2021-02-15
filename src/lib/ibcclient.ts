@@ -413,20 +413,18 @@ export class IbcClient {
     id: ChannelCounterparty,
     headerHeight: number
   ): Promise<ChannelHandshakeProof> {
-    // const queryHeight = headerHeight - 1;
+    const queryHeight = headerHeight - 1;
 
-    // const {
-    //   clientState,
-    //   proof: proofClient,
-    //   // proofHeight,
-    // } = await this.query.ibc.proof.client.state(clientId, queryHeight);
-
-    const proofChannel = toAscii('TODO');
+    const { proof } = await this.query.ibc.proof.channel.channel(
+      id.portId,
+      id.channelId,
+      queryHeight
+    );
 
     return {
       id,
       proofHeight: toProtoHeight(headerHeight),
-      proofChannel,
+      proofChannel: proof,
     };
   }
 
@@ -760,6 +758,7 @@ export class IbcClient {
     ordering: Order,
     connectionId: string,
     version: string,
+    counterpartyVersion: string,
     proof: ChannelHandshakeProof
   ): Promise<CreateChannelResult> {
     const senderAddress = this.senderAddress;
@@ -768,6 +767,7 @@ export class IbcClient {
       typeUrl: '/ibc.core.channel.v1.MsgChannelOpenTry',
       value: MsgChannelOpenTry.fromPartial({
         portId,
+        counterpartyVersion,
         channel: {
           state: State.STATE_TRYOPEN,
           ordering,
@@ -784,7 +784,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [createMsg],
-      fees.initChannel
+      fees.channelHandshake
     );
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
@@ -792,7 +792,7 @@ export class IbcClient {
     const parsedLogs = parseRawLog(result.rawLog);
     const channelId = logs.findAttribute(
       parsedLogs,
-      'channel_open_init',
+      'channel_open_try',
       'channel_id'
     ).value;
     return {
