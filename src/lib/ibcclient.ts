@@ -1,5 +1,5 @@
 import { toAscii } from '@cosmjs/encoding';
-import { coins, logs, StdFee } from '@cosmjs/launchpad';
+import { coins, logs } from '@cosmjs/launchpad';
 import { OfflineSigner, Registry } from '@cosmjs/proto-signing';
 import {
   AuthExtension,
@@ -19,6 +19,7 @@ import {
   CommitResponse,
   ReadonlyDateWithNanoseconds,
   Header as RpcHeader,
+  ValidatorPubkey as RpcPubKey,
   Client as TendermintClient,
 } from '@cosmjs/tendermint-rpc';
 import { arrayContentEquals, sleep } from '@cosmjs/utils';
@@ -44,6 +45,7 @@ import {
   ConsensusState as TendermintConsensusState,
   Header as TendermintHeader,
 } from '../codec/ibc/lightclients/tendermint/v1/tendermint';
+import { PublicKey as ProtoPubKey } from '../codec/tendermint/crypto/keys';
 import {
   blockIDFlagFromJSON,
   Commit,
@@ -132,6 +134,26 @@ function createBroadcastTxErrorMessage(result: BroadcastTxFailure): string {
   return `Error when broadcasting tx ${result.transactionHash} at height ${result.height}. Code: ${result.code}; Raw log: ${result.rawLog}`;
 }
 
+// TODO: replace this with buildFees in IbcClient constructor to take custom gasPrice, override gas needed
+const fees = {
+  initClient: {
+    amount: coins(2500, 'ucosm'),
+    gas: '100000',
+  },
+  updateClient: {
+    amount: coins(10000, 'ucosm'),
+    gas: '400000',
+  },
+  initConnection: {
+    amount: coins(2500, 'ucosm'),
+    gas: '100000',
+  },
+  connectionHandshake: {
+    amount: coins(5000, 'ucosm'),
+    gas: '200000',
+  },
+};
+
 export class IbcClient {
   public readonly sign: SigningStargateClient;
   public readonly query: QueryClient &
@@ -175,11 +197,13 @@ export class IbcClient {
   }
 
   public async latestHeader(): Promise<RpcHeader> {
+    // TODO: expose header method on tmClient and use that
     const block = await this.tm.block();
     return block.block.header;
   }
 
   public async header(height: number): Promise<RpcHeader> {
+    // TODO: expose header method on tmClient and use that
     const resp = await this.tm.blockchain(height, height);
     return resp.blockMetas[0].header;
   }
@@ -236,12 +260,7 @@ export class IbcClient {
     const validators = await this.tm.validators(height);
     const mappedValidators = validators.validators.map((val) => ({
       address: val.address,
-      // TODO: map to handle secp as well (check val.pubkey.type)
-      pubKey: val.pubkey
-        ? {
-            ed25519: val.pubkey.data,
-          }
-        : undefined,
+      pubKey: mapRpcPubKeyToProto(val.pubkey),
       votingPower: new Long(val.votingPower),
       proposerPriority: val.proposerPriority
         ? new Long(val.proposerPriority)
@@ -295,32 +314,33 @@ export class IbcClient {
   // and include a proof for the connOpenInit (eg. must be 1 or more blocks after the
   // block connOpenInit Tx was in).
   //
-  // pass a specific height to get a proof from that height, otherwise undefined for latest block
+  // pass a header height that was previously updated to on the remote chain using updateClient.
+  // note: the queries will be for the block before this header, so the proofs match up (appHash is on H+1)
   public async getConnectionProof(
     clientId: string,
     connectionId: string,
-    height: number
+    headerHeight: number
   ): Promise<ConnectionHandshakeProof> {
-    console.log(`requested: ${height}`);
+    const queryHeight = headerHeight - 1;
 
     const {
       clientState,
       proof: proofClient,
       // proofHeight,
-    } = await this.query.ibc.proof.client.state(clientId, height);
+    } = await this.query.ibc.proof.client.state(clientId, queryHeight);
 
     // This is the most recent state we have on this chain of the other
     const {
       latestHeight: consensusHeight,
     } = await this.query.ibc.client.stateTm(clientId);
-    console.log(`consensus height: ${toIntHeight(consensusHeight)}`);
 
     // get the init proof
     const {
       proof: proofInit,
-      proofHeight: connectionHeight,
-    } = await this.query.ibc.proof.connection.connection(connectionId, height);
-    console.log(`connection height: ${toIntHeight(connectionHeight)}`);
+    } = await this.query.ibc.proof.connection.connection(
+      connectionId,
+      queryHeight
+    );
 
     // get the consensus proof
     const {
@@ -328,21 +348,40 @@ export class IbcClient {
     } = await this.query.ibc.proof.client.consensusState(
       clientId,
       toIntHeight(consensusHeight),
-      height
+      queryHeight
     );
 
     return {
       clientId,
       clientState,
       connectionId,
-      // TODO: sort this out better.. we need to abci query one height less than the header
-      proofHeight: toProtoHeight(height + 1),
+      proofHeight: toProtoHeight(headerHeight),
       proofInit,
       proofClient,
       proofConsensus,
       consensusHeight,
     };
   }
+
+  /*
+  These are helpers to query, build data and submit a message
+  Currenly all prefixed with doXxx, but please look for better naming
+  */
+
+  // Updates existing client on this chain with data from src chain.
+  // Returns the height that was updated to.
+  public async doUpdateClient(
+    address: string,
+    clientId: string,
+    src: IbcClient
+  ): Promise<number> {
+    const { latestHeight } = await this.query.ibc.client.stateTm(clientId);
+    const header = await src.buildHeader(toIntHeight(latestHeight));
+    await this.updateTendermintClient(address, clientId, header);
+    return header.signedHeader?.header?.height?.toNumber() ?? 0;
+  }
+
+  /***** These are all direct wrappers around message constructors ********/
 
   public async createTendermintClient(
     senderAddress: string,
@@ -364,16 +403,10 @@ export class IbcClient {
       }),
     };
 
-    // TODO: use lookup table, proper values here
-    const fee: StdFee = {
-      amount: coins(5000, 'ucosm'),
-      gas: '1000000',
-    };
-
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [createMsg],
-      fee
+      fees.initClient
     );
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
@@ -411,16 +444,10 @@ export class IbcClient {
       }),
     };
 
-    // TODO: use lookup table, proper values here
-    const fee: StdFee = {
-      amount: coins(5000, 'ucosm'),
-      gas: '1000000',
-    };
-
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [updateMsg],
-      fee
+      fees.updateClient
     );
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
@@ -456,16 +483,10 @@ export class IbcClient {
       }),
     };
 
-    // TODO: use lookup table, proper values here
-    const fee: StdFee = {
-      amount: coins(5000, 'ucosm'),
-      gas: '1000000',
-    };
-
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [createMsg],
-      fee
+      fees.initConnection
     );
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
@@ -519,16 +540,10 @@ export class IbcClient {
       }),
     };
 
-    // TODO: use lookup table, proper values here
-    const fee: StdFee = {
-      amount: coins(5000, 'ucosm'),
-      gas: '1000000',
-    };
-
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [createMsg],
-      fee
+      fees.connectionHandshake
     );
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
@@ -546,6 +561,25 @@ export class IbcClient {
       transactionHash: result.transactionHash,
       connectionId: myConnectionId,
     };
+  }
+}
+
+function mapRpcPubKeyToProto(pubkey?: RpcPubKey): ProtoPubKey | undefined {
+  if (pubkey === undefined) {
+    return undefined;
+  }
+  if (pubkey.algorithm == 'ed25519') {
+    return {
+      ed25519: pubkey.data,
+      secp256k1: undefined,
+    };
+  } else if (pubkey.algorithm == 'secp256k1') {
+    return {
+      ed25519: undefined,
+      secp256k1: pubkey.data,
+    };
+  } else {
+    throw new Error(`Unknown validator pubkey type: ${pubkey.algorithm}`);
   }
 }
 

@@ -5,7 +5,6 @@ import {
   buildClientState,
   buildConsensusState,
   buildCreateClientArgs,
-  toIntHeight,
 } from './ibcclient';
 import {
   fundAccount,
@@ -89,6 +88,10 @@ function sameLong(a?: Long, b?: Long) {
   return a.equals(b);
 }
 
+// measured in seconds
+// Note: client parameter is checked against the actual keeper - must use real values from genesis.json
+const genesisUnbondingTime = 1814400;
+
 // make 2 clients, and try to establish a connection
 test.serial('start connection handshake', async (t) => {
   // create apps and fund an account
@@ -105,8 +108,7 @@ test.serial('start connection handshake', async (t) => {
   await fundAccount(simapp, srcAddress, '100000');
 
   // client on dest -> src
-  // Note: unbonding time (first parameter is checked against the actual keeper - must use real values from genesis.json)
-  const args = await buildCreateClientArgs(src, 1814400, 5000);
+  const args = await buildCreateClientArgs(src, genesisUnbondingTime, 5000);
   const { clientId: destClientId } = await dest.createTendermintClient(
     destAddress,
     args.clientState,
@@ -115,7 +117,7 @@ test.serial('start connection handshake', async (t) => {
   t.assert(destClientId.startsWith('07-tendermint-'));
 
   // client on src -> dest
-  const args2 = await buildCreateClientArgs(dest, 1814400, 5000);
+  const args2 = await buildCreateClientArgs(dest, genesisUnbondingTime, 5000);
   const { clientId: srcClientId } = await src.createTendermintClient(
     srcAddress,
     args2.clientState,
@@ -136,19 +138,16 @@ test.serial('start connection handshake', async (t) => {
   // first, get a header that can prove connOpenInit and update dest Client
   await src.waitOneBlock();
   // update client on dest
-  // TODO: extract to a function
-  const { latestHeight } = await dest.query.ibc.client.stateTm(destClientId);
-  const tryProofHeader = await src.buildHeader(toIntHeight(latestHeight));
-  await dest.updateTendermintClient(destAddress, destClientId, tryProofHeader);
-  // this is a hack, query at H commits to app_hash in header H+1
-  const proofHeight =
-    (tryProofHeader.signedHeader?.header?.height?.toNumber() ?? 1) - 1;
-
+  const headerHeight = await dest.doUpdateClient(
+    destAddress,
+    destClientId,
+    src
+  );
   // get a proof (for the proven height)
   const proof = await src.getConnectionProof(
     srcClientId,
     srcConnId,
-    proofHeight
+    headerHeight
   );
   // now post and hope it is accepted
   const { connectionId: destConnId } = await dest.connOpenTry(
