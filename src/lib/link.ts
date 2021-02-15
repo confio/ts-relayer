@@ -112,7 +112,7 @@ export class Link {
       clientIdA,
       connIdB
     );
-    await nodeA.connOpenAck(clientIdA, proofAck);
+    await nodeA.connOpenAck(connIdA, proofAck);
 
     // connectionConfirm on dest
     const proofConfirm = await prepareHandshake(
@@ -127,51 +127,6 @@ export class Link {
     const endA = new Endpoint(nodeA, clientIdA, connIdA);
     const endB = new Endpoint(nodeB, clientIdB, connIdB);
     return new Link(endA, endB);
-  }
-
-  /*
-// CreateConnection constructs and executes connection handshake messages in order to create
-// OPEN channels on chainA and chainB. The connection information of for chainA and chainB
-// are returned within a TestConnection struct. The function expects the connections to be
-// successfully opened otherwise testing will fail.
-func (coord *Coordinator) CreateConnection(
-	chainA, chainB *TestChain,
-	clientA, clientB string,
-) (*ibctesting.TestConnection, *ibctesting.TestConnection) {
-
-	connA, connB, err := coord.ConnOpenInit(chainA, chainB, clientA, clientB)
-	require.NoError(coord.t, err)
-
-	err = coord.ConnOpenTry(chainB, chainA, connB, connA)
-	require.NoError(coord.t, err)
-
-	err = coord.ConnOpenAck(chainA, chainB, connA, connB)
-	require.NoError(coord.t, err)
-
-	err = coord.ConnOpenConfirm(chainB, chainA, connB, connA)
-	require.NoError(coord.t, err)
-
-	return connA, connB
-}
-*/
-
-  /**
-   * findOrCreateConnection will try to reuse an existing Connection, but create a new one
-   * if not present.
-   *
-   * @param nodeA
-   * @param nodeB
-   */
-  public static async findOrCreateConnection(
-    nodeA: IbcClient,
-    nodeB: IbcClient
-  ): Promise<Link> {
-    try {
-      const existing = await Link.findConnection(nodeA, nodeB);
-      return existing;
-    } catch {
-      return Link.createConnection(nodeA, nodeB);
-    }
   }
 
   // you can use this if you already have the info out of bounds
@@ -191,9 +146,7 @@ func (coord *Coordinator) CreateConnection(
    */
   public async updateClient(sender: Side): Promise<void> {
     const { src, dest } = this.getEnds(sender);
-
-    const commit = await src.getLatestCommit();
-    dest.updateClient(commit);
+    await dest.client.doUpdateClient(dest.clientID, src.client);
   }
 
   // TODO: define ordering type

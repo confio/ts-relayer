@@ -371,7 +371,7 @@ export class IbcClient {
 
   /*
   These are helpers to query, build data and submit a message
-  Currenly all prefixed with doXxx, but please look for better naming
+  Currently all prefixed with doXxx, but please look for better naming
   */
 
   // Updates existing client on this chain with data from src chain.
