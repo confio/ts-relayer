@@ -1,11 +1,19 @@
 import { Endpoint, findClient, findConnection } from './endpoint';
-import { IbcClient } from './ibcclient';
+import {
+  buildCreateClientArgs,
+  IbcClient,
+  prepareHandshake,
+} from './ibcclient';
 
 /**
  * Many actions on link focus on a src and a dest. Rather than add two functions,
  * we have `Side` to select if we initialize from A or B.
  */
 export type Side = 'A' | 'B';
+
+// measured in seconds
+// Note: client parameter is checked against the actual keeper - must use real values from genesis.json
+const genesisUnbondingTime = 1814400;
 
 /**
  * Link represents a Connection between a pair of blockchains (Nodes).
@@ -41,6 +49,31 @@ export class Link {
     return new Link(endA, endB);
   }
 
+  public static async createClients(
+    nodeA: IbcClient,
+    nodeB: IbcClient
+  ): Promise<string[]> {
+    // client on B pointing to A
+    const args = await buildCreateClientArgs(nodeA, genesisUnbondingTime, 5000);
+    const { clientId: clientIdB } = await nodeB.createTendermintClient(
+      args.clientState,
+      args.consensusState
+    );
+
+    // client on A pointing to B
+    const args2 = await buildCreateClientArgs(
+      nodeB,
+      genesisUnbondingTime,
+      5000
+    );
+    const { clientId: clientIdA } = await nodeA.createTendermintClient(
+      args2.clientState,
+      args2.consensusState
+    );
+
+    return [clientIdA, clientIdB];
+  }
+
   /**
    * createConnection will always create a new pair of clients and a Connection between the
    * two sides
@@ -50,10 +83,50 @@ export class Link {
    */
   /* eslint @typescript-eslint/no-unused-vars: "off" */
   public static async createConnection(
-    _nodeA: IbcClient,
-    _nodeB: IbcClient
+    nodeA: IbcClient,
+    nodeB: IbcClient
   ): Promise<Link> {
-    throw new Error('unimplemented');
+    const [clientIdA, clientIdB] = await Link.createClients(nodeA, nodeB);
+
+    // connectionInit on nodeA
+    const { connectionId: connIdA } = await nodeA.connOpenInit(
+      clientIdA,
+      clientIdB
+    );
+
+    // connectionTry on nodeB
+    const proof = await prepareHandshake(
+      nodeA,
+      nodeB,
+      clientIdA,
+      clientIdB,
+      connIdA
+    );
+    const { connectionId: connIdB } = await nodeB.connOpenTry(clientIdB, proof);
+
+    // connectionAck on nodeA
+    const proofAck = await prepareHandshake(
+      nodeB,
+      nodeA,
+      clientIdB,
+      clientIdA,
+      connIdB
+    );
+    await nodeA.connOpenAck(clientIdA, proofAck);
+
+    // connectionConfirm on dest
+    const proofConfirm = await prepareHandshake(
+      nodeA,
+      nodeB,
+      clientIdA,
+      clientIdB,
+      connIdA
+    );
+    await nodeB.connOpenConfirm(proofConfirm);
+
+    const endA = new Endpoint(nodeA, clientIdA, connIdA);
+    const endB = new Endpoint(nodeB, clientIdB, connIdB);
+    return new Link(endA, endB);
   }
 
   /*

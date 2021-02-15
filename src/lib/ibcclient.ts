@@ -767,3 +767,23 @@ export function buildClientState(
     allowUpdateAfterMisbehaviour: false,
   });
 }
+
+export async function prepareHandshake(
+  src: IbcClient,
+  dest: IbcClient,
+  clientIdSrc: string,
+  clientIdDest: string,
+  connIdSrc: string
+): Promise<ConnectionHandshakeProof> {
+  // ensure the last transaction was committed to the header (one block after it was included)
+  await src.waitOneBlock();
+  // update client on dest
+  const headerHeight = await dest.doUpdateClient(clientIdDest, src);
+  // get a proof (for the proven height)
+  const proof = await src.getConnectionProof(
+    clientIdSrc,
+    connIdSrc,
+    headerHeight
+  );
+  return proof;
+}

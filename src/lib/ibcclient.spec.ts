@@ -5,6 +5,7 @@ import {
   buildClientState,
   buildConsensusState,
   buildCreateClientArgs,
+  prepareHandshake,
 } from './ibcclient';
 import {
   fundAccount,
@@ -120,18 +121,13 @@ test.serial('perform connection handshake', async (t) => {
   );
   t.assert(srcConnId.startsWith('connection-'), srcConnId);
 
-  // connectionTry on dest - many steps
-
-  // first, get a header that can prove connOpenInit and update dest Client
-  await src.waitOneBlock();
-  // update client on dest
-  const headerHeight = await dest.doUpdateClient(destClientId, src);
-
-  // get a proof (for the proven height)
-  const proof = await src.getConnectionProof(
+  // connectionTry on dest
+  const proof = await prepareHandshake(
+    src,
+    dest,
     srcClientId,
-    srcConnId,
-    headerHeight
+    destClientId,
+    srcConnId
   );
   // now post and hope it is accepted
   const { connectionId: destConnId } = await dest.connOpenTry(
@@ -140,34 +136,23 @@ test.serial('perform connection handshake', async (t) => {
   );
   t.assert(destConnId.startsWith('connection-'), destConnId);
 
-  // connectionAck on src - many steps
-
-  // first, get a header that can prove connOpenTry and update src Client
-  await dest.waitOneBlock();
-  // update client on dest
-  const headerHeightAck = await src.doUpdateClient(srcClientId, dest);
-
-  // get a proof (for the proven height)
-  const proofAck = await dest.getConnectionProof(
+  // connectionAck on src
+  const proofAck = await prepareHandshake(
+    dest,
+    src,
     destClientId,
-    destConnId,
-    headerHeightAck
+    srcClientId,
+    destConnId
   );
-  // now post and hope it is accepted
   await src.connOpenAck(srcConnId, proofAck);
 
-  // connectionConfirm on dest - many steps
-
-  // first, get a header that can prove connOpenInit and update dest Client
-  await src.waitOneBlock();
-  // update client on dest
-  const headerHeightConfirm = await dest.doUpdateClient(destClientId, src);
-  // get a proof (for the proven height)
-  const proofConfirm = await src.getConnectionProof(
+  // connectionConfirm on dest
+  const proofConfirm = await prepareHandshake(
+    src,
+    dest,
     srcClientId,
-    srcConnId,
-    headerHeightConfirm
+    destClientId,
+    srcConnId
   );
-  // now post and hope it is accepted
   await dest.connOpenConfirm(proofConfirm);
 });
