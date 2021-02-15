@@ -7,20 +7,10 @@ import {
   buildCreateClientArgs,
   prepareHandshake,
 } from './ibcclient';
-import {
-  fundAccount,
-  generateMnemonic,
-  signingClient,
-  simapp,
-  wasmd,
-} from './testutils.spec';
+import { setup } from './testutils.spec';
 
 test.serial('create simapp client on wasmd', async (t) => {
-  // create apps and fund an account
-  const mnemonic = generateMnemonic();
-  const src = await signingClient(simapp, mnemonic);
-  const dest = await signingClient(wasmd, mnemonic);
-  await fundAccount(wasmd, dest.senderAddress, '100000');
+  const [src, dest] = await setup();
 
   const preClients = await dest.query.ibc.client.states();
   const preLen = preClients.clientStates.length;
@@ -41,11 +31,7 @@ test.serial('create simapp client on wasmd', async (t) => {
 });
 
 test.serial('create and update wasmd client on simapp', async (t) => {
-  // create apps and fund an account
-  const mnemonic = generateMnemonic();
-  const src = await signingClient(wasmd, mnemonic);
-  const dest = await signingClient(simapp, mnemonic);
-  await fundAccount(simapp, dest.senderAddress, '100000');
+  const [src, dest] = await setup();
 
   const header = await src.latestHeader();
   const conState = buildConsensusState(header);
@@ -91,12 +77,7 @@ const genesisUnbondingTime = 1814400;
 
 // make 2 clients, and try to establish a connection
 test.serial('perform connection handshake', async (t) => {
-  // create apps and fund an account
-  const mnemonic = generateMnemonic();
-  const src = await signingClient(simapp, mnemonic);
-  const dest = await signingClient(wasmd, mnemonic);
-  await fundAccount(wasmd, dest.senderAddress, '100000');
-  await fundAccount(simapp, src.senderAddress, '100000');
+  const [src, dest] = await setup();
 
   // client on dest -> src
   const args = await buildCreateClientArgs(src, genesisUnbondingTime, 5000);

@@ -30,11 +30,12 @@ import Long from 'long';
 import { HashOp, LengthOp } from '../codec/confio/proofs';
 import { Any } from '../codec/google/protobuf/any';
 import { Timestamp } from '../codec/google/protobuf/timestamp';
+import { Order, State } from '../codec/ibc/core/channel/v1/channel';
 import {
-  MsgChannelOpenInit,
-  MsgChannelOpenTry,
   MsgChannelOpenAck,
   MsgChannelOpenConfirm,
+  MsgChannelOpenInit,
+  MsgChannelOpenTry,
 } from '../codec/ibc/core/channel/v1/tx';
 import { Height } from '../codec/ibc/core/client/v1/client';
 import {
@@ -127,6 +128,10 @@ export type CreateConnectionResult = MsgResult & {
   readonly connectionId: string;
 };
 
+export type CreateChannelResult = MsgResult & {
+  readonly channelId: string;
+};
+
 interface ConnectionHandshakeProof {
   clientId: string;
   connectionId: string;
@@ -160,6 +165,14 @@ const fees = {
     gas: '100000',
   },
   connectionHandshake: {
+    amount: coins(5000, 'ucosm'),
+    gas: '200000',
+  },
+  initChannel: {
+    amount: coins(2500, 'ucosm'),
+    gas: '100000',
+  },
+  channelHandshake: {
     amount: coins(5000, 'ucosm'),
     gas: '200000',
   },
@@ -654,6 +667,52 @@ export class IbcClient {
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
+    };
+  }
+
+  public async channelOpenInit(
+    portId: string,
+    remotePortId: string,
+    ordering: Order,
+    connectionId: string,
+    version: string
+  ): Promise<CreateChannelResult> {
+    const senderAddress = this.senderAddress;
+    const createMsg = {
+      typeUrl: '/ibc.core.channel.v1.MsgChannelOpenInit',
+      value: MsgChannelOpenInit.fromPartial({
+        portId,
+        channel: {
+          state: State.STATE_INIT,
+          ordering,
+          counterparty: {
+            portId: remotePortId,
+          },
+          connectionHops: [connectionId],
+          version,
+        },
+        signer: senderAddress,
+      }),
+    };
+
+    const result = await this.sign.signAndBroadcast(
+      senderAddress,
+      [createMsg],
+      fees.initChannel
+    );
+    if (isBroadcastTxFailure(result)) {
+      throw new Error(createBroadcastTxErrorMessage(result));
+    }
+    const parsedLogs = parseRawLog(result.rawLog);
+    const channelId = logs.findAttribute(
+      parsedLogs,
+      'channel_open_init',
+      'channel_id'
+    ).value;
+    return {
+      logs: parsedLogs,
+      transactionHash: result.transactionHash,
+      channelId,
     };
   }
 }

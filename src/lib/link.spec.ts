@@ -1,21 +1,12 @@
 import test from 'ava';
 
+import { Order } from '../codec/ibc/core/channel/v1/channel';
+
 import { Link } from './link';
-import {
-  fundAccount,
-  generateMnemonic,
-  signingClient,
-  simapp,
-  wasmd,
-} from './testutils.spec';
+import { setup } from './testutils.spec';
 
 test.serial('establish new client-connection', async (t) => {
-  // create apps and fund an account
-  const mnemonic = generateMnemonic();
-  const src = await signingClient(simapp, mnemonic);
-  const dest = await signingClient(wasmd, mnemonic);
-  await fundAccount(wasmd, dest.senderAddress, '100000');
-  await fundAccount(simapp, src.senderAddress, '100000');
+  const [src, dest] = await setup();
 
   const link = await Link.createConnection(src, dest);
   // ensure the data makes sense (TODO: more?)
@@ -27,4 +18,20 @@ test.serial('establish new client-connection', async (t) => {
   // TODO: ensure it is updated
   await link.updateClient('B');
   // TODO: ensure it is updated
+});
+
+test.only('perform manual channel handshake on initialized channel', async (t) => {
+  const [src, dest] = await setup();
+  const link = await Link.createConnection(src, dest);
+
+  // start channel handshake
+  const { channelId: channelIdSrc } = await src.channelOpenInit(
+    'transfer',
+    'transfer',
+    Order.ORDER_UNORDERED,
+    link.endA.connectionID,
+    'ics20-1'
+  );
+  // first channel on this connections
+  t.is(channelIdSrc, 'channel-1');
 });
