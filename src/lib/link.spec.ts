@@ -20,18 +20,50 @@ test.serial('establish new client-connection', async (t) => {
   // TODO: ensure it is updated
 });
 
-test.only('perform manual channel handshake on initialized channel', async (t) => {
+// constants for this transport protocol
+const ics20 = {
+  portId: 'transfer',
+  version: 'ics20-1',
+  ordering: Order.ORDER_UNORDERED,
+};
+
+test.serial('initialized channel and start channel handshake', async (t) => {
   const [src, dest] = await setup();
   const link = await Link.createConnection(src, dest);
 
-  // start channel handshake
-  const { channelId: channelIdSrc } = await src.channelOpenInit(
-    'transfer',
-    'transfer',
-    Order.ORDER_UNORDERED,
-    link.endA.connectionID,
-    'ics20-1'
+  // reject channels with invalid ports
+  t.throwsAsync(() =>
+    src.channelOpenInit(
+      'bad-port',
+      ics20.portId,
+      ics20.ordering,
+      link.endA.connectionID,
+      ics20.version
+    )
   );
-  // first channel on this connections
-  t.is(channelIdSrc, 'channel-1');
+  // we need to wait a block for a new checkTx state, and proper sequences
+  await src.waitOneBlock();
+
+  // reject channels with invalid version
+  t.throwsAsync(() =>
+    src.channelOpenInit(
+      ics20.portId,
+      ics20.portId,
+      ics20.ordering,
+      link.endA.connectionID,
+      'ics27'
+    )
+  );
+  // we need to wait a block for a new checkTx state, and proper sequences
+  await src.waitOneBlock();
+
+  // this is valid and works
+  const { channelId: channelIdSrc } = await src.channelOpenInit(
+    ics20.portId,
+    ics20.portId,
+    ics20.ordering,
+    link.endA.connectionID,
+    ics20.version
+  );
+  t.assert(channelIdSrc.startsWith('channel-'), channelIdSrc);
 });
