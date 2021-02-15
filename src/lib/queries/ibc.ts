@@ -1,4 +1,4 @@
-import { toAscii, toHex } from '@cosmjs/encoding';
+import { toAscii } from '@cosmjs/encoding';
 import { createPagination, createRpc, QueryClient } from '@cosmjs/stargate';
 import Long from 'long';
 
@@ -340,7 +340,6 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
               `channelEnds/ports/${portId}/channels/${channelId}`
             );
             const proven = await base.queryRawProof('ibc', key, proveHeight);
-            console.log(toHex(proven.value));
             const channel = Channel.decode(proven.value);
             const proof = convertProofsToIcs23(proven.proof);
             const proofHeight = Height.fromPartial({

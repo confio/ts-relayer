@@ -1,6 +1,6 @@
 import test from 'ava';
 
-import { Order } from '../codec/ibc/core/channel/v1/channel';
+import { Order, State } from '../codec/ibc/core/channel/v1/channel';
 
 import { prepareChannelHandshake } from './ibcclient';
 import { Link } from './link';
@@ -69,7 +69,7 @@ test.serial('initialized connection and start channel handshake', async (t) => {
   t.assert(channelIdSrc.startsWith('channel-'), channelIdSrc);
 });
 
-test.only('manual channel handshake on initialized connection', async (t) => {
+test.serial('manual channel handshake on initialized connection', async (t) => {
   const [src, dest] = await setup();
   const link = await Link.createConnection(src, dest);
 
@@ -127,4 +127,40 @@ test.only('manual channel handshake on initialized connection', async (t) => {
     channelIdSrc
   );
   await dest.channelOpenConfirm(ics20.portId, channelIdDest, proofConfirm);
+
+  // ensure new channel exists
+  const { channel } = await src.query.ibc.channel.channel(
+    ics20.portId,
+    channelIdSrc
+  );
+  t.is(channel?.state, State.STATE_OPEN);
+  t.is(channel?.ordering, ics20.ordering);
+  t.is(channel?.counterparty?.channelId, channelIdDest);
 });
+
+test.serial(
+  'automated channel handshake on initialized connection',
+  async (t) => {
+    const [nodeA, nodeB] = await setup();
+    const link = await Link.createConnection(nodeA, nodeB);
+    const channels = await link.createChannel(
+      'A',
+      ics20.portId,
+      ics20.portId,
+      ics20.ordering,
+      ics20.version
+    );
+
+    t.is(channels.src.portId, ics20.portId);
+    t.is(channels.dest.portId, ics20.portId);
+
+    // query data
+    const { channel } = await link.endB.client.query.ibc.channel.channel(
+      ics20.portId,
+      channels.dest.channelId
+    );
+    t.is(channel?.state, State.STATE_OPEN);
+    t.is(channel?.ordering, ics20.ordering);
+    t.is(channel?.counterparty?.channelId, channels.src.channelId);
+  }
+);

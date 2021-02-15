@@ -823,7 +823,6 @@ export class IbcClient {
         signer: senderAddress,
       }),
     };
-    console.log(createMsg);
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
