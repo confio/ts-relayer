@@ -1,10 +1,11 @@
 import { toAscii } from '@cosmjs/encoding';
-import { coins, logs } from '@cosmjs/launchpad';
+import { Coin, coins, logs } from '@cosmjs/launchpad';
 import { OfflineSigner, Registry } from '@cosmjs/proto-signing';
 import {
   AuthExtension,
   BankExtension,
   BroadcastTxFailure,
+  BroadcastTxResponse,
   defaultRegistryTypes,
   isBroadcastTxFailure,
   parseRawLog,
@@ -161,10 +162,12 @@ export class IbcClient {
     BankExtension &
     IbcExtension;
   public readonly tm: TendermintClient;
+  public readonly senderAddress: string;
 
   public static async connectWithSigner(
     endpoint: string,
     signer: OfflineSigner,
+    senderAddress: string,
     options?: SigningStargateClientOptions
   ): Promise<IbcClient> {
     // override any registry setup, use the other options
@@ -175,12 +178,13 @@ export class IbcClient {
       registryOptions
     );
     const tmClient = await TendermintClient.connect(endpoint, adaptor34);
-    return new IbcClient(signingClient, tmClient);
+    return new IbcClient(signingClient, tmClient, senderAddress);
   }
 
   private constructor(
     signingClient: SigningStargateClient,
-    tmClient: TendermintClient
+    tmClient: TendermintClient,
+    senderAddress: string
   ) {
     this.sign = signingClient;
     this.tm = tmClient;
@@ -190,6 +194,7 @@ export class IbcClient {
       setupBankExtension,
       setupIbcExtension
     );
+    this.senderAddress = senderAddress;
   }
 
   public getChainId(): Promise<string> {
@@ -372,23 +377,35 @@ export class IbcClient {
   // Updates existing client on this chain with data from src chain.
   // Returns the height that was updated to.
   public async doUpdateClient(
-    address: string,
     clientId: string,
     src: IbcClient
   ): Promise<number> {
     const { latestHeight } = await this.query.ibc.client.stateTm(clientId);
     const header = await src.buildHeader(toIntHeight(latestHeight));
-    await this.updateTendermintClient(address, clientId, header);
+    await this.updateTendermintClient(clientId, header);
     return header.signedHeader?.header?.height?.toNumber() ?? 0;
   }
 
   /***** These are all direct wrappers around message constructors ********/
 
+  public sendTokens(
+    recipientAddress: string,
+    transferAmount: readonly Coin[],
+    memo?: string
+  ): Promise<BroadcastTxResponse> {
+    return this.sign.sendTokens(
+      this.senderAddress,
+      recipientAddress,
+      transferAmount,
+      memo
+    );
+  }
+
   public async createTendermintClient(
-    senderAddress: string,
     clientState: TendermintClientState,
     consensusState: TendermintConsensusState
   ): Promise<CreateClientResult> {
+    const senderAddress = this.senderAddress;
     const createMsg = {
       typeUrl: '/ibc.core.client.v1.MsgCreateClient',
       value: MsgCreateClient.fromPartial({
@@ -427,10 +444,10 @@ export class IbcClient {
   }
 
   public async updateTendermintClient(
-    senderAddress: string,
     clientId: string,
     header: TendermintHeader
   ): Promise<MsgResult> {
+    const senderAddress = this.senderAddress;
     const updateMsg = {
       typeUrl: '/ibc.core.client.v1.MsgUpdateClient',
       value: MsgUpdateClient.fromPartial({
@@ -459,10 +476,10 @@ export class IbcClient {
   }
 
   public async connOpenInit(
-    senderAddress: string,
     clientId: string,
     remoteClientId: string
   ): Promise<CreateConnectionResult> {
+    const senderAddress = this.senderAddress;
     const createMsg = {
       typeUrl: '/ibc.core.connection.v1.MsgConnectionOpenInit',
       value: MsgConnectionOpenInit.fromPartial({
@@ -499,10 +516,10 @@ export class IbcClient {
   }
 
   public async connOpenTry(
-    senderAddress: string,
     myClientId: string,
     proof: ConnectionHandshakeProof
   ): Promise<CreateConnectionResult> {
+    const senderAddress = this.senderAddress;
     const {
       clientId,
       connectionId,
@@ -556,10 +573,10 @@ export class IbcClient {
   }
 
   public async connOpenAck(
-    senderAddress: string,
     myConnectionId: string,
     proof: ConnectionHandshakeProof
   ): Promise<MsgResult> {
+    const senderAddress = this.senderAddress;
     const {
       connectionId,
       clientState,
@@ -601,9 +618,9 @@ export class IbcClient {
   }
 
   public async connOpenConfirm(
-    senderAddress: string,
     proof: ConnectionHandshakeProof
   ): Promise<MsgResult> {
+    const senderAddress = this.senderAddress;
     const { connectionId, proofHeight, proofConnection: proofAck } = proof;
     const createMsg = {
       typeUrl: '/ibc.core.connection.v1.MsgConnectionOpenConfirm',

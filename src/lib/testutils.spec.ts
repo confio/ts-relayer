@@ -89,11 +89,6 @@ type FundingOpts = SigningOpts & {
   };
 };
 
-interface SigningInfo {
-  client: IbcClient;
-  address: string;
-}
-
 export async function queryClient(opts: QueryOpts): Promise<StargateClient> {
   return StargateClient.connect(opts.tendermintUrlHttp);
 }
@@ -101,7 +96,7 @@ export async function queryClient(opts: QueryOpts): Promise<StargateClient> {
 export async function signingClient(
   opts: SigningOpts,
   mnemonic: string
-): Promise<SigningInfo> {
+): Promise<IbcClient> {
   const signer = await DirectSecp256k1HdWallet.fromMnemonic(
     mnemonic,
     undefined,
@@ -118,9 +113,10 @@ export async function signingClient(
   const client = await IbcClient.connectWithSigner(
     opts.tendermintUrlHttp,
     signer,
+    address,
     options
   );
-  return { address, client };
+  return client;
 }
 
 export async function fundAccount(
@@ -128,12 +124,12 @@ export async function fundAccount(
   rcpt: string,
   amount: string
 ): Promise<void> {
-  const { address, client } = await signingClient(opts, opts.faucet.mnemonic);
+  const client = await signingClient(opts, opts.faucet.mnemonic);
   const feeTokens = {
     amount,
     denom: opts.denomFee,
   };
-  const resp = await client.sign.sendTokens(address, rcpt, [feeTokens]);
+  const resp = await client.sendTokens(rcpt, [feeTokens]);
   if (isBroadcastTxFailure(resp)) {
     throw new Error(`funding failed (${resp.code}) ${resp.rawLog}`);
   }

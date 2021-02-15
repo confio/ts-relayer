@@ -17,9 +17,9 @@ import {
 test.serial('create simapp client on wasmd', async (t) => {
   // create apps and fund an account
   const mnemonic = generateMnemonic();
-  const { client: src } = await signingClient(simapp, mnemonic);
-  const { address, client: dest } = await signingClient(wasmd, mnemonic);
-  await fundAccount(wasmd, address, '100000');
+  const src = await signingClient(simapp, mnemonic);
+  const dest = await signingClient(wasmd, mnemonic);
+  await fundAccount(wasmd, dest.senderAddress, '100000');
 
   const preClients = await dest.query.ibc.client.states();
   const preLen = preClients.clientStates.length;
@@ -32,7 +32,7 @@ test.serial('create simapp client on wasmd', async (t) => {
     500,
     header.height
   );
-  const res = await dest.createTendermintClient(address, cliState, conState);
+  const res = await dest.createTendermintClient(cliState, conState);
   t.assert(res.clientId.startsWith('07-tendermint-'));
 
   const postClients = await dest.query.ibc.client.states();
@@ -42,9 +42,9 @@ test.serial('create simapp client on wasmd', async (t) => {
 test.serial('create and update wasmd client on simapp', async (t) => {
   // create apps and fund an account
   const mnemonic = generateMnemonic();
-  const { client: src } = await signingClient(wasmd, mnemonic);
-  const { address, client: dest } = await signingClient(simapp, mnemonic);
-  await fundAccount(simapp, address, '100000');
+  const src = await signingClient(wasmd, mnemonic);
+  const dest = await signingClient(simapp, mnemonic);
+  await fundAccount(simapp, dest.senderAddress, '100000');
 
   const header = await src.latestHeader();
   const conState = buildConsensusState(header);
@@ -54,11 +54,7 @@ test.serial('create and update wasmd client on simapp', async (t) => {
     500,
     header.height
   );
-  const { clientId } = await dest.createTendermintClient(
-    address,
-    cliState,
-    conState
-  );
+  const { clientId } = await dest.createTendermintClient(cliState, conState);
   const state = await dest.query.ibc.client.stateTm(clientId);
   // console.error(state);
   // TODO: check more details?
@@ -70,7 +66,7 @@ test.serial('create and update wasmd client on simapp', async (t) => {
   const newHeader = await src.buildHeader(header.height);
   const newHeight = newHeader.signedHeader?.header?.height;
   t.not(newHeight?.toNumber(), header.height);
-  await dest.updateTendermintClient(address, clientId, newHeader);
+  await dest.updateTendermintClient(clientId, newHeader);
 
   // any other checks?
   const upstate = await dest.query.ibc.client.stateTm(clientId);
@@ -96,21 +92,14 @@ const genesisUnbondingTime = 1814400;
 test.serial('perform connection handshake', async (t) => {
   // create apps and fund an account
   const mnemonic = generateMnemonic();
-  const { address: srcAddress, client: src } = await signingClient(
-    simapp,
-    mnemonic
-  );
-  const { address: destAddress, client: dest } = await signingClient(
-    wasmd,
-    mnemonic
-  );
-  await fundAccount(wasmd, destAddress, '100000');
-  await fundAccount(simapp, srcAddress, '100000');
+  const src = await signingClient(simapp, mnemonic);
+  const dest = await signingClient(wasmd, mnemonic);
+  await fundAccount(wasmd, dest.senderAddress, '100000');
+  await fundAccount(simapp, src.senderAddress, '100000');
 
   // client on dest -> src
   const args = await buildCreateClientArgs(src, genesisUnbondingTime, 5000);
   const { clientId: destClientId } = await dest.createTendermintClient(
-    destAddress,
     args.clientState,
     args.consensusState
   );
@@ -119,7 +108,6 @@ test.serial('perform connection handshake', async (t) => {
   // client on src -> dest
   const args2 = await buildCreateClientArgs(dest, genesisUnbondingTime, 5000);
   const { clientId: srcClientId } = await src.createTendermintClient(
-    srcAddress,
     args2.clientState,
     args2.consensusState
   );
@@ -127,7 +115,6 @@ test.serial('perform connection handshake', async (t) => {
 
   // connectionInit on src
   const { connectionId: srcConnId } = await src.connOpenInit(
-    srcAddress,
     srcClientId,
     destClientId
   );
@@ -138,11 +125,7 @@ test.serial('perform connection handshake', async (t) => {
   // first, get a header that can prove connOpenInit and update dest Client
   await src.waitOneBlock();
   // update client on dest
-  const headerHeight = await dest.doUpdateClient(
-    destAddress,
-    destClientId,
-    src
-  );
+  const headerHeight = await dest.doUpdateClient(destClientId, src);
 
   // get a proof (for the proven height)
   const proof = await src.getConnectionProof(
@@ -152,7 +135,6 @@ test.serial('perform connection handshake', async (t) => {
   );
   // now post and hope it is accepted
   const { connectionId: destConnId } = await dest.connOpenTry(
-    destAddress,
     destClientId,
     proof
   );
@@ -163,11 +145,7 @@ test.serial('perform connection handshake', async (t) => {
   // first, get a header that can prove connOpenTry and update src Client
   await dest.waitOneBlock();
   // update client on dest
-  const headerHeightAck = await src.doUpdateClient(
-    srcAddress,
-    srcClientId,
-    dest
-  );
+  const headerHeightAck = await src.doUpdateClient(srcClientId, dest);
 
   // get a proof (for the proven height)
   const proofAck = await dest.getConnectionProof(
@@ -176,18 +154,14 @@ test.serial('perform connection handshake', async (t) => {
     headerHeightAck
   );
   // now post and hope it is accepted
-  await src.connOpenAck(srcAddress, srcConnId, proofAck);
+  await src.connOpenAck(srcConnId, proofAck);
 
   // connectionConfirm on dest - many steps
 
   // first, get a header that can prove connOpenInit and update dest Client
   await src.waitOneBlock();
   // update client on dest
-  const headerHeightConfirm = await dest.doUpdateClient(
-    destAddress,
-    destClientId,
-    src
-  );
+  const headerHeightConfirm = await dest.doUpdateClient(destClientId, src);
   // get a proof (for the proven height)
   const proofConfirm = await src.getConnectionProof(
     srcClientId,
@@ -195,5 +169,5 @@ test.serial('perform connection handshake', async (t) => {
     headerHeightConfirm
   );
   // now post and hope it is accepted
-  await dest.connOpenConfirm(destAddress, proofConfirm);
+  await dest.connOpenConfirm(proofConfirm);
 });
