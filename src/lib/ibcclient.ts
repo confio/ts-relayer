@@ -30,7 +30,11 @@ import Long from 'long';
 import { HashOp, LengthOp } from '../codec/confio/proofs';
 import { Any } from '../codec/google/protobuf/any';
 import { Timestamp } from '../codec/google/protobuf/timestamp';
-import { Order, State } from '../codec/ibc/core/channel/v1/channel';
+import {
+  Counterparty as ChannelCounterparty,
+  Order,
+  State,
+} from '../codec/ibc/core/channel/v1/channel';
 import {
   MsgChannelOpenAck,
   MsgChannelOpenConfirm,
@@ -144,6 +148,13 @@ interface ConnectionHandshakeProof {
   // proof of client consensus state
   proofConsensus: Uint8Array;
   consensusHeight?: Height;
+}
+
+interface ChannelHandshakeProof {
+  id: ChannelCounterparty;
+  proofHeight: Height;
+  // proof of the state of the connection on remote chain
+  proofChannel: Uint8Array;
 }
 
 function createBroadcastTxErrorMessage(result: BroadcastTxFailure): string {
@@ -389,6 +400,33 @@ export class IbcClient {
       proofClient,
       proofConsensus,
       consensusHeight,
+    };
+  }
+
+  // trustedHeight must be proven by the client on the destination chain
+  // and include a proof for the connOpenInit (eg. must be 1 or more blocks after the
+  // block connOpenInit Tx was in).
+  //
+  // pass a header height that was previously updated to on the remote chain using updateClient.
+  // note: the queries will be for the block before this header, so the proofs match up (appHash is on H+1)
+  public async getChannelProof(
+    id: ChannelCounterparty,
+    headerHeight: number
+  ): Promise<ChannelHandshakeProof> {
+    // const queryHeight = headerHeight - 1;
+
+    // const {
+    //   clientState,
+    //   proof: proofClient,
+    //   // proofHeight,
+    // } = await this.query.ibc.proof.client.state(clientId, queryHeight);
+
+    const proofChannel = toAscii('TODO');
+
+    return {
+      id,
+      proofHeight: toProtoHeight(headerHeight),
+      proofChannel,
     };
   }
 
@@ -691,6 +729,54 @@ export class IbcClient {
           connectionHops: [connectionId],
           version,
         },
+        signer: senderAddress,
+      }),
+    };
+
+    const result = await this.sign.signAndBroadcast(
+      senderAddress,
+      [createMsg],
+      fees.initChannel
+    );
+    if (isBroadcastTxFailure(result)) {
+      throw new Error(createBroadcastTxErrorMessage(result));
+    }
+    const parsedLogs = parseRawLog(result.rawLog);
+    const channelId = logs.findAttribute(
+      parsedLogs,
+      'channel_open_init',
+      'channel_id'
+    ).value;
+    return {
+      logs: parsedLogs,
+      transactionHash: result.transactionHash,
+      channelId,
+    };
+  }
+
+  public async channelOpenTry(
+    portId: string,
+    remote: ChannelCounterparty,
+    ordering: Order,
+    connectionId: string,
+    version: string,
+    proof: ChannelHandshakeProof
+  ): Promise<CreateChannelResult> {
+    const senderAddress = this.senderAddress;
+    const { proofHeight, proofChannel: proofInit } = proof;
+    const createMsg = {
+      typeUrl: '/ibc.core.channel.v1.MsgChannelOpenTry',
+      value: MsgChannelOpenTry.fromPartial({
+        portId,
+        channel: {
+          state: State.STATE_TRYOPEN,
+          ordering,
+          counterparty: remote,
+          connectionHops: [connectionId],
+          version,
+        },
+        proofInit,
+        proofHeight,
         signer: senderAddress,
       }),
     };
