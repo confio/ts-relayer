@@ -30,6 +30,12 @@ import Long from 'long';
 import { HashOp, LengthOp } from '../codec/confio/proofs';
 import { Any } from '../codec/google/protobuf/any';
 import { Timestamp } from '../codec/google/protobuf/timestamp';
+import {
+  MsgChannelOpenInit,
+  MsgChannelOpenTry,
+  MsgChannelOpenAck,
+  MsgChannelOpenConfirm,
+} from '../codec/ibc/core/channel/v1/tx';
 import { Height } from '../codec/ibc/core/client/v1/client';
 import {
   MsgCreateClient,
@@ -81,6 +87,10 @@ function ibcRegistry(): Registry {
       '/ibc.core.connection.v1.MsgConnectionOpenConfirm',
       MsgConnectionOpenConfirm,
     ],
+    ['/ibc.core.channel.v1.MsgChannelOpenInit', MsgChannelOpenInit],
+    ['/ibc.core.channel.v1.MsgChannelOpenTry', MsgChannelOpenTry],
+    ['/ibc.core.channel.v1.MsgChannelOpenAck', MsgChannelOpenAck],
+    ['/ibc.core.channel.v1.MsgChannelOpenConfirm', MsgChannelOpenConfirm],
   ]);
 }
 
