@@ -8,7 +8,7 @@ import { setup } from './testutils.spec';
 test.serial('establish new client-connection', async (t) => {
   const [src, dest] = await setup();
 
-  const link = await Link.createConnection(src, dest);
+  const link = await Link.createWithNewConnections(src, dest);
   // ensure the data makes sense (TODO: more?)
   t.assert(link.endA.clientID.startsWith('07-tendermint-'), link.endA.clientID);
   t.assert(link.endB.clientID.startsWith('07-tendermint-'), link.endB.clientID);
@@ -31,7 +31,7 @@ const ics20 = {
 
 test.serial('initialized connection and start channel handshake', async (t) => {
   const [src, dest] = await setup();
-  const link = await Link.createConnection(src, dest);
+  const link = await Link.createWithNewConnections(src, dest);
 
   // reject channels with invalid ports
   t.throwsAsync(() =>
@@ -74,7 +74,7 @@ test.serial(
   'automated channel handshake on initialized connection',
   async (t) => {
     const [nodeA, nodeB] = await setup();
-    const link = await Link.createConnection(nodeA, nodeB);
+    const link = await Link.createWithNewConnections(nodeA, nodeB);
 
     // increment the channel sequence on src, to guarantee unique ids
     await nodeA.channelOpenInit(

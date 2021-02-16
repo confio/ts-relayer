@@ -5,7 +5,7 @@ import {
   buildClientState,
   buildConsensusState,
   buildCreateClientArgs,
-  prepareConnHandshake,
+  prepareConnectionHandshake,
 } from './ibcclient';
 import { setup } from './testutils.spec';
 
@@ -104,7 +104,7 @@ test.only('perform connection handshake', async (t) => {
   t.assert(srcConnId.startsWith('connection-'), srcConnId);
 
   // connectionTry on dest
-  const proof = await prepareConnHandshake(
+  const proof = await prepareConnectionHandshake(
     src,
     dest,
     srcClientId,
@@ -119,7 +119,7 @@ test.only('perform connection handshake', async (t) => {
   t.assert(destConnId.startsWith('connection-'), destConnId);
 
   // connectionAck on src
-  const proofAck = await prepareConnHandshake(
+  const proofAck = await prepareConnectionHandshake(
     dest,
     src,
     destClientId,
@@ -129,7 +129,7 @@ test.only('perform connection handshake', async (t) => {
   await src.connOpenAck(srcConnId, proofAck);
 
   // connectionConfirm on dest
-  const proofConfirm = await prepareConnHandshake(
+  const proofConfirm = await prepareConnectionHandshake(
     src,
     dest,
     srcClientId,

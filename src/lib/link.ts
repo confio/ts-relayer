@@ -3,9 +3,10 @@ import { Order } from '../codec/ibc/core/channel/v1/channel';
 import { Endpoint } from './endpoint';
 import {
   buildCreateClientArgs,
+  ChannelInfo,
   IbcClient,
   prepareChannelHandshake,
-  prepareConnHandshake,
+  prepareConnectionHandshake,
 } from './ibcclient';
 
 /**
@@ -37,7 +38,7 @@ export class Link {
    * @param nodeA
    * @param nodeB
    */
-  public static async reuseConnection(
+  public static async createWithExistingConnections(
     nodeA: IbcClient,
     nodeB: IbcClient,
     connA: string,
@@ -49,31 +50,6 @@ export class Link {
     throw new Error('not yet implemented');
   }
 
-  public static async createClients(
-    nodeA: IbcClient,
-    nodeB: IbcClient
-  ): Promise<string[]> {
-    // client on B pointing to A
-    const args = await buildCreateClientArgs(nodeA, genesisUnbondingTime, 5000);
-    const { clientId: clientIdB } = await nodeB.createTendermintClient(
-      args.clientState,
-      args.consensusState
-    );
-
-    // client on A pointing to B
-    const args2 = await buildCreateClientArgs(
-      nodeB,
-      genesisUnbondingTime,
-      5000
-    );
-    const { clientId: clientIdA } = await nodeA.createTendermintClient(
-      args2.clientState,
-      args2.consensusState
-    );
-
-    return [clientIdA, clientIdB];
-  }
-
   /**
    * createConnection will always create a new pair of clients and a Connection between the
    * two sides
@@ -82,11 +58,11 @@ export class Link {
    * @param nodeB
    */
   /* eslint @typescript-eslint/no-unused-vars: "off" */
-  public static async createConnection(
+  public static async createWithNewConnections(
     nodeA: IbcClient,
     nodeB: IbcClient
   ): Promise<Link> {
-    const [clientIdA, clientIdB] = await Link.createClients(nodeA, nodeB);
+    const [clientIdA, clientIdB] = await createClients(nodeA, nodeB);
 
     // connectionInit on nodeA
     const { connectionId: connIdA } = await nodeA.connOpenInit(
@@ -95,7 +71,7 @@ export class Link {
     );
 
     // connectionTry on nodeB
-    const proof = await prepareConnHandshake(
+    const proof = await prepareConnectionHandshake(
       nodeA,
       nodeB,
       clientIdA,
@@ -105,7 +81,7 @@ export class Link {
     const { connectionId: connIdB } = await nodeB.connOpenTry(clientIdB, proof);
 
     // connectionAck on nodeA
-    const proofAck = await prepareConnHandshake(
+    const proofAck = await prepareConnectionHandshake(
       nodeB,
       nodeA,
       clientIdB,
@@ -115,7 +91,7 @@ export class Link {
     await nodeA.connOpenAck(connIdA, proofAck);
 
     // connectionConfirm on dest
-    const proofConfirm = await prepareConnHandshake(
+    const proofConfirm = await prepareConnectionHandshake(
       nodeA,
       nodeB,
       clientIdA,
@@ -160,7 +136,7 @@ export class Link {
   ): Promise<ChannelPair> {
     const { src, dest } = this.getEnds(sender);
 
-    // init on src/A
+    // init on src
     const { channelId: channelIdSrc } = await src.client.channelOpenInit(
       srcPort,
       destPort,
@@ -169,7 +145,7 @@ export class Link {
       version
     );
 
-    // try on dest/B
+    // try on dest
     const proof = await prepareChannelHandshake(
       src.client,
       dest.client,
@@ -187,7 +163,7 @@ export class Link {
       proof
     );
 
-    // ack on src/A
+    // ack on src
     const proofAck = await prepareChannelHandshake(
       dest.client,
       src.client,
@@ -203,7 +179,7 @@ export class Link {
       proofAck
     );
 
-    // confirm on dest/B
+    // confirm on dest
     const proofConfirm = await prepareChannelHandshake(
       src.client,
       dest.client,
@@ -250,12 +226,28 @@ interface EndpointPair {
   readonly dest: Endpoint;
 }
 
-interface ChannelInfo {
-  readonly portId: string;
-  readonly channelId: string;
-}
-
 interface ChannelPair {
   readonly src: ChannelInfo;
   readonly dest: ChannelInfo;
+}
+
+async function createClients(
+  nodeA: IbcClient,
+  nodeB: IbcClient
+): Promise<string[]> {
+  // client on B pointing to A
+  const args = await buildCreateClientArgs(nodeA, genesisUnbondingTime, 5000);
+  const { clientId: clientIdB } = await nodeB.createTendermintClient(
+    args.clientState,
+    args.consensusState
+  );
+
+  // client on A pointing to B
+  const args2 = await buildCreateClientArgs(nodeB, genesisUnbondingTime, 5000);
+  const { clientId: clientIdA } = await nodeA.createTendermintClient(
+    args2.clientState,
+    args2.consensusState
+  );
+
+  return [clientIdA, clientIdB];
 }

@@ -30,11 +30,7 @@ import Long from 'long';
 import { HashOp, LengthOp } from '../codec/confio/proofs';
 import { Any } from '../codec/google/protobuf/any';
 import { Timestamp } from '../codec/google/protobuf/timestamp';
-import {
-  Counterparty as ChannelCounterparty,
-  Order,
-  State,
-} from '../codec/ibc/core/channel/v1/channel';
+import { Order, State } from '../codec/ibc/core/channel/v1/channel';
 import {
   MsgChannelOpenAck,
   MsgChannelOpenConfirm,
@@ -155,14 +151,20 @@ interface ConnectionHandshakeProof {
   proofClient: Uint8Array;
   // proof of client consensus state
   proofConsensus: Uint8Array;
+  // last header height of this chain known by the remote chain
   consensusHeight?: Height;
 }
 
-interface ChannelHandshakeProof {
-  id: ChannelCounterparty;
+export interface ChannelHandshake {
+  id: ChannelInfo;
   proofHeight: Height;
-  // proof of the state of the connection on remote chain
-  proofChannel: Uint8Array;
+  // proof of the state of the channel on remote chain
+  proof: Uint8Array;
+}
+
+export interface ChannelInfo {
+  readonly portId: string;
+  readonly channelId: string;
 }
 
 function createBroadcastTxErrorMessage(result: BroadcastTxFailure): string {
@@ -418,9 +420,9 @@ export class IbcClient {
   // pass a header height that was previously updated to on the remote chain using updateClient.
   // note: the queries will be for the block before this header, so the proofs match up (appHash is on H+1)
   public async getChannelProof(
-    id: ChannelCounterparty,
+    id: ChannelInfo,
     headerHeight: number
-  ): Promise<ChannelHandshakeProof> {
+  ): Promise<ChannelHandshake> {
     const queryHeight = headerHeight - 1;
 
     const { proof } = await this.query.ibc.proof.channel.channel(
@@ -432,7 +434,7 @@ export class IbcClient {
     return {
       id,
       proofHeight: toProtoHeight(headerHeight),
-      proofChannel: proof,
+      proof,
     };
   }
 
@@ -547,7 +549,7 @@ export class IbcClient {
     remoteClientId: string
   ): Promise<CreateConnectionResult> {
     const senderAddress = this.senderAddress;
-    const createMsg = {
+    const msg = {
       typeUrl: '/ibc.core.connection.v1.MsgConnectionOpenInit',
       value: MsgConnectionOpenInit.fromPartial({
         clientId,
@@ -563,7 +565,7 @@ export class IbcClient {
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
-      [createMsg],
+      [msg],
       fees.initConnection
     );
     if (isBroadcastTxFailure(result)) {
@@ -597,7 +599,7 @@ export class IbcClient {
       proofConsensus,
       consensusHeight,
     } = proof;
-    const createMsg = {
+    const msg = {
       typeUrl: '/ibc.core.connection.v1.MsgConnectionOpenTry',
       value: MsgConnectionOpenTry.fromPartial({
         clientId: myClientId,
@@ -620,7 +622,7 @@ export class IbcClient {
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
-      [createMsg],
+      [msg],
       fees.connectionHandshake
     );
     if (isBroadcastTxFailure(result)) {
@@ -653,7 +655,7 @@ export class IbcClient {
       proofConsensus,
       consensusHeight,
     } = proof;
-    const createMsg = {
+    const msg = {
       typeUrl: '/ibc.core.connection.v1.MsgConnectionOpenAck',
       value: MsgConnectionOpenAck.fromPartial({
         connectionId: myConnectionId,
@@ -671,7 +673,7 @@ export class IbcClient {
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
-      [createMsg],
+      [msg],
       fees.connectionHandshake
     );
     if (isBroadcastTxFailure(result)) {
@@ -689,7 +691,7 @@ export class IbcClient {
   ): Promise<MsgResult> {
     const senderAddress = this.senderAddress;
     const { connectionId, proofHeight, proofConnection: proofAck } = proof;
-    const createMsg = {
+    const msg = {
       typeUrl: '/ibc.core.connection.v1.MsgConnectionOpenConfirm',
       value: MsgConnectionOpenConfirm.fromPartial({
         connectionId,
@@ -701,7 +703,7 @@ export class IbcClient {
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
-      [createMsg],
+      [msg],
       fees.connectionHandshake
     );
     if (isBroadcastTxFailure(result)) {
@@ -722,7 +724,7 @@ export class IbcClient {
     version: string
   ): Promise<CreateChannelResult> {
     const senderAddress = this.senderAddress;
-    const createMsg = {
+    const msg = {
       typeUrl: '/ibc.core.channel.v1.MsgChannelOpenInit',
       value: MsgChannelOpenInit.fromPartial({
         portId,
@@ -741,7 +743,7 @@ export class IbcClient {
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
-      [createMsg],
+      [msg],
       fees.initChannel
     );
     if (isBroadcastTxFailure(result)) {
@@ -762,16 +764,16 @@ export class IbcClient {
 
   public async channelOpenTry(
     portId: string,
-    remote: ChannelCounterparty,
+    remote: ChannelInfo,
     ordering: Order,
     connectionId: string,
     version: string,
     counterpartyVersion: string,
-    proof: ChannelHandshakeProof
+    proof: ChannelHandshake
   ): Promise<CreateChannelResult> {
     const senderAddress = this.senderAddress;
-    const { proofHeight, proofChannel: proofInit } = proof;
-    const createMsg = {
+    const { proofHeight, proof: proofInit } = proof;
+    const msg = {
       typeUrl: '/ibc.core.channel.v1.MsgChannelOpenTry',
       value: MsgChannelOpenTry.fromPartial({
         portId,
@@ -791,7 +793,7 @@ export class IbcClient {
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
-      [createMsg],
+      [msg],
       fees.channelHandshake
     );
     if (isBroadcastTxFailure(result)) {
@@ -815,11 +817,11 @@ export class IbcClient {
     channelId: string,
     counterpartyChannelId: string,
     counterpartyVersion: string,
-    proof: ChannelHandshakeProof
+    proof: ChannelHandshake
   ): Promise<MsgResult> {
     const senderAddress = this.senderAddress;
-    const { proofHeight, proofChannel: proofTry } = proof;
-    const createMsg = {
+    const { proofHeight, proof: proofTry } = proof;
+    const msg = {
       typeUrl: '/ibc.core.channel.v1.MsgChannelOpenAck',
       value: MsgChannelOpenAck.fromPartial({
         portId,
@@ -834,7 +836,7 @@ export class IbcClient {
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
-      [createMsg],
+      [msg],
       fees.channelHandshake
     );
     if (isBroadcastTxFailure(result)) {
@@ -850,11 +852,11 @@ export class IbcClient {
   public async channelOpenConfirm(
     portId: string,
     channelId: string,
-    proof: ChannelHandshakeProof
+    proof: ChannelHandshake
   ): Promise<MsgResult> {
     const senderAddress = this.senderAddress;
-    const { proofHeight, proofChannel: proofAck } = proof;
-    const createMsg = {
+    const { proofHeight, proof: proofAck } = proof;
+    const msg = {
       typeUrl: '/ibc.core.channel.v1.MsgChannelOpenConfirm',
       value: MsgChannelOpenConfirm.fromPartial({
         portId,
@@ -867,7 +869,7 @@ export class IbcClient {
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
-      [createMsg],
+      [msg],
       fees.channelHandshake
     );
     if (isBroadcastTxFailure(result)) {
@@ -1001,7 +1003,7 @@ export function buildClientState(
   });
 }
 
-export async function prepareConnHandshake(
+export async function prepareConnectionHandshake(
   src: IbcClient,
   dest: IbcClient,
   clientIdSrc: string,
@@ -1027,7 +1029,7 @@ export async function prepareChannelHandshake(
   clientIdDest: string,
   portId: string,
   channelId: string
-): Promise<ChannelHandshakeProof> {
+): Promise<ChannelHandshake> {
   // ensure the last transaction was committed to the header (one block after it was included)
   await src.waitOneBlock();
   // update client on dest
