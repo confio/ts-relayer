@@ -1,5 +1,7 @@
 import { CommitResponse } from '@cosmjs/tendermint-rpc';
 
+import { Packet } from '../codec/ibc/core/channel/v1/channel';
+
 import { IbcClient } from './ibcclient';
 
 /**
@@ -29,11 +31,6 @@ export class Endpoint {
 
   public async getLatestCommit(): Promise<CommitResponse> {
     return this.client.getCommit();
-  }
-
-  /* eslint @typescript-eslint/no-unused-vars: "off" */
-  public async updateClient(_commit: CommitResponse): Promise<void> {
-    throw new Error('unimplemented!');
   }
 
   // TODO: expose all Channel lifecycle methods
@@ -67,17 +64,7 @@ export class Endpoint {
   }
 
   // TODO: subscription based packets/acks?
-  // until then, poll every 5 minutes
-}
-
-export interface Commit {
-  // TODO
-  readonly height: number;
-}
-
-export interface Packet {
-  // TODO
-  readonly someData: string;
+  // until then, poll every X seconds
 }
 
 export interface Ack {
@@ -100,49 +87,4 @@ export interface Filter {
   readonly srcChannelId?: string[];
   readonly destPortId?: string;
   readonly destChannelId?: string[];
-}
-
-/**** These are needed to bootstrap the endpoints */
-
-// // options for client - eventually make these parameters
-// const DefaultTrustLevel = '1/3';
-// const TrustingPeriod = 2 * 7 * 24 * 60 * 60; // 2 weeks
-// const UnbondingPeriod = 3 * 7 * 24 * 60 * 60; // 3 weeks
-// const MaxClockDrift = 10; // 10 seconds
-// const upgradePath = ['upgrade', 'upgradedIBCState'];
-// const allowUpgradeAfterExpiry = false;
-// const allowUpgradeAfterMisbehavior = false;
-
-/**
- * This creates a tendermint client on this chain, referencing the commit info from the remote chain.
- * It returns the clientID for the newly created object
- * @param _client
- * @param _remoteChainID
- * @param _remoteCommit
- */
-/* eslint @typescript-eslint/no-unused-vars: "off" */
-export async function createClient(
-  _client: IbcClient,
-  _remoteChainID: string,
-  _remoteCommit: Commit
-): Promise<string> {
-  throw new Error('unimplemented!');
-}
-
-/* eslint @typescript-eslint/no-unused-vars: "off" */
-export async function findClient(
-  _client: IbcClient,
-  _remoteChainID: string
-): Promise<string> {
-  // TODO: actually verify the header, not just the chain-id
-  throw new Error('unimplemented!');
-}
-
-/* eslint @typescript-eslint/no-unused-vars: "off" */
-export async function findConnection(
-  _client: IbcClient,
-  _clientId: string
-): Promise<string> {
-  // TODO: actually verify the header, not just the chain-id
-  throw new Error('unimplemented!');
 }

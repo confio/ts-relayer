@@ -1,8 +1,12 @@
-import { Endpoint, findClient, findConnection } from './endpoint';
+import { Order } from '../codec/ibc/core/channel/v1/channel';
+
+import { Endpoint } from './endpoint';
 import {
   buildCreateClientArgs,
+  ChannelInfo,
   IbcClient,
-  prepareHandshake,
+  prepareChannelHandshake,
+  prepareConnectionHandshake,
 } from './ibcclient';
 
 /**
@@ -13,6 +17,7 @@ export type Side = 'A' | 'B';
 
 // measured in seconds
 // Note: client parameter is checked against the actual keeper - must use real values from genesis.json
+// TODO: make this more adaptable for chains (query from staking?)
 const genesisUnbondingTime = 1814400;
 
 /**
@@ -33,45 +38,16 @@ export class Link {
    * @param nodeA
    * @param nodeB
    */
-  public static async findConnection(
+  public static async createWithExistingConnections(
     nodeA: IbcClient,
-    nodeB: IbcClient
+    nodeB: IbcClient,
+    connA: string,
+    connB: string
   ): Promise<Link> {
-    const clientA = await findClient(nodeA, await nodeB.getChainId());
-    const clientB = await findClient(nodeB, await nodeA.getChainId());
+    // so they are no marked unused variables
+    [nodeA, nodeB, connA, connB];
 
-    const connA = await findConnection(nodeA, clientA);
-    const connB = await findConnection(nodeB, clientB);
-
-    const endA = new Endpoint(nodeA, clientA, connA);
-    const endB = new Endpoint(nodeB, clientB, connB);
-
-    return new Link(endA, endB);
-  }
-
-  public static async createClients(
-    nodeA: IbcClient,
-    nodeB: IbcClient
-  ): Promise<string[]> {
-    // client on B pointing to A
-    const args = await buildCreateClientArgs(nodeA, genesisUnbondingTime, 5000);
-    const { clientId: clientIdB } = await nodeB.createTendermintClient(
-      args.clientState,
-      args.consensusState
-    );
-
-    // client on A pointing to B
-    const args2 = await buildCreateClientArgs(
-      nodeB,
-      genesisUnbondingTime,
-      5000
-    );
-    const { clientId: clientIdA } = await nodeA.createTendermintClient(
-      args2.clientState,
-      args2.consensusState
-    );
-
-    return [clientIdA, clientIdB];
+    throw new Error('not yet implemented');
   }
 
   /**
@@ -82,11 +58,11 @@ export class Link {
    * @param nodeB
    */
   /* eslint @typescript-eslint/no-unused-vars: "off" */
-  public static async createConnection(
+  public static async createWithNewConnections(
     nodeA: IbcClient,
     nodeB: IbcClient
   ): Promise<Link> {
-    const [clientIdA, clientIdB] = await Link.createClients(nodeA, nodeB);
+    const [clientIdA, clientIdB] = await createClients(nodeA, nodeB);
 
     // connectionInit on nodeA
     const { connectionId: connIdA } = await nodeA.connOpenInit(
@@ -95,7 +71,7 @@ export class Link {
     );
 
     // connectionTry on nodeB
-    const proof = await prepareHandshake(
+    const proof = await prepareConnectionHandshake(
       nodeA,
       nodeB,
       clientIdA,
@@ -105,7 +81,7 @@ export class Link {
     const { connectionId: connIdB } = await nodeB.connOpenTry(clientIdB, proof);
 
     // connectionAck on nodeA
-    const proofAck = await prepareHandshake(
+    const proofAck = await prepareConnectionHandshake(
       nodeB,
       nodeA,
       clientIdB,
@@ -115,7 +91,7 @@ export class Link {
     await nodeA.connOpenAck(connIdA, proofAck);
 
     // connectionConfirm on dest
-    const proofConfirm = await prepareHandshake(
+    const proofConfirm = await prepareConnectionHandshake(
       nodeA,
       nodeB,
       clientIdA,
@@ -152,44 +128,83 @@ export class Link {
   // TODO: define ordering type
   /* eslint @typescript-eslint/no-unused-vars: "off" */
   public async createChannel(
-    _sender: Side,
-    _srcPort: string,
-    _destPort: string,
-    _order: string,
-    _version: string
+    sender: Side,
+    srcPort: string,
+    destPort: string,
+    ordering: Order,
+    version: string
   ): Promise<ChannelPair> {
-    throw new Error('unimplemented');
+    const { src, dest } = this.getEnds(sender);
+
+    // init on src
+    const { channelId: channelIdSrc } = await src.client.channelOpenInit(
+      srcPort,
+      destPort,
+      ordering,
+      src.connectionID,
+      version
+    );
+
+    // try on dest
+    const proof = await prepareChannelHandshake(
+      src.client,
+      dest.client,
+      dest.clientID,
+      srcPort,
+      channelIdSrc
+    );
+    const { channelId: channelIdDest } = await dest.client.channelOpenTry(
+      destPort,
+      { portId: srcPort, channelId: channelIdSrc },
+      ordering,
+      src.connectionID,
+      version,
+      version,
+      proof
+    );
+
+    // ack on src
+    const proofAck = await prepareChannelHandshake(
+      dest.client,
+      src.client,
+      src.clientID,
+      destPort,
+      channelIdDest
+    );
+    await src.client.channelOpenAck(
+      srcPort,
+      channelIdSrc,
+      channelIdDest,
+      version,
+      proofAck
+    );
+
+    // confirm on dest
+    const proofConfirm = await prepareChannelHandshake(
+      src.client,
+      dest.client,
+      dest.clientID,
+      srcPort,
+      channelIdSrc
+    );
+    await dest.client.channelOpenConfirm(destPort, channelIdDest, proofConfirm);
+
+    return {
+      src: {
+        portId: srcPort,
+        channelId: channelIdSrc,
+      },
+      dest: {
+        portId: destPort,
+        channelId: channelIdDest,
+      },
+    };
   }
 
   // TODO: relayAllPendingPackets (filter)
   // TODO: relayAllPendingAcks (filter)
   // TODO: relayAllRoundTrip (filter)
   // TODO: relayRoundTrip (packet)
-
-  //   // CreateChannel constructs and executes channel handshake messages in order to create
-  // // OPEN channels on chainA and chainB. The function expects the channels to be successfully
-  // // opened otherwise testing will fail.
-  // func (coord *Coordinator) CreateChannel(
-  // 	chainA, chainB *TestChain,
-  // 	connA, connB *ibctesting.TestConnection,
-  // 	sourcePortID, counterpartyPortID string,
-  // 	order channeltypes.Order,
-  // ) (ibctesting.TestChannel, ibctesting.TestChannel) {
-
-  // 	channelA, channelB, err := coord.ChanOpenInit(chainA, chainB, connA, connB, sourcePortID, counterpartyPortID, order)
-  // 	require.NoError(coord.t, err)
-
-  // 	err = coord.ChanOpenTry(chainB, chainA, channelB, channelA, connB, order)
-  // 	require.NoError(coord.t, err)
-
-  // 	err = coord.ChanOpenAck(chainA, chainB, channelA, channelB)
-  // 	require.NoError(coord.t, err)
-
-  // 	err = coord.ChanOpenConfirm(chainB, chainA, channelB, channelA)
-  // 	require.NoError(coord.t, err)
-
-  // 	return channelA, channelB
-  // }
 
   private getEnds(src: Side): EndpointPair {
     if (src === 'A') {
@@ -211,12 +226,28 @@ interface EndpointPair {
   readonly dest: Endpoint;
 }
 
-interface ChannelInfo {
-  readonly portId: string;
-  readonly channelId: string;
-}
-
 interface ChannelPair {
   readonly src: ChannelInfo;
   readonly dest: ChannelInfo;
+}
+
+async function createClients(
+  nodeA: IbcClient,
+  nodeB: IbcClient
+): Promise<string[]> {
+  // client on B pointing to A
+  const args = await buildCreateClientArgs(nodeA, genesisUnbondingTime, 5000);
+  const { clientId: clientIdB } = await nodeB.createTendermintClient(
+    args.clientState,
+    args.consensusState
+  );
+
+  // client on A pointing to B
+  const args2 = await buildCreateClientArgs(nodeB, genesisUnbondingTime, 5000);
+  const { clientId: clientIdA } = await nodeA.createTendermintClient(
+    args2.clientState,
+    args2.consensusState
+  );
+
+  return [clientIdA, clientIdB];
 }

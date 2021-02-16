@@ -5,22 +5,12 @@ import {
   buildClientState,
   buildConsensusState,
   buildCreateClientArgs,
-  prepareHandshake,
+  prepareConnectionHandshake,
 } from './ibcclient';
-import {
-  fundAccount,
-  generateMnemonic,
-  signingClient,
-  simapp,
-  wasmd,
-} from './testutils.spec';
+import { setup } from './testutils.spec';
 
 test.serial('create simapp client on wasmd', async (t) => {
-  // create apps and fund an account
-  const mnemonic = generateMnemonic();
-  const src = await signingClient(simapp, mnemonic);
-  const dest = await signingClient(wasmd, mnemonic);
-  await fundAccount(wasmd, dest.senderAddress, '100000');
+  const [src, dest] = await setup();
 
   const preClients = await dest.query.ibc.client.states();
   const preLen = preClients.clientStates.length;
@@ -36,16 +26,13 @@ test.serial('create simapp client on wasmd', async (t) => {
   const res = await dest.createTendermintClient(cliState, conState);
   t.assert(res.clientId.startsWith('07-tendermint-'));
 
+  await dest.waitOneBlock();
   const postClients = await dest.query.ibc.client.states();
   t.is(postClients.clientStates.length, preLen + 1);
 });
 
 test.serial('create and update wasmd client on simapp', async (t) => {
-  // create apps and fund an account
-  const mnemonic = generateMnemonic();
-  const src = await signingClient(wasmd, mnemonic);
-  const dest = await signingClient(simapp, mnemonic);
-  await fundAccount(simapp, dest.senderAddress, '100000');
+  const [src, dest] = await setup();
 
   const header = await src.latestHeader();
   const conState = buildConsensusState(header);
@@ -90,13 +77,8 @@ function sameLong(a?: Long, b?: Long) {
 const genesisUnbondingTime = 1814400;
 
 // make 2 clients, and try to establish a connection
-test.serial('perform connection handshake', async (t) => {
-  // create apps and fund an account
-  const mnemonic = generateMnemonic();
-  const src = await signingClient(simapp, mnemonic);
-  const dest = await signingClient(wasmd, mnemonic);
-  await fundAccount(wasmd, dest.senderAddress, '100000');
-  await fundAccount(simapp, src.senderAddress, '100000');
+test.only('perform connection handshake', async (t) => {
+  const [src, dest] = await setup();
 
   // client on dest -> src
   const args = await buildCreateClientArgs(src, genesisUnbondingTime, 5000);
@@ -122,7 +104,7 @@ test.serial('perform connection handshake', async (t) => {
   t.assert(srcConnId.startsWith('connection-'), srcConnId);
 
   // connectionTry on dest
-  const proof = await prepareHandshake(
+  const proof = await prepareConnectionHandshake(
     src,
     dest,
     srcClientId,
@@ -137,7 +119,7 @@ test.serial('perform connection handshake', async (t) => {
   t.assert(destConnId.startsWith('connection-'), destConnId);
 
   // connectionAck on src
-  const proofAck = await prepareHandshake(
+  const proofAck = await prepareConnectionHandshake(
     dest,
     src,
     destClientId,
@@ -147,7 +129,7 @@ test.serial('perform connection handshake', async (t) => {
   await src.connOpenAck(srcConnId, proofAck);
 
   // connectionConfirm on dest
-  const proofConfirm = await prepareHandshake(
+  const proofConfirm = await prepareConnectionHandshake(
     src,
     dest,
     srcClientId,
