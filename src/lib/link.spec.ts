@@ -22,7 +22,9 @@ test.serial('establish new client-connection', async (t) => {
 
 // constants for this transport protocol
 const ics20 = {
-  portId: 'transfer',
+  // we set a new port in genesis for simapp
+  srcPortId: 'custom',
+  destPortId: 'transfer',
   version: 'ics20-1',
   ordering: Order.ORDER_UNORDERED,
 };
@@ -34,8 +36,8 @@ test.serial('initialized connection and start channel handshake', async (t) => {
   // reject channels with invalid ports
   t.throwsAsync(() =>
     src.channelOpenInit(
-      'bad-port',
-      ics20.portId,
+      ics20.destPortId,
+      ics20.destPortId,
       ics20.ordering,
       link.endA.connectionID,
       ics20.version
@@ -47,8 +49,8 @@ test.serial('initialized connection and start channel handshake', async (t) => {
   // reject channels with invalid version
   t.throwsAsync(() =>
     src.channelOpenInit(
-      ics20.portId,
-      ics20.portId,
+      ics20.srcPortId,
+      ics20.destPortId,
       ics20.ordering,
       link.endA.connectionID,
       'ics27'
@@ -59,8 +61,8 @@ test.serial('initialized connection and start channel handshake', async (t) => {
 
   // this is valid and works
   const { channelId: channelIdSrc } = await src.channelOpenInit(
-    ics20.portId,
-    ics20.portId,
+    ics20.srcPortId,
+    ics20.destPortId,
     ics20.ordering,
     link.endA.connectionID,
     ics20.version
@@ -73,20 +75,34 @@ test.serial(
   async (t) => {
     const [nodeA, nodeB] = await setup();
     const link = await Link.createConnection(nodeA, nodeB);
+
+    // increment the channel sequence on src, to guarantee unique ids
+    await nodeA.channelOpenInit(
+      ics20.srcPortId,
+      ics20.destPortId,
+      ics20.ordering,
+      link.endA.connectionID,
+      ics20.version
+    );
+
+    // open a channel
     const channels = await link.createChannel(
       'A',
-      ics20.portId,
-      ics20.portId,
+      ics20.srcPortId,
+      ics20.destPortId,
       ics20.ordering,
       ics20.version
     );
 
-    t.is(channels.src.portId, ics20.portId);
-    t.is(channels.dest.portId, ics20.portId);
+    // ensure we bound expected ports
+    t.is(channels.src.portId, ics20.srcPortId);
+    t.is(channels.dest.portId, ics20.destPortId);
+    // and have different channel ids (this depends on the increment above)
+    t.not(channels.src.channelId, channels.dest.channelId);
 
     // query data
     const { channel } = await link.endB.client.query.ibc.channel.channel(
-      ics20.portId,
+      ics20.destPortId,
       channels.dest.channelId
     );
     t.is(channel?.state, State.STATE_OPEN);

@@ -515,9 +515,7 @@
         "channels": [
           {
             "channel_id": "channel-0",
-            "connection_hops": [
-              "connection-0"
-            ],
+            "connection_hops": ["connection-0"],
             "counterparty": {
               "channel_id": "channel-0",
               "port_id": "transfer"
@@ -574,10 +572,7 @@
               "proof_specs": [
                 {
                   "inner_spec": {
-                    "child_order": [
-                      0,
-                      1
-                    ],
+                    "child_order": [0, 1],
                     "child_size": 33,
                     "empty_child": null,
                     "hash": "SHA256",
@@ -596,10 +591,7 @@
                 },
                 {
                   "inner_spec": {
-                    "child_order": [
-                      0,
-                      1
-                    ],
+                    "child_order": [0, 1],
                     "child_size": 32,
                     "empty_child": null,
                     "hash": "SHA256",
@@ -623,10 +615,7 @@
               },
               "trusting_period": "1209600s",
               "unbonding_period": "1814400s",
-              "upgrade_path": [
-                "upgrade",
-                "upgradedIBCState"
-              ]
+              "upgrade_path": ["upgrade", "upgradedIBCState"]
             }
           }
         ],
@@ -737,19 +726,14 @@
         "create_localhost": false,
         "next_client_sequence": "0",
         "params": {
-          "allowed_clients": [
-            "06-solomachine",
-            "07-tendermint"
-          ]
+          "allowed_clients": ["06-solomachine", "07-tendermint"]
         }
       },
       "connection_genesis": {
         "client_connection_paths": [
           {
             "client_id": "07-tendermint-0",
-            "paths": [
-              "connection-0"
-            ]
+            "paths": ["connection-0"]
           }
         ],
         "connections": [
@@ -767,10 +751,7 @@
             "state": "STATE_OPEN",
             "versions": [
               {
-                "features": [
-                  "ORDER_ORDERED",
-                  "ORDER_UNORDERED"
-                ],
+                "features": ["ORDER_ORDERED", "ORDER_UNORDERED"],
                 "identifier": "1"
               }
             ]
@@ -827,7 +808,7 @@
         "receive_enabled": true,
         "send_enabled": true
       },
-      "port_id": "transfer"
+      "port_id": "custom"
     },
     "upgrade": {},
     "vesting": {}
@@ -845,9 +826,7 @@
       "max_bytes": "1048576"
     },
     "validator": {
-      "pub_key_types": [
-        "ed25519"
-      ]
+      "pub_key_types": ["ed25519"]
     },
     "version": {}
   },
