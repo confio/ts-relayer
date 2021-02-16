@@ -1,5 +1,13 @@
 import { toAscii } from '@cosmjs/encoding';
-import { Coin, coins, logs } from '@cosmjs/launchpad';
+import {
+  buildFeeTable,
+  Coin,
+  FeeTable,
+  GasLimits,
+  GasPrice,
+  logs,
+  StdFee,
+} from '@cosmjs/launchpad';
 import { OfflineSigner, Registry } from '@cosmjs/proto-signing';
 import {
   AuthExtension,
@@ -15,7 +23,6 @@ import {
   SigningStargateClient,
   SigningStargateClientOptions,
 } from '@cosmjs/stargate';
-// import { firstEvent } from '@cosmjs/stream';
 import {
   adaptor34,
   CommitResponse,
@@ -171,35 +178,31 @@ function createBroadcastTxErrorMessage(result: BroadcastTxFailure): string {
   return `Error when broadcasting tx ${result.transactionHash} at height ${result.height}. Code: ${result.code}; Raw log: ${result.rawLog}`;
 }
 
-// TODO: replace this with buildFees in IbcClient constructor to take custom gasPrice, override gas needed
-const fees = {
-  initClient: {
-    amount: coins(2500, 'ucosm'),
-    gas: '100000',
-  },
-  updateClient: {
-    amount: coins(10000, 'ucosm'),
-    gas: '400000',
-  },
-  initConnection: {
-    amount: coins(2500, 'ucosm'),
-    gas: '100000',
-  },
-  connectionHandshake: {
-    amount: coins(5000, 'ucosm'),
-    gas: '200000',
-  },
-  initChannel: {
-    amount: coins(2500, 'ucosm'),
-    gas: '100000',
-  },
-  channelHandshake: {
-    amount: coins(5000, 'ucosm'),
-    gas: '200000',
-  },
+export interface IbcFeeTable extends FeeTable {
+  readonly initClient: StdFee;
+  readonly updateClient: StdFee;
+  readonly initConnection: StdFee;
+  readonly connectionHandshake: StdFee;
+  readonly initChannel: StdFee;
+  readonly channelHandshake: StdFee;
+}
+
+export type IbcClientOptions = SigningStargateClientOptions & {
+  gasLimits?: Partial<GasLimits<IbcFeeTable>>;
+};
+
+const defaultGasPrice = GasPrice.fromString('0.025ucosm');
+const defaultGasLimits: GasLimits<IbcFeeTable> = {
+  initClient: 100000,
+  updateClient: 400000,
+  initConnection: 100000,
+  connectionHandshake: 200000,
+  initChannel: 100000,
+  channelHandshake: 200000,
 };
 
 export class IbcClient {
+  private readonly fees: IbcFeeTable;
   public readonly sign: SigningStargateClient;
   public readonly query: QueryClient &
     AuthExtension &
@@ -212,23 +215,27 @@ export class IbcClient {
     endpoint: string,
     signer: OfflineSigner,
     senderAddress: string,
-    options?: SigningStargateClientOptions
+    options: IbcClientOptions = {}
   ): Promise<IbcClient> {
     // override any registry setup, use the other options
-    const registryOptions = { ...options, registry: ibcRegistry() };
+    const mergedOptions = {
+      ...options,
+      registry: ibcRegistry(),
+    };
     const signingClient = await SigningStargateClient.connectWithSigner(
       endpoint,
       signer,
-      registryOptions
+      mergedOptions
     );
     const tmClient = await TendermintClient.connect(endpoint, adaptor34);
-    return new IbcClient(signingClient, tmClient, senderAddress);
+    return new IbcClient(signingClient, tmClient, senderAddress, options);
   }
 
   private constructor(
     signingClient: SigningStargateClient,
     tmClient: TendermintClient,
-    senderAddress: string
+    senderAddress: string,
+    options: IbcClientOptions
   ) {
     this.sign = signingClient;
     this.tm = tmClient;
@@ -239,6 +246,12 @@ export class IbcClient {
       setupIbcExtension
     );
     this.senderAddress = senderAddress;
+    const { gasPrice = defaultGasPrice, gasLimits = {} } = options;
+    this.fees = buildFeeTable<IbcFeeTable>(
+      gasPrice,
+      defaultGasLimits,
+      gasLimits
+    );
   }
 
   public getChainId(): Promise<string> {
@@ -493,7 +506,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [createMsg],
-      fees.initClient
+      this.fees.initClient
     );
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
@@ -532,7 +545,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [updateMsg],
-      fees.updateClient
+      this.fees.updateClient
     );
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
@@ -566,7 +579,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      fees.initConnection
+      this.fees.initConnection
     );
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
@@ -623,7 +636,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      fees.connectionHandshake
+      this.fees.connectionHandshake
     );
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
@@ -674,7 +687,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      fees.connectionHandshake
+      this.fees.connectionHandshake
     );
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
@@ -704,7 +717,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      fees.connectionHandshake
+      this.fees.connectionHandshake
     );
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
@@ -744,7 +757,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      fees.initChannel
+      this.fees.initChannel
     );
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
@@ -794,7 +807,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      fees.channelHandshake
+      this.fees.channelHandshake
     );
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
@@ -837,7 +850,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      fees.channelHandshake
+      this.fees.channelHandshake
     );
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
@@ -870,7 +883,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      fees.channelHandshake
+      this.fees.channelHandshake
     );
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
