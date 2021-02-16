@@ -69,6 +69,14 @@ import { ValidatorSet } from '../codec/tendermint/types/validator';
 
 import { IbcExtension, setupIbcExtension } from './queries/ibc';
 
+/**** These are needed to bootstrap the endpoints */
+/* Some of them are hardcoded various places, which should we make configurable? */
+// const DefaultTrustLevel = '1/3';
+// const MaxClockDrift = 10; // 10 seconds
+// const upgradePath = ['upgrade', 'upgradedIBCState'];
+// const allowUpgradeAfterExpiry = false;
+// const allowUpgradeAfterMisbehavior = false;
+
 // these are from the cosmos sdk implementation
 const defaultMerklePrefix = {
   keyPrefix: toAscii('ibc'),

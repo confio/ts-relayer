@@ -1,6 +1,6 @@
 import { Order } from '../codec/ibc/core/channel/v1/channel';
 
-import { Endpoint, findClient, findConnection } from './endpoint';
+import { Endpoint } from './endpoint';
 import {
   buildCreateClientArgs,
   IbcClient,
@@ -16,6 +16,7 @@ export type Side = 'A' | 'B';
 
 // measured in seconds
 // Note: client parameter is checked against the actual keeper - must use real values from genesis.json
+// TODO: make this more adaptable for chains (query from staking?)
 const genesisUnbondingTime = 1814400;
 
 /**
@@ -36,20 +37,16 @@ export class Link {
    * @param nodeA
    * @param nodeB
    */
-  public static async findConnection(
+  public static async reuseConnection(
     nodeA: IbcClient,
-    nodeB: IbcClient
+    nodeB: IbcClient,
+    connA: string,
+    connB: string
   ): Promise<Link> {
-    const clientA = await findClient(nodeA, await nodeB.getChainId());
-    const clientB = await findClient(nodeB, await nodeA.getChainId());
+    // so they are no marked unused variables
+    [nodeA, nodeB, connA, connB];
 
-    const connA = await findConnection(nodeA, clientA);
-    const connB = await findConnection(nodeB, clientB);
-
-    const endA = new Endpoint(nodeA, clientA, connA);
-    const endB = new Endpoint(nodeB, clientB, connB);
-
-    return new Link(endA, endB);
+    throw new Error('not yet implemented');
   }
 
   public static async createClients(
