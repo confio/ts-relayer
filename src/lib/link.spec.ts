@@ -75,6 +75,17 @@ test.serial(
   async (t) => {
     const [nodeA, nodeB] = await setup();
     const link = await Link.createConnection(nodeA, nodeB);
+
+    // increment the channel sequence on src, to guarantee unique ids
+    await nodeA.channelOpenInit(
+      ics20.srcPortId,
+      ics20.destPortId,
+      ics20.ordering,
+      link.endA.connectionID,
+      ics20.version
+    );
+
+    // open a channel
     const channels = await link.createChannel(
       'A',
       ics20.srcPortId,
@@ -83,8 +94,11 @@ test.serial(
       ics20.version
     );
 
+    // ensure we bound expected ports
     t.is(channels.src.portId, ics20.srcPortId);
     t.is(channels.dest.portId, ics20.destPortId);
+    // and have different channel ids (this depends on the increment above)
+    t.not(channels.src.channelId, channels.dest.channelId);
 
     // query data
     const { channel } = await link.endB.client.query.ibc.channel.channel(
