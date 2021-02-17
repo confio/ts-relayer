@@ -37,6 +37,7 @@ import Long from 'long';
 import { HashOp, LengthOp } from '../codec/confio/proofs';
 import { Any } from '../codec/google/protobuf/any';
 import { Timestamp } from '../codec/google/protobuf/timestamp';
+import { MsgTransfer } from '../codec/ibc/applications/transfer/v1/tx';
 import { Order, State } from '../codec/ibc/core/channel/v1/channel';
 import {
   MsgChannelOpenAck,
@@ -107,6 +108,7 @@ function ibcRegistry(): Registry {
     ['/ibc.core.channel.v1.MsgChannelOpenTry', MsgChannelOpenTry],
     ['/ibc.core.channel.v1.MsgChannelOpenAck', MsgChannelOpenAck],
     ['/ibc.core.channel.v1.MsgChannelOpenConfirm', MsgChannelOpenConfirm],
+    ['/ibc.applications.transfer.v1.MsgTransfer', MsgTransfer],
   ]);
 }
 
@@ -185,6 +187,7 @@ export interface IbcFeeTable extends FeeTable {
   readonly connectionHandshake: StdFee;
   readonly initChannel: StdFee;
   readonly channelHandshake: StdFee;
+  readonly transfer: StdFee;
 }
 
 export type IbcClientOptions = SigningStargateClientOptions & {
@@ -199,6 +202,7 @@ const defaultGasLimits: GasLimits<IbcFeeTable> = {
   connectionHandshake: 200000,
   initChannel: 100000,
   channelHandshake: 200000,
+  transfer: 120000,
 };
 
 export class IbcClient {
@@ -884,6 +888,47 @@ export class IbcClient {
       senderAddress,
       [msg],
       this.fees.channelHandshake
+    );
+    if (isBroadcastTxFailure(result)) {
+      throw new Error(createBroadcastTxErrorMessage(result));
+    }
+    const parsedLogs = parseRawLog(result.rawLog);
+    return {
+      logs: parsedLogs,
+      transactionHash: result.transactionHash,
+    };
+  }
+
+  public async transferTokens(
+    sourcePort: string,
+    sourceChannel: string,
+    token: Coin,
+    receiver: string,
+    timeoutBlock?: number,
+    timeoutTime?: number
+  ): Promise<MsgResult> {
+    const senderAddress = this.senderAddress;
+    const timeoutHeight = timeoutBlock
+      ? toProtoHeight(timeoutBlock)
+      : undefined;
+    const timeoutTimestamp = new Long(timeoutTime ?? 0);
+    const msg = {
+      typeUrl: '/ibc.applications.transfer.v1.MsgTransfer',
+      value: MsgTransfer.fromPartial({
+        sourcePort,
+        sourceChannel,
+        sender: senderAddress,
+        token,
+        receiver,
+        timeoutHeight,
+        timeoutTimestamp,
+      }),
+    };
+
+    const result = await this.sign.signAndBroadcast(
+      senderAddress,
+      [msg],
+      this.fees.transfer
     );
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
