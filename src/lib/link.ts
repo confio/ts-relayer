@@ -74,6 +74,22 @@ export class Link {
         `Client ID ${connectionB.clientId} for connection with ID ${connB} does not match counterparty client ID ${connectionA.counterparty.clientId} for connection with ID ${connA}`
       );
     }
+    const [chainIdA, chainIdB, clientStateA, clientStateB] = await Promise.all([
+      nodeA.getChainId(),
+      nodeB.getChainId(),
+      nodeA.query.ibc.client.stateTm(connectionA.clientId),
+      nodeB.query.ibc.client.stateTm(connectionB.clientId),
+    ]);
+    if (chainIdA !== clientStateB.chainId) {
+      throw new Error(
+        `Chain ID ${chainIdA} for connection with ID ${connA} does not match remote chain ID ${clientStateA.chainId}`
+      );
+    }
+    if (chainIdB !== clientStateA.chainId) {
+      throw new Error(
+        `Chain ID ${chainIdB} for connection with ID ${connB} does not match remote chain ID ${clientStateB.chainId}`
+      );
+    }
     const endA = new Endpoint(nodeA, clientIdA, connA);
     const endB = new Endpoint(nodeB, clientIdB, connB);
     return new Link(endA, endB);
