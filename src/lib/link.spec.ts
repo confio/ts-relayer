@@ -153,15 +153,15 @@ test.serial('reuse existing connections', async (t) => {
   t.is(channelDest.channel?.counterparty?.channelId, oldChannels.src.channelId);
 
   // Check everything is fine by creating a new channel
-  // TODO: Why does this fail with this error?
-  // failed to execute message; message index: 0: channel handshake open try failed: failed channel state verification for client (07-tendermint-42): client state height < proof height ({0 17506} < {0 17512}): invalid height
-  // await newLink.createChannel(
-  //   'A',
-  //   ics20.srcPortId,
-  //   ics20.destPortId,
-  //   ics20.ordering,
-  //   ics20.version
-  // );
+  // switch src and dest just to test another path
+  const newChannels = await newLink.createChannel(
+    'B',
+    ics20.destPortId,
+    ics20.srcPortId,
+    ics20.ordering,
+    ics20.version
+  );
+  t.notDeepEqual(newChannels.dest, oldChannels.src);
 });
 
 test.serial('errors when reusing an invalid connection', async (t) => {

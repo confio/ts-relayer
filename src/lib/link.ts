@@ -44,7 +44,6 @@ export class Link {
     connA: string,
     connB: string
   ): Promise<Link> {
-    const [clientIdA, clientIdB] = await createClients(nodeA, nodeB);
     const [
       { connection: connectionA },
       { connection: connectionB },
@@ -64,12 +63,14 @@ export class Link {
     if (!connectionB.counterparty) {
       throw new Error(`Counterparty not found for connection with ID ${connB}`);
     }
-    if (connectionA.clientId !== connectionB.counterparty.clientId) {
+
+    const [clientIdA, clientIdB] = [connectionA.clientId, connectionB.clientId];
+    if (clientIdA !== connectionB.counterparty.clientId) {
       throw new Error(
         `Client ID ${connectionA.clientId} for connection with ID ${connA} does not match counterparty client ID ${connectionB.counterparty.clientId} for connection with ID ${connB}`
       );
     }
-    if (connectionB.clientId !== connectionA.counterparty.clientId) {
+    if (clientIdB !== connectionA.counterparty.clientId) {
       throw new Error(
         `Client ID ${connectionB.clientId} for connection with ID ${connB} does not match counterparty client ID ${connectionA.counterparty.clientId} for connection with ID ${connA}`
       );
@@ -77,8 +78,8 @@ export class Link {
     const [chainIdA, chainIdB, clientStateA, clientStateB] = await Promise.all([
       nodeA.getChainId(),
       nodeB.getChainId(),
-      nodeA.query.ibc.client.stateTm(connectionA.clientId),
-      nodeB.query.ibc.client.stateTm(connectionB.clientId),
+      nodeA.query.ibc.client.stateTm(clientIdA),
+      nodeB.query.ibc.client.stateTm(clientIdB),
     ]);
     if (chainIdA !== clientStateB.chainId) {
       throw new Error(
