@@ -226,7 +226,20 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             pagination: createPagination(paginationKey),
           }),
         allChannels: async () => {
-          throw new Error('not implemented');
+          const channels = [];
+          let response: QueryChannelsResponse;
+          let key: Uint8Array | undefined;
+          do {
+            response = await channelQueryService.Channels({
+              pagination: createPagination(key),
+            });
+            channels.push(...response.channels);
+            key = response.pagination?.nextKey;
+          } while (key);
+          return {
+            channels: channels,
+            height: response.height,
+          };
         },
         connectionChannels: async (
           connection: string,
@@ -236,8 +249,22 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             connection: connection,
             pagination: createPagination(paginationKey),
           }),
-        allConnectionChannels: async () => {
-          throw new Error('not implemented');
+        allConnectionChannels: async (connection: string) => {
+          const channels = [];
+          let response: QueryConnectionChannelsResponse;
+          let key: Uint8Array | undefined;
+          do {
+            response = await channelQueryService.ConnectionChannels({
+              connection: connection,
+              pagination: createPagination(key),
+            });
+            channels.push(...response.channels);
+            key = response.pagination?.nextKey;
+          } while (key);
+          return {
+            channels: channels,
+            height: response.height,
+          };
         },
         clientState: async (portId: string, channelId: string) =>
           channelQueryService.ChannelClientState({
@@ -277,8 +304,22 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             pagination: createPagination(paginationKey),
           }),
         allPacketCommitments: async (portId: string, channelId: string) => {
-          [portId, channelId];
-          throw new Error('not implemented');
+          const commitments = [];
+          let response: QueryPacketCommitmentsResponse;
+          let key: Uint8Array | undefined;
+          do {
+            response = await channelQueryService.PacketCommitments({
+              channelId: channelId,
+              portId: portId,
+              pagination: createPagination(key),
+            });
+            commitments.push(...response.commitments);
+            key = response.pagination?.nextKey;
+          } while (key);
+          return {
+            commitments: commitments,
+            height: response.height,
+          };
         },
         packetReceipt: async (
           portId: string,
@@ -314,8 +355,22 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           portId: string,
           channelId: string
         ) => {
-          [portId, channelId];
-          throw new Error('not implemented');
+          const acknowledgements = [];
+          let response: QueryPacketAcknowledgementsResponse;
+          let key: Uint8Array | undefined;
+          do {
+            response = await channelQueryService.PacketAcknowledgements({
+              channelId: channelId,
+              portId: portId,
+              pagination: createPagination(key),
+            });
+            acknowledgements.push(...response.acknowledgements);
+            key = response.pagination?.nextKey;
+          } while (key);
+          return {
+            acknowledgements: acknowledgements,
+            height: response.height,
+          };
         },
         unreceivedPackets: async (
           portId: string,
@@ -355,7 +410,19 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             pagination: createPagination(paginationKey),
           }),
         allStates: async () => {
-          throw new Error('not implemented');
+          const clientStates = [];
+          let response: QueryClientStatesResponse;
+          let key: Uint8Array | undefined;
+          do {
+            response = await clientQueryService.ClientStates({
+              pagination: createPagination(key),
+            });
+            clientStates.push(...response.clientStates);
+            key = response.pagination?.nextKey;
+          } while (key);
+          return {
+            clientStates: clientStates,
+          };
         },
         consensusState: (clientId: string, consensusHeight?: number) =>
           clientQueryService.ConsensusState(
@@ -374,8 +441,20 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             pagination: createPagination(paginationKey),
           }),
         allConsensusStates: async (clientId: string) => {
-          clientId;
-          throw new Error('not implemented');
+          const consensusStates = [];
+          let response: QueryConsensusStatesResponse;
+          let key: Uint8Array | undefined;
+          do {
+            response = await clientQueryService.ConsensusStates({
+              clientId: clientId,
+              pagination: createPagination(key),
+            });
+            consensusStates.push(...response.consensusStates);
+            key = response.pagination?.nextKey;
+          } while (key);
+          return {
+            consensusStates: consensusStates,
+          };
         },
         params: () => clientQueryService.ClientParams({}),
         stateTm: async (clientId: string) => {
@@ -401,7 +480,20 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             pagination: createPagination(paginationKey),
           }),
         allConnections: async () => {
-          throw new Error('not implemented');
+          const connections = [];
+          let response: QueryConnectionsResponse;
+          let key: Uint8Array | undefined;
+          do {
+            response = await connectionQueryService.Connections({
+              pagination: createPagination(key),
+            });
+            connections.push(...response.connections);
+            key = response.pagination?.nextKey;
+          } while (key);
+          return {
+            connections: connections,
+            height: response.height,
+          };
         },
         clientConnections: async (clientId: string) =>
           connectionQueryService.ClientConnections({
