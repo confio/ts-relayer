@@ -1,4 +1,4 @@
-import { toAscii } from '@cosmjs/encoding';
+import { toAscii, toUtf8 } from '@cosmjs/encoding';
 import {
   buildFeeTable,
   Coin,
@@ -38,7 +38,7 @@ import { HashOp, LengthOp } from '../codec/confio/proofs';
 import { Any } from '../codec/google/protobuf/any';
 import { Timestamp } from '../codec/google/protobuf/timestamp';
 import { MsgTransfer } from '../codec/ibc/applications/transfer/v1/tx';
-import { Order, State } from '../codec/ibc/core/channel/v1/channel';
+import { Order, Packet, State } from '../codec/ibc/core/channel/v1/channel';
 import {
   MsgChannelOpenAck,
   MsgChannelOpenConfirm,
@@ -1095,4 +1095,56 @@ export async function prepareChannelHandshake(
   // get a proof (for the proven height)
   const proof = await src.getChannelProof({ portId, channelId }, headerHeight);
   return proof;
+}
+
+interface ParsedAttribute {
+  readonly key: string;
+  readonly value: string;
+}
+
+export interface ParsedEvent {
+  readonly type: string;
+  readonly attributes: readonly ParsedAttribute[];
+}
+
+export function parsePacket({ type, attributes }: ParsedEvent): Packet {
+  if (type !== 'send_packet') {
+    throw new Error(`Cannot parse event of type ${type}`);
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const attributesObj: any = attributes.reduce(
+    (acc, { key, value }) => ({
+      ...acc,
+      [key]: value,
+    }),
+    {}
+  );
+  const [timeoutRevisionNumber, timeoutRevisionHeight] =
+    attributesObj.packet_timeout_height?.split('-') ?? [];
+  return {
+    sequence: Long.fromNumber(attributesObj.packet_sequence ?? 0, true),
+    /** identifies the port on the sending chain. */
+    sourcePort: attributesObj.packet_src_port ?? '',
+    /** identifies the channel end on the sending chain. */
+    sourceChannel: attributesObj.packet_src_channel ?? '',
+    /** identifies the port on the receiving chain. */
+    destinationPort: attributesObj.packet_dst_port ?? '',
+    /** identifies the channel end on the receiving chain. */
+    destinationChannel: attributesObj.packet_dst_channel ?? '',
+    /** actual opaque bytes transferred directly to the application module */
+    data: toUtf8(attributesObj.packet_data ?? ''),
+    /** block height after which the packet times out */
+    timeoutHeight:
+      timeoutRevisionNumber && timeoutRevisionHeight
+        ? Height.fromPartial({
+            revisionNumber: timeoutRevisionNumber,
+            revisionHeight: timeoutRevisionHeight,
+          })
+        : undefined,
+    /** block timestamp (in nanoseconds) after which the packet times out */
+    timeoutTimestamp: Long.fromString(
+      attributesObj.packet_timeout_timestamp ?? '0',
+      true
+    ),
+  };
 }
