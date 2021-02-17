@@ -1,13 +1,16 @@
 import { sleep } from '@cosmjs/utils';
 import test from 'ava';
 
+import { Order } from '../codec/ibc/core/channel/v1/channel';
+
 import {
   buildClientState,
   buildConsensusState,
   buildCreateClientArgs,
   prepareConnectionHandshake,
 } from './ibcclient';
-import { setup } from './testutils.spec';
+import { Link } from './link';
+import { randomAddress, setup, simapp, wasmd } from './testutils.spec';
 
 test.serial('create simapp client on wasmd', async (t) => {
   const [src, dest] = await setup();
@@ -137,4 +140,52 @@ test.serial('perform connection handshake', async (t) => {
     srcConnId
   );
   await dest.connOpenConfirm(proofConfirm);
+});
+
+// constants for this transport protocol
+const ics20 = {
+  // we set a new port in genesis for simapp
+  srcPortId: 'custom',
+  destPortId: 'transfer',
+  version: 'ics20-1',
+  ordering: Order.ORDER_UNORDERED,
+};
+
+test.only('transfer message and send packets', async (t) => {
+  // set up ics20 channel
+  const [nodeA, nodeB] = await setup();
+  const link = await Link.createWithNewConnections(nodeA, nodeB);
+  const channels = await link.createChannel(
+    'A',
+    ics20.srcPortId,
+    ics20.destPortId,
+    ics20.ordering,
+    ics20.version
+  );
+  t.is(channels.src.portId, ics20.srcPortId);
+
+  // make an account on remote chain, and check it is empty
+  const recv = randomAddress(wasmd.prefix);
+  const preBalance = await nodeB.query.bank.unverified.allBalances(recv);
+  t.is(preBalance.length, 0);
+
+  // submit a transfer message
+  const destHeight = (await nodeB.latestHeader()).height;
+  const token = { amount: '12345', denom: simapp.denomFee };
+  const res = await nodeA.transferTokens(
+    channels.src.portId,
+    channels.src.channelId,
+    token,
+    recv,
+    destHeight + 500 // valid for 500 blocks
+  );
+  console.log(JSON.stringify(res.logs[0].events, undefined, 2));
+
+  // TODO: parse packet from send_packet data in log (this should be a reusable function)
+
+  // TODO: relay packet
+
+  // TODO: query balance of recv (should be "12345" or some odd hash...)
+
+  // TODO: query denom route for that hash
 });
