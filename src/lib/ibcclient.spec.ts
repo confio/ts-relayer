@@ -1,4 +1,4 @@
-import { sleep } from '@cosmjs/utils';
+import { assert, sleep } from '@cosmjs/utils';
 import test from 'ava';
 
 import { Order } from '../codec/ibc/core/channel/v1/channel';
@@ -7,6 +7,7 @@ import {
   buildClientState,
   buildConsensusState,
   buildCreateClientArgs,
+  parsePacket,
   prepareConnectionHandshake,
 } from './ibcclient';
 import { Link } from './link';
@@ -151,7 +152,7 @@ const ics20 = {
   ordering: Order.ORDER_UNORDERED,
 };
 
-test.only('transfer message and send packets', async (t) => {
+test.serial.only('transfer message and send packets', async (t) => {
   // set up ics20 channel
   const [nodeA, nodeB] = await setup();
   const link = await Link.createWithNewConnections(nodeA, nodeB);
@@ -165,8 +166,8 @@ test.only('transfer message and send packets', async (t) => {
   t.is(channels.src.portId, ics20.srcPortId);
 
   // make an account on remote chain, and check it is empty
-  const recv = randomAddress(wasmd.prefix);
-  const preBalance = await nodeB.query.bank.unverified.allBalances(recv);
+  const recipient = randomAddress(wasmd.prefix);
+  const preBalance = await nodeB.query.bank.unverified.allBalances(recipient);
   t.is(preBalance.length, 0);
 
   // submit a transfer message
@@ -176,16 +177,21 @@ test.only('transfer message and send packets', async (t) => {
     channels.src.portId,
     channels.src.channelId,
     token,
-    recv,
+    recipient,
     destHeight + 500 // valid for 500 blocks
   );
   console.log(JSON.stringify(res.logs[0].events, undefined, 2));
 
-  // TODO: parse packet from send_packet data in log (this should be a reusable function)
+  const packetEvent = res.logs[0].events.find(
+    ({ type }) => type === 'send_packet'
+  );
+  assert(packetEvent);
+  const packet = parsePacket(packetEvent);
+  console.log(packet);
 
   // TODO: relay packet
 
-  // TODO: query balance of recv (should be "12345" or some odd hash...)
+  // TODO: query balance of recipient (should be "12345" or some odd hash...)
 
   // TODO: query denom route for that hash
 });
