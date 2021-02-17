@@ -3,14 +3,10 @@ import { Bip39, Random } from '@cosmjs/crypto';
 import { Bech32 } from '@cosmjs/encoding';
 import { Decimal } from '@cosmjs/math';
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
-import {
-  isBroadcastTxFailure,
-  SigningStargateClientOptions,
-  StargateClient,
-} from '@cosmjs/stargate';
+import { isBroadcastTxFailure, StargateClient } from '@cosmjs/stargate';
 import test from 'ava';
 
-import { IbcClient } from './ibcclient';
+import { IbcClient, IbcClientOptions } from './ibcclient';
 
 export const simapp = {
   tendermintUrlWs: 'ws://localhost:26658',
@@ -103,7 +99,7 @@ export async function signingClient(
     opts.prefix
   );
   const { address } = (await signer.getAccounts())[0];
-  const options: SigningStargateClientOptions = {
+  const options: IbcClientOptions = {
     prefix: opts.prefix,
     gasPrice: {
       amount: Decimal.fromAtomics('5', 2), // 0.05
@@ -124,8 +120,8 @@ export async function setup(): Promise<IbcClient[]> {
   const mnemonic = generateMnemonic();
   const src = await signingClient(simapp, mnemonic);
   const dest = await signingClient(wasmd, mnemonic);
-  await fundAccount(wasmd, dest.senderAddress, '100000');
-  await fundAccount(simapp, src.senderAddress, '100000');
+  await fundAccount(wasmd, dest.senderAddress, '200000');
+  await fundAccount(simapp, src.senderAddress, '200000');
   return [src, dest];
 }
 
