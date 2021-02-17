@@ -90,6 +90,7 @@ export class Link {
         `Chain ID ${chainIdB} for connection with ID ${connB} does not match remote chain ID ${clientStateB.chainId}`
       );
     }
+    // TODO: Check headers match consensus state
     const endA = new Endpoint(nodeA, clientIdA, connA);
     const endB = new Endpoint(nodeB, clientIdB, connB);
     return new Link(endA, endB);
