@@ -34,7 +34,7 @@ test.serial('initialized connection and start channel handshake', async (t) => {
   const link = await Link.createWithNewConnections(src, dest);
 
   // reject channels with invalid ports
-  t.throwsAsync(() =>
+  await t.throwsAsync(() =>
     src.channelOpenInit(
       ics20.destPortId,
       ics20.destPortId,
@@ -47,7 +47,7 @@ test.serial('initialized connection and start channel handshake', async (t) => {
   await src.waitOneBlock();
 
   // reject channels with invalid version
-  t.throwsAsync(() =>
+  await t.throwsAsync(() =>
     src.channelOpenInit(
       ics20.srcPortId,
       ics20.destPortId,
