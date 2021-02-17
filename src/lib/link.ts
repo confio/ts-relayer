@@ -45,15 +45,34 @@ export class Link {
     connB: string
   ): Promise<Link> {
     const [clientIdA, clientIdB] = await createClients(nodeA, nodeB);
-    const [connectionResponseA, connectionResponseB] = await Promise.all([
+    const [
+      { connection: connectionA },
+      { connection: connectionB },
+    ] = await Promise.all([
       nodeA.query.ibc.connection.connection(connA),
       nodeB.query.ibc.connection.connection(connB),
     ]);
-    if (!connectionResponseA.connection) {
-      throw new Error(`Connection not found for connection ID ${connA}`);
+    if (!connectionA) {
+      throw new Error(`Connection not found for ID ${connA}`);
     }
-    if (!connectionResponseB.connection) {
-      throw new Error(`Connection not found for connection ID ${connB}`);
+    if (!connectionB) {
+      throw new Error(`Connection not found for ID ${connB}`);
+    }
+    if (!connectionA.counterparty) {
+      throw new Error(`Counterparty not found for connection with ID ${connA}`);
+    }
+    if (!connectionB.counterparty) {
+      throw new Error(`Counterparty not found for connection with ID ${connB}`);
+    }
+    if (connectionA.clientId !== connectionB.counterparty.clientId) {
+      throw new Error(
+        `Client ID ${connectionA.clientId} for connection with ID ${connA} does not match counterparty client ID ${connectionB.counterparty.clientId} for connection with ID ${connB}`
+      );
+    }
+    if (connectionB.clientId !== connectionA.counterparty.clientId) {
+      throw new Error(
+        `Client ID ${connectionB.clientId} for connection with ID ${connB} does not match counterparty client ID ${connectionA.counterparty.clientId} for connection with ID ${connA}`
+      );
     }
     const endA = new Endpoint(nodeA, clientIdA, connA);
     const endB = new Endpoint(nodeB, clientIdB, connB);
