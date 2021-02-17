@@ -20,6 +20,47 @@ test.serial('establish new client-connection', async (t) => {
   // TODO: ensure it is updated
 });
 
+test.serial('reuse existing connections', async (t) => {
+  const [src, dest] = await setup();
+
+  const oldLink = await Link.createWithNewConnections(src, dest);
+  const connA = oldLink.endA.connectionID;
+  const connB = oldLink.endB.connectionID;
+
+  const newLink = await Link.createWithExistingConnections(
+    src,
+    dest,
+    connA,
+    connB
+  );
+
+  // ensure the data makes sense (TODO: more?)
+  t.assert(
+    newLink.endA.clientID.startsWith('07-tendermint-'),
+    newLink.endA.clientID
+  );
+  t.assert(
+    newLink.endB.clientID.startsWith('07-tendermint-'),
+    newLink.endB.clientID
+  );
+
+  // try to update both clients, ensuring this connection is stable
+  await newLink.updateClient('A');
+  // TODO: ensure it is updated
+  await newLink.updateClient('B');
+  // TODO: ensure it is updated
+});
+
+test.serial('errors when reusing an invalid connection', async (t) => {
+  const [src, dest] = await setup();
+
+  const connA = 'whatever';
+  const connB = 'unreal';
+  await t.throwsAsync(() =>
+    Link.createWithExistingConnections(src, dest, connA, connB)
+  );
+});
+
 // constants for this transport protocol
 const ics20 = {
   // we set a new port in genesis for simapp
