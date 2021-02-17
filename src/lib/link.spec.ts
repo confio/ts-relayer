@@ -61,6 +61,19 @@ test.serial('errors when reusing an invalid connection', async (t) => {
   );
 });
 
+test.serial(`errors when reusing connections which don’t match`, async (t) => {
+  const [src, dest] = await setup();
+
+  const oldLink1 = await Link.createWithNewConnections(src, dest);
+  const connA = oldLink1.endA.connectionID;
+  const oldLink2 = await Link.createWithNewConnections(src, dest);
+  const connB = oldLink2.endB.connectionID;
+
+  await t.throwsAsync(() =>
+    Link.createWithExistingConnections(src, dest, connA, connB)
+  );
+});
+
 // constants for this transport protocol
 const ics20 = {
   // we set a new port in genesis for simapp
