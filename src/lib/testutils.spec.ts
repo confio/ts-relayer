@@ -120,8 +120,8 @@ export async function setup(): Promise<IbcClient[]> {
   const mnemonic = generateMnemonic();
   const src = await signingClient(simapp, mnemonic);
   const dest = await signingClient(wasmd, mnemonic);
-  await fundAccount(wasmd, dest.senderAddress, '100000');
-  await fundAccount(simapp, src.senderAddress, '100000');
+  await fundAccount(wasmd, dest.senderAddress, '200000');
+  await fundAccount(simapp, src.senderAddress, '200000');
   return [src, dest];
 }
 
