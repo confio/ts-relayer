@@ -55,9 +55,13 @@ export interface IbcExtension {
       readonly channels: (
         paginationKey?: Uint8Array
       ) => Promise<QueryChannelsResponse>;
+      readonly allChannels: () => Promise<QueryChannelsResponse>;
       readonly connectionChannels: (
         connection: string,
         paginationKey?: Uint8Array
+      ) => Promise<QueryConnectionChannelsResponse>;
+      readonly allConnectionChannels: (
+        connection: string
       ) => Promise<QueryConnectionChannelsResponse>;
       readonly clientState: (
         portId: string,
@@ -79,6 +83,10 @@ export interface IbcExtension {
         channelId: string,
         paginationKey?: Uint8Array
       ) => Promise<QueryPacketCommitmentsResponse>;
+      readonly allPacketCommitments: (
+        portId: string,
+        channelId: string
+      ) => Promise<QueryPacketCommitmentsResponse>;
       readonly packetReceipt: (
         portId: string,
         channelId: string,
@@ -93,6 +101,10 @@ export interface IbcExtension {
         portId: string,
         channelId: string,
         paginationKey?: Uint8Array
+      ) => Promise<QueryPacketAcknowledgementsResponse>;
+      readonly allPacketAcknowledgements: (
+        portId: string,
+        channelId: string
       ) => Promise<QueryPacketAcknowledgementsResponse>;
       readonly unreceivedPackets: (
         portId: string,
@@ -114,6 +126,7 @@ export interface IbcExtension {
       readonly states: (
         paginationKey?: Uint8Array
       ) => Promise<QueryClientStatesResponse>;
+      readonly allStates: () => Promise<QueryClientStatesResponse>;
       readonly consensusState: (
         clientId: string,
         height?: number
@@ -122,7 +135,11 @@ export interface IbcExtension {
         clientId: string,
         paginationKey?: Uint8Array
       ) => Promise<QueryConsensusStatesResponse>;
+      readonly allConsensusStates: (
+        clientId: string
+      ) => Promise<QueryConsensusStatesResponse>;
       readonly params: () => Promise<QueryClientParamsResponse>;
+      // TODO: Add statesTm and allStatesTm
       readonly stateTm: (clientId: string) => Promise<TendermintClientState>;
     };
     readonly connection: {
@@ -132,6 +149,7 @@ export interface IbcExtension {
       readonly connections: (
         paginationKey?: Uint8Array
       ) => Promise<QueryConnectionsResponse>;
+      readonly allConnections: () => Promise<QueryConnectionsResponse>;
       readonly clientConnections: (
         clientId: string
       ) => Promise<QueryClientConnectionsResponse>;
@@ -207,6 +225,9 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           channelQueryService.Channels({
             pagination: createPagination(paginationKey),
           }),
+        allChannels: async () => {
+          throw new Error('not implemented');
+        },
         connectionChannels: async (
           connection: string,
           paginationKey?: Uint8Array
@@ -215,6 +236,9 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             connection: connection,
             pagination: createPagination(paginationKey),
           }),
+        allConnectionChannels: async () => {
+          throw new Error('not implemented');
+        },
         clientState: async (portId: string, channelId: string) =>
           channelQueryService.ChannelClientState({
             portId: portId,
@@ -252,6 +276,10 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             portId: portId,
             pagination: createPagination(paginationKey),
           }),
+        allPacketCommitments: async (portId: string, channelId: string) => {
+          [portId, channelId];
+          throw new Error('not implemented');
+        },
         packetReceipt: async (
           portId: string,
           channelId: string,
@@ -282,6 +310,13 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             channelId: channelId,
             pagination: createPagination(paginationKey),
           }),
+        allPacketAcknowledgements: async (
+          portId: string,
+          channelId: string
+        ) => {
+          [portId, channelId];
+          throw new Error('not implemented');
+        },
         unreceivedPackets: async (
           portId: string,
           channelId: string,
@@ -319,6 +354,9 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           clientQueryService.ClientStates({
             pagination: createPagination(paginationKey),
           }),
+        allStates: async () => {
+          throw new Error('not implemented');
+        },
         consensusState: (clientId: string, consensusHeight?: number) =>
           clientQueryService.ConsensusState(
             QueryConsensusStateRequest.fromPartial({
@@ -335,6 +373,10 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             clientId: clientId,
             pagination: createPagination(paginationKey),
           }),
+        allConsensusStates: async (clientId: string) => {
+          clientId;
+          throw new Error('not implemented');
+        },
         params: () => clientQueryService.ClientParams({}),
         stateTm: async (clientId: string) => {
           const response = await clientQueryService.ClientState({ clientId });
@@ -358,6 +400,9 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           connectionQueryService.Connections({
             pagination: createPagination(paginationKey),
           }),
+        allConnections: async () => {
+          throw new Error('not implemented');
+        },
         clientConnections: async (clientId: string) =>
           connectionQueryService.ClientConnections({
             clientId: clientId,
