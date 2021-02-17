@@ -12,7 +12,7 @@ import { setup } from './testutils.spec';
 test.serial('create simapp client on wasmd', async (t) => {
   const [src, dest] = await setup();
 
-  const preClients = await dest.query.ibc.client.states();
+  const preClients = await dest.query.ibc.client.allStates();
   const preLen = preClients.clientStates.length;
 
   const header = await src.latestHeader();
@@ -27,7 +27,7 @@ test.serial('create simapp client on wasmd', async (t) => {
   t.assert(res.clientId.startsWith('07-tendermint-'));
 
   await dest.waitOneBlock();
-  const postClients = await dest.query.ibc.client.states();
+  const postClients = await dest.query.ibc.client.allStates();
   t.is(postClients.clientStates.length, preLen + 1);
 });
 
@@ -77,7 +77,7 @@ function sameLong(a?: Long, b?: Long) {
 const genesisUnbondingTime = 1814400;
 
 // make 2 clients, and try to establish a connection
-test.only('perform connection handshake', async (t) => {
+test.serial('perform connection handshake', async (t) => {
   const [src, dest] = await setup();
 
   // client on dest -> src

@@ -45,6 +45,15 @@ import {
 import { ClientState as TendermintClientState } from '../../codec/ibc/lightclients/tendermint/v1/tendermint';
 import { ProofOps } from '../../codec/tendermint/crypto/proof';
 
+function decodeTendermintClientStateAny(
+  clientState: Any | undefined
+): TendermintClientState {
+  if (clientState?.typeUrl !== '/ibc.lightclients.tendermint.v1.ClientState') {
+    throw new Error(`Unexpected client state type: ${clientState?.typeUrl}`);
+  }
+  return TendermintClientState.decode(clientState.value);
+}
+
 export interface IbcExtension {
   readonly ibc: {
     readonly channel: {
@@ -55,9 +64,13 @@ export interface IbcExtension {
       readonly channels: (
         paginationKey?: Uint8Array
       ) => Promise<QueryChannelsResponse>;
+      readonly allChannels: () => Promise<QueryChannelsResponse>;
       readonly connectionChannels: (
         connection: string,
         paginationKey?: Uint8Array
+      ) => Promise<QueryConnectionChannelsResponse>;
+      readonly allConnectionChannels: (
+        connection: string
       ) => Promise<QueryConnectionChannelsResponse>;
       readonly clientState: (
         portId: string,
@@ -79,6 +92,10 @@ export interface IbcExtension {
         channelId: string,
         paginationKey?: Uint8Array
       ) => Promise<QueryPacketCommitmentsResponse>;
+      readonly allPacketCommitments: (
+        portId: string,
+        channelId: string
+      ) => Promise<QueryPacketCommitmentsResponse>;
       readonly packetReceipt: (
         portId: string,
         channelId: string,
@@ -93,6 +110,10 @@ export interface IbcExtension {
         portId: string,
         channelId: string,
         paginationKey?: Uint8Array
+      ) => Promise<QueryPacketAcknowledgementsResponse>;
+      readonly allPacketAcknowledgements: (
+        portId: string,
+        channelId: string
       ) => Promise<QueryPacketAcknowledgementsResponse>;
       readonly unreceivedPackets: (
         portId: string,
@@ -114,6 +135,7 @@ export interface IbcExtension {
       readonly states: (
         paginationKey?: Uint8Array
       ) => Promise<QueryClientStatesResponse>;
+      readonly allStates: () => Promise<QueryClientStatesResponse>;
       readonly consensusState: (
         clientId: string,
         height?: number
@@ -122,8 +144,15 @@ export interface IbcExtension {
         clientId: string,
         paginationKey?: Uint8Array
       ) => Promise<QueryConsensusStatesResponse>;
+      readonly allConsensusStates: (
+        clientId: string
+      ) => Promise<QueryConsensusStatesResponse>;
       readonly params: () => Promise<QueryClientParamsResponse>;
       readonly stateTm: (clientId: string) => Promise<TendermintClientState>;
+      readonly statesTm: (
+        paginationKey?: Uint8Array
+      ) => Promise<TendermintClientState[]>;
+      readonly allStatesTm: () => Promise<TendermintClientState[]>;
     };
     readonly connection: {
       readonly connection: (
@@ -132,6 +161,7 @@ export interface IbcExtension {
       readonly connections: (
         paginationKey?: Uint8Array
       ) => Promise<QueryConnectionsResponse>;
+      readonly allConnections: () => Promise<QueryConnectionsResponse>;
       readonly clientConnections: (
         clientId: string
       ) => Promise<QueryClientConnectionsResponse>;
@@ -207,6 +237,22 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           channelQueryService.Channels({
             pagination: createPagination(paginationKey),
           }),
+        allChannels: async () => {
+          const channels = [];
+          let response: QueryChannelsResponse;
+          let key: Uint8Array | undefined;
+          do {
+            response = await channelQueryService.Channels({
+              pagination: createPagination(key),
+            });
+            channels.push(...response.channels);
+            key = response.pagination?.nextKey;
+          } while (key);
+          return {
+            channels: channels,
+            height: response.height,
+          };
+        },
         connectionChannels: async (
           connection: string,
           paginationKey?: Uint8Array
@@ -215,6 +261,23 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             connection: connection,
             pagination: createPagination(paginationKey),
           }),
+        allConnectionChannels: async (connection: string) => {
+          const channels = [];
+          let response: QueryConnectionChannelsResponse;
+          let key: Uint8Array | undefined;
+          do {
+            response = await channelQueryService.ConnectionChannels({
+              connection: connection,
+              pagination: createPagination(key),
+            });
+            channels.push(...response.channels);
+            key = response.pagination?.nextKey;
+          } while (key);
+          return {
+            channels: channels,
+            height: response.height,
+          };
+        },
         clientState: async (portId: string, channelId: string) =>
           channelQueryService.ChannelClientState({
             portId: portId,
@@ -252,6 +315,24 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             portId: portId,
             pagination: createPagination(paginationKey),
           }),
+        allPacketCommitments: async (portId: string, channelId: string) => {
+          const commitments = [];
+          let response: QueryPacketCommitmentsResponse;
+          let key: Uint8Array | undefined;
+          do {
+            response = await channelQueryService.PacketCommitments({
+              channelId: channelId,
+              portId: portId,
+              pagination: createPagination(key),
+            });
+            commitments.push(...response.commitments);
+            key = response.pagination?.nextKey;
+          } while (key);
+          return {
+            commitments: commitments,
+            height: response.height,
+          };
+        },
         packetReceipt: async (
           portId: string,
           channelId: string,
@@ -282,6 +363,27 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             channelId: channelId,
             pagination: createPagination(paginationKey),
           }),
+        allPacketAcknowledgements: async (
+          portId: string,
+          channelId: string
+        ) => {
+          const acknowledgements = [];
+          let response: QueryPacketAcknowledgementsResponse;
+          let key: Uint8Array | undefined;
+          do {
+            response = await channelQueryService.PacketAcknowledgements({
+              channelId: channelId,
+              portId: portId,
+              pagination: createPagination(key),
+            });
+            acknowledgements.push(...response.acknowledgements);
+            key = response.pagination?.nextKey;
+          } while (key);
+          return {
+            acknowledgements: acknowledgements,
+            height: response.height,
+          };
+        },
         unreceivedPackets: async (
           portId: string,
           channelId: string,
@@ -319,6 +421,21 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           clientQueryService.ClientStates({
             pagination: createPagination(paginationKey),
           }),
+        allStates: async () => {
+          const clientStates = [];
+          let response: QueryClientStatesResponse;
+          let key: Uint8Array | undefined;
+          do {
+            response = await clientQueryService.ClientStates({
+              pagination: createPagination(key),
+            });
+            clientStates.push(...response.clientStates);
+            key = response.pagination?.nextKey;
+          } while (key);
+          return {
+            clientStates: clientStates,
+          };
+        },
         consensusState: (clientId: string, consensusHeight?: number) =>
           clientQueryService.ConsensusState(
             QueryConsensusStateRequest.fromPartial({
@@ -335,18 +452,49 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             clientId: clientId,
             pagination: createPagination(paginationKey),
           }),
+        allConsensusStates: async (clientId: string) => {
+          const consensusStates = [];
+          let response: QueryConsensusStatesResponse;
+          let key: Uint8Array | undefined;
+          do {
+            response = await clientQueryService.ConsensusStates({
+              clientId: clientId,
+              pagination: createPagination(key),
+            });
+            consensusStates.push(...response.consensusStates);
+            key = response.pagination?.nextKey;
+          } while (key);
+          return {
+            consensusStates: consensusStates,
+          };
+        },
         params: () => clientQueryService.ClientParams({}),
         stateTm: async (clientId: string) => {
           const response = await clientQueryService.ClientState({ clientId });
-          if (
-            response.clientState?.typeUrl !==
-            '/ibc.lightclients.tendermint.v1.ClientState'
-          ) {
-            throw new Error(
-              `Unexpected client state type: ${response.clientState?.typeUrl}`
-            );
-          }
-          return TendermintClientState.decode(response.clientState.value);
+          return decodeTendermintClientStateAny(response.clientState);
+        },
+        statesTm: async (paginationKey?: Uint8Array) => {
+          const { clientStates } = await clientQueryService.ClientStates({
+            pagination: createPagination(paginationKey),
+          });
+          return clientStates.map(({ clientState }) =>
+            decodeTendermintClientStateAny(clientState)
+          );
+        },
+        allStatesTm: async () => {
+          const clientStates = [];
+          let response: QueryClientStatesResponse;
+          let key: Uint8Array | undefined;
+          do {
+            response = await clientQueryService.ClientStates({
+              pagination: createPagination(key),
+            });
+            clientStates.push(...response.clientStates);
+            key = response.pagination?.nextKey;
+          } while (key);
+          return clientStates.map(({ clientState }) =>
+            decodeTendermintClientStateAny(clientState)
+          );
         },
       },
       connection: {
@@ -358,6 +506,22 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           connectionQueryService.Connections({
             pagination: createPagination(paginationKey),
           }),
+        allConnections: async () => {
+          const connections = [];
+          let response: QueryConnectionsResponse;
+          let key: Uint8Array | undefined;
+          do {
+            response = await connectionQueryService.Connections({
+              pagination: createPagination(key),
+            });
+            connections.push(...response.connections);
+            key = response.pagination?.nextKey;
+          } while (key);
+          return {
+            connections: connections,
+            height: response.height,
+          };
+        },
         clientConnections: async (clientId: string) =>
           connectionQueryService.ClientConnections({
             clientId: clientId,
