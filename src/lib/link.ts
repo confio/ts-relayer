@@ -44,10 +44,20 @@ export class Link {
     connA: string,
     connB: string
   ): Promise<Link> {
-    // so they are no marked unused variables
-    [nodeA, nodeB, connA, connB];
-
-    throw new Error('not yet implemented');
+    const [clientIdA, clientIdB] = await createClients(nodeA, nodeB);
+    const [connectionResponseA, connectionResponseB] = await Promise.all([
+      nodeA.query.ibc.connection.connection(connA),
+      nodeB.query.ibc.connection.connection(connB),
+    ]);
+    if (!connectionResponseA.connection) {
+      throw new Error(`Connection not found for connection ID ${connA}`);
+    }
+    if (!connectionResponseB.connection) {
+      throw new Error(`Connection not found for connection ID ${connB}`);
+    }
+    const endA = new Endpoint(nodeA, clientIdA, connA);
+    const endB = new Endpoint(nodeB, clientIdB, connB);
+    return new Link(endA, endB);
   }
 
   /**
