@@ -45,6 +45,15 @@ import {
 import { ClientState as TendermintClientState } from '../../codec/ibc/lightclients/tendermint/v1/tendermint';
 import { ProofOps } from '../../codec/tendermint/crypto/proof';
 
+function decodeTendermintClientStateAny(
+  clientState: Any | undefined
+): TendermintClientState {
+  if (clientState?.typeUrl !== '/ibc.lightclients.tendermint.v1.ClientState') {
+    throw new Error(`Unexpected client state type: ${clientState?.typeUrl}`);
+  }
+  return TendermintClientState.decode(clientState.value);
+}
+
 export interface IbcExtension {
   readonly ibc: {
     readonly channel: {
@@ -139,8 +148,11 @@ export interface IbcExtension {
         clientId: string
       ) => Promise<QueryConsensusStatesResponse>;
       readonly params: () => Promise<QueryClientParamsResponse>;
-      // TODO: Add statesTm and allStatesTm
       readonly stateTm: (clientId: string) => Promise<TendermintClientState>;
+      readonly statesTm: (
+        paginationKey?: Uint8Array
+      ) => Promise<TendermintClientState[]>;
+      readonly allStatesTm: () => Promise<TendermintClientState[]>;
     };
     readonly connection: {
       readonly connection: (
@@ -459,15 +471,30 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
         params: () => clientQueryService.ClientParams({}),
         stateTm: async (clientId: string) => {
           const response = await clientQueryService.ClientState({ clientId });
-          if (
-            response.clientState?.typeUrl !==
-            '/ibc.lightclients.tendermint.v1.ClientState'
-          ) {
-            throw new Error(
-              `Unexpected client state type: ${response.clientState?.typeUrl}`
-            );
-          }
-          return TendermintClientState.decode(response.clientState.value);
+          return decodeTendermintClientStateAny(response.clientState);
+        },
+        statesTm: async (paginationKey?: Uint8Array) => {
+          const { clientStates } = await clientQueryService.ClientStates({
+            pagination: createPagination(paginationKey),
+          });
+          return clientStates.map(({ clientState }) =>
+            decodeTendermintClientStateAny(clientState)
+          );
+        },
+        allStatesTm: async () => {
+          const clientStates = [];
+          let response: QueryClientStatesResponse;
+          let key: Uint8Array | undefined;
+          do {
+            response = await clientQueryService.ClientStates({
+              pagination: createPagination(key),
+            });
+            clientStates.push(...response.clientStates);
+            key = response.pagination?.nextKey;
+          } while (key);
+          return clientStates.map(({ clientState }) =>
+            decodeTendermintClientStateAny(clientState)
+          );
         },
       },
       connection: {
