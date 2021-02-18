@@ -18,6 +18,11 @@ import {
 } from '../codec/ibc/lightclients/tendermint/v1/tendermint';
 import { PublicKey as ProtoPubKey } from '../codec/tendermint/crypto/keys';
 
+export interface Ack {
+  readonly acknowledgement: Uint8Array;
+  readonly originalPacket: Packet;
+}
+
 export function createBroadcastTxErrorMessage(
   result: BroadcastTxFailure
 ): string {
@@ -203,5 +208,61 @@ export function parsePacket({ type, attributes }: ParsedEvent): Packet {
       attributesObj.packet_timeout_timestamp ?? '0',
       true
     ),
+  };
+}
+
+export function parseAcksFromLogs(logs: readonly logs.Log[]): Ack[] {
+  // grab all send_packet events from the logs
+  const allEvents: ParsedEvent[][] = logs.map((log) =>
+    log.events.filter(({ type }) => type === 'write_acknowledgement')
+  );
+  const flatEvents = ([] as ParsedEvent[]).concat(...allEvents);
+  return flatEvents.map(parseAck);
+}
+
+export function parseAck({ type, attributes }: ParsedEvent): Ack {
+  if (type !== 'write_acknowledgement') {
+    throw new Error(`Cannot parse event of type ${type}`);
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const attributesObj: any = attributes.reduce(
+    (acc, { key, value }) => ({
+      ...acc,
+      [key]: value,
+    }),
+    {}
+  );
+  const [timeoutRevisionNumber, timeoutRevisionHeight] =
+    attributesObj.packet_timeout_height?.split('-') ?? [];
+  const originalPacket = {
+    sequence: Long.fromNumber(attributesObj.packet_sequence ?? 0, true),
+    /** identifies the port on the sending chain. */
+    sourcePort: attributesObj.packet_src_port ?? '',
+    /** identifies the channel end on the sending chain. */
+    sourceChannel: attributesObj.packet_src_channel ?? '',
+    /** identifies the port on the receiving chain. */
+    destinationPort: attributesObj.packet_dst_port ?? '',
+    /** identifies the channel end on the receiving chain. */
+    destinationChannel: attributesObj.packet_dst_channel ?? '',
+    /** actual opaque bytes transferred directly to the application module */
+    data: toUtf8(attributesObj.packet_data ?? ''),
+    /** block height after which the packet times out */
+    timeoutHeight:
+      timeoutRevisionNumber && timeoutRevisionHeight
+        ? Height.fromPartial({
+            revisionNumber: timeoutRevisionNumber,
+            revisionHeight: timeoutRevisionHeight,
+          })
+        : undefined,
+    /** block timestamp (in nanoseconds) after which the packet times out */
+    timeoutTimestamp: Long.fromString(
+      attributesObj.packet_timeout_timestamp ?? '0',
+      true
+    ),
+  };
+  const acknowledgement = toUtf8(attributesObj.packet_ack);
+  return {
+    acknowledgement,
+    originalPacket,
   };
 }

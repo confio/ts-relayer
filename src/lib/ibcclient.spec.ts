@@ -210,7 +210,7 @@ test.serial('parse various packet data', async (t) => {
   t.is(multiPackets.length, 2);
 });
 
-test.serial('transfer message and send packets', async (t) => {
+test.serial.only('transfer message and send packets', async (t) => {
   // set up ics20 channel
   const [nodeA, nodeB] = await setup();
   const link = await Link.createWithNewConnections(nodeA, nodeB);
