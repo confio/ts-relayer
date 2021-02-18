@@ -1,4 +1,5 @@
 import { toUtf8 } from '@cosmjs/encoding';
+import { logs } from '@cosmjs/launchpad';
 import { BroadcastTxFailure } from '@cosmjs/stargate';
 import {
   ReadonlyDateWithNanoseconds,
@@ -152,6 +153,15 @@ interface ParsedAttribute {
 interface ParsedEvent {
   readonly type: string;
   readonly attributes: readonly ParsedAttribute[];
+}
+
+export function parsePacketsFromLogs(logs: readonly logs.Log[]): Packet[] {
+  // grab all send_packet events from the logs
+  const allEvents: ParsedEvent[][] = logs.map((log) =>
+    log.events.filter(({ type }) => type === 'send_packet')
+  );
+  const flatEvents = ([] as ParsedEvent[]).concat(...allEvents);
+  return flatEvents.map(parsePacket);
 }
 
 export function parsePacket({ type, attributes }: ParsedEvent): Packet {

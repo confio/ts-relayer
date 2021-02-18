@@ -440,6 +440,22 @@ export class IbcClient {
     };
   }
 
+  public async getPacketProof(
+    packet: Packet,
+    headerHeight: number
+  ): Promise<Uint8Array> {
+    const queryHeight = headerHeight - 1;
+
+    const { proof } = await this.query.ibc.proof.channel.packetCommitment(
+      packet.sourcePort,
+      packet.sourceChannel,
+      packet.sequence.toNumber(),
+      queryHeight
+    );
+
+    return proof;
+  }
+
   /*
   These are helpers to query, build data and submit a message
   Currently all prefixed with doXxx, but please look for better naming

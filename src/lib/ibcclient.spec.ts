@@ -1,4 +1,4 @@
-import { assert, sleep } from '@cosmjs/utils';
+import { sleep } from '@cosmjs/utils';
 import test from 'ava';
 
 import { Order } from '../codec/ibc/core/channel/v1/channel';
@@ -9,7 +9,7 @@ import { randomAddress, setup, simapp, wasmd } from './testutils.spec';
 import {
   buildClientState,
   buildConsensusState,
-  parsePacket,
+  parsePacketsFromLogs,
   toProtoHeight,
 } from './utils';
 
@@ -152,6 +152,37 @@ const ics20 = {
   ordering: Order.ORDER_UNORDERED,
 };
 
+// test.serial.only('parse various packet data', async (t) => {
+//   // set up ics20 channel
+//   const [nodeA, nodeB] = await setup();
+//   const link = await Link.createWithNewConnections(nodeA, nodeB);
+//   const channels = await link.createChannel(
+//     'A',
+//     ics20.srcPortId,
+//     ics20.destPortId,
+//     ics20.ordering,
+//     ics20.version
+//   );
+
+//   // make an account on remote chain for testing
+//   const recipient = randomAddress(wasmd.prefix);
+
+//   // submit a transfer message
+//   const destHeight = (await nodeB.latestHeader()).height;
+//   const token = { amount: '12345', denom: simapp.denomFee };
+//   const transferResult = await nodeA.transferTokens(
+//     channels.src.portId,
+//     channels.src.channelId,
+//     token,
+//     recipient,
+//     destHeight + 500 // valid for 500 blocks
+//   );
+
+//   const packetEvent = transferResult.logs[0].events.find(
+//     ({ type }) => type === 'send_packet'
+//   );
+// });
+
 test.serial.only('transfer message and send packets', async (t) => {
   // set up ics20 channel
   const [nodeA, nodeB] = await setup();
@@ -181,29 +212,18 @@ test.serial.only('transfer message and send packets', async (t) => {
     destHeight + 500 // valid for 500 blocks
   );
 
-  const packetEvent = transferResult.logs[0].events.find(
-    ({ type }) => type === 'send_packet'
-  );
-  assert(packetEvent);
-  const packet = parsePacket(packetEvent);
-  console.log(packet);
+  const packets = parsePacketsFromLogs(transferResult.logs);
+  t.is(packets.length, 1);
+  const packet = packets[0];
 
   // base the proof sequence on prepareChannelHandshake
   // update client on dest
   await nodeA.waitOneBlock();
   const headerHeight = await nodeB.doUpdateClient(link.endB.clientID, nodeA);
-
-  // wait one block before the query, so the data is available
-  const proofCommitmentResponse = await nodeA.query.ibc.proof.channel.packetCommitment(
-    packet.sourcePort,
-    packet.sourceChannel,
-    packet.sequence.toNumber(),
-    headerHeight - 1 // query height is one less than header
-  );
-
+  const proof = await nodeA.getPacketProof(packet, headerHeight);
   const relayResult = await nodeB.receivePacket(
     packet,
-    proofCommitmentResponse.proof,
+    proof,
     toProtoHeight(headerHeight)
   );
   console.log(JSON.stringify(relayResult.logs[0].events, undefined, 2));
@@ -214,7 +234,4 @@ test.serial.only('transfer message and send packets', async (t) => {
   const recvCoin = postBalance[0];
   t.is(recvCoin.amount, '12345');
   t.assert(recvCoin.denom.startsWith('ibc/'), recvCoin.denom);
-  console.log(recvCoin.denom);
-
-  // TODO: query denom route for that hash
 });
