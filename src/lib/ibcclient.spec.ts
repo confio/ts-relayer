@@ -154,6 +154,70 @@ const ics20 = {
   ordering: Order.ORDER_UNORDERED,
 };
 
+test.serial('transfer message and send packets', async (t) => {
+  // set up ics20 channel
+  const [nodeA, nodeB] = await setup();
+  const link = await Link.createWithNewConnections(nodeA, nodeB);
+  const channels = await link.createChannel(
+    'A',
+    ics20.srcPortId,
+    ics20.destPortId,
+    ics20.ordering,
+    ics20.version
+  );
+  t.is(channels.src.portId, ics20.srcPortId);
+
+  // make an account on remote chain, and check it is empty
+  const recipient = randomAddress(wasmd.prefix);
+  const preBalance = await nodeB.query.bank.unverified.allBalances(recipient);
+  t.is(preBalance.length, 0);
+
+  // submit a transfer message
+  const destHeight = (await nodeB.latestHeader()).height;
+  const token = { amount: '12345', denom: simapp.denomFee };
+  const transferResult = await nodeA.transferTokens(
+    channels.src.portId,
+    channels.src.channelId,
+    token,
+    recipient,
+    destHeight + 500 // valid for 500 blocks
+  );
+
+  const packets = parsePacketsFromLogs(transferResult.logs);
+  t.is(packets.length, 1);
+  const packet = packets[0];
+
+  // base the proof sequence on prepareChannelHandshake
+  // update client on dest
+  await nodeA.waitOneBlock();
+  const headerHeight = await nodeB.doUpdateClient(link.endB.clientID, nodeA);
+  const proof = await nodeA.getPacketProof(packet, headerHeight);
+  const relayResult = await nodeB.receivePacket(
+    packet,
+    proof,
+    toProtoHeight(headerHeight)
+  );
+
+  // query balance of recipient (should be "12345" or some odd hash...)
+  const postBalance = await nodeB.query.bank.unverified.allBalances(recipient);
+  t.is(postBalance.length, 1);
+  const recvCoin = postBalance[0];
+  t.is(recvCoin.amount, '12345');
+  t.assert(recvCoin.denom.startsWith('ibc/'), recvCoin.denom);
+
+  // get the acknowledgement from the receivePacket tx
+  const acks = parseAcksFromLogs(relayResult.logs);
+  t.is(acks.length, 1);
+  const ack = acks[0];
+
+  // get an ack proof and return to node A
+  await nodeB.waitOneBlock();
+  const ackHeaderHeight = await nodeA.doUpdateClient(link.endA.clientID, nodeB);
+  const ackProof = await nodeB.getAckProof(ack, ackHeaderHeight);
+  await nodeA.acknowledgePacket(ack, ackProof, toProtoHeight(ackHeaderHeight));
+  // Do we need to check the result? or just see the tx succeeded?
+});
+
 test.serial('tests parsing with multi-message', async (t) => {
   // set up ics20 channel
   const [nodeA, nodeB] = await setup();
@@ -234,68 +298,16 @@ test.serial('tests parsing with multi-message', async (t) => {
   // but we got 2 acks
   const relayAcks = parseAcksFromLogs(relayLog);
   t.is(relayAcks.length, 2);
-});
 
-test.serial('transfer message and send packets', async (t) => {
-  // set up ics20 channel
-  const [nodeA, nodeB] = await setup();
-  const link = await Link.createWithNewConnections(nodeA, nodeB);
-  const channels = await link.createChannel(
-    'A',
-    ics20.srcPortId,
-    ics20.destPortId,
-    ics20.ordering,
-    ics20.version
-  );
-  t.is(channels.src.portId, ics20.srcPortId);
-
-  // make an account on remote chain, and check it is empty
-  const recipient = randomAddress(wasmd.prefix);
-  const preBalance = await nodeB.query.bank.unverified.allBalances(recipient);
-  t.is(preBalance.length, 0);
-
-  // submit a transfer message
-  const destHeight = (await nodeB.latestHeader()).height;
-  const token = { amount: '12345', denom: simapp.denomFee };
-  const transferResult = await nodeA.transferTokens(
-    channels.src.portId,
-    channels.src.channelId,
-    token,
-    recipient,
-    destHeight + 500 // valid for 500 blocks
-  );
-
-  const packets = parsePacketsFromLogs(transferResult.logs);
-  t.is(packets.length, 1);
-  const packet = packets[0];
-
-  // base the proof sequence on prepareChannelHandshake
-  // update client on dest
-  await nodeA.waitOneBlock();
-  const headerHeight = await nodeB.doUpdateClient(link.endB.clientID, nodeA);
-  const proof = await nodeA.getPacketProof(packet, headerHeight);
-  const relayResult = await nodeB.receivePacket(
-    packet,
-    proof,
-    toProtoHeight(headerHeight)
-  );
-
-  // query balance of recipient (should be "12345" or some odd hash...)
-  const postBalance = await nodeB.query.bank.unverified.allBalances(recipient);
-  t.is(postBalance.length, 1);
-  const recvCoin = postBalance[0];
-  t.is(recvCoin.amount, '12345');
-  t.assert(recvCoin.denom.startsWith('ibc/'), recvCoin.denom);
-
-  // get the acknowledgement from the receivePacket tx
-  const acks = parseAcksFromLogs(relayResult.logs);
-  t.is(acks.length, 1);
-  const ack = acks[0];
-
-  // get an ack proof and return to node A
+  // relay them together
   await nodeB.waitOneBlock();
   const ackHeaderHeight = await nodeA.doUpdateClient(link.endA.clientID, nodeB);
-  const ackProof = await nodeB.getAckProof(ack, ackHeaderHeight);
-  await nodeA.acknowledgePacket(ack, ackProof, toProtoHeight(ackHeaderHeight));
-  // Do we need to check the result? or just see the tx succeeded?
+  const ackProofs = await Promise.all(
+    relayAcks.map((ack) => nodeB.getAckProof(ack, ackHeaderHeight))
+  );
+  await nodeA.acknowledgePackets(
+    relayAcks,
+    ackProofs,
+    toProtoHeight(ackHeaderHeight)
+  );
 });

@@ -1001,26 +1001,47 @@ export class IbcClient {
     };
   }
 
-  public async acknowledgePacket(
+  public acknowledgePacket(
     ack: Ack,
     proofAcked: Uint8Array,
     proofHeight?: Height
   ): Promise<MsgResult> {
+    return this.acknowledgePackets([ack], [proofAcked], proofHeight);
+  }
+
+  public async acknowledgePackets(
+    acks: Ack[],
+    proofAckeds: Uint8Array[],
+    proofHeight?: Height
+  ): Promise<MsgResult> {
+    if (acks.length !== proofAckeds.length) {
+      throw new Error(
+        `Have ${acks.length} acks, but ${proofAckeds.length} proofs`
+      );
+    }
+    if (acks.length === 0) {
+      throw new Error('Must submit at least 1 ack');
+    }
+
     const senderAddress = this.senderAddress;
-    const msg = {
-      typeUrl: '/ibc.core.channel.v1.MsgAcknowledgement',
-      value: MsgAcknowledgement.fromPartial({
-        packet: ack.originalPacket,
-        acknowledgement: ack.acknowledgement,
-        proofAcked,
-        proofHeight,
-        signer: senderAddress,
-      }),
-    };
+    const msgs = [];
+    for (const i in acks) {
+      const msg = {
+        typeUrl: '/ibc.core.channel.v1.MsgAcknowledgement',
+        value: MsgAcknowledgement.fromPartial({
+          packet: acks[i].originalPacket,
+          acknowledgement: acks[i].acknowledgement,
+          proofAcked: proofAckeds[i],
+          proofHeight,
+          signer: senderAddress,
+        }),
+      };
+      msgs.push(msg);
+    }
     const result = await this.sign.signAndBroadcast(
       senderAddress,
-      [msg],
-      this.fees.ackPacket
+      msgs,
+      multiplyFees(this.fees.ackPacket, msgs.length)
     );
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
