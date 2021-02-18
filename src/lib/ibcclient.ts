@@ -176,6 +176,7 @@ export interface IbcFeeTable extends FeeTable {
   readonly channelHandshake: StdFee;
   readonly receivePacket: StdFee;
   readonly ackPacket: StdFee;
+  readonly timeoutPacket: StdFee;
   readonly transfer: StdFee;
 }
 
@@ -193,6 +194,7 @@ const defaultGasLimits: GasLimits<IbcFeeTable> = {
   channelHandshake: 200000,
   receivePacket: 200000,
   ackPacket: 200000,
+  timeoutPacket: 200000,
   transfer: 120000,
 };
 
@@ -997,6 +999,38 @@ export class IbcClient {
       senderAddress,
       [msg],
       this.fees.ackPacket
+    );
+    if (isBroadcastTxFailure(result)) {
+      throw new Error(createBroadcastTxErrorMessage(result));
+    }
+    const parsedLogs = parseRawLog(result.rawLog);
+    return {
+      logs: parsedLogs,
+      transactionHash: result.transactionHash,
+    };
+  }
+
+  public async timeoutPacket(
+    packet: Packet,
+    proofUnreceived: Uint8Array,
+    nextSequenceRecv: Long,
+    proofHeight?: Height
+  ): Promise<MsgResult> {
+    const senderAddress = this.senderAddress;
+    const msg = {
+      typeUrl: '/ibc.core.channel.v1.MsgTimeout',
+      value: MsgTimeout.fromPartial({
+        packet,
+        proofUnreceived,
+        nextSequenceRecv,
+        proofHeight,
+        signer: senderAddress,
+      }),
+    };
+    const result = await this.sign.signAndBroadcast(
+      senderAddress,
+      [msg],
+      this.fees.timeoutPacket
     );
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
