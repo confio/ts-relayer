@@ -186,7 +186,7 @@ const defaultGasLimits: GasLimits<IbcFeeTable> = {
   connectionHandshake: 200000,
   initChannel: 100000,
   channelHandshake: 200000,
-  receivePacket: 100000,
+  receivePacket: 200000,
   transfer: 120000,
 };
 

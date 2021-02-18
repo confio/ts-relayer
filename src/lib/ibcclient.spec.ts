@@ -6,7 +6,12 @@ import { Order } from '../codec/ibc/core/channel/v1/channel';
 import { buildCreateClientArgs, prepareConnectionHandshake } from './ibcclient';
 import { Link } from './link';
 import { randomAddress, setup, simapp, wasmd } from './testutils.spec';
-import { buildClientState, buildConsensusState, parsePacket } from './utils';
+import {
+  buildClientState,
+  buildConsensusState,
+  parsePacket,
+  toProtoHeight,
+} from './utils';
 
 test.serial('create simapp client on wasmd', async (t) => {
   const [src, dest] = await setup();
@@ -183,23 +188,33 @@ test.serial.only('transfer message and send packets', async (t) => {
   const packet = parsePacket(packetEvent);
   console.log(packet);
 
+  // base the proof sequence on prepareChannelHandshake
+  // update client on dest
+  await nodeA.waitOneBlock();
+  const headerHeight = await nodeB.doUpdateClient(link.endB.clientID, nodeA);
+
   // wait one block before the query, so the data is available
   const proofCommitmentResponse = await nodeA.query.ibc.proof.channel.packetCommitment(
     packet.sourcePort,
     packet.sourceChannel,
-    packet.sequence.toNumber()
+    packet.sequence.toNumber(),
+    headerHeight - 1 // query height is one less than header
   );
-  console.log('PROOF COMMITMENT QUERY RESPONSE', proofCommitmentResponse);
 
-  await nodeB.doUpdateClient(link.endB.clientID, nodeA);
   const relayResult = await nodeB.receivePacket(
     packet,
     proofCommitmentResponse.proof,
-    proofCommitmentResponse.proofHeight
+    toProtoHeight(headerHeight)
   );
-  console.log(relayResult);
+  console.log(JSON.stringify(relayResult.logs[0].events, undefined, 2));
 
-  // TODO: query balance of recipient (should be "12345" or some odd hash...)
+  // query balance of recipient (should be "12345" or some odd hash...)
+  const postBalance = await nodeB.query.bank.unverified.allBalances(recipient);
+  t.is(postBalance.length, 1);
+  const recvCoin = postBalance[0];
+  t.is(recvCoin.amount, '12345');
+  t.assert(recvCoin.denom.startsWith('ibc/'), recvCoin.denom);
+  console.log(recvCoin.denom);
 
   // TODO: query denom route for that hash
 });
