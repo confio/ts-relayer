@@ -1,4 +1,4 @@
-import { Order } from '../codec/ibc/core/channel/v1/channel';
+import { Order, State } from '../codec/ibc/core/channel/v1/channel';
 
 import { Endpoint } from './endpoint';
 import {
@@ -63,6 +63,17 @@ export class Link {
     if (!connectionB.counterparty) {
       throw new Error(`Counterparty not found for connection with ID ${connB}`);
     }
+    // ensure the connection is open
+    if (connectionA.state != State.STATE_OPEN) {
+      throw new Error(
+        `Connection A must be in state open, it has state ${connectionA.state}`
+      );
+    }
+    if (connectionB.state != State.STATE_OPEN) {
+      throw new Error(
+        `Connection B must be in state open, it has state ${connectionB.state}`
+      );
+    }
 
     const [clientIdA, clientIdB] = [connectionA.clientId, connectionB.clientId];
     if (clientIdA !== connectionB.counterparty.clientId) {
@@ -91,7 +102,13 @@ export class Link {
         `Chain ID ${chainIdB} for connection with ID ${connB} does not match remote chain ID ${clientStateB.chainId}`
       );
     }
+
     // TODO: Check headers match consensus state
+    // const [consensusStateA, consensusStateB] = await Promise.all([
+    //   nodeA.query.ibc.client.consensusState(clientIdA), // toProtoHeight(clientStateA.latestHeight))
+    //   nodeB.query.ibc.client.consensusState(clientIdB), // toProtoHeight(clientStateA.latestHeight))
+    // ]);
+
     const endA = new Endpoint(nodeA, clientIdA, connA);
     const endB = new Endpoint(nodeB, clientIdB, connB);
     return new Link(endA, endB);
