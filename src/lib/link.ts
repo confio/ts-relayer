@@ -1,3 +1,5 @@
+import { arrayContentEquals } from '@cosmjs/utils';
+
 import { Order, State } from '../codec/ibc/core/channel/v1/channel';
 
 import { Endpoint } from './endpoint';
@@ -8,6 +10,7 @@ import {
   prepareChannelHandshake,
   prepareConnectionHandshake,
 } from './ibcclient';
+import { toIntHeight } from './utils';
 
 /**
  * Many actions on link focus on a src and a dest. Rather than add two functions,
@@ -103,11 +106,42 @@ export class Link {
       );
     }
 
-    // TODO: Check headers match consensus state
-    // const [consensusStateA, consensusStateB] = await Promise.all([
-    //   nodeA.query.ibc.client.consensusState(clientIdA), // toProtoHeight(clientStateA.latestHeight))
-    //   nodeB.query.ibc.client.consensusState(clientIdB), // toProtoHeight(clientStateA.latestHeight))
-    // ]);
+    // Check headers match consensus state (at least validators)
+    const [heightA, heightB] = [
+      toIntHeight(clientStateA.latestHeight),
+      toIntHeight(clientStateB.latestHeight),
+    ];
+    const [
+      consensusStateA,
+      consensusStateB,
+      headerA,
+      headerB,
+    ] = await Promise.all([
+      nodeA.query.ibc.client.consensusStateTm(clientIdA, heightA),
+      nodeB.query.ibc.client.consensusStateTm(clientIdB, heightB),
+      nodeA.header(heightA),
+      nodeB.header(heightB),
+    ]);
+    if (
+      !arrayContentEquals(
+        consensusStateA.nextValidatorsHash,
+        headerB.nextValidatorsHash
+      )
+    ) {
+      throw new Error(
+        `NextValidatorHash doesn't match. Is this an imposter chain?`
+      );
+    }
+    if (
+      !arrayContentEquals(
+        consensusStateB.nextValidatorsHash,
+        headerA.nextValidatorsHash
+      )
+    ) {
+      throw new Error(
+        `NextValidatorHash doesn't match. Is this an imposter chain?`
+      );
+    }
 
     const endA = new Endpoint(nodeA, clientIdA, connA);
     const endB = new Endpoint(nodeB, clientIdB, connB);

@@ -42,7 +42,10 @@ import {
   QueryConnectionResponse,
   QueryConnectionsResponse,
 } from '../../codec/ibc/core/connection/v1/query';
-import { ClientState as TendermintClientState } from '../../codec/ibc/lightclients/tendermint/v1/tendermint';
+import {
+  ClientState as TendermintClientState,
+  ConsensusState as TendermintConsensusState,
+} from '../../codec/ibc/lightclients/tendermint/v1/tendermint';
 import { ProofOps } from '../../codec/tendermint/crypto/proof';
 
 function decodeTendermintClientStateAny(
@@ -52,6 +55,17 @@ function decodeTendermintClientStateAny(
     throw new Error(`Unexpected client state type: ${clientState?.typeUrl}`);
   }
   return TendermintClientState.decode(clientState.value);
+}
+
+function decodeTendermintConsensusStateAny(
+  clientState: Any | undefined
+): TendermintConsensusState {
+  if (
+    clientState?.typeUrl !== '/ibc.lightclients.tendermint.v1.ConsensusState'
+  ) {
+    throw new Error(`Unexpected client state type: ${clientState?.typeUrl}`);
+  }
+  return TendermintConsensusState.decode(clientState.value);
 }
 
 export interface IbcExtension {
@@ -153,6 +167,10 @@ export interface IbcExtension {
         paginationKey?: Uint8Array
       ) => Promise<TendermintClientState[]>;
       readonly allStatesTm: () => Promise<TendermintClientState[]>;
+      readonly consensusStateTm: (
+        clientId: string,
+        height?: number
+      ) => Promise<TendermintConsensusState>;
     };
     readonly connection: {
       readonly connection: (
@@ -498,6 +516,22 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           return clientStates.map(({ clientState }) =>
             decodeTendermintClientStateAny(clientState)
           );
+        },
+        consensusStateTm: async (
+          clientId: string,
+          consensusHeight?: number
+        ) => {
+          const response = await clientQueryService.ConsensusState(
+            QueryConsensusStateRequest.fromPartial({
+              clientId: clientId,
+              revisionHeight:
+                consensusHeight !== undefined
+                  ? Long.fromNumber(consensusHeight, true)
+                  : undefined,
+              latestHeight: consensusHeight === undefined,
+            })
+          );
+          return decodeTendermintConsensusStateAny(response.consensusState);
         },
       },
       connection: {
