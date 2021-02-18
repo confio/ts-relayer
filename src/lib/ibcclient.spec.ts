@@ -183,8 +183,20 @@ test.serial.only('transfer message and send packets', async (t) => {
   assert(packetEvent);
   const packet = parsePacket(packetEvent);
   console.log(packet);
+  const proofCommitmentResponse = await nodeA.query.ibc.channel.packetCommitment(
+    channels.src.portId,
+    channels.src.channelId,
+    packet.sequence.toNumber()
+  );
+  console.log('PROOF COMMITMENT QUERY RESPONSE', proofCommitmentResponse);
 
-  // TODO: relay packet
+  await nodeB.doUpdateClient(link.endB.clientID, nodeA);
+  const relayResult = await nodeB.receivePacket(
+    packet,
+    proofCommitmentResponse.commitment,
+    proofCommitmentResponse.proofHeight
+  );
+  console.log(relayResult);
 
   // TODO: query balance of recipient (should be "12345" or some odd hash...)
 

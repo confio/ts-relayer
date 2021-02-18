@@ -33,12 +33,13 @@ import Long from 'long';
 
 import { Any } from '../codec/google/protobuf/any';
 import { MsgTransfer } from '../codec/ibc/applications/transfer/v1/tx';
-import { Order, State } from '../codec/ibc/core/channel/v1/channel';
+import { Order, Packet, State } from '../codec/ibc/core/channel/v1/channel';
 import {
   MsgChannelOpenAck,
   MsgChannelOpenConfirm,
   MsgChannelOpenInit,
   MsgChannelOpenTry,
+  MsgRecvPacket,
 } from '../codec/ibc/core/channel/v1/tx';
 import { Height } from '../codec/ibc/core/client/v1/client';
 import {
@@ -111,6 +112,7 @@ function ibcRegistry(): Registry {
     ['/ibc.core.channel.v1.MsgChannelOpenTry', MsgChannelOpenTry],
     ['/ibc.core.channel.v1.MsgChannelOpenAck', MsgChannelOpenAck],
     ['/ibc.core.channel.v1.MsgChannelOpenConfirm', MsgChannelOpenConfirm],
+    ['/ibc.core.channel.v1.MsgRecvPacket', MsgRecvPacket],
     ['/ibc.applications.transfer.v1.MsgTransfer', MsgTransfer],
   ]);
 }
@@ -168,6 +170,7 @@ export interface IbcFeeTable extends FeeTable {
   readonly connectionHandshake: StdFee;
   readonly initChannel: StdFee;
   readonly channelHandshake: StdFee;
+  readonly receivePacket: StdFee;
   readonly transfer: StdFee;
 }
 
@@ -183,6 +186,7 @@ const defaultGasLimits: GasLimits<IbcFeeTable> = {
   connectionHandshake: 200000,
   initChannel: 100000,
   channelHandshake: 200000,
+  receivePacket: 100000,
   transfer: 120000,
 };
 
@@ -880,6 +884,36 @@ export class IbcClient {
     };
   }
 
+  public async receivePacket(
+    packet: Packet,
+    proofCommitment: Uint8Array,
+    proofHeight?: Height
+  ): Promise<MsgResult> {
+    const senderAddress = this.senderAddress;
+    const msg = {
+      typeUrl: '/ibc.core.channel.v1.MsgRecvPacket',
+      value: MsgRecvPacket.fromPartial({
+        packet,
+        proofCommitment,
+        proofHeight,
+        signer: senderAddress,
+      }),
+    };
+    const result = await this.sign.signAndBroadcast(
+      senderAddress,
+      [msg],
+      this.fees.receivePacket
+    );
+    if (isBroadcastTxFailure(result)) {
+      throw new Error(createBroadcastTxErrorMessage(result));
+    }
+    const parsedLogs = parseRawLog(result.rawLog);
+    return {
+      logs: parsedLogs,
+      transactionHash: result.transactionHash,
+    };
+  }
+
   public async transferTokens(
     sourcePort: string,
     sourceChannel: string,
@@ -914,6 +948,7 @@ export class IbcClient {
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
     }
+    console.log('RESULT', result);
     const parsedLogs = parseRawLog(result.rawLog);
     return {
       logs: parsedLogs,
