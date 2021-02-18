@@ -184,16 +184,19 @@ export interface IbcExtension {
         readonly packetCommitment: (
           portId: string,
           channelId: string,
-          sequence: number
+          sequence: number,
+          proveHeight?: number
         ) => Promise<QueryPacketCommitmentResponse>;
         readonly packetAcknowledgement: (
           portId: string,
           channelId: string,
-          sequence: number
+          sequence: number,
+          proveHeight?: number
         ) => Promise<QueryPacketAcknowledgementResponse>;
         readonly nextSequenceReceive: (
           portId: string,
-          channelId: string
+          channelId: string,
+          proveHeight?: number
         ) => Promise<QueryNextSequenceReceiveResponse>;
       };
       readonly client: {
@@ -539,6 +542,8 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           ),
       },
       proof: {
+        // these keys can all be found here: https://github.com/cosmos/cosmos-sdk/blob/v0.41.1/x/ibc/core/24-host/keys.go
+        // note some have changed since the v0.40 pre-release this code was based on
         channel: {
           channel: async (
             portId: string,
@@ -564,13 +569,13 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           packetCommitment: async (
             portId: string,
             channelId: string,
-            sequence: number
+            sequence: number,
+            proveHeight?: number
           ) => {
-            // key: https://github.com/cosmos/cosmos-sdk/blob/ef0a7344af345882729598bc2958a21143930a6b/x/ibc/24-host/keys.go#L183-L185
             const key = toAscii(
-              `commitments/ports/${portId}/channels/${channelId}/packets/${sequence}`
+              `commitments/ports/${portId}/channels/${channelId}/sequences/${sequence}`
             );
-            const proven = await base.queryRawProof('ibc', key);
+            const proven = await base.queryRawProof('ibc', key, proveHeight);
             const commitment = proven.value;
             const proof = convertProofsToIcs23(proven.proof);
             const proofHeight = Height.fromPartial({
@@ -585,14 +590,13 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           packetAcknowledgement: async (
             portId: string,
             channelId: string,
-            sequence: number
+            sequence: number,
+            proveHeight?: number
           ) => {
-            // keeper: https://github.com/cosmos/cosmos-sdk/blob/3bafd8255a502e5a9cee07391cf8261538245dfd/x/ibc/04-channel/keeper/keeper.go#L159-L166
-            // key: https://github.com/cosmos/cosmos-sdk/blob/ef0a7344af345882729598bc2958a21143930a6b/x/ibc/24-host/keys.go#L153-L156
             const key = toAscii(
-              `acks/ports/${portId}/channels/${channelId}/acknowledgements/${sequence}`
+              `acks/ports/${portId}/channels/${channelId}/sequences/${sequence}`
             );
-            const proven = await base.queryRawProof('ibc', key);
+            const proven = await base.queryRawProof('ibc', key, proveHeight);
             const acknowledgement = proven.value;
             const proof = convertProofsToIcs23(proven.proof);
             const proofHeight = Height.fromPartial({
@@ -604,13 +608,15 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
               proofHeight: proofHeight,
             };
           },
-          nextSequenceReceive: async (portId: string, channelId: string) => {
-            // keeper: https://github.com/cosmos/cosmos-sdk/blob/3bafd8255a502e5a9cee07391cf8261538245dfd/x/ibc/04-channel/keeper/keeper.go#L92-L101
-            // key: https://github.com/cosmos/cosmos-sdk/blob/ef0a7344af345882729598bc2958a21143930a6b/x/ibc/24-host/keys.go#L133-L136
+          nextSequenceReceive: async (
+            portId: string,
+            channelId: string,
+            proveHeight?: number
+          ) => {
             const key = toAscii(
-              `seqAcks/ports/${portId}/channels/${channelId}/nextSequenceAck`
+              `nextSequenceRecv/ports/${portId}/channels/${channelId}`
             );
-            const proven = await base.queryRawProof('ibc', key);
+            const proven = await base.queryRawProof('ibc', key, proveHeight);
             const nextSequenceReceive = Long.fromBytesBE([...proven.value]);
             const proof = convertProofsToIcs23(proven.proof);
             const proofHeight = Height.fromPartial({

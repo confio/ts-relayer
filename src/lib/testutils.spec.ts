@@ -3,7 +3,7 @@ import { Bip39, Random } from '@cosmjs/crypto';
 import { Bech32 } from '@cosmjs/encoding';
 import { Decimal } from '@cosmjs/math';
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
-import { isBroadcastTxFailure, StargateClient } from '@cosmjs/stargate';
+import { StargateClient } from '@cosmjs/stargate';
 import test from 'ava';
 
 import { IbcClient, IbcClientOptions } from './ibcclient';
@@ -135,10 +135,7 @@ export async function fundAccount(
     amount,
     denom: opts.denomFee,
   };
-  const resp = await client.sendTokens(rcpt, [feeTokens]);
-  if (isBroadcastTxFailure(resp)) {
-    throw new Error(`funding failed (${resp.code}) ${resp.rawLog}`);
-  }
+  await client.sendTokens(rcpt, [feeTokens]);
 }
 
 export function generateMnemonic(): string {

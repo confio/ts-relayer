@@ -8,12 +8,10 @@ import {
   logs,
   StdFee,
 } from '@cosmjs/launchpad';
-import { OfflineSigner, Registry } from '@cosmjs/proto-signing';
+import { EncodeObject, OfflineSigner, Registry } from '@cosmjs/proto-signing';
 import {
   AuthExtension,
   BankExtension,
-  BroadcastTxFailure,
-  BroadcastTxResponse,
   defaultRegistryTypes,
   isBroadcastTxFailure,
   parseRawLog,
@@ -26,23 +24,21 @@ import {
 import {
   adaptor34,
   CommitResponse,
-  ReadonlyDateWithNanoseconds,
   Header as RpcHeader,
-  ValidatorPubkey as RpcPubKey,
   Client as TendermintClient,
 } from '@cosmjs/tendermint-rpc';
 import { arrayContentEquals, sleep } from '@cosmjs/utils';
 import Long from 'long';
 
-import { HashOp, LengthOp } from '../codec/confio/proofs';
 import { Any } from '../codec/google/protobuf/any';
-import { Timestamp } from '../codec/google/protobuf/timestamp';
-import { Order, State } from '../codec/ibc/core/channel/v1/channel';
+import { MsgTransfer } from '../codec/ibc/applications/transfer/v1/tx';
+import { Order, Packet, State } from '../codec/ibc/core/channel/v1/channel';
 import {
   MsgChannelOpenAck,
   MsgChannelOpenConfirm,
   MsgChannelOpenInit,
   MsgChannelOpenTry,
+  MsgRecvPacket,
 } from '../codec/ibc/core/channel/v1/tx';
 import { Height } from '../codec/ibc/core/client/v1/client';
 import {
@@ -61,7 +57,6 @@ import {
   ConsensusState as TendermintConsensusState,
   Header as TendermintHeader,
 } from '../codec/ibc/lightclients/tendermint/v1/tendermint';
-import { PublicKey as ProtoPubKey } from '../codec/tendermint/crypto/keys';
 import {
   blockIDFlagFromJSON,
   Commit,
@@ -71,6 +66,15 @@ import {
 import { ValidatorSet } from '../codec/tendermint/types/validator';
 
 import { IbcExtension, setupIbcExtension } from './queries/ibc';
+import {
+  buildClientState,
+  buildConsensusState,
+  createBroadcastTxErrorMessage,
+  mapRpcPubKeyToProto,
+  timestampFromDateNanos,
+  toIntHeight,
+  toProtoHeight,
+} from './utils';
 
 /**** These are needed to bootstrap the endpoints */
 /* Some of them are hardcoded various places, which should we make configurable? */
@@ -107,25 +111,9 @@ function ibcRegistry(): Registry {
     ['/ibc.core.channel.v1.MsgChannelOpenTry', MsgChannelOpenTry],
     ['/ibc.core.channel.v1.MsgChannelOpenAck', MsgChannelOpenAck],
     ['/ibc.core.channel.v1.MsgChannelOpenConfirm', MsgChannelOpenConfirm],
+    ['/ibc.core.channel.v1.MsgRecvPacket', MsgRecvPacket],
+    ['/ibc.applications.transfer.v1.MsgTransfer', MsgTransfer],
   ]);
-}
-
-function timestampFromDateNanos(date: ReadonlyDateWithNanoseconds): Timestamp {
-  const nanos = (date.getTime() % 1000) * 1000000 + (date.nanoseconds ?? 0);
-  return Timestamp.fromPartial({
-    seconds: new Long(date.getTime() / 1000),
-    nanos,
-  });
-}
-
-export function toIntHeight(height?: Height): number {
-  return height?.revisionHeight?.toNumber() ?? 0;
-}
-
-export function toProtoHeight(height: number): Height {
-  return Height.fromPartial({
-    revisionHeight: new Long(height),
-  });
 }
 
 /// This is the default message result with no extra data
@@ -174,10 +162,6 @@ export interface ChannelInfo {
   readonly channelId: string;
 }
 
-function createBroadcastTxErrorMessage(result: BroadcastTxFailure): string {
-  return `Error when broadcasting tx ${result.transactionHash} at height ${result.height}. Code: ${result.code}; Raw log: ${result.rawLog}`;
-}
-
 export interface IbcFeeTable extends FeeTable {
   readonly initClient: StdFee;
   readonly updateClient: StdFee;
@@ -185,6 +169,8 @@ export interface IbcFeeTable extends FeeTable {
   readonly connectionHandshake: StdFee;
   readonly initChannel: StdFee;
   readonly channelHandshake: StdFee;
+  readonly receivePacket: StdFee;
+  readonly transfer: StdFee;
 }
 
 export type IbcClientOptions = SigningStargateClientOptions & {
@@ -199,10 +185,12 @@ const defaultGasLimits: GasLimits<IbcFeeTable> = {
   connectionHandshake: 200000,
   initChannel: 100000,
   channelHandshake: 200000,
+  receivePacket: 200000,
+  transfer: 120000,
 };
 
 export class IbcClient {
-  private readonly fees: IbcFeeTable;
+  public readonly fees: IbcFeeTable;
   public readonly sign: SigningStargateClient;
   public readonly query: QueryClient &
     AuthExtension &
@@ -451,6 +439,22 @@ export class IbcClient {
     };
   }
 
+  public async getPacketProof(
+    packet: Packet,
+    headerHeight: number
+  ): Promise<Uint8Array> {
+    const queryHeight = headerHeight - 1;
+
+    const { proof } = await this.query.ibc.proof.channel.packetCommitment(
+      packet.sourcePort,
+      packet.sourceChannel,
+      packet.sequence.toNumber(),
+      queryHeight
+    );
+
+    return proof;
+  }
+
   /*
   These are helpers to query, build data and submit a message
   Currently all prefixed with doXxx, but please look for better naming
@@ -470,17 +474,42 @@ export class IbcClient {
 
   /***** These are all direct wrappers around message constructors ********/
 
-  public sendTokens(
+  public async sendTokens(
     recipientAddress: string,
     transferAmount: readonly Coin[],
     memo?: string
-  ): Promise<BroadcastTxResponse> {
-    return this.sign.sendTokens(
+  ): Promise<MsgResult> {
+    const result = await this.sign.sendTokens(
       this.senderAddress,
       recipientAddress,
       transferAmount,
       memo
     );
+    if (isBroadcastTxFailure(result)) {
+      throw new Error(createBroadcastTxErrorMessage(result));
+    }
+    const parsedLogs = parseRawLog(result.rawLog);
+    return {
+      logs: parsedLogs,
+      transactionHash: result.transactionHash,
+    };
+  }
+
+  /* Send any number of messages, you are responsible for encoding them */
+  public async sendMultiMsg(
+    msgs: EncodeObject[],
+    fees: StdFee
+  ): Promise<MsgResult> {
+    const senderAddress = this.senderAddress;
+    const result = await this.sign.signAndBroadcast(senderAddress, msgs, fees);
+    if (isBroadcastTxFailure(result)) {
+      throw new Error(createBroadcastTxErrorMessage(result));
+    }
+    const parsedLogs = parseRawLog(result.rawLog);
+    return {
+      logs: parsedLogs,
+      transactionHash: result.transactionHash,
+    };
   }
 
   public async createTendermintClient(
@@ -894,24 +923,76 @@ export class IbcClient {
       transactionHash: result.transactionHash,
     };
   }
-}
 
-function mapRpcPubKeyToProto(pubkey?: RpcPubKey): ProtoPubKey | undefined {
-  if (pubkey === undefined) {
-    return undefined;
+  public async receivePacket(
+    packet: Packet,
+    proofCommitment: Uint8Array,
+    proofHeight?: Height
+  ): Promise<MsgResult> {
+    const senderAddress = this.senderAddress;
+    const msg = {
+      typeUrl: '/ibc.core.channel.v1.MsgRecvPacket',
+      value: MsgRecvPacket.fromPartial({
+        packet,
+        proofCommitment,
+        proofHeight,
+        signer: senderAddress,
+      }),
+    };
+    const result = await this.sign.signAndBroadcast(
+      senderAddress,
+      [msg],
+      this.fees.receivePacket
+    );
+    if (isBroadcastTxFailure(result)) {
+      throw new Error(createBroadcastTxErrorMessage(result));
+    }
+    const parsedLogs = parseRawLog(result.rawLog);
+    return {
+      logs: parsedLogs,
+      transactionHash: result.transactionHash,
+    };
   }
-  if (pubkey.algorithm == 'ed25519') {
-    return {
-      ed25519: pubkey.data,
-      secp256k1: undefined,
+
+  public async transferTokens(
+    sourcePort: string,
+    sourceChannel: string,
+    token: Coin,
+    receiver: string,
+    timeoutBlock?: number,
+    timeoutTime?: number
+  ): Promise<MsgResult> {
+    const senderAddress = this.senderAddress;
+    const timeoutHeight = timeoutBlock
+      ? toProtoHeight(timeoutBlock)
+      : undefined;
+    const timeoutTimestamp = new Long(timeoutTime ?? 0);
+    const msg = {
+      typeUrl: '/ibc.applications.transfer.v1.MsgTransfer',
+      value: MsgTransfer.fromPartial({
+        sourcePort,
+        sourceChannel,
+        sender: senderAddress,
+        token,
+        receiver,
+        timeoutHeight,
+        timeoutTimestamp,
+      }),
     };
-  } else if (pubkey.algorithm == 'secp256k1') {
+
+    const result = await this.sign.signAndBroadcast(
+      senderAddress,
+      [msg],
+      this.fees.transfer
+    );
+    if (isBroadcastTxFailure(result)) {
+      throw new Error(createBroadcastTxErrorMessage(result));
+    }
+    const parsedLogs = parseRawLog(result.rawLog);
     return {
-      ed25519: undefined,
-      secp256k1: pubkey.data,
+      logs: parsedLogs,
+      transactionHash: result.transactionHash,
     };
-  } else {
-    throw new Error(`Unknown validator pubkey type: ${pubkey.algorithm}`);
   }
 }
 
@@ -934,86 +1015,6 @@ export async function buildCreateClientArgs(
     header.height
   );
   return { consensusState, clientState };
-}
-
-export function buildConsensusState(
-  header: RpcHeader
-): TendermintConsensusState {
-  return TendermintConsensusState.fromPartial({
-    timestamp: timestampFromDateNanos(header.time),
-    root: {
-      hash: header.appHash,
-    },
-    nextValidatorsHash: header.nextValidatorsHash,
-  });
-}
-
-// Note: we hardcode a number of assumptions, like trust level, clock drift, and assume revisionNumber is 1
-export function buildClientState(
-  chainId: string,
-  unbondingPeriodSec: number,
-  trustPeriodSec: number,
-  height: number
-): TendermintClientState {
-  // Copied here until https://github.com/confio/ics23/issues/36 is resolved
-  // https://github.com/confio/ics23/blob/master/js/src/proofs.ts#L11-L26
-  const iavlSpec = {
-    leafSpec: {
-      prefix: Uint8Array.from([0]),
-      hash: HashOp.SHA256,
-      prehashValue: HashOp.SHA256,
-      prehashKey: HashOp.NO_HASH,
-      length: LengthOp.VAR_PROTO,
-    },
-    innerSpec: {
-      childOrder: [0, 1],
-      minPrefixLength: 4,
-      maxPrefixLength: 12,
-      childSize: 33,
-      hash: HashOp.SHA256,
-    },
-  };
-  const tendermintSpec = {
-    leafSpec: {
-      prefix: Uint8Array.from([0]),
-      hash: HashOp.SHA256,
-      prehashValue: HashOp.SHA256,
-      prehashKey: HashOp.NO_HASH,
-      length: LengthOp.VAR_PROTO,
-    },
-    innerSpec: {
-      childOrder: [0, 1],
-      minPrefixLength: 1,
-      maxPrefixLength: 1,
-      childSize: 32,
-      hash: HashOp.SHA256,
-    },
-  };
-
-  return TendermintClientState.fromPartial({
-    chainId,
-    trustLevel: {
-      numerator: Long.fromInt(1),
-      denominator: Long.fromInt(3),
-    },
-    unbondingPeriod: {
-      seconds: new Long(unbondingPeriodSec),
-    },
-    trustingPeriod: {
-      seconds: new Long(trustPeriodSec),
-    },
-    maxClockDrift: {
-      seconds: new Long(20),
-    },
-    latestHeight: {
-      revisionNumber: new Long(0), // ??
-      revisionHeight: new Long(height),
-    },
-    proofSpecs: [iavlSpec, tendermintSpec],
-    upgradePath: ['upgrade', 'upgradedIBCState'],
-    allowUpdateAfterExpiry: false,
-    allowUpdateAfterMisbehaviour: false,
-  });
 }
 
 export async function prepareConnectionHandshake(

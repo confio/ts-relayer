@@ -1,13 +1,18 @@
 import { sleep } from '@cosmjs/utils';
 import test from 'ava';
 
+import { MsgTransfer } from '../codec/ibc/applications/transfer/v1/tx';
+import { Order } from '../codec/ibc/core/channel/v1/channel';
+
+import { buildCreateClientArgs, prepareConnectionHandshake } from './ibcclient';
+import { Link } from './link';
+import { randomAddress, setup, simapp, wasmd } from './testutils.spec';
 import {
   buildClientState,
   buildConsensusState,
-  buildCreateClientArgs,
-  prepareConnectionHandshake,
-} from './ibcclient';
-import { setup } from './testutils.spec';
+  parsePacketsFromLogs,
+  toProtoHeight,
+} from './utils';
 
 test.serial('create simapp client on wasmd', async (t) => {
   const [src, dest] = await setup();
@@ -137,4 +142,123 @@ test.serial('perform connection handshake', async (t) => {
     srcConnId
   );
   await dest.connOpenConfirm(proofConfirm);
+});
+
+// constants for this transport protocol
+const ics20 = {
+  // we set a new port in genesis for simapp
+  srcPortId: 'custom',
+  destPortId: 'transfer',
+  version: 'ics20-1',
+  ordering: Order.ORDER_UNORDERED,
+};
+
+test.serial('parse various packet data', async (t) => {
+  // set up ics20 channel
+  const [nodeA, nodeB] = await setup();
+  const link = await Link.createWithNewConnections(nodeA, nodeB);
+  const channels = await link.createChannel(
+    'A',
+    ics20.srcPortId,
+    ics20.destPortId,
+    ics20.ordering,
+    ics20.version
+  );
+
+  // make an account on remote chain for testing
+  const destAddr = randomAddress(wasmd.prefix);
+  const srcAddr = randomAddress(simapp.prefix);
+
+  // submit a send message - no events
+  const { logs: sendLogs } = await nodeA.sendTokens(srcAddr, [
+    { amount: '5000', denom: simapp.denomFee },
+  ]);
+  const sendPackets = parsePacketsFromLogs(sendLogs);
+  t.is(sendPackets.length, 0);
+
+  // submit 2 transfer messages
+  const timeoutHeight = toProtoHeight(
+    (await nodeB.latestHeader()).height + 500
+  );
+  const msg = {
+    typeUrl: '/ibc.applications.transfer.v1.MsgTransfer',
+    value: MsgTransfer.fromPartial({
+      sourcePort: channels.src.portId,
+      sourceChannel: channels.src.channelId,
+      sender: nodeA.senderAddress,
+      token: { amount: '6000', denom: simapp.denomFee },
+      receiver: destAddr,
+      timeoutHeight,
+    }),
+  };
+  const msg2 = {
+    typeUrl: '/ibc.applications.transfer.v1.MsgTransfer',
+    value: MsgTransfer.fromPartial({
+      sourcePort: channels.src.portId,
+      sourceChannel: channels.src.channelId,
+      sender: nodeA.senderAddress,
+      token: { amount: '9000', denom: simapp.denomFee },
+      receiver: destAddr,
+      timeoutHeight,
+    }),
+  };
+  const { logs: multiLog } = await nodeA.sendMultiMsg(
+    [msg, msg2],
+    nodeA.fees.updateClient
+  );
+  const multiPackets = parsePacketsFromLogs(multiLog);
+  t.is(multiPackets.length, 2);
+});
+
+test.serial('transfer message and send packets', async (t) => {
+  // set up ics20 channel
+  const [nodeA, nodeB] = await setup();
+  const link = await Link.createWithNewConnections(nodeA, nodeB);
+  const channels = await link.createChannel(
+    'A',
+    ics20.srcPortId,
+    ics20.destPortId,
+    ics20.ordering,
+    ics20.version
+  );
+  t.is(channels.src.portId, ics20.srcPortId);
+
+  // make an account on remote chain, and check it is empty
+  const recipient = randomAddress(wasmd.prefix);
+  const preBalance = await nodeB.query.bank.unverified.allBalances(recipient);
+  t.is(preBalance.length, 0);
+
+  // submit a transfer message
+  const destHeight = (await nodeB.latestHeader()).height;
+  const token = { amount: '12345', denom: simapp.denomFee };
+  const transferResult = await nodeA.transferTokens(
+    channels.src.portId,
+    channels.src.channelId,
+    token,
+    recipient,
+    destHeight + 500 // valid for 500 blocks
+  );
+
+  const packets = parsePacketsFromLogs(transferResult.logs);
+  t.is(packets.length, 1);
+  const packet = packets[0];
+
+  // base the proof sequence on prepareChannelHandshake
+  // update client on dest
+  await nodeA.waitOneBlock();
+  const headerHeight = await nodeB.doUpdateClient(link.endB.clientID, nodeA);
+  const proof = await nodeA.getPacketProof(packet, headerHeight);
+  const relayResult = await nodeB.receivePacket(
+    packet,
+    proof,
+    toProtoHeight(headerHeight)
+  );
+  console.log(JSON.stringify(relayResult.logs[0].events, undefined, 2));
+
+  // query balance of recipient (should be "12345" or some odd hash...)
+  const postBalance = await nodeB.query.bank.unverified.allBalances(recipient);
+  t.is(postBalance.length, 1);
+  const recvCoin = postBalance[0];
+  t.is(recvCoin.amount, '12345');
+  t.assert(recvCoin.denom.startsWith('ibc/'), recvCoin.denom);
 });
