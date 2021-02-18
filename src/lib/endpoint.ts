@@ -3,6 +3,7 @@ import { CommitResponse } from '@cosmjs/tendermint-rpc';
 import { Packet } from '../codec/ibc/core/channel/v1/channel';
 
 import { IbcClient } from './ibcclient';
+import { Ack } from './utils';
 
 /**
  * Endpoint is a wrapper around SigningStargateClient as well as ClientID
@@ -65,11 +66,6 @@ export class Endpoint {
 
   // TODO: subscription based packets/acks?
   // until then, poll every X seconds
-}
-
-export interface Ack {
-  readonly acknowledgement: Uint8Array;
-  readonly originalPacket: Packet;
 }
 
 /**

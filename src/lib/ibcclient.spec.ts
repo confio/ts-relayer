@@ -10,6 +10,7 @@ import { randomAddress, setup, simapp, wasmd } from './testutils.spec';
 import {
   buildClientState,
   buildConsensusState,
+  parseAcksFromLogs,
   parsePacketsFromLogs,
   toProtoHeight,
 } from './utils';
@@ -153,63 +154,6 @@ const ics20 = {
   ordering: Order.ORDER_UNORDERED,
 };
 
-test.serial('parse various packet data', async (t) => {
-  // set up ics20 channel
-  const [nodeA, nodeB] = await setup();
-  const link = await Link.createWithNewConnections(nodeA, nodeB);
-  const channels = await link.createChannel(
-    'A',
-    ics20.srcPortId,
-    ics20.destPortId,
-    ics20.ordering,
-    ics20.version
-  );
-
-  // make an account on remote chain for testing
-  const destAddr = randomAddress(wasmd.prefix);
-  const srcAddr = randomAddress(simapp.prefix);
-
-  // submit a send message - no events
-  const { logs: sendLogs } = await nodeA.sendTokens(srcAddr, [
-    { amount: '5000', denom: simapp.denomFee },
-  ]);
-  const sendPackets = parsePacketsFromLogs(sendLogs);
-  t.is(sendPackets.length, 0);
-
-  // submit 2 transfer messages
-  const timeoutHeight = toProtoHeight(
-    (await nodeB.latestHeader()).height + 500
-  );
-  const msg = {
-    typeUrl: '/ibc.applications.transfer.v1.MsgTransfer',
-    value: MsgTransfer.fromPartial({
-      sourcePort: channels.src.portId,
-      sourceChannel: channels.src.channelId,
-      sender: nodeA.senderAddress,
-      token: { amount: '6000', denom: simapp.denomFee },
-      receiver: destAddr,
-      timeoutHeight,
-    }),
-  };
-  const msg2 = {
-    typeUrl: '/ibc.applications.transfer.v1.MsgTransfer',
-    value: MsgTransfer.fromPartial({
-      sourcePort: channels.src.portId,
-      sourceChannel: channels.src.channelId,
-      sender: nodeA.senderAddress,
-      token: { amount: '9000', denom: simapp.denomFee },
-      receiver: destAddr,
-      timeoutHeight,
-    }),
-  };
-  const { logs: multiLog } = await nodeA.sendMultiMsg(
-    [msg, msg2],
-    nodeA.fees.updateClient
-  );
-  const multiPackets = parsePacketsFromLogs(multiLog);
-  t.is(multiPackets.length, 2);
-});
-
 test.serial('transfer message and send packets', async (t) => {
   // set up ics20 channel
   const [nodeA, nodeB] = await setup();
@@ -253,7 +197,6 @@ test.serial('transfer message and send packets', async (t) => {
     proof,
     toProtoHeight(headerHeight)
   );
-  console.log(JSON.stringify(relayResult.logs[0].events, undefined, 2));
 
   // query balance of recipient (should be "12345" or some odd hash...)
   const postBalance = await nodeB.query.bank.unverified.allBalances(recipient);
@@ -261,4 +204,110 @@ test.serial('transfer message and send packets', async (t) => {
   const recvCoin = postBalance[0];
   t.is(recvCoin.amount, '12345');
   t.assert(recvCoin.denom.startsWith('ibc/'), recvCoin.denom);
+
+  // get the acknowledgement from the receivePacket tx
+  const acks = parseAcksFromLogs(relayResult.logs);
+  t.is(acks.length, 1);
+  const ack = acks[0];
+
+  // get an ack proof and return to node A
+  await nodeB.waitOneBlock();
+  const ackHeaderHeight = await nodeA.doUpdateClient(link.endA.clientID, nodeB);
+  const ackProof = await nodeB.getAckProof(ack, ackHeaderHeight);
+  await nodeA.acknowledgePacket(ack, ackProof, toProtoHeight(ackHeaderHeight));
+  // Do we need to check the result? or just see the tx succeeded?
+});
+
+test.serial('tests parsing with multi-message', async (t) => {
+  // set up ics20 channel
+  const [nodeA, nodeB] = await setup();
+  const link = await Link.createWithNewConnections(nodeA, nodeB);
+  const channels = await link.createChannel(
+    'A',
+    ics20.srcPortId,
+    ics20.destPortId,
+    ics20.ordering,
+    ics20.version
+  );
+
+  // make an account on remote chain for testing
+  const destAddr = randomAddress(wasmd.prefix);
+  const srcAddr = randomAddress(simapp.prefix);
+
+  // submit a send message - no events
+  const { logs: sendLogs } = await nodeA.sendTokens(srcAddr, [
+    { amount: '5000', denom: simapp.denomFee },
+  ]);
+  const sendPackets = parsePacketsFromLogs(sendLogs);
+  t.is(sendPackets.length, 0);
+
+  const sendAcks = parseAcksFromLogs(sendLogs);
+  t.is(sendAcks.length, 0);
+
+  // submit 2 transfer messages
+  const timeoutHeight = toProtoHeight(
+    (await nodeB.latestHeader()).height + 500
+  );
+  const msg = {
+    typeUrl: '/ibc.applications.transfer.v1.MsgTransfer',
+    value: MsgTransfer.fromPartial({
+      sourcePort: channels.src.portId,
+      sourceChannel: channels.src.channelId,
+      sender: nodeA.senderAddress,
+      token: { amount: '6000', denom: simapp.denomFee },
+      receiver: destAddr,
+      timeoutHeight,
+    }),
+  };
+  const msg2 = {
+    typeUrl: '/ibc.applications.transfer.v1.MsgTransfer',
+    value: MsgTransfer.fromPartial({
+      sourcePort: channels.src.portId,
+      sourceChannel: channels.src.channelId,
+      sender: nodeA.senderAddress,
+      token: { amount: '9000', denom: simapp.denomFee },
+      receiver: destAddr,
+      timeoutHeight,
+    }),
+  };
+  const { logs: multiLog } = await nodeA.sendMultiMsg(
+    [msg, msg2],
+    nodeA.fees.updateClient
+  );
+  const multiPackets = parsePacketsFromLogs(multiLog);
+  t.is(multiPackets.length, 2);
+  // no acks here
+  const multiAcks = parseAcksFromLogs(multiLog);
+  t.is(multiAcks.length, 0);
+
+  // post them to the other side
+  await nodeA.waitOneBlock();
+  const headerHeight = await nodeB.doUpdateClient(link.endB.clientID, nodeA);
+  const proofs = await Promise.all(
+    multiPackets.map((packet) => nodeA.getPacketProof(packet, headerHeight))
+  );
+  const { logs: relayLog } = await nodeB.receivePackets(
+    multiPackets,
+    proofs,
+    toProtoHeight(headerHeight)
+  );
+
+  // no recv packets here
+  const relayPackets = parsePacketsFromLogs(relayLog);
+  t.is(relayPackets.length, 0);
+  // but we got 2 acks
+  const relayAcks = parseAcksFromLogs(relayLog);
+  t.is(relayAcks.length, 2);
+
+  // relay them together
+  await nodeB.waitOneBlock();
+  const ackHeaderHeight = await nodeA.doUpdateClient(link.endA.clientID, nodeB);
+  const ackProofs = await Promise.all(
+    relayAcks.map((ack) => nodeB.getAckProof(ack, ackHeaderHeight))
+  );
+  await nodeA.acknowledgePackets(
+    relayAcks,
+    ackProofs,
+    toProtoHeight(ackHeaderHeight)
+  );
 });
