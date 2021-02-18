@@ -34,11 +34,13 @@ import { Any } from '../codec/google/protobuf/any';
 import { MsgTransfer } from '../codec/ibc/applications/transfer/v1/tx';
 import { Order, Packet, State } from '../codec/ibc/core/channel/v1/channel';
 import {
+  MsgAcknowledgement,
   MsgChannelOpenAck,
   MsgChannelOpenConfirm,
   MsgChannelOpenInit,
   MsgChannelOpenTry,
   MsgRecvPacket,
+  MsgTimeout,
 } from '../codec/ibc/core/channel/v1/tx';
 import { Height } from '../codec/ibc/core/client/v1/client';
 import {
@@ -67,6 +69,7 @@ import { ValidatorSet } from '../codec/tendermint/types/validator';
 
 import { IbcExtension, setupIbcExtension } from './queries/ibc';
 import {
+  Ack,
   buildClientState,
   buildConsensusState,
   createBroadcastTxErrorMessage,
@@ -112,6 +115,8 @@ function ibcRegistry(): Registry {
     ['/ibc.core.channel.v1.MsgChannelOpenAck', MsgChannelOpenAck],
     ['/ibc.core.channel.v1.MsgChannelOpenConfirm', MsgChannelOpenConfirm],
     ['/ibc.core.channel.v1.MsgRecvPacket', MsgRecvPacket],
+    ['/ibc.core.channel.v1.MsgAcknowledgement', MsgAcknowledgement],
+    ['/ibc.core.channel.v1.MsgTimeout', MsgTimeout],
     ['/ibc.applications.transfer.v1.MsgTransfer', MsgTransfer],
   ]);
 }
@@ -170,6 +175,7 @@ export interface IbcFeeTable extends FeeTable {
   readonly initChannel: StdFee;
   readonly channelHandshake: StdFee;
   readonly receivePacket: StdFee;
+  readonly ackPacket: StdFee;
   readonly transfer: StdFee;
 }
 
@@ -186,6 +192,7 @@ const defaultGasLimits: GasLimits<IbcFeeTable> = {
   initChannel: 100000,
   channelHandshake: 200000,
   receivePacket: 200000,
+  ackPacket: 200000,
   transfer: 120000,
 };
 
@@ -449,6 +456,22 @@ export class IbcClient {
       packet.sourcePort,
       packet.sourceChannel,
       packet.sequence.toNumber(),
+      queryHeight
+    );
+
+    return proof;
+  }
+
+  public async getAckProof(
+    { originalPacket }: Ack,
+    headerHeight: number
+  ): Promise<Uint8Array> {
+    const queryHeight = headerHeight - 1;
+
+    const { proof } = await this.query.ibc.proof.channel.packetAcknowledgement(
+      originalPacket.destinationPort,
+      originalPacket.destinationChannel,
+      originalPacket.sequence.toNumber(),
       queryHeight
     );
 
@@ -943,6 +966,37 @@ export class IbcClient {
       senderAddress,
       [msg],
       this.fees.receivePacket
+    );
+    if (isBroadcastTxFailure(result)) {
+      throw new Error(createBroadcastTxErrorMessage(result));
+    }
+    const parsedLogs = parseRawLog(result.rawLog);
+    return {
+      logs: parsedLogs,
+      transactionHash: result.transactionHash,
+    };
+  }
+
+  public async acknowledgePacket(
+    ack: Ack,
+    proofAcked: Uint8Array,
+    proofHeight?: Height
+  ): Promise<MsgResult> {
+    const senderAddress = this.senderAddress;
+    const msg = {
+      typeUrl: '/ibc.core.channel.v1.MsgAcknowledgement',
+      value: MsgAcknowledgement.fromPartial({
+        packet: ack.originalPacket,
+        acknowledgement: ack.acknowledgement,
+        proofAcked,
+        proofHeight,
+        signer: senderAddress,
+      }),
+    };
+    const result = await this.sign.signAndBroadcast(
+      senderAddress,
+      [msg],
+      this.fees.ackPacket
     );
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));

@@ -10,6 +10,7 @@ import { randomAddress, setup, simapp, wasmd } from './testutils.spec';
 import {
   buildClientState,
   buildConsensusState,
+  parseAcksFromLogs,
   parsePacketsFromLogs,
   toProtoHeight,
 } from './utils';
@@ -210,7 +211,7 @@ test.serial('parse various packet data', async (t) => {
   t.is(multiPackets.length, 2);
 });
 
-test.serial.only('transfer message and send packets', async (t) => {
+test.serial('transfer message and send packets', async (t) => {
   // set up ics20 channel
   const [nodeA, nodeB] = await setup();
   const link = await Link.createWithNewConnections(nodeA, nodeB);
@@ -253,7 +254,6 @@ test.serial.only('transfer message and send packets', async (t) => {
     proof,
     toProtoHeight(headerHeight)
   );
-  console.log(JSON.stringify(relayResult.logs[0].events, undefined, 2));
 
   // query balance of recipient (should be "12345" or some odd hash...)
   const postBalance = await nodeB.query.bank.unverified.allBalances(recipient);
@@ -261,4 +261,16 @@ test.serial.only('transfer message and send packets', async (t) => {
   const recvCoin = postBalance[0];
   t.is(recvCoin.amount, '12345');
   t.assert(recvCoin.denom.startsWith('ibc/'), recvCoin.denom);
+
+  // get the acknowledgement from the receivePacket tx
+  const acks = parseAcksFromLogs(relayResult.logs);
+  t.is(acks.length, 1);
+  const ack = acks[0];
+
+  // get an ack proof and return to node A
+  await nodeB.waitOneBlock();
+  const ackHeaderHeight = await nodeA.doUpdateClient(link.endA.clientID, nodeB);
+  const ackProof = await nodeB.getAckProof(ack, ackHeaderHeight);
+  await nodeA.acknowledgePacket(ack, ackProof, toProtoHeight(ackHeaderHeight));
+  // Do we need to check the result? or just see the tx succeeded?
 });
