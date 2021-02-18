@@ -948,7 +948,6 @@ export class IbcClient {
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
     }
-    console.log('RESULT', result);
     const parsedLogs = parseRawLog(result.rawLog);
     return {
       logs: parsedLogs,

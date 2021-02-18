@@ -175,7 +175,6 @@ test.serial.only('transfer message and send packets', async (t) => {
     recipient,
     destHeight + 500 // valid for 500 blocks
   );
-  console.log(JSON.stringify(transferResult.logs[0].events, undefined, 2));
 
   const packetEvent = transferResult.logs[0].events.find(
     ({ type }) => type === 'send_packet'
@@ -183,9 +182,11 @@ test.serial.only('transfer message and send packets', async (t) => {
   assert(packetEvent);
   const packet = parsePacket(packetEvent);
   console.log(packet);
-  const proofCommitmentResponse = await nodeA.query.ibc.channel.packetCommitment(
-    channels.src.portId,
-    channels.src.channelId,
+
+  // wait one block before the query, so the data is available
+  const proofCommitmentResponse = await nodeA.query.ibc.proof.channel.packetCommitment(
+    packet.sourcePort,
+    packet.sourceChannel,
     packet.sequence.toNumber()
   );
   console.log('PROOF COMMITMENT QUERY RESPONSE', proofCommitmentResponse);
@@ -193,7 +194,7 @@ test.serial.only('transfer message and send packets', async (t) => {
   await nodeB.doUpdateClient(link.endB.clientID, nodeA);
   const relayResult = await nodeB.receivePacket(
     packet,
-    proofCommitmentResponse.commitment,
+    proofCommitmentResponse.proof,
     proofCommitmentResponse.proofHeight
   );
   console.log(relayResult);
