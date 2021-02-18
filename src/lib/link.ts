@@ -44,10 +44,57 @@ export class Link {
     connA: string,
     connB: string
   ): Promise<Link> {
-    // so they are no marked unused variables
-    [nodeA, nodeB, connA, connB];
+    const [
+      { connection: connectionA },
+      { connection: connectionB },
+    ] = await Promise.all([
+      nodeA.query.ibc.connection.connection(connA),
+      nodeB.query.ibc.connection.connection(connB),
+    ]);
+    if (!connectionA) {
+      throw new Error(`Connection not found for ID ${connA}`);
+    }
+    if (!connectionB) {
+      throw new Error(`Connection not found for ID ${connB}`);
+    }
+    if (!connectionA.counterparty) {
+      throw new Error(`Counterparty not found for connection with ID ${connA}`);
+    }
+    if (!connectionB.counterparty) {
+      throw new Error(`Counterparty not found for connection with ID ${connB}`);
+    }
 
-    throw new Error('not yet implemented');
+    const [clientIdA, clientIdB] = [connectionA.clientId, connectionB.clientId];
+    if (clientIdA !== connectionB.counterparty.clientId) {
+      throw new Error(
+        `Client ID ${connectionA.clientId} for connection with ID ${connA} does not match counterparty client ID ${connectionB.counterparty.clientId} for connection with ID ${connB}`
+      );
+    }
+    if (clientIdB !== connectionA.counterparty.clientId) {
+      throw new Error(
+        `Client ID ${connectionB.clientId} for connection with ID ${connB} does not match counterparty client ID ${connectionA.counterparty.clientId} for connection with ID ${connA}`
+      );
+    }
+    const [chainIdA, chainIdB, clientStateA, clientStateB] = await Promise.all([
+      nodeA.getChainId(),
+      nodeB.getChainId(),
+      nodeA.query.ibc.client.stateTm(clientIdA),
+      nodeB.query.ibc.client.stateTm(clientIdB),
+    ]);
+    if (chainIdA !== clientStateB.chainId) {
+      throw new Error(
+        `Chain ID ${chainIdA} for connection with ID ${connA} does not match remote chain ID ${clientStateA.chainId}`
+      );
+    }
+    if (chainIdB !== clientStateA.chainId) {
+      throw new Error(
+        `Chain ID ${chainIdB} for connection with ID ${connB} does not match remote chain ID ${clientStateB.chainId}`
+      );
+    }
+    // TODO: Check headers match consensus state
+    const endA = new Endpoint(nodeA, clientIdA, connA);
+    const endB = new Endpoint(nodeB, clientIdB, connB);
+    return new Link(endA, endB);
   }
 
   /**

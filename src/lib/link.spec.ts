@@ -5,6 +5,17 @@ import { Order, State } from '../codec/ibc/core/channel/v1/channel';
 import { Link } from './link';
 import { setup } from './testutils.spec';
 
+// constants for this transport protocol
+const ics20 = {
+  // we set a new port in genesis for simapp
+  srcPortId: 'custom',
+  destPortId: 'transfer',
+  version: 'ics20-1',
+  ordering: Order.ORDER_UNORDERED,
+};
+
+// createWithNewConnections
+
 test.serial('establish new client-connection', async (t) => {
   const [src, dest] = await setup();
 
@@ -19,15 +30,6 @@ test.serial('establish new client-connection', async (t) => {
   await link.updateClient('B');
   // TODO: ensure it is updated
 });
-
-// constants for this transport protocol
-const ics20 = {
-  // we set a new port in genesis for simapp
-  srcPortId: 'custom',
-  destPortId: 'transfer',
-  version: 'ics20-1',
-  ordering: Order.ORDER_UNORDERED,
-};
 
 test.serial('initialized connection and start channel handshake', async (t) => {
   const [src, dest] = await setup();
@@ -110,3 +112,91 @@ test.serial(
     t.is(channel?.counterparty?.channelId, channels.src.channelId);
   }
 );
+
+// createWithExistingConnections
+
+test.serial('reuse existing connections', async (t) => {
+  const [src, dest] = await setup();
+
+  const oldLink = await Link.createWithNewConnections(src, dest);
+  const connA = oldLink.endA.connectionID;
+  const connB = oldLink.endB.connectionID;
+
+  const oldChannels = await oldLink.createChannel(
+    'A',
+    ics20.srcPortId,
+    ics20.destPortId,
+    ics20.ordering,
+    ics20.version
+  );
+
+  const newLink = await Link.createWithExistingConnections(
+    src,
+    dest,
+    connA,
+    connB
+  );
+
+  const channelSrc = await newLink.endA.client.query.ibc.channel.channel(
+    ics20.srcPortId,
+    oldChannels.src.channelId
+  );
+  t.is(channelSrc.channel?.state, State.STATE_OPEN);
+  t.is(channelSrc.channel?.ordering, ics20.ordering);
+  t.is(channelSrc.channel?.counterparty?.channelId, oldChannels.dest.channelId);
+  const channelDest = await newLink.endB.client.query.ibc.channel.channel(
+    ics20.destPortId,
+    oldChannels.dest.channelId
+  );
+  t.is(channelDest.channel?.state, State.STATE_OPEN);
+  t.is(channelDest.channel?.ordering, ics20.ordering);
+  t.is(channelDest.channel?.counterparty?.channelId, oldChannels.src.channelId);
+
+  // Check everything is fine by creating a new channel
+  // switch src and dest just to test another path
+  const newChannels = await newLink.createChannel(
+    'B',
+    ics20.destPortId,
+    ics20.srcPortId,
+    ics20.ordering,
+    ics20.version
+  );
+  t.notDeepEqual(newChannels.dest, oldChannels.src);
+});
+
+test.serial('errors when reusing an invalid connection', async (t) => {
+  const [src, dest] = await setup();
+
+  // Make sure valid connections do exist
+  await Link.createWithNewConnections(src, dest);
+
+  const connA = 'whatever';
+  const connB = 'unreal';
+  await t.throwsAsync(() =>
+    Link.createWithExistingConnections(src, dest, connA, connB)
+  );
+});
+
+test.serial(`errors when reusing connections on the same node`, async (t) => {
+  const [src, dest] = await setup();
+
+  const oldLink = await Link.createWithNewConnections(src, dest);
+  const connA = oldLink.endA.connectionID;
+
+  await t.throwsAsync(() =>
+    Link.createWithExistingConnections(src, src, connA, connA)
+  );
+});
+
+test.serial(`errors when reusing connections which don’t match`, async (t) => {
+  const [src, dest] = await setup();
+
+  const oldLink1 = await Link.createWithNewConnections(src, dest);
+  const connA = oldLink1.endA.connectionID;
+  const oldLink2 = await Link.createWithNewConnections(src, dest);
+  const connB = oldLink2.endB.connectionID;
+
+  await t.throwsAsync(() =>
+    Link.createWithExistingConnections(src, dest, connA, connB)
+  );
+});
