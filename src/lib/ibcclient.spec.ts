@@ -3,15 +3,10 @@ import test from 'ava';
 
 import { Order } from '../codec/ibc/core/channel/v1/channel';
 
-import {
-  buildClientState,
-  buildConsensusState,
-  buildCreateClientArgs,
-  parsePacket,
-  prepareConnectionHandshake,
-} from './ibcclient';
+import { buildCreateClientArgs, prepareConnectionHandshake } from './ibcclient';
 import { Link } from './link';
 import { randomAddress, setup, simapp, wasmd } from './testutils.spec';
+import { buildClientState, buildConsensusState, parsePacket } from './utils';
 
 test.serial('create simapp client on wasmd', async (t) => {
   const [src, dest] = await setup();
@@ -173,16 +168,16 @@ test.serial.only('transfer message and send packets', async (t) => {
   // submit a transfer message
   const destHeight = (await nodeB.latestHeader()).height;
   const token = { amount: '12345', denom: simapp.denomFee };
-  const res = await nodeA.transferTokens(
+  const transferResult = await nodeA.transferTokens(
     channels.src.portId,
     channels.src.channelId,
     token,
     recipient,
     destHeight + 500 // valid for 500 blocks
   );
-  console.log(JSON.stringify(res.logs[0].events, undefined, 2));
+  console.log(JSON.stringify(transferResult.logs[0].events, undefined, 2));
 
-  const packetEvent = res.logs[0].events.find(
+  const packetEvent = transferResult.logs[0].events.find(
     ({ type }) => type === 'send_packet'
   );
   assert(packetEvent);
