@@ -1,6 +1,7 @@
 import { sleep } from '@cosmjs/utils';
 import test from 'ava';
 
+import { MsgTransfer } from '../codec/ibc/applications/transfer/v1/tx';
 import { Order } from '../codec/ibc/core/channel/v1/channel';
 
 import { buildCreateClientArgs, prepareConnectionHandshake } from './ibcclient';
@@ -152,38 +153,64 @@ const ics20 = {
   ordering: Order.ORDER_UNORDERED,
 };
 
-// test.serial.only('parse various packet data', async (t) => {
-//   // set up ics20 channel
-//   const [nodeA, nodeB] = await setup();
-//   const link = await Link.createWithNewConnections(nodeA, nodeB);
-//   const channels = await link.createChannel(
-//     'A',
-//     ics20.srcPortId,
-//     ics20.destPortId,
-//     ics20.ordering,
-//     ics20.version
-//   );
+test.serial('parse various packet data', async (t) => {
+  // set up ics20 channel
+  const [nodeA, nodeB] = await setup();
+  const link = await Link.createWithNewConnections(nodeA, nodeB);
+  const channels = await link.createChannel(
+    'A',
+    ics20.srcPortId,
+    ics20.destPortId,
+    ics20.ordering,
+    ics20.version
+  );
 
-//   // make an account on remote chain for testing
-//   const recipient = randomAddress(wasmd.prefix);
+  // make an account on remote chain for testing
+  const destAddr = randomAddress(wasmd.prefix);
+  const srcAddr = randomAddress(simapp.prefix);
 
-//   // submit a transfer message
-//   const destHeight = (await nodeB.latestHeader()).height;
-//   const token = { amount: '12345', denom: simapp.denomFee };
-//   const transferResult = await nodeA.transferTokens(
-//     channels.src.portId,
-//     channels.src.channelId,
-//     token,
-//     recipient,
-//     destHeight + 500 // valid for 500 blocks
-//   );
+  // submit a send message - no events
+  const { logs: sendLogs } = await nodeA.sendTokens(srcAddr, [
+    { amount: '5000', denom: simapp.denomFee },
+  ]);
+  const sendPackets = parsePacketsFromLogs(sendLogs);
+  t.is(sendPackets.length, 0);
 
-//   const packetEvent = transferResult.logs[0].events.find(
-//     ({ type }) => type === 'send_packet'
-//   );
-// });
+  // submit 2 transfer messages
+  const timeoutHeight = toProtoHeight(
+    (await nodeB.latestHeader()).height + 500
+  );
+  const msg = {
+    typeUrl: '/ibc.applications.transfer.v1.MsgTransfer',
+    value: MsgTransfer.fromPartial({
+      sourcePort: channels.src.portId,
+      sourceChannel: channels.src.channelId,
+      sender: nodeA.senderAddress,
+      token: { amount: '6000', denom: simapp.denomFee },
+      receiver: destAddr,
+      timeoutHeight,
+    }),
+  };
+  const msg2 = {
+    typeUrl: '/ibc.applications.transfer.v1.MsgTransfer',
+    value: MsgTransfer.fromPartial({
+      sourcePort: channels.src.portId,
+      sourceChannel: channels.src.channelId,
+      sender: nodeA.senderAddress,
+      token: { amount: '9000', denom: simapp.denomFee },
+      receiver: destAddr,
+      timeoutHeight,
+    }),
+  };
+  const { logs: multiLog } = await nodeA.sendMultiMsg(
+    [msg, msg2],
+    nodeA.fees.updateClient
+  );
+  const multiPackets = parsePacketsFromLogs(multiLog);
+  t.is(multiPackets.length, 2);
+});
 
-test.serial.only('transfer message and send packets', async (t) => {
+test.serial('transfer message and send packets', async (t) => {
   // set up ics20 channel
   const [nodeA, nodeB] = await setup();
   const link = await Link.createWithNewConnections(nodeA, nodeB);

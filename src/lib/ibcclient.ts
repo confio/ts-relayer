@@ -8,11 +8,10 @@ import {
   logs,
   StdFee,
 } from '@cosmjs/launchpad';
-import { OfflineSigner, Registry } from '@cosmjs/proto-signing';
+import { EncodeObject, OfflineSigner, Registry } from '@cosmjs/proto-signing';
 import {
   AuthExtension,
   BankExtension,
-  BroadcastTxResponse,
   defaultRegistryTypes,
   isBroadcastTxFailure,
   parseRawLog,
@@ -191,7 +190,7 @@ const defaultGasLimits: GasLimits<IbcFeeTable> = {
 };
 
 export class IbcClient {
-  private readonly fees: IbcFeeTable;
+  public readonly fees: IbcFeeTable;
   public readonly sign: SigningStargateClient;
   public readonly query: QueryClient &
     AuthExtension &
@@ -475,17 +474,42 @@ export class IbcClient {
 
   /***** These are all direct wrappers around message constructors ********/
 
-  public sendTokens(
+  public async sendTokens(
     recipientAddress: string,
     transferAmount: readonly Coin[],
     memo?: string
-  ): Promise<BroadcastTxResponse> {
-    return this.sign.sendTokens(
+  ): Promise<MsgResult> {
+    const result = await this.sign.sendTokens(
       this.senderAddress,
       recipientAddress,
       transferAmount,
       memo
     );
+    if (isBroadcastTxFailure(result)) {
+      throw new Error(createBroadcastTxErrorMessage(result));
+    }
+    const parsedLogs = parseRawLog(result.rawLog);
+    return {
+      logs: parsedLogs,
+      transactionHash: result.transactionHash,
+    };
+  }
+
+  /* Send any number of messages, you are responsible for encoding them */
+  public async sendMultiMsg(
+    msgs: EncodeObject[],
+    fees: StdFee
+  ): Promise<MsgResult> {
+    const senderAddress = this.senderAddress;
+    const result = await this.sign.signAndBroadcast(senderAddress, msgs, fees);
+    if (isBroadcastTxFailure(result)) {
+      throw new Error(createBroadcastTxErrorMessage(result));
+    }
+    const parsedLogs = parseRawLog(result.rawLog);
+    return {
+      logs: parsedLogs,
+      transactionHash: result.transactionHash,
+    };
   }
 
   public async createTendermintClient(
