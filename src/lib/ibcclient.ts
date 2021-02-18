@@ -74,6 +74,7 @@ import {
   buildConsensusState,
   createBroadcastTxErrorMessage,
   mapRpcPubKeyToProto,
+  multiplyFees,
   timestampFromDateNanos,
   toIntHeight,
   toProtoHeight,
@@ -949,25 +950,46 @@ export class IbcClient {
     };
   }
 
-  public async receivePacket(
+  public receivePacket(
     packet: Packet,
     proofCommitment: Uint8Array,
     proofHeight?: Height
   ): Promise<MsgResult> {
+    return this.receivePackets([packet], [proofCommitment], proofHeight);
+  }
+
+  public async receivePackets(
+    packets: Packet[],
+    proofCommitments: Uint8Array[],
+    proofHeight?: Height
+  ): Promise<MsgResult> {
+    if (packets.length !== proofCommitments.length) {
+      throw new Error(
+        `Have ${packets.length} packets, but ${proofCommitments.length} proofs`
+      );
+    }
+    if (packets.length === 0) {
+      throw new Error('Must submit at least 1 packet');
+    }
+
     const senderAddress = this.senderAddress;
-    const msg = {
-      typeUrl: '/ibc.core.channel.v1.MsgRecvPacket',
-      value: MsgRecvPacket.fromPartial({
-        packet,
-        proofCommitment,
-        proofHeight,
-        signer: senderAddress,
-      }),
-    };
+    const msgs = [];
+    for (const i in packets) {
+      const msg = {
+        typeUrl: '/ibc.core.channel.v1.MsgRecvPacket',
+        value: MsgRecvPacket.fromPartial({
+          packet: packets[i],
+          proofCommitment: proofCommitments[i],
+          proofHeight,
+          signer: senderAddress,
+        }),
+      };
+      msgs.push(msg);
+    }
     const result = await this.sign.signAndBroadcast(
       senderAddress,
-      [msg],
-      this.fees.receivePacket
+      msgs,
+      multiplyFees(this.fees.receivePacket, msgs.length)
     );
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));

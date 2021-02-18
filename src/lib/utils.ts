@@ -1,5 +1,5 @@
 import { toUtf8 } from '@cosmjs/encoding';
-import { logs } from '@cosmjs/launchpad';
+import { Coin, logs, StdFee } from '@cosmjs/launchpad';
 import { BroadcastTxFailure } from '@cosmjs/stargate';
 import {
   ReadonlyDateWithNanoseconds,
@@ -265,4 +265,18 @@ export function parseAck({ type, attributes }: ParsedEvent): Ack {
     acknowledgement,
     originalPacket,
   };
+}
+
+export function multiplyFees({ gas, amount }: StdFee, mult: number): StdFee {
+  const multGas = Number.parseInt(gas, 10) * mult;
+  const multAmount = amount.map(multiplyCoin, mult);
+  return {
+    gas: multGas.toString(),
+    amount: multAmount,
+  };
+}
+
+export function multiplyCoin({ amount, denom }: Coin, mult: number): Coin {
+  const multAmount = Number.parseInt(amount, 10) * mult;
+  return { amount: multAmount.toString(), denom };
 }

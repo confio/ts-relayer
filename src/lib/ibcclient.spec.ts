@@ -154,7 +154,7 @@ const ics20 = {
   ordering: Order.ORDER_UNORDERED,
 };
 
-test.serial('parse various packet data', async (t) => {
+test.serial('tests parsing with multi-message', async (t) => {
   // set up ics20 channel
   const [nodeA, nodeB] = await setup();
   const link = await Link.createWithNewConnections(nodeA, nodeB);
@@ -176,6 +176,9 @@ test.serial('parse various packet data', async (t) => {
   ]);
   const sendPackets = parsePacketsFromLogs(sendLogs);
   t.is(sendPackets.length, 0);
+
+  const sendAcks = parseAcksFromLogs(sendLogs);
+  t.is(sendAcks.length, 0);
 
   // submit 2 transfer messages
   const timeoutHeight = toProtoHeight(
@@ -209,6 +212,28 @@ test.serial('parse various packet data', async (t) => {
   );
   const multiPackets = parsePacketsFromLogs(multiLog);
   t.is(multiPackets.length, 2);
+  // no acks here
+  const multiAcks = parseAcksFromLogs(multiLog);
+  t.is(multiAcks.length, 0);
+
+  // post them to the other side
+  await nodeA.waitOneBlock();
+  const headerHeight = await nodeB.doUpdateClient(link.endB.clientID, nodeA);
+  const proofs = await Promise.all(
+    multiPackets.map((packet) => nodeA.getPacketProof(packet, headerHeight))
+  );
+  const { logs: relayLog } = await nodeB.receivePackets(
+    multiPackets,
+    proofs,
+    toProtoHeight(headerHeight)
+  );
+
+  // no recv packets here
+  const relayPackets = parsePacketsFromLogs(relayLog);
+  t.is(relayPackets.length, 0);
+  // but we got 2 acks
+  const relayAcks = parseAcksFromLogs(relayLog);
+  t.is(relayAcks.length, 2);
 });
 
 test.serial('transfer message and send packets', async (t) => {
