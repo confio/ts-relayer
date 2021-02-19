@@ -42,7 +42,7 @@ export class Endpoint {
   }
 
   // TODO: return info for pagination, accept arg
-  public async getPendingPackets(
+  public async querySentPackets(
     minHeight?: number
   ): Promise<PacketWithMetadata[]> {
     // TODO: txSearchAll or do we paginate?
@@ -55,7 +55,6 @@ export class Endpoint {
     const search = await this.client.tm.txSearch({ query });
     console.log(search.totalCount);
     const resultsNested = search.txs.map(({ height, result }) => {
-      console.log(`height: ${height}`);
       const logs = parseRawLog(result.log);
       return parsePacketsFromLogs(logs).map((packet) => ({ packet, height }));
     });

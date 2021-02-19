@@ -16,7 +16,7 @@ test.serial.only('submit multiple tx, query all packets', async (t) => {
   );
 
   // no packets here
-  const packets1 = await link.endA.getPendingPackets();
+  const packets1 = await link.endA.querySentPackets();
   t.is(packets1.length, 0);
 
   // some basic setup for the transfers
@@ -46,13 +46,16 @@ test.serial.only('submit multiple tx, query all packets', async (t) => {
   await nodeA.waitOneBlock();
 
   // now query for all packets
-  const packets2 = await link.endA.getPendingPackets();
+  const packets2 = await link.endA.querySentPackets();
   t.is(packets2.length, 3);
-  console.log(packets2);
+  t.deepEqual(
+    packets2.map(({ height }) => height),
+    txHeights
+  );
 
   // // filter by minimum height
-  // const packets3 = await link.endA.getPendingPackets(txHeights[1]);
+  // const packets3 = await link.endA.querySentPackets(txHeights[1]);
   // t.is(packets3.length, 2);
-  // const packets4 = await link.endA.getPendingPackets(txHeights[2] + 1);
+  // const packets4 = await link.endA.querySentPackets(txHeights[2] + 1);
   // t.is(packets4.length, 0);
 });
