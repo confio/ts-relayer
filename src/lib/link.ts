@@ -107,7 +107,7 @@ export class Link {
     }
 
     // Check headers match consensus state (at least validators)
-    const [heightA, heightB] = [
+    const [knownHeightA, knownHeightB] = [
       toIntHeight(clientStateA.latestHeight),
       toIntHeight(clientStateB.latestHeight),
     ];
@@ -117,29 +117,40 @@ export class Link {
       headerA,
       headerB,
     ] = await Promise.all([
-      nodeA.query.ibc.client.consensusStateTm(clientIdA, heightA),
-      nodeB.query.ibc.client.consensusStateTm(clientIdB, heightB),
-      nodeA.header(heightA),
-      nodeB.header(heightB),
+      nodeA.query.ibc.client.consensusStateTm(clientIdA, knownHeightA),
+      nodeB.query.ibc.client.consensusStateTm(clientIdB, knownHeightB),
+      nodeA.header(knownHeightB),
+      nodeB.header(knownHeightA),
     ]);
+    // ensure consensus and headers match for next validator hashes
     if (
       !arrayContentEquals(
         consensusStateA.nextValidatorsHash,
         headerB.nextValidatorsHash
-      )
-    ) {
-      throw new Error(
-        `NextValidatorHash doesn't match. Is this an imposter chain?`
-      );
-    }
-    if (
+      ) ||
       !arrayContentEquals(
         consensusStateB.nextValidatorsHash,
         headerA.nextValidatorsHash
       )
     ) {
       throw new Error(
-        `NextValidatorHash doesn't match. Is this an imposter chain?`
+        `NextValidatorHash doesn't match ConsensusState. Is this an imposter chain?`
+      );
+    }
+    // ensure the committed apphash matches the actual node we have
+    const [hashA, hashB] = [
+      consensusStateA.root?.hash,
+      consensusStateB.root?.hash,
+    ];
+    if (!hashA || !hashB) {
+      throw new Error(`ConsensusState.root.hash missing.`);
+    }
+    if (
+      !arrayContentEquals(hashA, headerB.appHash) ||
+      !arrayContentEquals(hashB, headerA.appHash)
+    ) {
+      throw new Error(
+        `AppHash doesn't match ConsensusState. Is this an imposter chain?`
       );
     }
 
