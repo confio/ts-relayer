@@ -1,9 +1,16 @@
+import { parseRawLog } from '@cosmjs/stargate';
 import { CommitResponse } from '@cosmjs/tendermint-rpc';
 
 import { Packet } from '../codec/ibc/core/channel/v1/channel';
 
 import { IbcClient } from './ibcclient';
-import { Ack } from './utils';
+import { Ack, parsePacketsFromLogs } from './utils';
+
+export interface PacketWithMetadata {
+  packet: Packet;
+  // block it was in, must query proofs >= height
+  height: number;
+}
 
 /**
  * Endpoint is a wrapper around SigningStargateClient as well as ClientID
@@ -34,13 +41,25 @@ export class Endpoint {
     return this.client.getCommit();
   }
 
-  // TODO: expose all Channel lifecycle methods
-  // TODO: expose post packet, post ack, post timeout methods
-  // https://github.com/cosmos/cosmjs/issues/632
+  // TODO: return info for pagination, accept arg
+  public async getPendingPackets(
+    minHeight?: number
+  ): Promise<PacketWithMetadata[]> {
+    // TODO: txSearchAll or do we paginate?
+    let query = `send_packet.packet_connection='${this.connectionID}'`;
+    if (minHeight) {
+      query = `${query}&tx.minheight=${minHeight}`;
+    }
+    console.log(query);
 
-  /* eslint @typescript-eslint/no-unused-vars: "off" */
-  public async getPendingPackets(_minHeight?: number): Promise<Packet[]> {
-    this.client.query.ibc.channel.connectionChannels(this.connectionID);
+    const search = await this.client.tm.txSearch({ query });
+    console.log(search.totalCount);
+    const resultsNested = search.txs.map(({ height, result }) => {
+      console.log(`height: ${height}`);
+      const logs = parseRawLog(result.log);
+      return parsePacketsFromLogs(logs).map((packet) => ({ packet, height }));
+    });
+    return ([] as PacketWithMetadata[]).concat(...resultsNested);
 
     // these all work for one (port, channel).
     // shall we make this general (via filter) or hit up each channel one after another
@@ -49,8 +68,6 @@ export class Endpoint {
     // this.client.queryClient.ibc.unverified.packetAcknowledgements();
     // this.client.queryClient.ibc.unverified.unreceivedPackets();
     // this.client.queryClient.ibc.unverified.packetAcknowledgements();
-
-    throw new Error('unimplemented!');
   }
 
   /* eslint @typescript-eslint/no-unused-vars: "off" */
