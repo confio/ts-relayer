@@ -4,8 +4,7 @@ import { State } from '../codec/ibc/core/channel/v1/channel';
 
 import { Link } from './link';
 import { ics20, randomAddress, setup, simapp, wasmd } from './testutils.spec';
-
-// createWithNewConnections
+import { parseAcksFromLogs, toProtoHeight } from './utils';
 
 test.serial('establish new client-connection', async (t) => {
   const [src, dest] = await setup();
@@ -205,8 +204,8 @@ test.serial.only('submit multiple tx, get unreceived packets', async (t) => {
   );
 
   // no packets here
-  const packets1 = await link.endA.querySentPackets();
-  t.is(packets1.length, 0);
+  const noPackets = await link.endA.querySentPackets();
+  t.is(noPackets.length, 0);
 
   // some basic setup for the transfers
   const recipient = randomAddress(wasmd.prefix);
@@ -235,10 +234,30 @@ test.serial.only('submit multiple tx, get unreceived packets', async (t) => {
   await nodeA.waitOneBlock();
 
   // now query for all packets
-  const packets2 = await link.getPendingPackets('A');
-  t.is(packets2.length, 3);
+  const packets = await link.getPendingPackets('A');
+  t.is(packets.length, 3);
   t.deepEqual(
-    packets2.map(({ height }) => height),
+    packets.map(({ height }) => height),
     txHeights
   );
+
+  // submit 2 of them (out of order)
+  const submit = [packets[0].packet, packets[2].packet];
+  await nodeA.waitOneBlock();
+  const headerHeight = await link.updateClient('A');
+  const proofs = await Promise.all(
+    submit.map((packet) => nodeA.getPacketProof(packet, headerHeight))
+  );
+  const { logs: relayLog } = await nodeB.receivePackets(
+    submit,
+    proofs,
+    toProtoHeight(headerHeight)
+  );
+  const acks = parseAcksFromLogs(relayLog);
+  t.is(acks.length, 2);
+
+  // ensure only one marked pending (for tx1)
+  const postPackets = await link.getPendingPackets('A');
+  t.is(postPackets.length, 1);
+  t.is(postPackets[0].height, txHeights[1]);
 });

@@ -226,13 +226,15 @@ export class Link {
    * Writes the latest header from the sender chain to the other endpoint
    *
    * @param sender Which side we get the header/commit from
+   * @returns header height (from sender) that is now known on dest
    *
    * Relayer binary should call this from a heartbeat which checks if needed and updates.
    * Just needs trusting period on both side
    */
-  public async updateClient(sender: Side): Promise<void> {
+  public async updateClient(sender: Side): Promise<number> {
     const { src, dest } = this.getEnds(sender);
-    await dest.client.doUpdateClient(dest.clientID, src.client);
+    const height = await dest.client.doUpdateClient(dest.clientID, src.client);
+    return height;
   }
 
   /* eslint @typescript-eslint/no-unused-vars: "off" */
