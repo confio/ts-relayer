@@ -1,4 +1,6 @@
-import { Order } from '../codec/ibc/core/channel/v1/channel';
+import { arrayContentEquals } from '@cosmjs/utils';
+
+import { Order, State } from '../codec/ibc/core/channel/v1/channel';
 
 import { Endpoint } from './endpoint';
 import {
@@ -8,6 +10,7 @@ import {
   prepareChannelHandshake,
   prepareConnectionHandshake,
 } from './ibcclient';
+import { toIntHeight } from './utils';
 
 /**
  * Many actions on link focus on a src and a dest. Rather than add two functions,
@@ -63,6 +66,17 @@ export class Link {
     if (!connectionB.counterparty) {
       throw new Error(`Counterparty not found for connection with ID ${connB}`);
     }
+    // ensure the connection is open
+    if (connectionA.state != State.STATE_OPEN) {
+      throw new Error(
+        `Connection A must be in state open, it has state ${connectionA.state}`
+      );
+    }
+    if (connectionB.state != State.STATE_OPEN) {
+      throw new Error(
+        `Connection B must be in state open, it has state ${connectionB.state}`
+      );
+    }
 
     const [clientIdA, clientIdB] = [connectionA.clientId, connectionB.clientId];
     if (clientIdA !== connectionB.counterparty.clientId) {
@@ -91,10 +105,59 @@ export class Link {
         `Chain ID ${chainIdB} for connection with ID ${connB} does not match remote chain ID ${clientStateB.chainId}`
       );
     }
-    // TODO: Check headers match consensus state
+
     const endA = new Endpoint(nodeA, clientIdA, connA);
     const endB = new Endpoint(nodeB, clientIdB, connB);
-    return new Link(endA, endB);
+    const link = new Link(endA, endB);
+
+    const [knownHeightA, knownHeightB] = [
+      toIntHeight(clientStateA.latestHeight),
+      toIntHeight(clientStateB.latestHeight),
+    ];
+    await Promise.all([
+      link.assertHeadersMatchConsensusState('A', clientIdA, knownHeightA),
+      link.assertHeadersMatchConsensusState('B', clientIdB, knownHeightB),
+    ]);
+
+    return link;
+  }
+
+  /**
+   * we do this assert inside createWithExistingConnections, but it could be a useful check
+   * for submitting double-sign evidence later
+   *
+   * @param proofSide the side holding the consensus proof, we check the header from the other side
+   * @param height the height of the consensus state and header we wish to compare
+   */
+  public async assertHeadersMatchConsensusState(
+    proofSide: Side,
+    clientId: string,
+    height: number
+  ): Promise<void> {
+    const { src, dest } = this.getEnds(proofSide);
+
+    // Check headers match consensus state (at least validators)
+    const [consensusState, header] = await Promise.all([
+      src.client.query.ibc.client.consensusStateTm(clientId, height),
+      dest.client.header(height),
+    ]);
+    // ensure consensus and headers match for next validator hashes
+    if (
+      !arrayContentEquals(
+        consensusState.nextValidatorsHash,
+        header.nextValidatorsHash
+      )
+    ) {
+      throw new Error(`NextValidatorHash doesn't match ConsensusState.`);
+    }
+    // ensure the committed apphash matches the actual node we have
+    const hash = consensusState.root?.hash;
+    if (!hash) {
+      throw new Error(`ConsensusState.root.hash missing.`);
+    }
+    if (!arrayContentEquals(hash, header.appHash)) {
+      throw new Error(`AppHash doesn't match ConsensusState.`);
+    }
   }
 
   /**
