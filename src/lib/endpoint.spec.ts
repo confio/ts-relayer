@@ -3,7 +3,7 @@ import test from 'ava';
 import { Link } from './link';
 import { ics20, randomAddress, setup, simapp, wasmd } from './testutils.spec';
 
-test.serial.only('submit multiple tx, query all packets', async (t) => {
+test.serial('submit multiple tx, query all packets', async (t) => {
   // setup a channel
   const [nodeA, nodeB] = await setup();
   const link = await Link.createWithNewConnections(nodeA, nodeB);
@@ -53,9 +53,9 @@ test.serial.only('submit multiple tx, query all packets', async (t) => {
     txHeights
   );
 
-  // // filter by minimum height
-  // const packets3 = await link.endA.querySentPackets(txHeights[1]);
-  // t.is(packets3.length, 2);
-  // const packets4 = await link.endA.querySentPackets(txHeights[2] + 1);
-  // t.is(packets4.length, 0);
+  // filter by minimum height
+  const packets3 = await link.endA.querySentPackets(txHeights[1]);
+  t.is(packets3.length, 2);
+  const packets4 = await link.endA.querySentPackets(txHeights[2] + 1);
+  t.is(packets4.length, 0);
 });

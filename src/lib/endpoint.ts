@@ -48,7 +48,7 @@ export class Endpoint {
     // TODO: txSearchAll or do we paginate?
     let query = `send_packet.packet_connection='${this.connectionID}'`;
     if (minHeight) {
-      query = `${query}&tx.minheight=${minHeight}`;
+      query = `${query} AND tx.height>=${minHeight}`;
     }
     console.log(query);
 
