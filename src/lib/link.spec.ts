@@ -191,7 +191,7 @@ test.serial(`errors when reusing connections which don’t match`, async (t) => 
   );
 });
 
-test.serial.only('submit multiple tx, get unreceived packets', async (t) => {
+test.serial('submit multiple tx, get unreceived packets', async (t) => {
   // setup a channel
   const [nodeA, nodeB] = await setup();
   const link = await Link.createWithNewConnections(nodeA, nodeB);
@@ -240,6 +240,10 @@ test.serial.only('submit multiple tx, get unreceived packets', async (t) => {
     packets.map(({ height }) => height),
     txHeights
   );
+  // ensure the sender is set properly
+  for (const packet of packets) {
+    t.is(packet.sender, nodeA.senderAddress);
+  }
 
   // submit 2 of them (out of order)
   const submit = [packets[0].packet, packets[2].packet];

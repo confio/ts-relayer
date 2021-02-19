@@ -1,3 +1,4 @@
+import { logs } from '@cosmjs/launchpad';
 import { parseRawLog } from '@cosmjs/stargate';
 import { CommitResponse } from '@cosmjs/tendermint-rpc';
 
@@ -10,6 +11,8 @@ export interface PacketWithMetadata {
   packet: Packet;
   // block it was in, must query proofs >= height
   height: number;
+  // who send the packet (first signer of the tx this was in)
+  sender: string;
 }
 
 export interface QueryOpts {
@@ -58,14 +61,17 @@ export class Endpoint {
     if (maxHeight) {
       query = `${query} AND tx.height<=${maxHeight}`;
     }
-    console.log(query);
 
     // TODO: txSearchAll or do we paginate?
     const search = await this.client.tm.txSearch({ query });
-    console.log(search.totalCount);
     const resultsNested = search.txs.map(({ height, result }) => {
-      const logs = parseRawLog(result.log);
-      return parsePacketsFromLogs(logs).map((packet) => ({ packet, height }));
+      const parsedLogs = parseRawLog(result.log);
+      const sender = logs.findAttribute(parsedLogs, 'message', 'sender').value;
+      return parsePacketsFromLogs(parsedLogs).map((packet) => ({
+        packet,
+        height,
+        sender,
+      }));
     });
     return ([] as PacketWithMetadata[]).concat(...resultsNested);
   }
