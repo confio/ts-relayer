@@ -6,6 +6,8 @@ import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 import { StargateClient } from '@cosmjs/stargate';
 import test from 'ava';
 
+import { Order } from '../codec/ibc/core/channel/v1/channel';
+
 import { IbcClient, IbcClientOptions } from './ibcclient';
 
 export const simapp = {
@@ -67,6 +69,16 @@ export const wasmd = {
     balanceStaking: '10000000', // 10 STAKE
     balanceFee: '1000000000', // 1000 COSM
   },
+};
+
+// constants for this transport protocol
+// we assume src = simapp, dest = wasmd as returned by setup()
+export const ics20 = {
+  // we set a new port in genesis for simapp
+  srcPortId: 'custom',
+  destPortId: 'transfer',
+  version: 'ics20-1',
+  ordering: Order.ORDER_UNORDERED,
 };
 
 interface SigningOpts {

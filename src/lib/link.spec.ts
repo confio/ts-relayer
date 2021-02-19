@@ -1,20 +1,10 @@
 import test from 'ava';
 
-import { Order, State } from '../codec/ibc/core/channel/v1/channel';
+import { State } from '../codec/ibc/core/channel/v1/channel';
 
 import { Link } from './link';
-import { setup } from './testutils.spec';
-
-// constants for this transport protocol
-const ics20 = {
-  // we set a new port in genesis for simapp
-  srcPortId: 'custom',
-  destPortId: 'transfer',
-  version: 'ics20-1',
-  ordering: Order.ORDER_UNORDERED,
-};
-
-// createWithNewConnections
+import { ics20, randomAddress, setup, simapp, wasmd } from './testutils.spec';
+import { parseAcksFromLogs, toProtoHeight } from './utils';
 
 test.serial('establish new client-connection', async (t) => {
   const [src, dest] = await setup();
@@ -199,4 +189,79 @@ test.serial(`errors when reusing connections which don’t match`, async (t) => 
   await t.throwsAsync(() =>
     Link.createWithExistingConnections(src, dest, connA, connB)
   );
+});
+
+test.serial('submit multiple tx, get unreceived packets', async (t) => {
+  // setup a channel
+  const [nodeA, nodeB] = await setup();
+  const link = await Link.createWithNewConnections(nodeA, nodeB);
+  const channels = await link.createChannel(
+    'A',
+    ics20.srcPortId,
+    ics20.destPortId,
+    ics20.ordering,
+    ics20.version
+  );
+
+  // no packets here
+  const noPackets = await link.endA.querySentPackets();
+  t.is(noPackets.length, 0);
+
+  // some basic setup for the transfers
+  const recipient = randomAddress(wasmd.prefix);
+  const destHeight = (await nodeB.latestHeader()).height + 500; // valid for 500 blocks
+  const amounts = [1000, 2222, 3456];
+  // const totalSent = amounts.reduce((a, b) => a + b, 0);
+
+  // let's make 3 transfer tx at different heights
+  const txHeights = [];
+  for (const amount of amounts) {
+    const token = { amount: amount.toString(), denom: simapp.denomFee };
+    const { height } = await nodeA.transferTokens(
+      channels.src.portId,
+      channels.src.channelId,
+      token,
+      recipient,
+      destHeight
+    );
+    // console.log(JSON.stringify(logs[0].events, undefined, 2));
+    txHeights.push(height);
+  }
+  // ensure these are different
+  t.assert(txHeights[1] > txHeights[0], txHeights.toString());
+  t.assert(txHeights[2] > txHeights[1], txHeights.toString());
+  // wait for this to get indexed
+  await nodeA.waitOneBlock();
+
+  // now query for all packets
+  const packets = await link.getPendingPackets('A');
+  t.is(packets.length, 3);
+  t.deepEqual(
+    packets.map(({ height }) => height),
+    txHeights
+  );
+  // ensure the sender is set properly
+  for (const packet of packets) {
+    t.is(packet.sender, nodeA.senderAddress);
+  }
+
+  // submit 2 of them (out of order)
+  const submit = [packets[0].packet, packets[2].packet];
+  await nodeA.waitOneBlock();
+  const headerHeight = await link.updateClient('A');
+  const proofs = await Promise.all(
+    submit.map((packet) => nodeA.getPacketProof(packet, headerHeight))
+  );
+  const { logs: relayLog } = await nodeB.receivePackets(
+    submit,
+    proofs,
+    toProtoHeight(headerHeight)
+  );
+  const acks = parseAcksFromLogs(relayLog);
+  t.is(acks.length, 2);
+
+  // ensure only one marked pending (for tx1)
+  const postPackets = await link.getPendingPackets('A');
+  t.is(postPackets.length, 1);
+  t.is(postPackets[0].height, txHeights[1]);
 });
