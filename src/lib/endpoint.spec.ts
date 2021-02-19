@@ -1,0 +1,52 @@
+import test from 'ava';
+
+import { Link } from './link';
+import { ics20, randomAddress, setup, simapp, wasmd } from './testutils.spec';
+
+test.serial('submit multiple tx, query all packets', async (t) => {
+  // setup a channel
+  const [nodeA, nodeB] = await setup();
+  const link = await Link.createWithNewConnections(nodeA, nodeB);
+  const channels = await link.createChannel(
+    'A',
+    ics20.srcPortId,
+    ics20.destPortId,
+    ics20.ordering,
+    ics20.version
+  );
+
+  // no packets here
+  const packets1 = await link.endA.getPendingPackets();
+  t.is(packets1.length, 0);
+
+  // some basic setup for the transfers
+  const recipient = randomAddress(wasmd.prefix);
+  const destHeight = (await nodeB.latestHeader()).height + 500; // valid for 500 blocks
+  const amounts = [1000, 2222, 3456];
+  // const totalSent = amounts.reduce((a, b) => a + b, 0);
+
+  // let's make 3 transfer tx at different heights
+  const txHeights = [];
+  for (const amount in amounts) {
+    const token = { amount: amount.toString(), denom: simapp.denomFee };
+    const { height } = await nodeA.transferTokens(
+      channels.src.portId,
+      channels.src.channelId,
+      token,
+      recipient,
+      destHeight
+    );
+    txHeights.push(height);
+  }
+  // ensure these are different
+  t.assert(txHeights[1] > txHeights[0], txHeights.toString());
+  t.assert(txHeights[2] > txHeights[1], txHeights.toString());
+
+  // now query for all packets
+  const packets3 = await link.endA.getPendingPackets(txHeights[1]);
+  t.is(packets3.length, 2);
+
+  // filter by minimum height
+  const packets4 = await link.endA.getPendingPackets(txHeights[2] + 1);
+  t.is(packets4.length, 0);
+});

@@ -39,10 +39,7 @@ export class Endpoint {
   // https://github.com/cosmos/cosmjs/issues/632
 
   /* eslint @typescript-eslint/no-unused-vars: "off" */
-  public async getPendingPackets(
-    _filter?: Filter,
-    _minHeight?: number
-  ): Promise<Packet[]> {
+  public async getPendingPackets(_minHeight?: number): Promise<Packet[]> {
     this.client.query.ibc.channel.connectionChannels(this.connectionID);
 
     // these all work for one (port, channel).
@@ -57,10 +54,7 @@ export class Endpoint {
   }
 
   /* eslint @typescript-eslint/no-unused-vars: "off" */
-  public async getPendingAcks(
-    _filter?: Filter,
-    _minHeight?: number
-  ): Promise<Ack[]> {
+  public async getPendingAcks(_minHeight?: number): Promise<Ack[]> {
     throw new Error('unimplemented!');
   }
 

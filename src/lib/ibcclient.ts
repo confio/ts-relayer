@@ -127,6 +127,8 @@ export interface MsgResult {
   readonly logs: readonly logs.Log[];
   /** Transaction hash (might be used as transaction ID). Guaranteed to be non-empty upper-case hex */
   readonly transactionHash: string;
+  /** block height where this transaction was committed - only set if we send 'block' mode */
+  readonly height: number;
 }
 
 export type CreateClientResult = MsgResult & {
@@ -518,6 +520,7 @@ export class IbcClient {
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
+      height: result.height,
     };
   }
 
@@ -535,6 +538,7 @@ export class IbcClient {
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
+      height: result.height,
     };
   }
 
@@ -576,6 +580,7 @@ export class IbcClient {
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
+      height: result.height,
       clientId,
     };
   }
@@ -609,6 +614,7 @@ export class IbcClient {
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
+      height: result.height,
     };
   }
 
@@ -648,6 +654,7 @@ export class IbcClient {
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
+      height: result.height,
       connectionId,
     };
   }
@@ -705,6 +712,7 @@ export class IbcClient {
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
+      height: result.height,
       connectionId: myConnectionId,
     };
   }
@@ -751,6 +759,7 @@ export class IbcClient {
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
+      height: result.height,
     };
   }
 
@@ -781,6 +790,7 @@ export class IbcClient {
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
+      height: result.height,
     };
   }
 
@@ -826,6 +836,7 @@ export class IbcClient {
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
+      height: result.height,
       channelId,
     };
   }
@@ -876,6 +887,7 @@ export class IbcClient {
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
+      height: result.height,
       channelId,
     };
   }
@@ -914,6 +926,7 @@ export class IbcClient {
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
+      height: result.height,
     };
   }
 
@@ -947,6 +960,7 @@ export class IbcClient {
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
+      height: result.height,
     };
   }
 
@@ -998,6 +1012,7 @@ export class IbcClient {
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
+      height: result.height,
     };
   }
 
@@ -1050,6 +1065,7 @@ export class IbcClient {
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
+      height: result.height,
     };
   }
 
@@ -1082,6 +1098,7 @@ export class IbcClient {
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
+      height: result.height,
     };
   }
 
@@ -1123,6 +1140,7 @@ export class IbcClient {
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
+      height: result.height,
     };
   }
 }
