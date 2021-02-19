@@ -2,11 +2,10 @@ import { sleep } from '@cosmjs/utils';
 import test from 'ava';
 
 import { MsgTransfer } from '../codec/ibc/applications/transfer/v1/tx';
-import { Order } from '../codec/ibc/core/channel/v1/channel';
 
 import { buildCreateClientArgs, prepareConnectionHandshake } from './ibcclient';
 import { Link } from './link';
-import { randomAddress, setup, simapp, wasmd } from './testutils.spec';
+import { ics20, randomAddress, setup, simapp, wasmd } from './testutils.spec';
 import {
   buildClientState,
   buildConsensusState,
@@ -154,15 +153,6 @@ test.serial('perform connection handshake', async (t) => {
   );
   await dest.connOpenConfirm(proofConfirm);
 });
-
-// constants for this transport protocol
-const ics20 = {
-  // we set a new port in genesis for simapp
-  srcPortId: 'custom',
-  destPortId: 'transfer',
-  version: 'ics20-1',
-  ordering: Order.ORDER_UNORDERED,
-};
 
 test.serial('transfer message and send packets', async (t) => {
   // set up ics20 channel

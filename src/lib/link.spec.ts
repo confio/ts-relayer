@@ -1,18 +1,9 @@
 import test from 'ava';
 
-import { Order, State } from '../codec/ibc/core/channel/v1/channel';
+import { State } from '../codec/ibc/core/channel/v1/channel';
 
 import { Link } from './link';
-import { setup } from './testutils.spec';
-
-// constants for this transport protocol
-const ics20 = {
-  // we set a new port in genesis for simapp
-  srcPortId: 'custom',
-  destPortId: 'transfer',
-  version: 'ics20-1',
-  ordering: Order.ORDER_UNORDERED,
-};
+import { ics20, setup } from './testutils.spec';
 
 // createWithNewConnections
 
