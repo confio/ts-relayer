@@ -115,7 +115,7 @@ test.serial(
 
 // createWithExistingConnections
 
-test.serial.only('reuse existing connections', async (t) => {
+test.serial('reuse existing connections', async (t) => {
   const [src, dest] = await setup();
 
   const oldLink = await Link.createWithNewConnections(src, dest);

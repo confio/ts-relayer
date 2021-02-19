@@ -106,57 +106,58 @@ export class Link {
       );
     }
 
-    // Check headers match consensus state (at least validators)
+    const endA = new Endpoint(nodeA, clientIdA, connA);
+    const endB = new Endpoint(nodeB, clientIdB, connB);
+    const link = new Link(endA, endB);
+
     const [knownHeightA, knownHeightB] = [
       toIntHeight(clientStateA.latestHeight),
       toIntHeight(clientStateB.latestHeight),
     ];
-    const [
-      consensusStateA,
-      consensusStateB,
-      headerA,
-      headerB,
-    ] = await Promise.all([
-      nodeA.query.ibc.client.consensusStateTm(clientIdA, knownHeightA),
-      nodeB.query.ibc.client.consensusStateTm(clientIdB, knownHeightB),
-      nodeA.header(knownHeightB),
-      nodeB.header(knownHeightA),
+    await Promise.all([
+      link.assertHeadersMatchConsensusState('A', clientIdA, knownHeightA),
+      link.assertHeadersMatchConsensusState('B', clientIdB, knownHeightB),
+    ]);
+
+    return link;
+  }
+
+  /**
+   * we do this assert inside createWithExistingConnections, but it could be a useful check
+   * for submitting double-sign evidence later
+   *
+   * @param proofSide the side holding the consensus proof, we check the header from the other side
+   * @param height the height of the consensus state and header we wish to compare
+   */
+  public async assertHeadersMatchConsensusState(
+    proofSide: Side,
+    clientId: string,
+    height: number
+  ): Promise<void> {
+    const { src, dest } = this.getEnds(proofSide);
+
+    // Check headers match consensus state (at least validators)
+    const [consensusState, header] = await Promise.all([
+      src.client.query.ibc.client.consensusStateTm(clientId, height),
+      dest.client.header(height),
     ]);
     // ensure consensus and headers match for next validator hashes
     if (
       !arrayContentEquals(
-        consensusStateA.nextValidatorsHash,
-        headerB.nextValidatorsHash
-      ) ||
-      !arrayContentEquals(
-        consensusStateB.nextValidatorsHash,
-        headerA.nextValidatorsHash
+        consensusState.nextValidatorsHash,
+        header.nextValidatorsHash
       )
     ) {
-      throw new Error(
-        `NextValidatorHash doesn't match ConsensusState. Is this an imposter chain?`
-      );
+      throw new Error(`NextValidatorHash doesn't match ConsensusState.`);
     }
     // ensure the committed apphash matches the actual node we have
-    const [hashA, hashB] = [
-      consensusStateA.root?.hash,
-      consensusStateB.root?.hash,
-    ];
-    if (!hashA || !hashB) {
+    const hash = consensusState.root?.hash;
+    if (!hash) {
       throw new Error(`ConsensusState.root.hash missing.`);
     }
-    if (
-      !arrayContentEquals(hashA, headerB.appHash) ||
-      !arrayContentEquals(hashB, headerA.appHash)
-    ) {
-      throw new Error(
-        `AppHash doesn't match ConsensusState. Is this an imposter chain?`
-      );
+    if (!arrayContentEquals(hash, header.appHash)) {
+      throw new Error(`AppHash doesn't match ConsensusState.`);
     }
-
-    const endA = new Endpoint(nodeA, clientIdA, connA);
-    const endB = new Endpoint(nodeB, clientIdB, connB);
-    return new Link(endA, endB);
   }
 
   /**
