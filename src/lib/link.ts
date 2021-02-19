@@ -2,7 +2,7 @@ import { arrayContentEquals } from '@cosmjs/utils';
 
 import { Order, State } from '../codec/ibc/core/channel/v1/channel';
 
-import { Endpoint } from './endpoint';
+import { Endpoint, PacketWithMetadata, QueryOpts } from './endpoint';
 import {
   buildCreateClientArgs,
   ChannelInfo,
@@ -227,7 +227,7 @@ export class Link {
    *
    * @param sender Which side we get the header/commit from
    *
-   * TODO: replace with heartbeat which checks if needed and updates
+   * Relayer binary should call this from a heartbeat which checks if needed and updates.
    * Just needs trusting period on both side
    */
   public async updateClient(sender: Side): Promise<void> {
@@ -235,7 +235,6 @@ export class Link {
     await dest.client.doUpdateClient(dest.clientID, src.client);
   }
 
-  // TODO: define ordering type
   /* eslint @typescript-eslint/no-unused-vars: "off" */
   public async createChannel(
     sender: Side,
@@ -311,10 +310,38 @@ export class Link {
     };
   }
 
-  // TODO: relayAllPendingPackets (filter)
-  // TODO: relayAllPendingAcks (filter)
-  // TODO: relayAllRoundTrip (filter)
-  // TODO: relayRoundTrip (packet)
+  public async getPendingPackets(
+    source: Side,
+    opts: QueryOpts = {}
+  ): Promise<PacketWithMetadata[]> {
+    const { src, dest } = this.getEnds(source);
+    const allPackets = await src.querySentPackets(opts);
+    if (allPackets.length === 0) {
+      return [];
+    }
+    const { destinationPort, destinationChannel } = allPackets[0].packet;
+    // // TODO: handle this when there are multiple channels,
+    // // something like:
+    // const received = await Promise.all(
+    //   allPackets.map(({ packet }) =>
+    //     dest.client.query.ibc.channel.unreceivedPackets(
+    //       packet.destinationPort,
+    //       packet.destinationChannel,
+    //       [packet.sequence.toNumber()]
+    //     )
+    //   )
+    // );
+    const toCheck = allPackets.map(({ packet }) => packet.sequence.toNumber());
+    const { sequences } = await dest.client.query.ibc.channel.unreceivedPackets(
+      destinationPort,
+      destinationChannel,
+      toCheck
+    );
+    const unreceived = new Map(sequences.map((seq) => [seq.toNumber(), true]));
+    return allPackets.filter(({ packet }) =>
+      unreceived.get(packet.sequence.toNumber())
+    );
+  }
 
   private getEnds(src: Side): EndpointPair {
     if (src === 'A') {
