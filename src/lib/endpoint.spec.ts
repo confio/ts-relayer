@@ -54,8 +54,23 @@ test.serial('submit multiple tx, query all packets', async (t) => {
   );
 
   // filter by minimum height
-  const packets3 = await link.endA.querySentPackets(txHeights[1]);
+  const packets3 = await link.endA.querySentPackets({
+    minHeight: txHeights[1],
+  });
   t.is(packets3.length, 2);
-  const packets4 = await link.endA.querySentPackets(txHeights[2] + 1);
+  const packets4 = await link.endA.querySentPackets({
+    minHeight: txHeights[2] + 1,
+  });
   t.is(packets4.length, 0);
+
+  // filter by maximum height
+  const packets5 = await link.endA.querySentPackets({
+    maxHeight: txHeights[1],
+  });
+  t.is(packets5.length, 2);
+  const packets6 = await link.endA.querySentPackets({
+    minHeight: txHeights[1],
+    maxHeight: txHeights[1],
+  });
+  t.is(packets6.length, 1);
 });

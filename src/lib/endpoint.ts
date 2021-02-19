@@ -12,6 +12,11 @@ export interface PacketWithMetadata {
   height: number;
 }
 
+export interface QueryOpts {
+  minHeight?: number;
+  maxHeight?: number;
+}
+
 /**
  * Endpoint is a wrapper around SigningStargateClient as well as ClientID
  * and ConnectionID. Two Endpoints compose a Link and this should expose all the
@@ -42,16 +47,20 @@ export class Endpoint {
   }
 
   // TODO: return info for pagination, accept arg
-  public async querySentPackets(
-    minHeight?: number
-  ): Promise<PacketWithMetadata[]> {
-    // TODO: txSearchAll or do we paginate?
+  public async querySentPackets({
+    minHeight,
+    maxHeight,
+  }: QueryOpts = {}): Promise<PacketWithMetadata[]> {
     let query = `send_packet.packet_connection='${this.connectionID}'`;
     if (minHeight) {
       query = `${query} AND tx.height>=${minHeight}`;
     }
+    if (maxHeight) {
+      query = `${query} AND tx.height<=${maxHeight}`;
+    }
     console.log(query);
 
+    // TODO: txSearchAll or do we paginate?
     const search = await this.client.tm.txSearch({ query });
     console.log(search.totalCount);
     const resultsNested = search.txs.map(({ height, result }) => {
@@ -59,14 +68,6 @@ export class Endpoint {
       return parsePacketsFromLogs(logs).map((packet) => ({ packet, height }));
     });
     return ([] as PacketWithMetadata[]).concat(...resultsNested);
-
-    // these all work for one (port, channel).
-    // shall we make this general (via filter) or hit up each channel one after another
-    // (and add a helper for (Endpoint, ChannelInfo) to do this easily)
-    // this.client.queryClient.ibc.unverified.packetCommitments();
-    // this.client.queryClient.ibc.unverified.packetAcknowledgements();
-    // this.client.queryClient.ibc.unverified.unreceivedPackets();
-    // this.client.queryClient.ibc.unverified.packetAcknowledgements();
   }
 
   /* eslint @typescript-eslint/no-unused-vars: "off" */
