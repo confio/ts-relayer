@@ -40,8 +40,12 @@ const baseCoin: object = { denom: '', amount: '' };
 
 export const Coin = {
   encode(message: Coin, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    writer.uint32(10).string(message.denom);
-    writer.uint32(18).string(message.amount);
+    if (message.denom !== '') {
+      writer.uint32(10).string(message.denom);
+    }
+    if (message.amount !== '') {
+      writer.uint32(18).string(message.amount);
+    }
     return writer;
   },
 
@@ -81,6 +85,13 @@ export const Coin = {
     return message;
   },
 
+  toJSON(message: Coin): unknown {
+    const obj: any = {};
+    message.denom !== undefined && (obj.denom = message.denom);
+    message.amount !== undefined && (obj.amount = message.amount);
+    return obj;
+  },
+
   fromPartial(object: DeepPartial<Coin>): Coin {
     const message = { ...baseCoin } as Coin;
     if (object.denom !== undefined && object.denom !== null) {
@@ -95,13 +106,6 @@ export const Coin = {
     }
     return message;
   },
-
-  toJSON(message: Coin): unknown {
-    const obj: any = {};
-    message.denom !== undefined && (obj.denom = message.denom);
-    message.amount !== undefined && (obj.amount = message.amount);
-    return obj;
-  },
 };
 
 const baseDecCoin: object = { denom: '', amount: '' };
@@ -111,8 +115,12 @@ export const DecCoin = {
     message: DecCoin,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    writer.uint32(10).string(message.denom);
-    writer.uint32(18).string(message.amount);
+    if (message.denom !== '') {
+      writer.uint32(10).string(message.denom);
+    }
+    if (message.amount !== '') {
+      writer.uint32(18).string(message.amount);
+    }
     return writer;
   },
 
@@ -152,6 +160,13 @@ export const DecCoin = {
     return message;
   },
 
+  toJSON(message: DecCoin): unknown {
+    const obj: any = {};
+    message.denom !== undefined && (obj.denom = message.denom);
+    message.amount !== undefined && (obj.amount = message.amount);
+    return obj;
+  },
+
   fromPartial(object: DeepPartial<DecCoin>): DecCoin {
     const message = { ...baseDecCoin } as DecCoin;
     if (object.denom !== undefined && object.denom !== null) {
@@ -166,13 +181,6 @@ export const DecCoin = {
     }
     return message;
   },
-
-  toJSON(message: DecCoin): unknown {
-    const obj: any = {};
-    message.denom !== undefined && (obj.denom = message.denom);
-    message.amount !== undefined && (obj.amount = message.amount);
-    return obj;
-  },
 };
 
 const baseIntProto: object = { int: '' };
@@ -182,7 +190,9 @@ export const IntProto = {
     message: IntProto,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    writer.uint32(10).string(message.int);
+    if (message.int !== '') {
+      writer.uint32(10).string(message.int);
+    }
     return writer;
   },
 
@@ -214,6 +224,12 @@ export const IntProto = {
     return message;
   },
 
+  toJSON(message: IntProto): unknown {
+    const obj: any = {};
+    message.int !== undefined && (obj.int = message.int);
+    return obj;
+  },
+
   fromPartial(object: DeepPartial<IntProto>): IntProto {
     const message = { ...baseIntProto } as IntProto;
     if (object.int !== undefined && object.int !== null) {
@@ -222,12 +238,6 @@ export const IntProto = {
       message.int = '';
     }
     return message;
-  },
-
-  toJSON(message: IntProto): unknown {
-    const obj: any = {};
-    message.int !== undefined && (obj.int = message.int);
-    return obj;
   },
 };
 
@@ -238,7 +248,9 @@ export const DecProto = {
     message: DecProto,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    writer.uint32(10).string(message.dec);
+    if (message.dec !== '') {
+      writer.uint32(10).string(message.dec);
+    }
     return writer;
   },
 
@@ -270,6 +282,12 @@ export const DecProto = {
     return message;
   },
 
+  toJSON(message: DecProto): unknown {
+    const obj: any = {};
+    message.dec !== undefined && (obj.dec = message.dec);
+    return obj;
+  },
+
   fromPartial(object: DeepPartial<DecProto>): DecProto {
     const message = { ...baseDecProto } as DecProto;
     if (object.dec !== undefined && object.dec !== null) {
@@ -278,12 +296,6 @@ export const DecProto = {
       message.dec = '';
     }
     return message;
-  },
-
-  toJSON(message: DecProto): unknown {
-    const obj: any = {};
-    message.dec !== undefined && (obj.dec = message.dec);
-    return obj;
   },
 };
 

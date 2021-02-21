@@ -79,19 +79,15 @@ export const MsgCreateClient = {
     message: MsgCreateClient,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (
-      message.clientState !== undefined &&
-      message.clientState !== undefined
-    ) {
+    if (message.clientState !== undefined) {
       Any.encode(message.clientState, writer.uint32(10).fork()).ldelim();
     }
-    if (
-      message.consensusState !== undefined &&
-      message.consensusState !== undefined
-    ) {
+    if (message.consensusState !== undefined) {
       Any.encode(message.consensusState, writer.uint32(18).fork()).ldelim();
     }
-    writer.uint32(26).string(message.signer);
+    if (message.signer !== '') {
+      writer.uint32(26).string(message.signer);
+    }
     return writer;
   },
 
@@ -139,6 +135,20 @@ export const MsgCreateClient = {
     return message;
   },
 
+  toJSON(message: MsgCreateClient): unknown {
+    const obj: any = {};
+    message.clientState !== undefined &&
+      (obj.clientState = message.clientState
+        ? Any.toJSON(message.clientState)
+        : undefined);
+    message.consensusState !== undefined &&
+      (obj.consensusState = message.consensusState
+        ? Any.toJSON(message.consensusState)
+        : undefined);
+    message.signer !== undefined && (obj.signer = message.signer);
+    return obj;
+  },
+
   fromPartial(object: DeepPartial<MsgCreateClient>): MsgCreateClient {
     const message = { ...baseMsgCreateClient } as MsgCreateClient;
     if (object.clientState !== undefined && object.clientState !== null) {
@@ -157,20 +167,6 @@ export const MsgCreateClient = {
       message.signer = '';
     }
     return message;
-  },
-
-  toJSON(message: MsgCreateClient): unknown {
-    const obj: any = {};
-    message.clientState !== undefined &&
-      (obj.clientState = message.clientState
-        ? Any.toJSON(message.clientState)
-        : undefined);
-    message.consensusState !== undefined &&
-      (obj.consensusState = message.consensusState
-        ? Any.toJSON(message.consensusState)
-        : undefined);
-    message.signer !== undefined && (obj.signer = message.signer);
-    return obj;
   },
 };
 
@@ -211,6 +207,11 @@ export const MsgCreateClientResponse = {
     return message;
   },
 
+  toJSON(_: MsgCreateClientResponse): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
   fromPartial(
     _: DeepPartial<MsgCreateClientResponse>
   ): MsgCreateClientResponse {
@@ -218,11 +219,6 @@ export const MsgCreateClientResponse = {
       ...baseMsgCreateClientResponse,
     } as MsgCreateClientResponse;
     return message;
-  },
-
-  toJSON(_: MsgCreateClientResponse): unknown {
-    const obj: any = {};
-    return obj;
   },
 };
 
@@ -233,11 +229,15 @@ export const MsgUpdateClient = {
     message: MsgUpdateClient,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    writer.uint32(10).string(message.clientId);
-    if (message.header !== undefined && message.header !== undefined) {
+    if (message.clientId !== '') {
+      writer.uint32(10).string(message.clientId);
+    }
+    if (message.header !== undefined) {
       Any.encode(message.header, writer.uint32(18).fork()).ldelim();
     }
-    writer.uint32(26).string(message.signer);
+    if (message.signer !== '') {
+      writer.uint32(26).string(message.signer);
+    }
     return writer;
   },
 
@@ -285,6 +285,15 @@ export const MsgUpdateClient = {
     return message;
   },
 
+  toJSON(message: MsgUpdateClient): unknown {
+    const obj: any = {};
+    message.clientId !== undefined && (obj.clientId = message.clientId);
+    message.header !== undefined &&
+      (obj.header = message.header ? Any.toJSON(message.header) : undefined);
+    message.signer !== undefined && (obj.signer = message.signer);
+    return obj;
+  },
+
   fromPartial(object: DeepPartial<MsgUpdateClient>): MsgUpdateClient {
     const message = { ...baseMsgUpdateClient } as MsgUpdateClient;
     if (object.clientId !== undefined && object.clientId !== null) {
@@ -303,15 +312,6 @@ export const MsgUpdateClient = {
       message.signer = '';
     }
     return message;
-  },
-
-  toJSON(message: MsgUpdateClient): unknown {
-    const obj: any = {};
-    message.clientId !== undefined && (obj.clientId = message.clientId);
-    message.header !== undefined &&
-      (obj.header = message.header ? Any.toJSON(message.header) : undefined);
-    message.signer !== undefined && (obj.signer = message.signer);
-    return obj;
   },
 };
 
@@ -352,6 +352,11 @@ export const MsgUpdateClientResponse = {
     return message;
   },
 
+  toJSON(_: MsgUpdateClientResponse): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
   fromPartial(
     _: DeepPartial<MsgUpdateClientResponse>
   ): MsgUpdateClientResponse {
@@ -359,11 +364,6 @@ export const MsgUpdateClientResponse = {
       ...baseMsgUpdateClientResponse,
     } as MsgUpdateClientResponse;
     return message;
-  },
-
-  toJSON(_: MsgUpdateClientResponse): unknown {
-    const obj: any = {};
-    return obj;
   },
 };
 
@@ -374,22 +374,24 @@ export const MsgUpgradeClient = {
     message: MsgUpgradeClient,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    writer.uint32(10).string(message.clientId);
-    if (
-      message.clientState !== undefined &&
-      message.clientState !== undefined
-    ) {
+    if (message.clientId !== '') {
+      writer.uint32(10).string(message.clientId);
+    }
+    if (message.clientState !== undefined) {
       Any.encode(message.clientState, writer.uint32(18).fork()).ldelim();
     }
-    if (
-      message.consensusState !== undefined &&
-      message.consensusState !== undefined
-    ) {
+    if (message.consensusState !== undefined) {
       Any.encode(message.consensusState, writer.uint32(26).fork()).ldelim();
     }
-    writer.uint32(34).bytes(message.proofUpgradeClient);
-    writer.uint32(42).bytes(message.proofUpgradeConsensusState);
-    writer.uint32(50).string(message.signer);
+    if (message.proofUpgradeClient.length !== 0) {
+      writer.uint32(34).bytes(message.proofUpgradeClient);
+    }
+    if (message.proofUpgradeConsensusState.length !== 0) {
+      writer.uint32(42).bytes(message.proofUpgradeConsensusState);
+    }
+    if (message.signer !== '') {
+      writer.uint32(50).string(message.signer);
+    }
     return writer;
   },
 
@@ -465,6 +467,33 @@ export const MsgUpgradeClient = {
     return message;
   },
 
+  toJSON(message: MsgUpgradeClient): unknown {
+    const obj: any = {};
+    message.clientId !== undefined && (obj.clientId = message.clientId);
+    message.clientState !== undefined &&
+      (obj.clientState = message.clientState
+        ? Any.toJSON(message.clientState)
+        : undefined);
+    message.consensusState !== undefined &&
+      (obj.consensusState = message.consensusState
+        ? Any.toJSON(message.consensusState)
+        : undefined);
+    message.proofUpgradeClient !== undefined &&
+      (obj.proofUpgradeClient = base64FromBytes(
+        message.proofUpgradeClient !== undefined
+          ? message.proofUpgradeClient
+          : new Uint8Array()
+      ));
+    message.proofUpgradeConsensusState !== undefined &&
+      (obj.proofUpgradeConsensusState = base64FromBytes(
+        message.proofUpgradeConsensusState !== undefined
+          ? message.proofUpgradeConsensusState
+          : new Uint8Array()
+      ));
+    message.signer !== undefined && (obj.signer = message.signer);
+    return obj;
+  },
+
   fromPartial(object: DeepPartial<MsgUpgradeClient>): MsgUpgradeClient {
     const message = { ...baseMsgUpgradeClient } as MsgUpgradeClient;
     if (object.clientId !== undefined && object.clientId !== null) {
@@ -505,33 +534,6 @@ export const MsgUpgradeClient = {
     }
     return message;
   },
-
-  toJSON(message: MsgUpgradeClient): unknown {
-    const obj: any = {};
-    message.clientId !== undefined && (obj.clientId = message.clientId);
-    message.clientState !== undefined &&
-      (obj.clientState = message.clientState
-        ? Any.toJSON(message.clientState)
-        : undefined);
-    message.consensusState !== undefined &&
-      (obj.consensusState = message.consensusState
-        ? Any.toJSON(message.consensusState)
-        : undefined);
-    message.proofUpgradeClient !== undefined &&
-      (obj.proofUpgradeClient = base64FromBytes(
-        message.proofUpgradeClient !== undefined
-          ? message.proofUpgradeClient
-          : new Uint8Array()
-      ));
-    message.proofUpgradeConsensusState !== undefined &&
-      (obj.proofUpgradeConsensusState = base64FromBytes(
-        message.proofUpgradeConsensusState !== undefined
-          ? message.proofUpgradeConsensusState
-          : new Uint8Array()
-      ));
-    message.signer !== undefined && (obj.signer = message.signer);
-    return obj;
-  },
 };
 
 const baseMsgUpgradeClientResponse: object = {};
@@ -571,6 +573,11 @@ export const MsgUpgradeClientResponse = {
     return message;
   },
 
+  toJSON(_: MsgUpgradeClientResponse): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
   fromPartial(
     _: DeepPartial<MsgUpgradeClientResponse>
   ): MsgUpgradeClientResponse {
@@ -578,11 +585,6 @@ export const MsgUpgradeClientResponse = {
       ...baseMsgUpgradeClientResponse,
     } as MsgUpgradeClientResponse;
     return message;
-  },
-
-  toJSON(_: MsgUpgradeClientResponse): unknown {
-    const obj: any = {};
-    return obj;
   },
 };
 
@@ -593,14 +595,15 @@ export const MsgSubmitMisbehaviour = {
     message: MsgSubmitMisbehaviour,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    writer.uint32(10).string(message.clientId);
-    if (
-      message.misbehaviour !== undefined &&
-      message.misbehaviour !== undefined
-    ) {
+    if (message.clientId !== '') {
+      writer.uint32(10).string(message.clientId);
+    }
+    if (message.misbehaviour !== undefined) {
       Any.encode(message.misbehaviour, writer.uint32(18).fork()).ldelim();
     }
-    writer.uint32(26).string(message.signer);
+    if (message.signer !== '') {
+      writer.uint32(26).string(message.signer);
+    }
     return writer;
   },
 
@@ -651,6 +654,17 @@ export const MsgSubmitMisbehaviour = {
     return message;
   },
 
+  toJSON(message: MsgSubmitMisbehaviour): unknown {
+    const obj: any = {};
+    message.clientId !== undefined && (obj.clientId = message.clientId);
+    message.misbehaviour !== undefined &&
+      (obj.misbehaviour = message.misbehaviour
+        ? Any.toJSON(message.misbehaviour)
+        : undefined);
+    message.signer !== undefined && (obj.signer = message.signer);
+    return obj;
+  },
+
   fromPartial(
     object: DeepPartial<MsgSubmitMisbehaviour>
   ): MsgSubmitMisbehaviour {
@@ -671,17 +685,6 @@ export const MsgSubmitMisbehaviour = {
       message.signer = '';
     }
     return message;
-  },
-
-  toJSON(message: MsgSubmitMisbehaviour): unknown {
-    const obj: any = {};
-    message.clientId !== undefined && (obj.clientId = message.clientId);
-    message.misbehaviour !== undefined &&
-      (obj.misbehaviour = message.misbehaviour
-        ? Any.toJSON(message.misbehaviour)
-        : undefined);
-    message.signer !== undefined && (obj.signer = message.signer);
-    return obj;
   },
 };
 
@@ -722,6 +725,11 @@ export const MsgSubmitMisbehaviourResponse = {
     return message;
   },
 
+  toJSON(_: MsgSubmitMisbehaviourResponse): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
   fromPartial(
     _: DeepPartial<MsgSubmitMisbehaviourResponse>
   ): MsgSubmitMisbehaviourResponse {
@@ -729,11 +737,6 @@ export const MsgSubmitMisbehaviourResponse = {
       ...baseMsgSubmitMisbehaviourResponse,
     } as MsgSubmitMisbehaviourResponse;
     return message;
-  },
-
-  toJSON(_: MsgSubmitMisbehaviourResponse): unknown {
-    const obj: any = {};
-    return obj;
   },
 };
 
@@ -822,7 +825,7 @@ var globalThis: any = (() => {
   if (typeof self !== 'undefined') return self;
   if (typeof window !== 'undefined') return window;
   if (typeof global !== 'undefined') return global;
-  throw new Error('Unable to locate global object');
+  throw 'Unable to locate global object';
 })();
 
 const atob: (b64: string) => string =

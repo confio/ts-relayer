@@ -65,10 +65,18 @@ export const FungibleTokenPacketData = {
     message: FungibleTokenPacketData,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    writer.uint32(10).string(message.denom);
-    writer.uint32(16).uint64(message.amount);
-    writer.uint32(26).string(message.sender);
-    writer.uint32(34).string(message.receiver);
+    if (message.denom !== '') {
+      writer.uint32(10).string(message.denom);
+    }
+    if (!message.amount.isZero()) {
+      writer.uint32(16).uint64(message.amount);
+    }
+    if (message.sender !== '') {
+      writer.uint32(26).string(message.sender);
+    }
+    if (message.receiver !== '') {
+      writer.uint32(34).string(message.receiver);
+    }
     return writer;
   },
 
@@ -131,6 +139,16 @@ export const FungibleTokenPacketData = {
     return message;
   },
 
+  toJSON(message: FungibleTokenPacketData): unknown {
+    const obj: any = {};
+    message.denom !== undefined && (obj.denom = message.denom);
+    message.amount !== undefined &&
+      (obj.amount = (message.amount || Long.UZERO).toString());
+    message.sender !== undefined && (obj.sender = message.sender);
+    message.receiver !== undefined && (obj.receiver = message.receiver);
+    return obj;
+  },
+
   fromPartial(
     object: DeepPartial<FungibleTokenPacketData>
   ): FungibleTokenPacketData {
@@ -159,16 +177,6 @@ export const FungibleTokenPacketData = {
     }
     return message;
   },
-
-  toJSON(message: FungibleTokenPacketData): unknown {
-    const obj: any = {};
-    message.denom !== undefined && (obj.denom = message.denom);
-    message.amount !== undefined &&
-      (obj.amount = (message.amount || Long.UZERO).toString());
-    message.sender !== undefined && (obj.sender = message.sender);
-    message.receiver !== undefined && (obj.receiver = message.receiver);
-    return obj;
-  },
 };
 
 const baseDenomTrace: object = { path: '', baseDenom: '' };
@@ -178,8 +186,12 @@ export const DenomTrace = {
     message: DenomTrace,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    writer.uint32(10).string(message.path);
-    writer.uint32(18).string(message.baseDenom);
+    if (message.path !== '') {
+      writer.uint32(10).string(message.path);
+    }
+    if (message.baseDenom !== '') {
+      writer.uint32(18).string(message.baseDenom);
+    }
     return writer;
   },
 
@@ -219,6 +231,13 @@ export const DenomTrace = {
     return message;
   },
 
+  toJSON(message: DenomTrace): unknown {
+    const obj: any = {};
+    message.path !== undefined && (obj.path = message.path);
+    message.baseDenom !== undefined && (obj.baseDenom = message.baseDenom);
+    return obj;
+  },
+
   fromPartial(object: DeepPartial<DenomTrace>): DenomTrace {
     const message = { ...baseDenomTrace } as DenomTrace;
     if (object.path !== undefined && object.path !== null) {
@@ -233,13 +252,6 @@ export const DenomTrace = {
     }
     return message;
   },
-
-  toJSON(message: DenomTrace): unknown {
-    const obj: any = {};
-    message.path !== undefined && (obj.path = message.path);
-    message.baseDenom !== undefined && (obj.baseDenom = message.baseDenom);
-    return obj;
-  },
 };
 
 const baseParams: object = { sendEnabled: false, receiveEnabled: false };
@@ -249,8 +261,12 @@ export const Params = {
     message: Params,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    writer.uint32(8).bool(message.sendEnabled);
-    writer.uint32(16).bool(message.receiveEnabled);
+    if (message.sendEnabled === true) {
+      writer.uint32(8).bool(message.sendEnabled);
+    }
+    if (message.receiveEnabled === true) {
+      writer.uint32(16).bool(message.receiveEnabled);
+    }
     return writer;
   },
 
@@ -290,6 +306,15 @@ export const Params = {
     return message;
   },
 
+  toJSON(message: Params): unknown {
+    const obj: any = {};
+    message.sendEnabled !== undefined &&
+      (obj.sendEnabled = message.sendEnabled);
+    message.receiveEnabled !== undefined &&
+      (obj.receiveEnabled = message.receiveEnabled);
+    return obj;
+  },
+
   fromPartial(object: DeepPartial<Params>): Params {
     const message = { ...baseParams } as Params;
     if (object.sendEnabled !== undefined && object.sendEnabled !== null) {
@@ -303,15 +328,6 @@ export const Params = {
       message.receiveEnabled = false;
     }
     return message;
-  },
-
-  toJSON(message: Params): unknown {
-    const obj: any = {};
-    message.sendEnabled !== undefined &&
-      (obj.sendEnabled = message.sendEnabled);
-    message.receiveEnabled !== undefined &&
-      (obj.receiveEnabled = message.receiveEnabled);
-    return obj;
   },
 };
 

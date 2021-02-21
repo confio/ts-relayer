@@ -23,8 +23,10 @@ export const ClientState = {
     message: ClientState,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    writer.uint32(10).string(message.chainId);
-    if (message.height !== undefined && message.height !== undefined) {
+    if (message.chainId !== '') {
+      writer.uint32(10).string(message.chainId);
+    }
+    if (message.height !== undefined) {
       Height.encode(message.height, writer.uint32(18).fork()).ldelim();
     }
     return writer;
@@ -66,6 +68,14 @@ export const ClientState = {
     return message;
   },
 
+  toJSON(message: ClientState): unknown {
+    const obj: any = {};
+    message.chainId !== undefined && (obj.chainId = message.chainId);
+    message.height !== undefined &&
+      (obj.height = message.height ? Height.toJSON(message.height) : undefined);
+    return obj;
+  },
+
   fromPartial(object: DeepPartial<ClientState>): ClientState {
     const message = { ...baseClientState } as ClientState;
     if (object.chainId !== undefined && object.chainId !== null) {
@@ -79,14 +89,6 @@ export const ClientState = {
       message.height = undefined;
     }
     return message;
-  },
-
-  toJSON(message: ClientState): unknown {
-    const obj: any = {};
-    message.chainId !== undefined && (obj.chainId = message.chainId);
-    message.height !== undefined &&
-      (obj.height = message.height ? Height.toJSON(message.height) : undefined);
-    return obj;
   },
 };
 

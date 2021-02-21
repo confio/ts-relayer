@@ -50,20 +50,27 @@ export const MsgTransfer = {
     message: MsgTransfer,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    writer.uint32(10).string(message.sourcePort);
-    writer.uint32(18).string(message.sourceChannel);
-    if (message.token !== undefined && message.token !== undefined) {
+    if (message.sourcePort !== '') {
+      writer.uint32(10).string(message.sourcePort);
+    }
+    if (message.sourceChannel !== '') {
+      writer.uint32(18).string(message.sourceChannel);
+    }
+    if (message.token !== undefined) {
       Coin.encode(message.token, writer.uint32(26).fork()).ldelim();
     }
-    writer.uint32(34).string(message.sender);
-    writer.uint32(42).string(message.receiver);
-    if (
-      message.timeoutHeight !== undefined &&
-      message.timeoutHeight !== undefined
-    ) {
+    if (message.sender !== '') {
+      writer.uint32(34).string(message.sender);
+    }
+    if (message.receiver !== '') {
+      writer.uint32(42).string(message.receiver);
+    }
+    if (message.timeoutHeight !== undefined) {
       Height.encode(message.timeoutHeight, writer.uint32(50).fork()).ldelim();
     }
-    writer.uint32(56).uint64(message.timeoutTimestamp);
+    if (!message.timeoutTimestamp.isZero()) {
+      writer.uint32(56).uint64(message.timeoutTimestamp);
+    }
     return writer;
   },
 
@@ -146,6 +153,26 @@ export const MsgTransfer = {
     return message;
   },
 
+  toJSON(message: MsgTransfer): unknown {
+    const obj: any = {};
+    message.sourcePort !== undefined && (obj.sourcePort = message.sourcePort);
+    message.sourceChannel !== undefined &&
+      (obj.sourceChannel = message.sourceChannel);
+    message.token !== undefined &&
+      (obj.token = message.token ? Coin.toJSON(message.token) : undefined);
+    message.sender !== undefined && (obj.sender = message.sender);
+    message.receiver !== undefined && (obj.receiver = message.receiver);
+    message.timeoutHeight !== undefined &&
+      (obj.timeoutHeight = message.timeoutHeight
+        ? Height.toJSON(message.timeoutHeight)
+        : undefined);
+    message.timeoutTimestamp !== undefined &&
+      (obj.timeoutTimestamp = (
+        message.timeoutTimestamp || Long.UZERO
+      ).toString());
+    return obj;
+  },
+
   fromPartial(object: DeepPartial<MsgTransfer>): MsgTransfer {
     const message = { ...baseMsgTransfer } as MsgTransfer;
     if (object.sourcePort !== undefined && object.sourcePort !== null) {
@@ -188,26 +215,6 @@ export const MsgTransfer = {
     }
     return message;
   },
-
-  toJSON(message: MsgTransfer): unknown {
-    const obj: any = {};
-    message.sourcePort !== undefined && (obj.sourcePort = message.sourcePort);
-    message.sourceChannel !== undefined &&
-      (obj.sourceChannel = message.sourceChannel);
-    message.token !== undefined &&
-      (obj.token = message.token ? Coin.toJSON(message.token) : undefined);
-    message.sender !== undefined && (obj.sender = message.sender);
-    message.receiver !== undefined && (obj.receiver = message.receiver);
-    message.timeoutHeight !== undefined &&
-      (obj.timeoutHeight = message.timeoutHeight
-        ? Height.toJSON(message.timeoutHeight)
-        : undefined);
-    message.timeoutTimestamp !== undefined &&
-      (obj.timeoutTimestamp = (
-        message.timeoutTimestamp || Long.UZERO
-      ).toString());
-    return obj;
-  },
 };
 
 const baseMsgTransferResponse: object = {};
@@ -240,14 +247,14 @@ export const MsgTransferResponse = {
     return message;
   },
 
-  fromPartial(_: DeepPartial<MsgTransferResponse>): MsgTransferResponse {
-    const message = { ...baseMsgTransferResponse } as MsgTransferResponse;
-    return message;
-  },
-
   toJSON(_: MsgTransferResponse): unknown {
     const obj: any = {};
     return obj;
+  },
+
+  fromPartial(_: DeepPartial<MsgTransferResponse>): MsgTransferResponse {
+    const message = { ...baseMsgTransferResponse } as MsgTransferResponse;
+    return message;
   },
 };
 

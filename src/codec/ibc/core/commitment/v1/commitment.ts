@@ -49,7 +49,9 @@ export const MerkleRoot = {
     message: MerkleRoot,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    writer.uint32(10).bytes(message.hash);
+    if (message.hash.length !== 0) {
+      writer.uint32(10).bytes(message.hash);
+    }
     return writer;
   },
 
@@ -79,6 +81,15 @@ export const MerkleRoot = {
     return message;
   },
 
+  toJSON(message: MerkleRoot): unknown {
+    const obj: any = {};
+    message.hash !== undefined &&
+      (obj.hash = base64FromBytes(
+        message.hash !== undefined ? message.hash : new Uint8Array()
+      ));
+    return obj;
+  },
+
   fromPartial(object: DeepPartial<MerkleRoot>): MerkleRoot {
     const message = { ...baseMerkleRoot } as MerkleRoot;
     if (object.hash !== undefined && object.hash !== null) {
@@ -87,15 +98,6 @@ export const MerkleRoot = {
       message.hash = new Uint8Array();
     }
     return message;
-  },
-
-  toJSON(message: MerkleRoot): unknown {
-    const obj: any = {};
-    message.hash !== undefined &&
-      (obj.hash = base64FromBytes(
-        message.hash !== undefined ? message.hash : new Uint8Array()
-      ));
-    return obj;
   },
 };
 
@@ -106,7 +108,9 @@ export const MerklePrefix = {
     message: MerklePrefix,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    writer.uint32(10).bytes(message.keyPrefix);
+    if (message.keyPrefix.length !== 0) {
+      writer.uint32(10).bytes(message.keyPrefix);
+    }
     return writer;
   },
 
@@ -136,6 +140,15 @@ export const MerklePrefix = {
     return message;
   },
 
+  toJSON(message: MerklePrefix): unknown {
+    const obj: any = {};
+    message.keyPrefix !== undefined &&
+      (obj.keyPrefix = base64FromBytes(
+        message.keyPrefix !== undefined ? message.keyPrefix : new Uint8Array()
+      ));
+    return obj;
+  },
+
   fromPartial(object: DeepPartial<MerklePrefix>): MerklePrefix {
     const message = { ...baseMerklePrefix } as MerklePrefix;
     if (object.keyPrefix !== undefined && object.keyPrefix !== null) {
@@ -144,15 +157,6 @@ export const MerklePrefix = {
       message.keyPrefix = new Uint8Array();
     }
     return message;
-  },
-
-  toJSON(message: MerklePrefix): unknown {
-    const obj: any = {};
-    message.keyPrefix !== undefined &&
-      (obj.keyPrefix = base64FromBytes(
-        message.keyPrefix !== undefined ? message.keyPrefix : new Uint8Array()
-      ));
-    return obj;
   },
 };
 
@@ -199,6 +203,16 @@ export const MerklePath = {
     return message;
   },
 
+  toJSON(message: MerklePath): unknown {
+    const obj: any = {};
+    if (message.keyPath) {
+      obj.keyPath = message.keyPath.map((e) => e);
+    } else {
+      obj.keyPath = [];
+    }
+    return obj;
+  },
+
   fromPartial(object: DeepPartial<MerklePath>): MerklePath {
     const message = { ...baseMerklePath } as MerklePath;
     message.keyPath = [];
@@ -208,16 +222,6 @@ export const MerklePath = {
       }
     }
     return message;
-  },
-
-  toJSON(message: MerklePath): unknown {
-    const obj: any = {};
-    if (message.keyPath) {
-      obj.keyPath = message.keyPath.map((e) => e);
-    } else {
-      obj.keyPath = [];
-    }
-    return obj;
   },
 };
 
@@ -264,17 +268,6 @@ export const MerkleProof = {
     return message;
   },
 
-  fromPartial(object: DeepPartial<MerkleProof>): MerkleProof {
-    const message = { ...baseMerkleProof } as MerkleProof;
-    message.proofs = [];
-    if (object.proofs !== undefined && object.proofs !== null) {
-      for (const e of object.proofs) {
-        message.proofs.push(CommitmentProof.fromPartial(e));
-      }
-    }
-    return message;
-  },
-
   toJSON(message: MerkleProof): unknown {
     const obj: any = {};
     if (message.proofs) {
@@ -286,6 +279,17 @@ export const MerkleProof = {
     }
     return obj;
   },
+
+  fromPartial(object: DeepPartial<MerkleProof>): MerkleProof {
+    const message = { ...baseMerkleProof } as MerkleProof;
+    message.proofs = [];
+    if (object.proofs !== undefined && object.proofs !== null) {
+      for (const e of object.proofs) {
+        message.proofs.push(CommitmentProof.fromPartial(e));
+      }
+    }
+    return message;
+  },
 };
 
 declare var self: any | undefined;
@@ -295,7 +299,7 @@ var globalThis: any = (() => {
   if (typeof self !== 'undefined') return self;
   if (typeof window !== 'undefined') return window;
   if (typeof global !== 'undefined') return global;
-  throw new Error('Unable to locate global object');
+  throw 'Unable to locate global object';
 })();
 
 const atob: (b64: string) => string =
