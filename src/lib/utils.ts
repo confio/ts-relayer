@@ -36,6 +36,7 @@ export function toIntHeight(height?: Height): number {
 export function toProtoHeight(height: number): Height {
   return Height.fromPartial({
     revisionHeight: new Long(height),
+    revisionNumber: new Long(0), // TODO: do we need this?
   });
 }
 
