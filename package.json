@@ -115,5 +115,8 @@
     "exclude": [
       "**/*.spec.js"
     ]
+  },
+  "bin": {
+    "ibc-setup": "build/main/binary/ibc-setup/index.js"
   }
 }
