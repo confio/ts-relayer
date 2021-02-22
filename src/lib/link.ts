@@ -405,6 +405,35 @@ export class Link {
     return acks.map((ack) => ({ height, ...ack }));
   }
 
+  // this will update the client if needed and relay all provided acks from src -> dest
+  // (yes, dest is where the packet was sent, but the ack was written on src).
+  // if acks are all older than the last consensusHeight, then we don't update the client.
+  //
+  // Returns the block height the acks were included in
+  public async relayAcks(
+    source: Side,
+    acks: readonly AckWithMetadata[]
+  ): Promise<number> {
+    const { src, dest } = this.getEnds(source);
+
+    // TODO: check if we need to update at all
+    await src.client.waitOneBlock();
+    const headerHeight = await dest.client.doUpdateClient(
+      dest.clientID,
+      src.client
+    );
+
+    const proofs = await Promise.all(
+      acks.map((ack) => src.client.getAckProof(ack, headerHeight))
+    );
+    const { height } = await dest.client.acknowledgePackets(
+      acks,
+      proofs,
+      toProtoHeight(headerHeight)
+    );
+    return height;
+  }
+
   private getEnds(src: Side): EndpointPair {
     if (src === 'A') {
       return {

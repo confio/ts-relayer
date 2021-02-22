@@ -4,7 +4,6 @@ import { State } from '../codec/ibc/core/channel/v1/channel';
 
 import { Link } from './link';
 import { ics20, randomAddress, setup, simapp, wasmd } from './testutils.spec';
-import { toProtoHeight } from './utils';
 
 test.serial('establish new client-connection', async (t) => {
   const [src, dest] = await setup();
@@ -265,15 +264,7 @@ test.serial.only('submit multiple tx, get unreceived packets', async (t) => {
 
   // submit one of the acks
   // relay them together
-  await nodeB.waitOneBlock();
-  const ackHeaderHeight = await nodeA.doUpdateClient(link.endA.clientID, nodeB);
-  const ack = acks[0];
-  const ackProof = await nodeB.getAckProof(ack, ackHeaderHeight);
-  await nodeA.acknowledgePackets(
-    [ack],
-    [ackProof],
-    toProtoHeight(ackHeaderHeight)
-  );
+  await link.relayAcks('B', acks.slice(0, 1));
 
   // ensure only one ack is still pending
   const postAcks = await link.getPendingAcks('B');
