@@ -2,7 +2,12 @@ import { arrayContentEquals } from '@cosmjs/utils';
 
 import { Order, State } from '../codec/ibc/core/channel/v1/channel';
 
-import { Endpoint, PacketWithMetadata, QueryOpts } from './endpoint';
+import {
+  AckWithMetadata,
+  Endpoint,
+  PacketWithMetadata,
+  QueryOpts,
+} from './endpoint';
 import {
   buildCreateClientArgs,
   ChannelInfo,
@@ -342,6 +347,31 @@ export class Link {
     const unreceived = new Map(sequences.map((seq) => [seq.toNumber(), true]));
     return allPackets.filter(({ packet }) =>
       unreceived.get(packet.sequence.toNumber())
+    );
+  }
+
+  public async getPendingAcks(
+    source: Side,
+    opts: QueryOpts = {}
+  ): Promise<AckWithMetadata[]> {
+    const { src, dest } = this.getEnds(source);
+    const allAcks = await src.queryWrittenAcks(opts);
+    if (allAcks.length === 0) {
+      return [];
+    }
+    const { sourcePort, sourceChannel } = allAcks[0].originalPacket;
+    // TODO: handle this when there are multiple channels,
+    const toCheck = allAcks.map((ack) =>
+      ack.originalPacket.sequence.toNumber()
+    );
+    const { sequences } = await dest.client.query.ibc.channel.unreceivedAcks(
+      sourcePort,
+      sourceChannel,
+      toCheck
+    );
+    const unreceived = new Map(sequences.map((seq) => [seq.toNumber(), true]));
+    return allAcks.filter((ack) =>
+      unreceived.get(ack.originalPacket.sequence.toNumber())
     );
   }
 
