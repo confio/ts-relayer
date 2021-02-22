@@ -15,7 +15,7 @@ import {
   prepareChannelHandshake,
   prepareConnectionHandshake,
 } from './ibcclient';
-import { toIntHeight } from './utils';
+import { parseAcksFromLogs, toIntHeight, toProtoHeight } from './utils';
 
 /**
  * Many actions on link focus on a src and a dest. Rather than add two functions,
@@ -373,6 +373,36 @@ export class Link {
     return allAcks.filter((ack) =>
       unreceived.has(ack.originalPacket.sequence.toNumber())
     );
+  }
+
+  // this will update the client if needed and relay all provided packets from src -> dest
+  // if packets are all older than the last consensusHeight, then we don't update the client.
+  //
+  // Returns all the acks that are associated with the just submitted packets
+  public async relayPackets(
+    source: Side,
+    packets: readonly PacketWithMetadata[]
+  ): Promise<AckWithMetadata[]> {
+    const { src, dest } = this.getEnds(source);
+
+    // TODO: check if we need to update at all
+    await src.client.waitOneBlock();
+    const headerHeight = await dest.client.doUpdateClient(
+      dest.clientID,
+      src.client
+    );
+
+    const submit = packets.map(({ packet }) => packet);
+    const proofs = await Promise.all(
+      submit.map((packet) => src.client.getPacketProof(packet, headerHeight))
+    );
+    const { logs, height } = await dest.client.receivePackets(
+      submit,
+      proofs,
+      toProtoHeight(headerHeight)
+    );
+    const acks = parseAcksFromLogs(logs);
+    return acks.map((ack) => ({ height, ...ack }));
   }
 
   private getEnds(src: Side): EndpointPair {

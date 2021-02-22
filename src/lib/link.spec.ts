@@ -4,7 +4,7 @@ import { State } from '../codec/ibc/core/channel/v1/channel';
 
 import { Link } from './link';
 import { ics20, randomAddress, setup, simapp, wasmd } from './testutils.spec';
-import { parseAcksFromLogs, toProtoHeight } from './utils';
+import { toProtoHeight } from './utils';
 
 test.serial('establish new client-connection', async (t) => {
   const [src, dest] = await setup();
@@ -191,7 +191,7 @@ test.serial(`errors when reusing connections which don’t match`, async (t) => 
   );
 });
 
-test.serial('submit multiple tx, get unreceived packets', async (t) => {
+test.serial.only('submit multiple tx, get unreceived packets', async (t) => {
   // setup a channel
   const [nodeA, nodeB] = await setup();
   const link = await Link.createWithNewConnections(nodeA, nodeB);
@@ -250,18 +250,8 @@ test.serial('submit multiple tx, get unreceived packets', async (t) => {
   t.is(preAcks.length, 0);
 
   // submit 2 of them (out of order)
-  const submit = [packets[0].packet, packets[2].packet];
-  await nodeA.waitOneBlock();
-  const headerHeight = await link.updateClient('A');
-  const proofs = await Promise.all(
-    submit.map((packet) => nodeA.getPacketProof(packet, headerHeight))
-  );
-  const { logs: relayLog } = await nodeB.receivePackets(
-    submit,
-    proofs,
-    toProtoHeight(headerHeight)
-  );
-  const txAcks = parseAcksFromLogs(relayLog);
+  const submit = [packets[0], packets[2]];
+  const txAcks = await link.relayPackets('A', submit);
   t.is(txAcks.length, 2);
 
   // ensure only one marked pending (for tx1)
