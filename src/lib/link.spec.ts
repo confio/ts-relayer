@@ -1,3 +1,4 @@
+import { sleep } from '@cosmjs/utils';
 import test from 'ava';
 
 import { State } from '../codec/ibc/core/channel/v1/channel';
@@ -190,7 +191,7 @@ test.serial(`errors when reusing connections which don’t match`, async (t) => 
   );
 });
 
-test.serial.only('submit multiple tx, get unreceived packets', async (t) => {
+test.serial('submit multiple tx, get unreceived packets', async (t) => {
   // setup a channel
   const [nodeA, nodeB] = await setup();
   const link = await Link.createWithNewConnections(nodeA, nodeB);
@@ -223,14 +224,13 @@ test.serial.only('submit multiple tx, get unreceived packets', async (t) => {
       recipient,
       destHeight
     );
-    // console.log(JSON.stringify(logs[0].events, undefined, 2));
     txHeights.push(height);
   }
   // ensure these are different
   t.assert(txHeights[1] > txHeights[0], txHeights.toString());
   t.assert(txHeights[2] > txHeights[1], txHeights.toString());
-  // wait for this to get indexed
-  await nodeA.waitOneBlock();
+  // need to wait briefly for it to be indexed
+  await sleep(100);
 
   // now query for all packets
   const packets = await link.getPendingPackets('A');
@@ -247,6 +247,10 @@ test.serial.only('submit multiple tx, get unreceived packets', async (t) => {
   // ensure no acks yet
   const preAcks = await link.getPendingAcks('B');
   t.is(preAcks.length, 0);
+
+  // // let's pre-update to test conditional logic (no need to update below)
+  // await nodeA.waitOneBlock();
+  // await link.updateClient('A');
 
   // submit 2 of them (out of order)
   const submit = [packets[0], packets[2]];

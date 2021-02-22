@@ -385,12 +385,21 @@ export class Link {
   ): Promise<AckWithMetadata[]> {
     const { src, dest } = this.getEnds(source);
 
-    // TODO: check if we need to update at all
-    await src.client.waitOneBlock();
-    const headerHeight = await dest.client.doUpdateClient(
-      dest.clientID,
-      src.client
+    // check if we need to update client at all
+    const maxPacketHeight = packets.reduce(
+      (acc, { height }) => Math.max(acc, height),
+      0
     );
+    const client = await dest.client.query.ibc.client.stateTm(dest.clientID);
+    let headerHeight = client.latestHeight?.revisionHeight?.toNumber() ?? 0;
+
+    if (headerHeight < maxPacketHeight + 1) {
+      const curHeight = (await src.client.latestHeader()).height;
+      if (curHeight < maxPacketHeight + 1) {
+        await src.client.waitOneBlock();
+      }
+      headerHeight = await this.updateClient(source);
+    }
 
     const submit = packets.map(({ packet }) => packet);
     const proofs = await Promise.all(
