@@ -23,6 +23,14 @@ import { parseAcksFromLogs, toIntHeight, toProtoHeight } from './utils';
  */
 export type Side = 'A' | 'B';
 
+export function otherSide(side: Side): Side {
+  if (side === 'A') {
+    return 'B';
+  } else {
+    return 'A';
+  }
+}
+
 // measured in seconds
 // Note: client parameter is checked against the actual keeper - must use real values from genesis.json
 // TODO: make this more adaptable for chains (query from staking?)
@@ -375,6 +383,13 @@ export class Link {
     );
   }
 
+  // Returns the last height that this side knows of the other blockchain
+  public async lastKnownHeader(side: Side): Promise<number> {
+    const { src } = this.getEnds(side);
+    const client = await src.client.query.ibc.client.stateTm(src.clientID);
+    return client.latestHeight?.revisionHeight?.toNumber() ?? 0;
+  }
+
   // this will update the client if needed and relay all provided packets from src -> dest
   // if packets are all older than the last consensusHeight, then we don't update the client.
   //
@@ -390,8 +405,7 @@ export class Link {
       (acc, { height }) => Math.max(acc, height),
       0
     );
-    const client = await dest.client.query.ibc.client.stateTm(dest.clientID);
-    let headerHeight = client.latestHeight?.revisionHeight?.toNumber() ?? 0;
+    let headerHeight = await this.lastKnownHeader(otherSide(source));
 
     if (headerHeight < maxPacketHeight + 1) {
       const curHeight = (await src.client.latestHeader()).height;
@@ -425,12 +439,19 @@ export class Link {
   ): Promise<number> {
     const { src, dest } = this.getEnds(source);
 
-    // TODO: check if we need to update at all
-    await src.client.waitOneBlock();
-    const headerHeight = await dest.client.doUpdateClient(
-      dest.clientID,
-      src.client
+    // check if we need to update client at all
+    const maxPacketHeight = acks.reduce(
+      (acc, { height }) => Math.max(acc, height),
+      0
     );
+    let headerHeight = await this.lastKnownHeader(otherSide(source));
+    if (headerHeight < maxPacketHeight + 1) {
+      const curHeight = (await src.client.latestHeader()).height;
+      if (curHeight < maxPacketHeight + 1) {
+        await src.client.waitOneBlock();
+      }
+      headerHeight = await this.updateClient(source);
+    }
 
     const proofs = await Promise.all(
       acks.map((ack) => src.client.getAckProof(ack, headerHeight))

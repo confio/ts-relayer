@@ -248,9 +248,9 @@ test.serial('submit multiple tx, get unreceived packets', async (t) => {
   const preAcks = await link.getPendingAcks('B');
   t.is(preAcks.length, 0);
 
-  // // let's pre-update to test conditional logic (no need to update below)
-  // await nodeA.waitOneBlock();
-  // await link.updateClient('A');
+  // let's pre-update to test conditional logic (no need to update below)
+  await nodeA.waitOneBlock();
+  await link.updateClient('A');
 
   // submit 2 of them (out of order)
   const submit = [packets[0], packets[2]];
@@ -266,8 +266,7 @@ test.serial('submit multiple tx, get unreceived packets', async (t) => {
   const acks = await link.getPendingAcks('B');
   t.is(acks.length, 2);
 
-  // submit one of the acks
-  // relay them together
+  // submit one of the acks, without waiting (it must update client)
   await link.relayAcks('B', acks.slice(0, 1));
 
   // ensure only one ack is still pending
