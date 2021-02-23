@@ -5,7 +5,14 @@ import { MsgTransfer } from '../codec/ibc/applications/transfer/v1/tx';
 
 import { buildCreateClientArgs, prepareConnectionHandshake } from './ibcclient';
 import { Link } from './link';
-import { ics20, randomAddress, setup, simapp, wasmd } from './testutils.spec';
+import {
+  ics20,
+  randomAddress,
+  setup,
+  simapp,
+  TestLogger,
+  wasmd,
+} from './testutils.spec';
 import {
   buildClientState,
   buildConsensusState,
@@ -15,12 +22,15 @@ import {
 } from './utils';
 
 test.serial('create simapp client on wasmd', async (t) => {
-  const [src, dest] = await setup();
+  const logger = new TestLogger();
+  const [src, dest] = await setup(logger);
 
   const preClients = await dest.query.ibc.client.allStates();
   const preLen = preClients.clientStates.length;
 
   const header = await src.latestHeader();
+  t.assert(logger.info.calledOnce, logger.info.callCount.toString());
+
   const conState = buildConsensusState(header);
   const cliState = buildClientState(
     await src.getChainId(),
@@ -155,9 +165,10 @@ test.serial('perform connection handshake', async (t) => {
 });
 
 test.serial('transfer message and send packets', async (t) => {
+  const logger = new TestLogger();
   // set up ics20 channel
   const [nodeA, nodeB] = await setup();
-  const link = await Link.createWithNewConnections(nodeA, nodeB);
+  const link = await Link.createWithNewConnections(nodeA, nodeB, logger);
   const channels = await link.createChannel(
     'A',
     ics20.srcPortId,
@@ -220,9 +231,10 @@ test.serial('transfer message and send packets', async (t) => {
 });
 
 test.serial('tests parsing with multi-message', async (t) => {
+  const logger = new TestLogger();
   // set up ics20 channel
   const [nodeA, nodeB] = await setup();
-  const link = await Link.createWithNewConnections(nodeA, nodeB);
+  const link = await Link.createWithNewConnections(nodeA, nodeB, logger);
   const channels = await link.createChannel(
     'A',
     ics20.srcPortId,

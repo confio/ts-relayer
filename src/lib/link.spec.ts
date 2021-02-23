@@ -4,12 +4,20 @@ import test from 'ava';
 import { State } from '../codec/ibc/core/channel/v1/channel';
 
 import { Link } from './link';
-import { ics20, randomAddress, setup, simapp, wasmd } from './testutils.spec';
+import {
+  ics20,
+  randomAddress,
+  setup,
+  simapp,
+  TestLogger,
+  wasmd,
+} from './testutils.spec';
 
 test.serial('establish new client-connection', async (t) => {
+  const logger = new TestLogger();
   const [src, dest] = await setup();
 
-  const link = await Link.createWithNewConnections(src, dest);
+  const link = await Link.createWithNewConnections(src, dest, logger);
   // ensure the data makes sense (TODO: more?)
   t.assert(link.endA.clientID.startsWith('07-tendermint-'), link.endA.clientID);
   t.assert(link.endB.clientID.startsWith('07-tendermint-'), link.endB.clientID);
@@ -19,6 +27,8 @@ test.serial('establish new client-connection', async (t) => {
   // TODO: ensure it is updated
   await link.updateClient('B');
   // TODO: ensure it is updated
+
+  t.assert(logger.info.calledTwice, logger.info.callCount.toString());
 });
 
 test.serial('initialized connection and start channel handshake', async (t) => {

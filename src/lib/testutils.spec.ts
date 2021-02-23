@@ -5,7 +5,7 @@ import { Decimal } from '@cosmjs/math';
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 import { StargateClient } from '@cosmjs/stargate';
 import test from 'ava';
-import sinon from 'sinon';
+import sinon, { SinonSpy } from 'sinon';
 
 import { Order } from '../codec/ibc/core/channel/v1/channel';
 
@@ -14,11 +14,16 @@ import { Logger } from './utils';
 
 export class TestLogger implements Logger {
   /* eslint-disable @typescript-eslint/no-explicit-any */
-  public readonly error: (message: string, ...meta: any[]) => Logger;
-  public readonly warn: (message: string, ...meta: any[]) => Logger;
-  public readonly info: (message: string, ...meta: any[]) => Logger;
-  public readonly verbose: (message: string, ...meta: any[]) => Logger;
-  public readonly debug: (message: string, ...meta: any[]) => Logger;
+  public readonly error: SinonSpy &
+    ((message: string, ...meta: any[]) => Logger);
+  public readonly warn: SinonSpy &
+    ((message: string, ...meta: any[]) => Logger);
+  public readonly info: SinonSpy &
+    ((message: string, ...meta: any[]) => Logger);
+  public readonly verbose: SinonSpy &
+    ((message: string, ...meta: any[]) => Logger);
+  public readonly debug: SinonSpy &
+    ((message: string, ...meta: any[]) => Logger);
   /* eslint-enable @typescript-eslint/no-explicit-any */
 
   constructor() {
@@ -123,7 +128,8 @@ export async function queryClient(opts: QueryOpts): Promise<StargateClient> {
 
 export async function signingClient(
   opts: SigningOpts,
-  mnemonic: string
+  mnemonic: string,
+  logger?: Logger
 ): Promise<IbcClient> {
   const signer = await DirectSecp256k1HdWallet.fromMnemonic(
     mnemonic,
@@ -137,6 +143,7 @@ export async function signingClient(
       amount: Decimal.fromAtomics('5', 2), // 0.05
       denom: opts.denomFee,
     },
+    logger,
   };
   const client = await IbcClient.connectWithSigner(
     opts.tendermintUrlHttp,
@@ -147,11 +154,11 @@ export async function signingClient(
   return client;
 }
 
-export async function setup(): Promise<IbcClient[]> {
+export async function setup(logger?: Logger): Promise<IbcClient[]> {
   // create apps and fund an account
   const mnemonic = generateMnemonic();
-  const src = await signingClient(simapp, mnemonic);
-  const dest = await signingClient(wasmd, mnemonic);
+  const src = await signingClient(simapp, mnemonic, logger);
+  const dest = await signingClient(wasmd, mnemonic, logger);
   await fundAccount(wasmd, dest.senderAddress, '200000');
   await fundAccount(simapp, src.senderAddress, '200000');
   return [src, dest];
