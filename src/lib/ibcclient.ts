@@ -67,13 +67,13 @@ import {
 } from '../codec/tendermint/types/types';
 import { ValidatorSet } from '../codec/tendermint/types/validator';
 
+import { Logger, NoopLogger } from './logger';
 import { IbcExtension, setupIbcExtension } from './queries/ibc';
 import {
   Ack,
   buildClientState,
   buildConsensusState,
   createBroadcastTxErrorMessage,
-  Logger,
   mapRpcPubKeyToProto,
   multiplyFees,
   timestampFromDateNanos,
@@ -212,7 +212,7 @@ export class IbcClient {
     IbcExtension;
   public readonly tm: TendermintClient;
   public readonly senderAddress: string;
-  public readonly logger?: Logger;
+  public readonly logger: Logger;
 
   public static async connectWithSigner(
     endpoint: string,
@@ -255,7 +255,7 @@ export class IbcClient {
       defaultGasLimits,
       gasLimits
     );
-    this.logger = logger;
+    this.logger = logger ?? new NoopLogger();
   }
 
   public getChainId(): Promise<string> {
@@ -263,7 +263,7 @@ export class IbcClient {
   }
 
   public async latestHeader(): Promise<RpcHeader> {
-    this.logger?.info('Getting latest header');
+    this.logger.info('Getting latest header');
     // TODO: expose header method on tmClient and use that
     const block = await this.tm.block();
     return block.block.header;

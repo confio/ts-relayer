@@ -15,7 +15,8 @@ import {
   prepareChannelHandshake,
   prepareConnectionHandshake,
 } from './ibcclient';
-import { Logger, parseAcksFromLogs, toIntHeight, toProtoHeight } from './utils';
+import { Logger, NoopLogger } from './logger';
+import { parseAcksFromLogs, toIntHeight, toProtoHeight } from './utils';
 
 /**
  * Many actions on link focus on a src and a dest. Rather than add two functions,
@@ -46,7 +47,7 @@ const genesisUnbondingTime = 1814400;
 export class Link {
   public readonly endA: Endpoint;
   public readonly endB: Endpoint;
-  public readonly logger?: Logger;
+  public readonly logger: Logger;
 
   /**
    * findConnection attempts to reuse an existing Client/Connection.
@@ -235,7 +236,7 @@ export class Link {
   public constructor(endA: Endpoint, endB: Endpoint, logger?: Logger) {
     this.endA = endA;
     this.endB = endB;
-    this.logger = logger;
+    this.logger = logger ?? new NoopLogger();
   }
 
   /**
@@ -250,7 +251,7 @@ export class Link {
   public async updateClient(sender: Side): Promise<number> {
     const { src, dest } = this.getEnds(sender);
     const height = await dest.client.doUpdateClient(dest.clientID, src.client);
-    this.logger?.info(`Updated client for side ${sender} to height ${height}.`);
+    this.logger.info(`Updated client for side ${sender} to height ${height}.`);
     return height;
   }
 

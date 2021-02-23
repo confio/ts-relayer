@@ -18,17 +18,6 @@ import {
 } from '../codec/ibc/lightclients/tendermint/v1/tendermint';
 import { PublicKey as ProtoPubKey } from '../codec/tendermint/crypto/keys';
 
-// Subset of methods from winston.js
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export interface Logger {
-  error: (message: string, ...meta: any[]) => Logger;
-  warn: (message: string, ...meta: any[]) => Logger;
-  info: (message: string, ...meta: any[]) => Logger;
-  verbose: (message: string, ...meta: any[]) => Logger;
-  debug: (message: string, ...meta: any[]) => Logger;
-}
-/* eslint-enable @typescript-eslint/no-explicit-any */
-
 export interface Ack {
   readonly acknowledgement: Uint8Array;
   readonly originalPacket: Packet;

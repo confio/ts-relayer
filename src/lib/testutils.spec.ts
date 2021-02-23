@@ -10,7 +10,7 @@ import sinon, { SinonSpy } from 'sinon';
 import { Order } from '../codec/ibc/core/channel/v1/channel';
 
 import { IbcClient, IbcClientOptions } from './ibcclient';
-import { Logger } from './utils';
+import { Logger } from './logger';
 
 export class TestLogger implements Logger {
   /* eslint-disable @typescript-eslint/no-explicit-any */
