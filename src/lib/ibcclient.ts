@@ -977,8 +977,6 @@ export class IbcClient {
     proofCommitments: Uint8Array[],
     proofHeight?: Height
   ): Promise<MsgResult> {
-    console.log(`proofHeight: ${proofHeight}`);
-    console.log(`isZero: ${proofHeight?.revisionNumber?.isZero()}`);
     if (packets.length !== proofCommitments.length) {
       throw new Error(
         `Have ${packets.length} packets, but ${proofCommitments.length} proofs`
@@ -1000,8 +998,6 @@ export class IbcClient {
           signer: senderAddress,
         }),
       };
-      console.log('msg');
-      console.log(msg.value.proofHeight);
       msgs.push(msg);
     }
     const result = await this.sign.signAndBroadcast(

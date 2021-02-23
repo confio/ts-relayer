@@ -174,8 +174,7 @@ export function parsePacket({ type, attributes }: ParsedEvent): Packet {
   if (type !== 'send_packet') {
     throw new Error(`Cannot parse event of type ${type}`);
   }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const attributesObj: any = attributes.reduce(
+  const attributesObj: Record<string, string> = attributes.reduce(
     (acc, { key, value }) => ({
       ...acc,
       [key]: value,
@@ -184,24 +183,26 @@ export function parsePacket({ type, attributes }: ParsedEvent): Packet {
   );
   const [timeoutRevisionNumber, timeoutRevisionHeight] =
     attributesObj.packet_timeout_height?.split('-') ?? [];
-  return {
-    sequence: Long.fromNumber(attributesObj.packet_sequence ?? 0, true),
+  return Packet.fromPartial({
+    sequence: Long.fromString(attributesObj.packet_sequence ?? '0', true),
     /** identifies the port on the sending chain. */
-    sourcePort: attributesObj.packet_src_port ?? '',
+    sourcePort: attributesObj.packet_src_port,
     /** identifies the channel end on the sending chain. */
-    sourceChannel: attributesObj.packet_src_channel ?? '',
+    sourceChannel: attributesObj.packet_src_channel,
     /** identifies the port on the receiving chain. */
-    destinationPort: attributesObj.packet_dst_port ?? '',
+    destinationPort: attributesObj.packet_dst_port,
     /** identifies the channel end on the receiving chain. */
-    destinationChannel: attributesObj.packet_dst_channel ?? '',
+    destinationChannel: attributesObj.packet_dst_channel,
     /** actual opaque bytes transferred directly to the application module */
-    data: toUtf8(attributesObj.packet_data ?? ''),
+    data: attributesObj.packet_data
+      ? toUtf8(attributesObj.packet_data)
+      : undefined,
     /** block height after which the packet times out */
     timeoutHeight:
       timeoutRevisionNumber && timeoutRevisionHeight
         ? Height.fromPartial({
-            revisionNumber: timeoutRevisionNumber,
-            revisionHeight: timeoutRevisionHeight,
+            revisionNumber: Long.fromString(timeoutRevisionNumber),
+            revisionHeight: Long.fromString(timeoutRevisionHeight),
           })
         : undefined,
     /** block timestamp (in nanoseconds) after which the packet times out */
@@ -209,7 +210,7 @@ export function parsePacket({ type, attributes }: ParsedEvent): Packet {
       attributesObj.packet_timeout_timestamp ?? '0',
       true
     ),
-  };
+  });
 }
 
 export function parseAcksFromLogs(logs: readonly logs.Log[]): Ack[] {
@@ -225,8 +226,7 @@ export function parseAck({ type, attributes }: ParsedEvent): Ack {
   if (type !== 'write_acknowledgement') {
     throw new Error(`Cannot parse event of type ${type}`);
   }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const attributesObj: any = attributes.reduce(
+  const attributesObj: Record<string, string | undefined> = attributes.reduce(
     (acc, { key, value }) => ({
       ...acc,
       [key]: value,
@@ -235,24 +235,24 @@ export function parseAck({ type, attributes }: ParsedEvent): Ack {
   );
   const [timeoutRevisionNumber, timeoutRevisionHeight] =
     attributesObj.packet_timeout_height?.split('-') ?? [];
-  const originalPacket = {
-    sequence: Long.fromNumber(attributesObj.packet_sequence ?? 0, true),
+  const originalPacket = Packet.fromPartial({
+    sequence: Long.fromString(attributesObj.packet_sequence ?? '0', true),
     /** identifies the port on the sending chain. */
-    sourcePort: attributesObj.packet_src_port ?? '',
+    sourcePort: attributesObj.packet_src_port,
     /** identifies the channel end on the sending chain. */
-    sourceChannel: attributesObj.packet_src_channel ?? '',
+    sourceChannel: attributesObj.packet_src_channel,
     /** identifies the port on the receiving chain. */
-    destinationPort: attributesObj.packet_dst_port ?? '',
+    destinationPort: attributesObj.packet_dst_port,
     /** identifies the channel end on the receiving chain. */
-    destinationChannel: attributesObj.packet_dst_channel ?? '',
+    destinationChannel: attributesObj.packet_dst_channel,
     /** actual opaque bytes transferred directly to the application module */
     data: toUtf8(attributesObj.packet_data ?? ''),
     /** block height after which the packet times out */
     timeoutHeight:
       timeoutRevisionNumber && timeoutRevisionHeight
         ? Height.fromPartial({
-            revisionNumber: timeoutRevisionNumber,
-            revisionHeight: timeoutRevisionHeight,
+            revisionNumber: Long.fromString(timeoutRevisionNumber),
+            revisionHeight: Long.fromString(timeoutRevisionHeight),
           })
         : undefined,
     /** block timestamp (in nanoseconds) after which the packet times out */
@@ -260,8 +260,8 @@ export function parseAck({ type, attributes }: ParsedEvent): Ack {
       attributesObj.packet_timeout_timestamp ?? '0',
       true
     ),
-  };
-  const acknowledgement = toUtf8(attributesObj.packet_ack);
+  });
+  const acknowledgement = toUtf8(attributesObj.packet_ack ?? '');
   return {
     acknowledgement,
     originalPacket,

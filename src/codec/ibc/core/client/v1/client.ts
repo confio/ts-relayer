@@ -473,8 +473,6 @@ export const Height = {
     message: Height,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    console.log(`encode: ${message}`);
-    console.log(`encode: ${message.revisionNumber} ${typeof message.revisionNumber}`);
     if (!message.revisionNumber.isZero()) {
       writer.uint32(8).uint64(message.revisionNumber);
     }

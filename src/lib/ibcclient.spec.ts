@@ -154,7 +154,7 @@ test.serial('perform connection handshake', async (t) => {
   await dest.connOpenConfirm(proofConfirm);
 });
 
-test.serial.only('transfer message and send packets', async (t) => {
+test.serial('transfer message and send packets', async (t) => {
   // set up ics20 channel
   const [nodeA, nodeB] = await setup();
   const link = await Link.createWithNewConnections(nodeA, nodeB);
@@ -166,8 +166,6 @@ test.serial.only('transfer message and send packets', async (t) => {
     ics20.version
   );
   t.is(channels.src.portId, ics20.srcPortId);
-
-  console.log('start failing test');
 
   // make an account on remote chain, and check it is empty
   const recipient = randomAddress(wasmd.prefix);
@@ -185,8 +183,6 @@ test.serial.only('transfer message and send packets', async (t) => {
     destHeight + 500 // valid for 500 blocks
   );
 
-  console.log('ics20 transfer done');
-
   const packets = parsePacketsFromLogs(transferResult.logs);
   t.is(packets.length, 1);
   const packet = packets[0];
@@ -197,15 +193,11 @@ test.serial.only('transfer message and send packets', async (t) => {
   const headerHeight = await nodeB.doUpdateClient(link.endB.clientID, nodeA);
   const proof = await nodeA.getPacketProof(packet, headerHeight);
 
-  console.log('before receive packet');
-
   const relayResult = await nodeB.receivePacket(
     packet,
     proof,
     toProtoHeight(headerHeight)
   );
-
-  console.log('after receive packet');
 
   // query balance of recipient (should be "12345" or some odd hash...)
   const postBalance = await nodeB.query.bank.unverified.allBalances(recipient);
