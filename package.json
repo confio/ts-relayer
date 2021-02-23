@@ -53,6 +53,7 @@
     "@cosmjs/utils": "0.24.0-alpha.25",
     "@types/node": "^14.14.25",
     "commander": "^7.1.0",
+    "js-yaml": "^4.0.0",
     "protobufjs": "~6.10.2"
   },
   "devDependencies": {
