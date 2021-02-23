@@ -73,6 +73,7 @@ import {
   buildClientState,
   buildConsensusState,
   createBroadcastTxErrorMessage,
+  Logger,
   mapRpcPubKeyToProto,
   multiplyFees,
   timestampFromDateNanos,
@@ -185,6 +186,7 @@ export interface IbcFeeTable extends FeeTable {
 
 export type IbcClientOptions = SigningStargateClientOptions & {
   gasLimits?: Partial<GasLimits<IbcFeeTable>>;
+  logger?: Logger;
 };
 
 const defaultGasPrice = GasPrice.fromString('0.025ucosm');
@@ -210,6 +212,7 @@ export class IbcClient {
     IbcExtension;
   public readonly tm: TendermintClient;
   public readonly senderAddress: string;
+  public readonly logger?: Logger;
 
   public static async connectWithSigner(
     endpoint: string,
@@ -246,12 +249,13 @@ export class IbcClient {
       setupIbcExtension
     );
     this.senderAddress = senderAddress;
-    const { gasPrice = defaultGasPrice, gasLimits = {} } = options;
+    const { gasPrice = defaultGasPrice, gasLimits = {}, logger } = options;
     this.fees = buildFeeTable<IbcFeeTable>(
       gasPrice,
       defaultGasLimits,
       gasLimits
     );
+    this.logger = logger;
   }
 
   public getChainId(): Promise<string> {
@@ -259,6 +263,7 @@ export class IbcClient {
   }
 
   public async latestHeader(): Promise<RpcHeader> {
+    this.logger?.info('Getting latest header');
     // TODO: expose header method on tmClient and use that
     const block = await this.tm.block();
     return block.block.header;
