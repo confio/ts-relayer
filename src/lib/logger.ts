@@ -1,20 +1,37 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-/* Logger interface with a subset of methods from winston.js */
+// From https://github.com/winstonjs/winston/blob/v3.3.3/index.d.ts#L53
+type LogCallback = (
+  error?: any,
+  level?: string,
+  message?: string,
+  meta?: any
+) => void;
+
+// From https://github.com/winstonjs/winston/blob/v3.3.3/index.d.ts#L69-L75
+export interface LeveledLogMethod {
+  (message: string, callback: LogCallback): Logger;
+  (message: string, meta: any, callback: LogCallback): Logger;
+  (message: string, ...meta: any[]): Logger;
+  (message: any): Logger;
+  (infoObject: Record<string, unknown>): Logger;
+}
+
+// Logger interface with a subset of methods from https://github.com/winstonjs/winston/blob/v3.3.3/index.d.ts#L107-L115
 export interface Logger {
-  error: (message: string, ...meta: any[]) => Logger;
-  warn: (message: string, ...meta: any[]) => Logger;
-  info: (message: string, ...meta: any[]) => Logger;
-  verbose: (message: string, ...meta: any[]) => Logger;
-  debug: (message: string, ...meta: any[]) => Logger;
+  error: LeveledLogMethod;
+  warn: LeveledLogMethod;
+  info: LeveledLogMethod;
+  verbose: LeveledLogMethod;
+  debug: LeveledLogMethod;
 }
 
 export class NoopLogger implements Logger {
-  public readonly error: (message: string, ...meta: any[]) => Logger;
-  public readonly warn: (message: string, ...meta: any[]) => Logger;
-  public readonly info: (message: string, ...meta: any[]) => Logger;
-  public readonly verbose: (message: string, ...meta: any[]) => Logger;
-  public readonly debug: (message: string, ...meta: any[]) => Logger;
+  public readonly error: LeveledLogMethod;
+  public readonly warn: LeveledLogMethod;
+  public readonly info: LeveledLogMethod;
+  public readonly verbose: LeveledLogMethod;
+  public readonly debug: LeveledLogMethod;
 
   constructor() {
     this.error = () => this;
