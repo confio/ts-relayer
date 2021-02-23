@@ -5,7 +5,7 @@ import { CommitResponse } from '@cosmjs/tendermint-rpc';
 import { Packet } from '../codec/ibc/core/channel/v1/channel';
 
 import { IbcClient } from './ibcclient';
-import { Ack, parsePacketsFromLogs } from './utils';
+import { Ack, parseAcksFromLogs, parsePacketsFromLogs } from './utils';
 
 export interface PacketWithMetadata {
   packet: Packet;
@@ -14,6 +14,11 @@ export interface PacketWithMetadata {
   // who send the packet (first signer of the tx this was in)
   sender: string;
 }
+
+export type AckWithMetadata = Ack & {
+  // block the ack was in, must query proofs >= height
+  height: number;
+};
 
 export interface QueryOpts {
   minHeight?: number;
@@ -76,9 +81,30 @@ export class Endpoint {
     return ([] as PacketWithMetadata[]).concat(...resultsNested);
   }
 
-  /* eslint @typescript-eslint/no-unused-vars: "off" */
-  public async getPendingAcks(_minHeight?: number): Promise<Ack[]> {
-    throw new Error('unimplemented!');
+  // TODO: return info for pagination, accept arg
+  public async queryWrittenAcks({
+    minHeight,
+    maxHeight,
+  }: QueryOpts = {}): Promise<AckWithMetadata[]> {
+    let query = `write_acknowledgement.packet_connection='${this.connectionID}'`;
+    if (minHeight) {
+      query = `${query} AND tx.height>=${minHeight}`;
+    }
+    if (maxHeight) {
+      query = `${query} AND tx.height<=${maxHeight}`;
+    }
+
+    // TODO: txSearchAll or do we paginate?
+    const search = await this.client.tm.txSearch({ query });
+    const resultsNested = search.txs.map(({ height, result }) => {
+      const parsedLogs = parseRawLog(result.log);
+      // const sender = logs.findAttribute(parsedLogs, 'message', 'sender').value;
+      return parseAcksFromLogs(parsedLogs).map((ack) => ({
+        height,
+        ...ack,
+      }));
+    });
+    return ([] as AckWithMetadata[]).concat(...resultsNested);
   }
 
   // TODO: subscription based packets/acks?
@@ -86,18 +112,14 @@ export class Endpoint {
 }
 
 /**
- * Requires a match of srcPortId and destPortId (if set)
- * if the channel ids are set, matches all of the channels in the set
+ * Requires a match of any set field
  *
  * This is designed to easily produce search/subscription query strings,
  * not principally for in-memory filtering.
- *
- * TODO: how to filter on ConnectionID???
- * https://github.com/cosmos/cosmos-sdk/issues/8445
  */
 export interface Filter {
   readonly srcPortId?: string;
-  readonly srcChannelId?: string[];
+  readonly srcChannelId?: string;
   readonly destPortId?: string;
-  readonly destChannelId?: string[];
+  readonly destChannelId?: string;
 }

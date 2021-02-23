@@ -245,6 +245,10 @@ test.serial('submit multiple tx, get unreceived packets', async (t) => {
     t.is(packet.sender, nodeA.senderAddress);
   }
 
+  // ensure no acks yet
+  const preAcks = await link.getPendingAcks('B');
+  t.is(preAcks.length, 0);
+
   // submit 2 of them (out of order)
   const submit = [packets[0].packet, packets[2].packet];
   await nodeA.waitOneBlock();
@@ -257,11 +261,33 @@ test.serial('submit multiple tx, get unreceived packets', async (t) => {
     proofs,
     toProtoHeight(headerHeight)
   );
-  const acks = parseAcksFromLogs(relayLog);
-  t.is(acks.length, 2);
+  const txAcks = parseAcksFromLogs(relayLog);
+  t.is(txAcks.length, 2);
 
   // ensure only one marked pending (for tx1)
   const postPackets = await link.getPendingPackets('A');
   t.is(postPackets.length, 1);
   t.is(postPackets[0].height, txHeights[1]);
+
+  // ensure acks can be queried
+  const acks = await link.getPendingAcks('B');
+  t.is(acks.length, 2);
+
+  // submit one of the acks
+  // relay them together
+  await nodeB.waitOneBlock();
+  const ackHeaderHeight = await nodeA.doUpdateClient(link.endA.clientID, nodeB);
+  const ack = acks[0];
+  const ackProof = await nodeB.getAckProof(ack, ackHeaderHeight);
+  await nodeA.acknowledgePackets(
+    [ack],
+    [ackProof],
+    toProtoHeight(ackHeaderHeight)
+  );
+
+  // ensure only one ack is still pending
+  const postAcks = await link.getPendingAcks('B');
+  t.is(postAcks.length, 1);
+  // and it matches the one we did not send
+  t.deepEqual(postAcks[0], acks[1]);
 });

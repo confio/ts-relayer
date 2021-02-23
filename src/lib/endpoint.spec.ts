@@ -2,6 +2,7 @@ import test from 'ava';
 
 import { Link } from './link';
 import { ics20, randomAddress, setup, simapp, wasmd } from './testutils.spec';
+import { parseAcksFromLogs, toProtoHeight } from './utils';
 
 test.serial('submit multiple tx, query all packets', async (t) => {
   // setup a channel
@@ -73,4 +74,31 @@ test.serial('submit multiple tx, query all packets', async (t) => {
     maxHeight: txHeights[1],
   });
   t.is(packets6.length, 1);
+
+  // ensure no acks on either chain
+  const acksA1 = await link.endA.queryWrittenAcks();
+  t.is(acksA1.length, 0);
+  const acksB1 = await link.endB.queryWrittenAcks();
+  t.is(acksB1.length, 0);
+
+  // relay 2 packets to the other side
+  await nodeA.waitOneBlock();
+  const headerHeight = await nodeB.doUpdateClient(link.endB.clientID, nodeA);
+  const sendPackets = packets3.map(({ packet }) => packet);
+  const proofs = await Promise.all(
+    sendPackets.map((packet) => nodeA.getPacketProof(packet, headerHeight))
+  );
+  const { logs: relayLog } = await nodeB.receivePackets(
+    sendPackets,
+    proofs,
+    toProtoHeight(headerHeight)
+  );
+  const txAcks = parseAcksFromLogs(relayLog);
+  t.is(txAcks.length, 2);
+
+  // check that acks can be queried on B (and not A)
+  const acksA2 = await link.endA.queryWrittenAcks();
+  t.is(acksA2.length, 0);
+  const acksB2 = await link.endB.queryWrittenAcks();
+  t.is(acksB2.length, 2);
 });
