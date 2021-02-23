@@ -180,7 +180,6 @@ export class Link {
    * @param nodeA
    * @param nodeB
    */
-  /* eslint @typescript-eslint/no-unused-vars: "off" */
   public static async createWithNewConnections(
     nodeA: IbcClient,
     nodeB: IbcClient
@@ -250,7 +249,29 @@ export class Link {
     return height;
   }
 
-  /* eslint @typescript-eslint/no-unused-vars: "off" */
+  // Ensures the dest has a proof of at least minHeight from source.
+  // Will not execute any tx if not needed.
+  // Will wait a block if needed until the header is available.
+  //
+  // Returns the latest header now available on dest
+  public async updateClientToHeight(
+    source: Side,
+    minHeight: number
+  ): Promise<number> {
+    const { src, dest } = this.getEnds(source);
+    const client = await dest.client.query.ibc.client.stateTm(dest.clientID);
+    let knownHeight = client.latestHeight?.revisionHeight?.toNumber() ?? 0;
+
+    if (knownHeight < minHeight) {
+      const curHeight = (await src.client.latestHeader()).height;
+      if (curHeight < minHeight) {
+        await src.client.waitOneBlock();
+      }
+      knownHeight = await this.updateClient(source);
+    }
+    return knownHeight;
+  }
+
   public async createChannel(
     sender: Side,
     srcPort: string,
@@ -401,16 +422,8 @@ export class Link {
     const { src, dest } = this.getEnds(source);
 
     // check if we need to update client at all
-    const maxPacketHeight = Math.max(...packets.map((x) => x.height));
-    let headerHeight = await this.lastKnownHeader(otherSide(source));
-
-    if (headerHeight < maxPacketHeight + 1) {
-      const curHeight = (await src.client.latestHeader()).height;
-      if (curHeight < maxPacketHeight + 1) {
-        await src.client.waitOneBlock();
-      }
-      headerHeight = await this.updateClient(source);
-    }
+    const neededHeight = Math.max(...packets.map((x) => x.height)) + 1;
+    const headerHeight = await this.updateClientToHeight(source, neededHeight);
 
     const submit = packets.map(({ packet }) => packet);
     const proofs = await Promise.all(
@@ -437,15 +450,8 @@ export class Link {
     const { src, dest } = this.getEnds(source);
 
     // check if we need to update client at all
-    const maxPacketHeight = Math.max(...acks.map((x) => x.height));
-    let headerHeight = await this.lastKnownHeader(otherSide(source));
-    if (headerHeight < maxPacketHeight + 1) {
-      const curHeight = (await src.client.latestHeader()).height;
-      if (curHeight < maxPacketHeight + 1) {
-        await src.client.waitOneBlock();
-      }
-      headerHeight = await this.updateClient(source);
-    }
+    const neededHeight = Math.max(...acks.map((x) => x.height)) + 1;
+    const headerHeight = await this.updateClientToHeight(source, neededHeight);
 
     const proofs = await Promise.all(
       acks.map((ack) => src.client.getAckProof(ack, headerHeight))
