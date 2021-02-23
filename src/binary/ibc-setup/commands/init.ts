@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 import { Command } from 'commander';
+import yaml from 'js-yaml';
 
 import { GlobalOptions } from '../types';
 
@@ -54,5 +55,12 @@ function run(options: Options) {
     throw new Error(`${REGISTRY_FILE_PATH} must be a file. It is a directory.`);
   }
 
-  // TODO: Read registry.yaml
+  try {
+    const registry = yaml.load(fs.readFileSync(REGISTRY_FILE_PATH, 'utf-8'));
+
+    // TODO: registry validation?
+    console.log(registry);
+  } catch (error) {
+    throw new Error(error);
+  }
 }
