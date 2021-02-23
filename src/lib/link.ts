@@ -401,10 +401,7 @@ export class Link {
     const { src, dest } = this.getEnds(source);
 
     // check if we need to update client at all
-    const maxPacketHeight = packets.reduce(
-      (acc, { height }) => Math.max(acc, height),
-      0
-    );
+    const maxPacketHeight = Math.max(...packets.map((x) => x.height));
     let headerHeight = await this.lastKnownHeader(otherSide(source));
 
     if (headerHeight < maxPacketHeight + 1) {
@@ -440,10 +437,7 @@ export class Link {
     const { src, dest } = this.getEnds(source);
 
     // check if we need to update client at all
-    const maxPacketHeight = acks.reduce(
-      (acc, { height }) => Math.max(acc, height),
-      0
-    );
+    const maxPacketHeight = Math.max(...acks.map((x) => x.height));
     let headerHeight = await this.lastKnownHeader(otherSide(source));
     if (headerHeight < maxPacketHeight + 1) {
       const curHeight = (await src.client.latestHeader()).height;
