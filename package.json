@@ -57,6 +57,7 @@
   "devDependencies": {
     "@ava/typescript": "^1.1.1",
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
+    "@types/sinon": "^9.0.10",
     "@typescript-eslint/eslint-plugin": "^4.0.1",
     "@typescript-eslint/parser": "^4.0.1",
     "ava": "^3.12.1",
@@ -73,6 +74,7 @@
     "nyc": "^15.1.0",
     "open-cli": "^6.0.1",
     "prettier": "^2.1.1",
+    "sinon": "^9.2.4",
     "standard-version": "^9.0.0",
     "ts-node": "^9.0.0",
     "ts-proto": "^1.67.0",
