@@ -1,10 +1,10 @@
+import { sleep } from '@cosmjs/utils';
 import test from 'ava';
 
 import { State } from '../codec/ibc/core/channel/v1/channel';
 
 import { Link } from './link';
 import { ics20, randomAddress, setup, simapp, wasmd } from './testutils.spec';
-import { parseAcksFromLogs, toProtoHeight } from './utils';
 
 test.serial('establish new client-connection', async (t) => {
   const [src, dest] = await setup();
@@ -224,14 +224,13 @@ test.serial('submit multiple tx, get unreceived packets', async (t) => {
       recipient,
       destHeight
     );
-    // console.log(JSON.stringify(logs[0].events, undefined, 2));
     txHeights.push(height);
   }
   // ensure these are different
   t.assert(txHeights[1] > txHeights[0], txHeights.toString());
   t.assert(txHeights[2] > txHeights[1], txHeights.toString());
-  // wait for this to get indexed
-  await nodeA.waitOneBlock();
+  // need to wait briefly for it to be indexed
+  await sleep(100);
 
   // now query for all packets
   const packets = await link.getPendingPackets('A');
@@ -249,19 +248,13 @@ test.serial('submit multiple tx, get unreceived packets', async (t) => {
   const preAcks = await link.getPendingAcks('B');
   t.is(preAcks.length, 0);
 
-  // submit 2 of them (out of order)
-  const submit = [packets[0].packet, packets[2].packet];
+  // let's pre-update to test conditional logic (no need to update below)
   await nodeA.waitOneBlock();
-  const headerHeight = await link.updateClient('A');
-  const proofs = await Promise.all(
-    submit.map((packet) => nodeA.getPacketProof(packet, headerHeight))
-  );
-  const { logs: relayLog } = await nodeB.receivePackets(
-    submit,
-    proofs,
-    toProtoHeight(headerHeight)
-  );
-  const txAcks = parseAcksFromLogs(relayLog);
+  await link.updateClient('A');
+
+  // submit 2 of them (out of order)
+  const submit = [packets[0], packets[2]];
+  const txAcks = await link.relayPackets('A', submit);
   t.is(txAcks.length, 2);
 
   // ensure only one marked pending (for tx1)
@@ -273,17 +266,8 @@ test.serial('submit multiple tx, get unreceived packets', async (t) => {
   const acks = await link.getPendingAcks('B');
   t.is(acks.length, 2);
 
-  // submit one of the acks
-  // relay them together
-  await nodeB.waitOneBlock();
-  const ackHeaderHeight = await nodeA.doUpdateClient(link.endA.clientID, nodeB);
-  const ack = acks[0];
-  const ackProof = await nodeB.getAckProof(ack, ackHeaderHeight);
-  await nodeA.acknowledgePackets(
-    [ack],
-    [ackProof],
-    toProtoHeight(ackHeaderHeight)
-  );
+  // submit one of the acks, without waiting (it must update client)
+  await link.relayAcks('B', acks.slice(0, 1));
 
   // ensure only one ack is still pending
   const postAcks = await link.getPendingAcks('B');

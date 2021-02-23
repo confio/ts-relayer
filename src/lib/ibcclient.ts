@@ -973,8 +973,8 @@ export class IbcClient {
   }
 
   public async receivePackets(
-    packets: Packet[],
-    proofCommitments: Uint8Array[],
+    packets: readonly Packet[],
+    proofCommitments: readonly Uint8Array[],
     proofHeight?: Height
   ): Promise<MsgResult> {
     if (packets.length !== proofCommitments.length) {
@@ -1025,8 +1025,8 @@ export class IbcClient {
   }
 
   public async acknowledgePackets(
-    acks: Ack[],
-    proofAckeds: Uint8Array[],
+    acks: readonly Ack[],
+    proofAckeds: readonly Uint8Array[],
     proofHeight?: Height
   ): Promise<MsgResult> {
     if (acks.length !== proofAckeds.length) {

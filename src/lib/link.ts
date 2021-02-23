@@ -15,13 +15,21 @@ import {
   prepareChannelHandshake,
   prepareConnectionHandshake,
 } from './ibcclient';
-import { toIntHeight } from './utils';
+import { parseAcksFromLogs, toIntHeight, toProtoHeight } from './utils';
 
 /**
  * Many actions on link focus on a src and a dest. Rather than add two functions,
  * we have `Side` to select if we initialize from A or B.
  */
 export type Side = 'A' | 'B';
+
+export function otherSide(side: Side): Side {
+  if (side === 'A') {
+    return 'B';
+  } else {
+    return 'A';
+  }
+}
 
 // measured in seconds
 // Note: client parameter is checked against the actual keeper - must use real values from genesis.json
@@ -172,7 +180,6 @@ export class Link {
    * @param nodeA
    * @param nodeB
    */
-  /* eslint @typescript-eslint/no-unused-vars: "off" */
   public static async createWithNewConnections(
     nodeA: IbcClient,
     nodeB: IbcClient
@@ -242,7 +249,29 @@ export class Link {
     return height;
   }
 
-  /* eslint @typescript-eslint/no-unused-vars: "off" */
+  // Ensures the dest has a proof of at least minHeight from source.
+  // Will not execute any tx if not needed.
+  // Will wait a block if needed until the header is available.
+  //
+  // Returns the latest header now available on dest
+  public async updateClientToHeight(
+    source: Side,
+    minHeight: number
+  ): Promise<number> {
+    const { src, dest } = this.getEnds(source);
+    const client = await dest.client.query.ibc.client.stateTm(dest.clientID);
+    let knownHeight = client.latestHeight?.revisionHeight?.toNumber() ?? 0;
+
+    if (knownHeight < minHeight) {
+      const curHeight = (await src.client.latestHeader()).height;
+      if (curHeight < minHeight) {
+        await src.client.waitOneBlock();
+      }
+      knownHeight = await this.updateClient(source);
+    }
+    return knownHeight;
+  }
+
   public async createChannel(
     sender: Side,
     srcPort: string,
@@ -373,6 +402,66 @@ export class Link {
     return allAcks.filter((ack) =>
       unreceived.has(ack.originalPacket.sequence.toNumber())
     );
+  }
+
+  // Returns the last height that this side knows of the other blockchain
+  public async lastKnownHeader(side: Side): Promise<number> {
+    const { src } = this.getEnds(side);
+    const client = await src.client.query.ibc.client.stateTm(src.clientID);
+    return client.latestHeight?.revisionHeight?.toNumber() ?? 0;
+  }
+
+  // this will update the client if needed and relay all provided packets from src -> dest
+  // if packets are all older than the last consensusHeight, then we don't update the client.
+  //
+  // Returns all the acks that are associated with the just submitted packets
+  public async relayPackets(
+    source: Side,
+    packets: readonly PacketWithMetadata[]
+  ): Promise<AckWithMetadata[]> {
+    const { src, dest } = this.getEnds(source);
+
+    // check if we need to update client at all
+    const neededHeight = Math.max(...packets.map((x) => x.height)) + 1;
+    const headerHeight = await this.updateClientToHeight(source, neededHeight);
+
+    const submit = packets.map(({ packet }) => packet);
+    const proofs = await Promise.all(
+      submit.map((packet) => src.client.getPacketProof(packet, headerHeight))
+    );
+    const { logs, height } = await dest.client.receivePackets(
+      submit,
+      proofs,
+      toProtoHeight(headerHeight)
+    );
+    const acks = parseAcksFromLogs(logs);
+    return acks.map((ack) => ({ height, ...ack }));
+  }
+
+  // this will update the client if needed and relay all provided acks from src -> dest
+  // (yes, dest is where the packet was sent, but the ack was written on src).
+  // if acks are all older than the last consensusHeight, then we don't update the client.
+  //
+  // Returns the block height the acks were included in
+  public async relayAcks(
+    source: Side,
+    acks: readonly AckWithMetadata[]
+  ): Promise<number> {
+    const { src, dest } = this.getEnds(source);
+
+    // check if we need to update client at all
+    const neededHeight = Math.max(...acks.map((x) => x.height)) + 1;
+    const headerHeight = await this.updateClientToHeight(source, neededHeight);
+
+    const proofs = await Promise.all(
+      acks.map((ack) => src.client.getAckProof(ack, headerHeight))
+    );
+    const { height } = await dest.client.acknowledgePackets(
+      acks,
+      proofs,
+      toProtoHeight(headerHeight)
+    );
+    return height;
   }
 
   private getEnds(src: Side): EndpointPair {
