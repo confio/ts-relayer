@@ -51,12 +51,7 @@ export function run(options: Options) {
     throw new Error(`${REGISTRY_FILE_PATH} must be a file. It is a directory.`);
   }
 
-  try {
-    const registry = yaml.load(fs.readFileSync(REGISTRY_FILE_PATH, 'utf-8'));
-
-    // TODO: registry file validation?
-    console.log(registry);
-  } catch (error) {
-    throw new Error(error);
-  }
+  const registry = yaml.load(fs.readFileSync(REGISTRY_FILE_PATH, 'utf-8'));
+  // TODO: registry file validation?
+  console.log(registry);
 }

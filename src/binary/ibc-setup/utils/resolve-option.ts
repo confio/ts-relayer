@@ -10,5 +10,5 @@ export function resolveOption(
     }
   }
 
-  throw new Error(`Couldn't resolve ${identifier} option.`);
+  throw new Error(`Cannot resolve "${identifier}" option.`);
 }
