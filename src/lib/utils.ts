@@ -40,6 +40,14 @@ export function toProtoHeight(height: number): Height {
   });
 }
 
+// may will run the transform if value is defined, otherwise returns undefined
+export function may<T, U>(
+  transform: (val: T) => U,
+  value: T | null | undefined
+): U | undefined {
+  return value === undefined || value === null ? undefined : transform(value);
+}
+
 export function mapRpcPubKeyToProto(
   pubkey?: RpcPubKey
 ): ProtoPubKey | undefined {
@@ -184,7 +192,7 @@ export function parsePacket({ type, attributes }: ParsedEvent): Packet {
   const [timeoutRevisionNumber, timeoutRevisionHeight] =
     attributesObj.packet_timeout_height?.split('-') ?? [];
   return Packet.fromPartial({
-    sequence: Long.fromString(attributesObj.packet_sequence ?? '0', true),
+    sequence: may(Long.fromString, attributesObj.packet_sequence),
     /** identifies the port on the sending chain. */
     sourcePort: attributesObj.packet_src_port,
     /** identifies the channel end on the sending chain. */
@@ -206,9 +214,9 @@ export function parsePacket({ type, attributes }: ParsedEvent): Packet {
           })
         : undefined,
     /** block timestamp (in nanoseconds) after which the packet times out */
-    timeoutTimestamp: Long.fromString(
-      attributesObj.packet_timeout_timestamp ?? '0',
-      true
+    timeoutTimestamp: may(
+      Long.fromString,
+      attributesObj.packet_timeout_timestamp
     ),
   });
 }
@@ -236,7 +244,7 @@ export function parseAck({ type, attributes }: ParsedEvent): Ack {
   const [timeoutRevisionNumber, timeoutRevisionHeight] =
     attributesObj.packet_timeout_height?.split('-') ?? [];
   const originalPacket = Packet.fromPartial({
-    sequence: Long.fromString(attributesObj.packet_sequence ?? '0', true),
+    sequence: may(Long.fromString, attributesObj.packet_sequence),
     /** identifies the port on the sending chain. */
     sourcePort: attributesObj.packet_src_port,
     /** identifies the channel end on the sending chain. */
@@ -256,9 +264,9 @@ export function parseAck({ type, attributes }: ParsedEvent): Ack {
           })
         : undefined,
     /** block timestamp (in nanoseconds) after which the packet times out */
-    timeoutTimestamp: Long.fromString(
-      attributesObj.packet_timeout_timestamp ?? '0',
-      true
+    timeoutTimestamp: may(
+      Long.fromString,
+      attributesObj.packet_timeout_timestamp
     ),
   });
   const acknowledgement = toUtf8(attributesObj.packet_ack ?? '');
