@@ -344,9 +344,9 @@ export class Link {
       destinationChannel,
       toCheck
     );
-    const unreceived = new Map(sequences.map((seq) => [seq.toNumber(), true]));
+    const unreceived = new Set(sequences.map((seq) => seq.toNumber()));
     return allPackets.filter(({ packet }) =>
-      unreceived.get(packet.sequence.toNumber())
+      unreceived.has(packet.sequence.toNumber())
     );
   }
 
@@ -369,9 +369,9 @@ export class Link {
       sourceChannel,
       toCheck
     );
-    const unreceived = new Map(sequences.map((seq) => [seq.toNumber(), true]));
+    const unreceived = new Set(sequences.map((seq) => seq.toNumber()));
     return allAcks.filter((ack) =>
-      unreceived.get(ack.originalPacket.sequence.toNumber())
+      unreceived.has(ack.originalPacket.sequence.toNumber())
     );
   }
 
