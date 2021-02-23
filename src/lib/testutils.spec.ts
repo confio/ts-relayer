@@ -5,10 +5,30 @@ import { Decimal } from '@cosmjs/math';
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 import { StargateClient } from '@cosmjs/stargate';
 import test from 'ava';
+import sinon from 'sinon';
 
 import { Order } from '../codec/ibc/core/channel/v1/channel';
 
 import { IbcClient, IbcClientOptions } from './ibcclient';
+import { Logger } from './utils';
+
+export class TestLogger implements Logger {
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  public readonly error: (message: string, ...meta: any[]) => Logger;
+  public readonly warn: (message: string, ...meta: any[]) => Logger;
+  public readonly info: (message: string, ...meta: any[]) => Logger;
+  public readonly verbose: (message: string, ...meta: any[]) => Logger;
+  public readonly debug: (message: string, ...meta: any[]) => Logger;
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+
+  constructor() {
+    this.error = sinon.fake.returns(this);
+    this.warn = sinon.fake.returns(this);
+    this.info = sinon.fake.returns(this);
+    this.verbose = sinon.fake.returns(this);
+    this.debug = sinon.fake.returns(this);
+  }
+}
 
 export const simapp = {
   tendermintUrlWs: 'ws://localhost:26658',
