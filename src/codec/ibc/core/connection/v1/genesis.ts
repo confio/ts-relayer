@@ -29,7 +29,9 @@ export const GenesisState = {
     for (const v of message.clientConnectionPaths) {
       ConnectionPaths.encode(v!, writer.uint32(18).fork()).ldelim();
     }
-    writer.uint32(24).uint64(message.nextConnectionSequence);
+    if (!message.nextConnectionSequence.isZero()) {
+      writer.uint32(24).uint64(message.nextConnectionSequence);
+    }
     return writer;
   },
 
@@ -93,6 +95,29 @@ export const GenesisState = {
     return message;
   },
 
+  toJSON(message: GenesisState): unknown {
+    const obj: any = {};
+    if (message.connections) {
+      obj.connections = message.connections.map((e) =>
+        e ? IdentifiedConnection.toJSON(e) : undefined
+      );
+    } else {
+      obj.connections = [];
+    }
+    if (message.clientConnectionPaths) {
+      obj.clientConnectionPaths = message.clientConnectionPaths.map((e) =>
+        e ? ConnectionPaths.toJSON(e) : undefined
+      );
+    } else {
+      obj.clientConnectionPaths = [];
+    }
+    message.nextConnectionSequence !== undefined &&
+      (obj.nextConnectionSequence = (
+        message.nextConnectionSequence || Long.UZERO
+      ).toString());
+    return obj;
+  },
+
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = { ...baseGenesisState } as GenesisState;
     message.connections = [];
@@ -119,29 +144,6 @@ export const GenesisState = {
       message.nextConnectionSequence = Long.UZERO;
     }
     return message;
-  },
-
-  toJSON(message: GenesisState): unknown {
-    const obj: any = {};
-    if (message.connections) {
-      obj.connections = message.connections.map((e) =>
-        e ? IdentifiedConnection.toJSON(e) : undefined
-      );
-    } else {
-      obj.connections = [];
-    }
-    if (message.clientConnectionPaths) {
-      obj.clientConnectionPaths = message.clientConnectionPaths.map((e) =>
-        e ? ConnectionPaths.toJSON(e) : undefined
-      );
-    } else {
-      obj.clientConnectionPaths = [];
-    }
-    message.nextConnectionSequence !== undefined &&
-      (obj.nextConnectionSequence = (
-        message.nextConnectionSequence || Long.UZERO
-      ).toString());
-    return obj;
   },
 };
 

@@ -66,7 +66,9 @@ export const QueryDenomTraceRequest = {
     message: QueryDenomTraceRequest,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    writer.uint32(10).string(message.hash);
+    if (message.hash !== '') {
+      writer.uint32(10).string(message.hash);
+    }
     return writer;
   },
 
@@ -101,6 +103,12 @@ export const QueryDenomTraceRequest = {
     return message;
   },
 
+  toJSON(message: QueryDenomTraceRequest): unknown {
+    const obj: any = {};
+    message.hash !== undefined && (obj.hash = message.hash);
+    return obj;
+  },
+
   fromPartial(
     object: DeepPartial<QueryDenomTraceRequest>
   ): QueryDenomTraceRequest {
@@ -112,12 +120,6 @@ export const QueryDenomTraceRequest = {
     }
     return message;
   },
-
-  toJSON(message: QueryDenomTraceRequest): unknown {
-    const obj: any = {};
-    message.hash !== undefined && (obj.hash = message.hash);
-    return obj;
-  },
 };
 
 const baseQueryDenomTraceResponse: object = {};
@@ -127,7 +129,7 @@ export const QueryDenomTraceResponse = {
     message: QueryDenomTraceResponse,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.denomTrace !== undefined && message.denomTrace !== undefined) {
+    if (message.denomTrace !== undefined) {
       DenomTrace.encode(message.denomTrace, writer.uint32(10).fork()).ldelim();
     }
     return writer;
@@ -168,6 +170,15 @@ export const QueryDenomTraceResponse = {
     return message;
   },
 
+  toJSON(message: QueryDenomTraceResponse): unknown {
+    const obj: any = {};
+    message.denomTrace !== undefined &&
+      (obj.denomTrace = message.denomTrace
+        ? DenomTrace.toJSON(message.denomTrace)
+        : undefined);
+    return obj;
+  },
+
   fromPartial(
     object: DeepPartial<QueryDenomTraceResponse>
   ): QueryDenomTraceResponse {
@@ -181,15 +192,6 @@ export const QueryDenomTraceResponse = {
     }
     return message;
   },
-
-  toJSON(message: QueryDenomTraceResponse): unknown {
-    const obj: any = {};
-    message.denomTrace !== undefined &&
-      (obj.denomTrace = message.denomTrace
-        ? DenomTrace.toJSON(message.denomTrace)
-        : undefined);
-    return obj;
-  },
 };
 
 const baseQueryDenomTracesRequest: object = {};
@@ -199,7 +201,7 @@ export const QueryDenomTracesRequest = {
     message: QueryDenomTracesRequest,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.pagination !== undefined && message.pagination !== undefined) {
+    if (message.pagination !== undefined) {
       PageRequest.encode(message.pagination, writer.uint32(10).fork()).ldelim();
     }
     return writer;
@@ -240,6 +242,15 @@ export const QueryDenomTracesRequest = {
     return message;
   },
 
+  toJSON(message: QueryDenomTracesRequest): unknown {
+    const obj: any = {};
+    message.pagination !== undefined &&
+      (obj.pagination = message.pagination
+        ? PageRequest.toJSON(message.pagination)
+        : undefined);
+    return obj;
+  },
+
   fromPartial(
     object: DeepPartial<QueryDenomTracesRequest>
   ): QueryDenomTracesRequest {
@@ -253,15 +264,6 @@ export const QueryDenomTracesRequest = {
     }
     return message;
   },
-
-  toJSON(message: QueryDenomTracesRequest): unknown {
-    const obj: any = {};
-    message.pagination !== undefined &&
-      (obj.pagination = message.pagination
-        ? PageRequest.toJSON(message.pagination)
-        : undefined);
-    return obj;
-  },
 };
 
 const baseQueryDenomTracesResponse: object = {};
@@ -274,7 +276,7 @@ export const QueryDenomTracesResponse = {
     for (const v of message.denomTraces) {
       DenomTrace.encode(v!, writer.uint32(10).fork()).ldelim();
     }
-    if (message.pagination !== undefined && message.pagination !== undefined) {
+    if (message.pagination !== undefined) {
       PageResponse.encode(
         message.pagination,
         writer.uint32(18).fork()
@@ -328,6 +330,22 @@ export const QueryDenomTracesResponse = {
     return message;
   },
 
+  toJSON(message: QueryDenomTracesResponse): unknown {
+    const obj: any = {};
+    if (message.denomTraces) {
+      obj.denomTraces = message.denomTraces.map((e) =>
+        e ? DenomTrace.toJSON(e) : undefined
+      );
+    } else {
+      obj.denomTraces = [];
+    }
+    message.pagination !== undefined &&
+      (obj.pagination = message.pagination
+        ? PageResponse.toJSON(message.pagination)
+        : undefined);
+    return obj;
+  },
+
   fromPartial(
     object: DeepPartial<QueryDenomTracesResponse>
   ): QueryDenomTracesResponse {
@@ -346,22 +364,6 @@ export const QueryDenomTracesResponse = {
       message.pagination = undefined;
     }
     return message;
-  },
-
-  toJSON(message: QueryDenomTracesResponse): unknown {
-    const obj: any = {};
-    if (message.denomTraces) {
-      obj.denomTraces = message.denomTraces.map((e) =>
-        e ? DenomTrace.toJSON(e) : undefined
-      );
-    } else {
-      obj.denomTraces = [];
-    }
-    message.pagination !== undefined &&
-      (obj.pagination = message.pagination
-        ? PageResponse.toJSON(message.pagination)
-        : undefined);
-    return obj;
   },
 };
 
@@ -395,14 +397,14 @@ export const QueryParamsRequest = {
     return message;
   },
 
-  fromPartial(_: DeepPartial<QueryParamsRequest>): QueryParamsRequest {
-    const message = { ...baseQueryParamsRequest } as QueryParamsRequest;
-    return message;
-  },
-
   toJSON(_: QueryParamsRequest): unknown {
     const obj: any = {};
     return obj;
+  },
+
+  fromPartial(_: DeepPartial<QueryParamsRequest>): QueryParamsRequest {
+    const message = { ...baseQueryParamsRequest } as QueryParamsRequest;
+    return message;
   },
 };
 
@@ -413,7 +415,7 @@ export const QueryParamsResponse = {
     message: QueryParamsResponse,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.params !== undefined && message.params !== undefined) {
+    if (message.params !== undefined) {
       Params.encode(message.params, writer.uint32(10).fork()).ldelim();
     }
     return writer;
@@ -447,6 +449,13 @@ export const QueryParamsResponse = {
     return message;
   },
 
+  toJSON(message: QueryParamsResponse): unknown {
+    const obj: any = {};
+    message.params !== undefined &&
+      (obj.params = message.params ? Params.toJSON(message.params) : undefined);
+    return obj;
+  },
+
   fromPartial(object: DeepPartial<QueryParamsResponse>): QueryParamsResponse {
     const message = { ...baseQueryParamsResponse } as QueryParamsResponse;
     if (object.params !== undefined && object.params !== null) {
@@ -455,13 +464,6 @@ export const QueryParamsResponse = {
       message.params = undefined;
     }
     return message;
-  },
-
-  toJSON(message: QueryParamsResponse): unknown {
-    const obj: any = {};
-    message.params !== undefined &&
-      (obj.params = message.params ? Params.toJSON(message.params) : undefined);
-    return obj;
   },
 };
 

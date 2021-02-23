@@ -114,44 +114,31 @@ export const ClientState = {
     message: ClientState,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    writer.uint32(10).string(message.chainId);
-    if (message.trustLevel !== undefined && message.trustLevel !== undefined) {
+    if (message.chainId !== '') {
+      writer.uint32(10).string(message.chainId);
+    }
+    if (message.trustLevel !== undefined) {
       Fraction.encode(message.trustLevel, writer.uint32(18).fork()).ldelim();
     }
-    if (
-      message.trustingPeriod !== undefined &&
-      message.trustingPeriod !== undefined
-    ) {
+    if (message.trustingPeriod !== undefined) {
       Duration.encode(
         message.trustingPeriod,
         writer.uint32(26).fork()
       ).ldelim();
     }
-    if (
-      message.unbondingPeriod !== undefined &&
-      message.unbondingPeriod !== undefined
-    ) {
+    if (message.unbondingPeriod !== undefined) {
       Duration.encode(
         message.unbondingPeriod,
         writer.uint32(34).fork()
       ).ldelim();
     }
-    if (
-      message.maxClockDrift !== undefined &&
-      message.maxClockDrift !== undefined
-    ) {
+    if (message.maxClockDrift !== undefined) {
       Duration.encode(message.maxClockDrift, writer.uint32(42).fork()).ldelim();
     }
-    if (
-      message.frozenHeight !== undefined &&
-      message.frozenHeight !== undefined
-    ) {
+    if (message.frozenHeight !== undefined) {
       Height.encode(message.frozenHeight, writer.uint32(50).fork()).ldelim();
     }
-    if (
-      message.latestHeight !== undefined &&
-      message.latestHeight !== undefined
-    ) {
+    if (message.latestHeight !== undefined) {
       Height.encode(message.latestHeight, writer.uint32(58).fork()).ldelim();
     }
     for (const v of message.proofSpecs) {
@@ -160,8 +147,12 @@ export const ClientState = {
     for (const v of message.upgradePath) {
       writer.uint32(74).string(v!);
     }
-    writer.uint32(80).bool(message.allowUpdateAfterExpiry);
-    writer.uint32(88).bool(message.allowUpdateAfterMisbehaviour);
+    if (message.allowUpdateAfterExpiry === true) {
+      writer.uint32(80).bool(message.allowUpdateAfterExpiry);
+    }
+    if (message.allowUpdateAfterMisbehaviour === true) {
+      writer.uint32(88).bool(message.allowUpdateAfterMisbehaviour);
+    }
     return writer;
   },
 
@@ -288,6 +279,52 @@ export const ClientState = {
     return message;
   },
 
+  toJSON(message: ClientState): unknown {
+    const obj: any = {};
+    message.chainId !== undefined && (obj.chainId = message.chainId);
+    message.trustLevel !== undefined &&
+      (obj.trustLevel = message.trustLevel
+        ? Fraction.toJSON(message.trustLevel)
+        : undefined);
+    message.trustingPeriod !== undefined &&
+      (obj.trustingPeriod = message.trustingPeriod
+        ? Duration.toJSON(message.trustingPeriod)
+        : undefined);
+    message.unbondingPeriod !== undefined &&
+      (obj.unbondingPeriod = message.unbondingPeriod
+        ? Duration.toJSON(message.unbondingPeriod)
+        : undefined);
+    message.maxClockDrift !== undefined &&
+      (obj.maxClockDrift = message.maxClockDrift
+        ? Duration.toJSON(message.maxClockDrift)
+        : undefined);
+    message.frozenHeight !== undefined &&
+      (obj.frozenHeight = message.frozenHeight
+        ? Height.toJSON(message.frozenHeight)
+        : undefined);
+    message.latestHeight !== undefined &&
+      (obj.latestHeight = message.latestHeight
+        ? Height.toJSON(message.latestHeight)
+        : undefined);
+    if (message.proofSpecs) {
+      obj.proofSpecs = message.proofSpecs.map((e) =>
+        e ? ProofSpec.toJSON(e) : undefined
+      );
+    } else {
+      obj.proofSpecs = [];
+    }
+    if (message.upgradePath) {
+      obj.upgradePath = message.upgradePath.map((e) => e);
+    } else {
+      obj.upgradePath = [];
+    }
+    message.allowUpdateAfterExpiry !== undefined &&
+      (obj.allowUpdateAfterExpiry = message.allowUpdateAfterExpiry);
+    message.allowUpdateAfterMisbehaviour !== undefined &&
+      (obj.allowUpdateAfterMisbehaviour = message.allowUpdateAfterMisbehaviour);
+    return obj;
+  },
+
   fromPartial(object: DeepPartial<ClientState>): ClientState {
     const message = { ...baseClientState } as ClientState;
     message.proofSpecs = [];
@@ -359,52 +396,6 @@ export const ClientState = {
     }
     return message;
   },
-
-  toJSON(message: ClientState): unknown {
-    const obj: any = {};
-    message.chainId !== undefined && (obj.chainId = message.chainId);
-    message.trustLevel !== undefined &&
-      (obj.trustLevel = message.trustLevel
-        ? Fraction.toJSON(message.trustLevel)
-        : undefined);
-    message.trustingPeriod !== undefined &&
-      (obj.trustingPeriod = message.trustingPeriod
-        ? Duration.toJSON(message.trustingPeriod)
-        : undefined);
-    message.unbondingPeriod !== undefined &&
-      (obj.unbondingPeriod = message.unbondingPeriod
-        ? Duration.toJSON(message.unbondingPeriod)
-        : undefined);
-    message.maxClockDrift !== undefined &&
-      (obj.maxClockDrift = message.maxClockDrift
-        ? Duration.toJSON(message.maxClockDrift)
-        : undefined);
-    message.frozenHeight !== undefined &&
-      (obj.frozenHeight = message.frozenHeight
-        ? Height.toJSON(message.frozenHeight)
-        : undefined);
-    message.latestHeight !== undefined &&
-      (obj.latestHeight = message.latestHeight
-        ? Height.toJSON(message.latestHeight)
-        : undefined);
-    if (message.proofSpecs) {
-      obj.proofSpecs = message.proofSpecs.map((e) =>
-        e ? ProofSpec.toJSON(e) : undefined
-      );
-    } else {
-      obj.proofSpecs = [];
-    }
-    if (message.upgradePath) {
-      obj.upgradePath = message.upgradePath.map((e) => e);
-    } else {
-      obj.upgradePath = [];
-    }
-    message.allowUpdateAfterExpiry !== undefined &&
-      (obj.allowUpdateAfterExpiry = message.allowUpdateAfterExpiry);
-    message.allowUpdateAfterMisbehaviour !== undefined &&
-      (obj.allowUpdateAfterMisbehaviour = message.allowUpdateAfterMisbehaviour);
-    return obj;
-  },
 };
 
 const baseConsensusState: object = {};
@@ -414,13 +405,15 @@ export const ConsensusState = {
     message: ConsensusState,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.timestamp !== undefined && message.timestamp !== undefined) {
+    if (message.timestamp !== undefined) {
       Timestamp.encode(message.timestamp, writer.uint32(10).fork()).ldelim();
     }
-    if (message.root !== undefined && message.root !== undefined) {
+    if (message.root !== undefined) {
       MerkleRoot.encode(message.root, writer.uint32(18).fork()).ldelim();
     }
-    writer.uint32(26).bytes(message.nextValidatorsHash);
+    if (message.nextValidatorsHash.length !== 0) {
+      writer.uint32(26).bytes(message.nextValidatorsHash);
+    }
     return writer;
   },
 
@@ -469,6 +462,24 @@ export const ConsensusState = {
     return message;
   },
 
+  toJSON(message: ConsensusState): unknown {
+    const obj: any = {};
+    message.timestamp !== undefined &&
+      (obj.timestamp =
+        message.timestamp !== undefined
+          ? fromTimestamp(message.timestamp).toISOString()
+          : null);
+    message.root !== undefined &&
+      (obj.root = message.root ? MerkleRoot.toJSON(message.root) : undefined);
+    message.nextValidatorsHash !== undefined &&
+      (obj.nextValidatorsHash = base64FromBytes(
+        message.nextValidatorsHash !== undefined
+          ? message.nextValidatorsHash
+          : new Uint8Array()
+      ));
+    return obj;
+  },
+
   fromPartial(object: DeepPartial<ConsensusState>): ConsensusState {
     const message = { ...baseConsensusState } as ConsensusState;
     if (object.timestamp !== undefined && object.timestamp !== null) {
@@ -491,24 +502,6 @@ export const ConsensusState = {
     }
     return message;
   },
-
-  toJSON(message: ConsensusState): unknown {
-    const obj: any = {};
-    message.timestamp !== undefined &&
-      (obj.timestamp =
-        message.timestamp !== undefined
-          ? fromTimestamp(message.timestamp).toISOString()
-          : null);
-    message.root !== undefined &&
-      (obj.root = message.root ? MerkleRoot.toJSON(message.root) : undefined);
-    message.nextValidatorsHash !== undefined &&
-      (obj.nextValidatorsHash = base64FromBytes(
-        message.nextValidatorsHash !== undefined
-          ? message.nextValidatorsHash
-          : new Uint8Array()
-      ));
-    return obj;
-  },
 };
 
 const baseMisbehaviour: object = { clientId: '' };
@@ -518,11 +511,13 @@ export const Misbehaviour = {
     message: Misbehaviour,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    writer.uint32(10).string(message.clientId);
-    if (message.header1 !== undefined && message.header1 !== undefined) {
+    if (message.clientId !== '') {
+      writer.uint32(10).string(message.clientId);
+    }
+    if (message.header1 !== undefined) {
       Header.encode(message.header1, writer.uint32(18).fork()).ldelim();
     }
-    if (message.header2 !== undefined && message.header2 !== undefined) {
+    if (message.header2 !== undefined) {
       Header.encode(message.header2, writer.uint32(26).fork()).ldelim();
     }
     return writer;
@@ -572,6 +567,20 @@ export const Misbehaviour = {
     return message;
   },
 
+  toJSON(message: Misbehaviour): unknown {
+    const obj: any = {};
+    message.clientId !== undefined && (obj.clientId = message.clientId);
+    message.header1 !== undefined &&
+      (obj.header1 = message.header1
+        ? Header.toJSON(message.header1)
+        : undefined);
+    message.header2 !== undefined &&
+      (obj.header2 = message.header2
+        ? Header.toJSON(message.header2)
+        : undefined);
+    return obj;
+  },
+
   fromPartial(object: DeepPartial<Misbehaviour>): Misbehaviour {
     const message = { ...baseMisbehaviour } as Misbehaviour;
     if (object.clientId !== undefined && object.clientId !== null) {
@@ -591,20 +600,6 @@ export const Misbehaviour = {
     }
     return message;
   },
-
-  toJSON(message: Misbehaviour): unknown {
-    const obj: any = {};
-    message.clientId !== undefined && (obj.clientId = message.clientId);
-    message.header1 !== undefined &&
-      (obj.header1 = message.header1
-        ? Header.toJSON(message.header1)
-        : undefined);
-    message.header2 !== undefined &&
-      (obj.header2 = message.header2
-        ? Header.toJSON(message.header2)
-        : undefined);
-    return obj;
-  },
 };
 
 const baseHeader: object = {};
@@ -614,34 +609,22 @@ export const Header = {
     message: Header,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (
-      message.signedHeader !== undefined &&
-      message.signedHeader !== undefined
-    ) {
+    if (message.signedHeader !== undefined) {
       SignedHeader.encode(
         message.signedHeader,
         writer.uint32(10).fork()
       ).ldelim();
     }
-    if (
-      message.validatorSet !== undefined &&
-      message.validatorSet !== undefined
-    ) {
+    if (message.validatorSet !== undefined) {
       ValidatorSet.encode(
         message.validatorSet,
         writer.uint32(18).fork()
       ).ldelim();
     }
-    if (
-      message.trustedHeight !== undefined &&
-      message.trustedHeight !== undefined
-    ) {
+    if (message.trustedHeight !== undefined) {
       Height.encode(message.trustedHeight, writer.uint32(26).fork()).ldelim();
     }
-    if (
-      message.trustedValidators !== undefined &&
-      message.trustedValidators !== undefined
-    ) {
+    if (message.trustedValidators !== undefined) {
       ValidatorSet.encode(
         message.trustedValidators,
         writer.uint32(34).fork()
@@ -710,6 +693,27 @@ export const Header = {
     return message;
   },
 
+  toJSON(message: Header): unknown {
+    const obj: any = {};
+    message.signedHeader !== undefined &&
+      (obj.signedHeader = message.signedHeader
+        ? SignedHeader.toJSON(message.signedHeader)
+        : undefined);
+    message.validatorSet !== undefined &&
+      (obj.validatorSet = message.validatorSet
+        ? ValidatorSet.toJSON(message.validatorSet)
+        : undefined);
+    message.trustedHeight !== undefined &&
+      (obj.trustedHeight = message.trustedHeight
+        ? Height.toJSON(message.trustedHeight)
+        : undefined);
+    message.trustedValidators !== undefined &&
+      (obj.trustedValidators = message.trustedValidators
+        ? ValidatorSet.toJSON(message.trustedValidators)
+        : undefined);
+    return obj;
+  },
+
   fromPartial(object: DeepPartial<Header>): Header {
     const message = { ...baseHeader } as Header;
     if (object.signedHeader !== undefined && object.signedHeader !== null) {
@@ -739,27 +743,6 @@ export const Header = {
     }
     return message;
   },
-
-  toJSON(message: Header): unknown {
-    const obj: any = {};
-    message.signedHeader !== undefined &&
-      (obj.signedHeader = message.signedHeader
-        ? SignedHeader.toJSON(message.signedHeader)
-        : undefined);
-    message.validatorSet !== undefined &&
-      (obj.validatorSet = message.validatorSet
-        ? ValidatorSet.toJSON(message.validatorSet)
-        : undefined);
-    message.trustedHeight !== undefined &&
-      (obj.trustedHeight = message.trustedHeight
-        ? Height.toJSON(message.trustedHeight)
-        : undefined);
-    message.trustedValidators !== undefined &&
-      (obj.trustedValidators = message.trustedValidators
-        ? ValidatorSet.toJSON(message.trustedValidators)
-        : undefined);
-    return obj;
-  },
 };
 
 const baseFraction: object = { numerator: Long.UZERO, denominator: Long.UZERO };
@@ -769,8 +752,12 @@ export const Fraction = {
     message: Fraction,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    writer.uint32(8).uint64(message.numerator);
-    writer.uint32(16).uint64(message.denominator);
+    if (!message.numerator.isZero()) {
+      writer.uint32(8).uint64(message.numerator);
+    }
+    if (!message.denominator.isZero()) {
+      writer.uint32(16).uint64(message.denominator);
+    }
     return writer;
   },
 
@@ -810,6 +797,15 @@ export const Fraction = {
     return message;
   },
 
+  toJSON(message: Fraction): unknown {
+    const obj: any = {};
+    message.numerator !== undefined &&
+      (obj.numerator = (message.numerator || Long.UZERO).toString());
+    message.denominator !== undefined &&
+      (obj.denominator = (message.denominator || Long.UZERO).toString());
+    return obj;
+  },
+
   fromPartial(object: DeepPartial<Fraction>): Fraction {
     const message = { ...baseFraction } as Fraction;
     if (object.numerator !== undefined && object.numerator !== null) {
@@ -824,15 +820,6 @@ export const Fraction = {
     }
     return message;
   },
-
-  toJSON(message: Fraction): unknown {
-    const obj: any = {};
-    message.numerator !== undefined &&
-      (obj.numerator = (message.numerator || Long.UZERO).toString());
-    message.denominator !== undefined &&
-      (obj.denominator = (message.denominator || Long.UZERO).toString());
-    return obj;
-  },
 };
 
 declare var self: any | undefined;
@@ -842,7 +829,7 @@ var globalThis: any = (() => {
   if (typeof self !== 'undefined') return self;
   if (typeof window !== 'undefined') return window;
   if (typeof global !== 'undefined') return global;
-  throw new Error('Unable to locate global object');
+  throw 'Unable to locate global object';
 })();
 
 const atob: (b64: string) => string =

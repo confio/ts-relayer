@@ -192,6 +192,7 @@ test.serial('transfer message and send packets', async (t) => {
   await nodeA.waitOneBlock();
   const headerHeight = await nodeB.doUpdateClient(link.endB.clientID, nodeA);
   const proof = await nodeA.getPacketProof(packet, headerHeight);
+
   const relayResult = await nodeB.receivePacket(
     packet,
     proof,

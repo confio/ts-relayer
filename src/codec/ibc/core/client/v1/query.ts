@@ -128,7 +128,9 @@ export const QueryClientStateRequest = {
     message: QueryClientStateRequest,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    writer.uint32(10).string(message.clientId);
+    if (message.clientId !== '') {
+      writer.uint32(10).string(message.clientId);
+    }
     return writer;
   },
 
@@ -167,6 +169,12 @@ export const QueryClientStateRequest = {
     return message;
   },
 
+  toJSON(message: QueryClientStateRequest): unknown {
+    const obj: any = {};
+    message.clientId !== undefined && (obj.clientId = message.clientId);
+    return obj;
+  },
+
   fromPartial(
     object: DeepPartial<QueryClientStateRequest>
   ): QueryClientStateRequest {
@@ -180,12 +188,6 @@ export const QueryClientStateRequest = {
     }
     return message;
   },
-
-  toJSON(message: QueryClientStateRequest): unknown {
-    const obj: any = {};
-    message.clientId !== undefined && (obj.clientId = message.clientId);
-    return obj;
-  },
 };
 
 const baseQueryClientStateResponse: object = {};
@@ -195,17 +197,13 @@ export const QueryClientStateResponse = {
     message: QueryClientStateResponse,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (
-      message.clientState !== undefined &&
-      message.clientState !== undefined
-    ) {
+    if (message.clientState !== undefined) {
       Any.encode(message.clientState, writer.uint32(10).fork()).ldelim();
     }
-    writer.uint32(18).bytes(message.proof);
-    if (
-      message.proofHeight !== undefined &&
-      message.proofHeight !== undefined
-    ) {
+    if (message.proof.length !== 0) {
+      writer.uint32(18).bytes(message.proof);
+    }
+    if (message.proofHeight !== undefined) {
       Height.encode(message.proofHeight, writer.uint32(26).fork()).ldelim();
     }
     return writer;
@@ -260,6 +258,23 @@ export const QueryClientStateResponse = {
     return message;
   },
 
+  toJSON(message: QueryClientStateResponse): unknown {
+    const obj: any = {};
+    message.clientState !== undefined &&
+      (obj.clientState = message.clientState
+        ? Any.toJSON(message.clientState)
+        : undefined);
+    message.proof !== undefined &&
+      (obj.proof = base64FromBytes(
+        message.proof !== undefined ? message.proof : new Uint8Array()
+      ));
+    message.proofHeight !== undefined &&
+      (obj.proofHeight = message.proofHeight
+        ? Height.toJSON(message.proofHeight)
+        : undefined);
+    return obj;
+  },
+
   fromPartial(
     object: DeepPartial<QueryClientStateResponse>
   ): QueryClientStateResponse {
@@ -283,23 +298,6 @@ export const QueryClientStateResponse = {
     }
     return message;
   },
-
-  toJSON(message: QueryClientStateResponse): unknown {
-    const obj: any = {};
-    message.clientState !== undefined &&
-      (obj.clientState = message.clientState
-        ? Any.toJSON(message.clientState)
-        : undefined);
-    message.proof !== undefined &&
-      (obj.proof = base64FromBytes(
-        message.proof !== undefined ? message.proof : new Uint8Array()
-      ));
-    message.proofHeight !== undefined &&
-      (obj.proofHeight = message.proofHeight
-        ? Height.toJSON(message.proofHeight)
-        : undefined);
-    return obj;
-  },
 };
 
 const baseQueryClientStatesRequest: object = {};
@@ -309,7 +307,7 @@ export const QueryClientStatesRequest = {
     message: QueryClientStatesRequest,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.pagination !== undefined && message.pagination !== undefined) {
+    if (message.pagination !== undefined) {
       PageRequest.encode(message.pagination, writer.uint32(10).fork()).ldelim();
     }
     return writer;
@@ -350,6 +348,15 @@ export const QueryClientStatesRequest = {
     return message;
   },
 
+  toJSON(message: QueryClientStatesRequest): unknown {
+    const obj: any = {};
+    message.pagination !== undefined &&
+      (obj.pagination = message.pagination
+        ? PageRequest.toJSON(message.pagination)
+        : undefined);
+    return obj;
+  },
+
   fromPartial(
     object: DeepPartial<QueryClientStatesRequest>
   ): QueryClientStatesRequest {
@@ -363,15 +370,6 @@ export const QueryClientStatesRequest = {
     }
     return message;
   },
-
-  toJSON(message: QueryClientStatesRequest): unknown {
-    const obj: any = {};
-    message.pagination !== undefined &&
-      (obj.pagination = message.pagination
-        ? PageRequest.toJSON(message.pagination)
-        : undefined);
-    return obj;
-  },
 };
 
 const baseQueryClientStatesResponse: object = {};
@@ -384,7 +382,7 @@ export const QueryClientStatesResponse = {
     for (const v of message.clientStates) {
       IdentifiedClientState.encode(v!, writer.uint32(10).fork()).ldelim();
     }
-    if (message.pagination !== undefined && message.pagination !== undefined) {
+    if (message.pagination !== undefined) {
       PageResponse.encode(
         message.pagination,
         writer.uint32(18).fork()
@@ -440,6 +438,22 @@ export const QueryClientStatesResponse = {
     return message;
   },
 
+  toJSON(message: QueryClientStatesResponse): unknown {
+    const obj: any = {};
+    if (message.clientStates) {
+      obj.clientStates = message.clientStates.map((e) =>
+        e ? IdentifiedClientState.toJSON(e) : undefined
+      );
+    } else {
+      obj.clientStates = [];
+    }
+    message.pagination !== undefined &&
+      (obj.pagination = message.pagination
+        ? PageResponse.toJSON(message.pagination)
+        : undefined);
+    return obj;
+  },
+
   fromPartial(
     object: DeepPartial<QueryClientStatesResponse>
   ): QueryClientStatesResponse {
@@ -459,22 +473,6 @@ export const QueryClientStatesResponse = {
     }
     return message;
   },
-
-  toJSON(message: QueryClientStatesResponse): unknown {
-    const obj: any = {};
-    if (message.clientStates) {
-      obj.clientStates = message.clientStates.map((e) =>
-        e ? IdentifiedClientState.toJSON(e) : undefined
-      );
-    } else {
-      obj.clientStates = [];
-    }
-    message.pagination !== undefined &&
-      (obj.pagination = message.pagination
-        ? PageResponse.toJSON(message.pagination)
-        : undefined);
-    return obj;
-  },
 };
 
 const baseQueryConsensusStateRequest: object = {
@@ -489,10 +487,18 @@ export const QueryConsensusStateRequest = {
     message: QueryConsensusStateRequest,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    writer.uint32(10).string(message.clientId);
-    writer.uint32(16).uint64(message.revisionNumber);
-    writer.uint32(24).uint64(message.revisionHeight);
-    writer.uint32(32).bool(message.latestHeight);
+    if (message.clientId !== '') {
+      writer.uint32(10).string(message.clientId);
+    }
+    if (!message.revisionNumber.isZero()) {
+      writer.uint32(16).uint64(message.revisionNumber);
+    }
+    if (!message.revisionHeight.isZero()) {
+      writer.uint32(24).uint64(message.revisionHeight);
+    }
+    if (message.latestHeight === true) {
+      writer.uint32(32).bool(message.latestHeight);
+    }
     return writer;
   },
 
@@ -555,6 +561,18 @@ export const QueryConsensusStateRequest = {
     return message;
   },
 
+  toJSON(message: QueryConsensusStateRequest): unknown {
+    const obj: any = {};
+    message.clientId !== undefined && (obj.clientId = message.clientId);
+    message.revisionNumber !== undefined &&
+      (obj.revisionNumber = (message.revisionNumber || Long.UZERO).toString());
+    message.revisionHeight !== undefined &&
+      (obj.revisionHeight = (message.revisionHeight || Long.UZERO).toString());
+    message.latestHeight !== undefined &&
+      (obj.latestHeight = message.latestHeight);
+    return obj;
+  },
+
   fromPartial(
     object: DeepPartial<QueryConsensusStateRequest>
   ): QueryConsensusStateRequest {
@@ -583,18 +601,6 @@ export const QueryConsensusStateRequest = {
     }
     return message;
   },
-
-  toJSON(message: QueryConsensusStateRequest): unknown {
-    const obj: any = {};
-    message.clientId !== undefined && (obj.clientId = message.clientId);
-    message.revisionNumber !== undefined &&
-      (obj.revisionNumber = (message.revisionNumber || Long.UZERO).toString());
-    message.revisionHeight !== undefined &&
-      (obj.revisionHeight = (message.revisionHeight || Long.UZERO).toString());
-    message.latestHeight !== undefined &&
-      (obj.latestHeight = message.latestHeight);
-    return obj;
-  },
 };
 
 const baseQueryConsensusStateResponse: object = {};
@@ -604,17 +610,13 @@ export const QueryConsensusStateResponse = {
     message: QueryConsensusStateResponse,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (
-      message.consensusState !== undefined &&
-      message.consensusState !== undefined
-    ) {
+    if (message.consensusState !== undefined) {
       Any.encode(message.consensusState, writer.uint32(10).fork()).ldelim();
     }
-    writer.uint32(18).bytes(message.proof);
-    if (
-      message.proofHeight !== undefined &&
-      message.proofHeight !== undefined
-    ) {
+    if (message.proof.length !== 0) {
+      writer.uint32(18).bytes(message.proof);
+    }
+    if (message.proofHeight !== undefined) {
       Height.encode(message.proofHeight, writer.uint32(26).fork()).ldelim();
     }
     return writer;
@@ -669,6 +671,23 @@ export const QueryConsensusStateResponse = {
     return message;
   },
 
+  toJSON(message: QueryConsensusStateResponse): unknown {
+    const obj: any = {};
+    message.consensusState !== undefined &&
+      (obj.consensusState = message.consensusState
+        ? Any.toJSON(message.consensusState)
+        : undefined);
+    message.proof !== undefined &&
+      (obj.proof = base64FromBytes(
+        message.proof !== undefined ? message.proof : new Uint8Array()
+      ));
+    message.proofHeight !== undefined &&
+      (obj.proofHeight = message.proofHeight
+        ? Height.toJSON(message.proofHeight)
+        : undefined);
+    return obj;
+  },
+
   fromPartial(
     object: DeepPartial<QueryConsensusStateResponse>
   ): QueryConsensusStateResponse {
@@ -692,23 +711,6 @@ export const QueryConsensusStateResponse = {
     }
     return message;
   },
-
-  toJSON(message: QueryConsensusStateResponse): unknown {
-    const obj: any = {};
-    message.consensusState !== undefined &&
-      (obj.consensusState = message.consensusState
-        ? Any.toJSON(message.consensusState)
-        : undefined);
-    message.proof !== undefined &&
-      (obj.proof = base64FromBytes(
-        message.proof !== undefined ? message.proof : new Uint8Array()
-      ));
-    message.proofHeight !== undefined &&
-      (obj.proofHeight = message.proofHeight
-        ? Height.toJSON(message.proofHeight)
-        : undefined);
-    return obj;
-  },
 };
 
 const baseQueryConsensusStatesRequest: object = { clientId: '' };
@@ -718,8 +720,10 @@ export const QueryConsensusStatesRequest = {
     message: QueryConsensusStatesRequest,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    writer.uint32(10).string(message.clientId);
-    if (message.pagination !== undefined && message.pagination !== undefined) {
+    if (message.clientId !== '') {
+      writer.uint32(10).string(message.clientId);
+    }
+    if (message.pagination !== undefined) {
       PageRequest.encode(message.pagination, writer.uint32(18).fork()).ldelim();
     }
     return writer;
@@ -768,6 +772,16 @@ export const QueryConsensusStatesRequest = {
     return message;
   },
 
+  toJSON(message: QueryConsensusStatesRequest): unknown {
+    const obj: any = {};
+    message.clientId !== undefined && (obj.clientId = message.clientId);
+    message.pagination !== undefined &&
+      (obj.pagination = message.pagination
+        ? PageRequest.toJSON(message.pagination)
+        : undefined);
+    return obj;
+  },
+
   fromPartial(
     object: DeepPartial<QueryConsensusStatesRequest>
   ): QueryConsensusStatesRequest {
@@ -786,16 +800,6 @@ export const QueryConsensusStatesRequest = {
     }
     return message;
   },
-
-  toJSON(message: QueryConsensusStatesRequest): unknown {
-    const obj: any = {};
-    message.clientId !== undefined && (obj.clientId = message.clientId);
-    message.pagination !== undefined &&
-      (obj.pagination = message.pagination
-        ? PageRequest.toJSON(message.pagination)
-        : undefined);
-    return obj;
-  },
 };
 
 const baseQueryConsensusStatesResponse: object = {};
@@ -808,7 +812,7 @@ export const QueryConsensusStatesResponse = {
     for (const v of message.consensusStates) {
       ConsensusStateWithHeight.encode(v!, writer.uint32(10).fork()).ldelim();
     }
-    if (message.pagination !== undefined && message.pagination !== undefined) {
+    if (message.pagination !== undefined) {
       PageResponse.encode(
         message.pagination,
         writer.uint32(18).fork()
@@ -867,6 +871,22 @@ export const QueryConsensusStatesResponse = {
     return message;
   },
 
+  toJSON(message: QueryConsensusStatesResponse): unknown {
+    const obj: any = {};
+    if (message.consensusStates) {
+      obj.consensusStates = message.consensusStates.map((e) =>
+        e ? ConsensusStateWithHeight.toJSON(e) : undefined
+      );
+    } else {
+      obj.consensusStates = [];
+    }
+    message.pagination !== undefined &&
+      (obj.pagination = message.pagination
+        ? PageResponse.toJSON(message.pagination)
+        : undefined);
+    return obj;
+  },
+
   fromPartial(
     object: DeepPartial<QueryConsensusStatesResponse>
   ): QueryConsensusStatesResponse {
@@ -888,22 +908,6 @@ export const QueryConsensusStatesResponse = {
       message.pagination = undefined;
     }
     return message;
-  },
-
-  toJSON(message: QueryConsensusStatesResponse): unknown {
-    const obj: any = {};
-    if (message.consensusStates) {
-      obj.consensusStates = message.consensusStates.map((e) =>
-        e ? ConsensusStateWithHeight.toJSON(e) : undefined
-      );
-    } else {
-      obj.consensusStates = [];
-    }
-    message.pagination !== undefined &&
-      (obj.pagination = message.pagination
-        ? PageResponse.toJSON(message.pagination)
-        : undefined);
-    return obj;
   },
 };
 
@@ -944,6 +948,11 @@ export const QueryClientParamsRequest = {
     return message;
   },
 
+  toJSON(_: QueryClientParamsRequest): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
   fromPartial(
     _: DeepPartial<QueryClientParamsRequest>
   ): QueryClientParamsRequest {
@@ -951,11 +960,6 @@ export const QueryClientParamsRequest = {
       ...baseQueryClientParamsRequest,
     } as QueryClientParamsRequest;
     return message;
-  },
-
-  toJSON(_: QueryClientParamsRequest): unknown {
-    const obj: any = {};
-    return obj;
   },
 };
 
@@ -966,7 +970,7 @@ export const QueryClientParamsResponse = {
     message: QueryClientParamsResponse,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.params !== undefined && message.params !== undefined) {
+    if (message.params !== undefined) {
       Params.encode(message.params, writer.uint32(10).fork()).ldelim();
     }
     return writer;
@@ -1007,6 +1011,13 @@ export const QueryClientParamsResponse = {
     return message;
   },
 
+  toJSON(message: QueryClientParamsResponse): unknown {
+    const obj: any = {};
+    message.params !== undefined &&
+      (obj.params = message.params ? Params.toJSON(message.params) : undefined);
+    return obj;
+  },
+
   fromPartial(
     object: DeepPartial<QueryClientParamsResponse>
   ): QueryClientParamsResponse {
@@ -1019,13 +1030,6 @@ export const QueryClientParamsResponse = {
       message.params = undefined;
     }
     return message;
-  },
-
-  toJSON(message: QueryClientParamsResponse): unknown {
-    const obj: any = {};
-    message.params !== undefined &&
-      (obj.params = message.params ? Params.toJSON(message.params) : undefined);
-    return obj;
   },
 };
 
@@ -1150,7 +1154,7 @@ var globalThis: any = (() => {
   if (typeof self !== 'undefined') return self;
   if (typeof window !== 'undefined') return window;
   if (typeof global !== 'undefined') return global;
-  throw new Error('Unable to locate global object');
+  throw 'Unable to locate global object';
 })();
 
 const atob: (b64: string) => string =

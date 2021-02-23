@@ -15,20 +15,25 @@ export interface App {
 }
 
 /**
- * Consensus captures the consensus rules for processing a block in the
- * blockchain, including all blockchain data structures and the rules of the
- * application's state transition machine.
+ * Consensus captures the consensus rules for processing a block in the blockchain,
+ * including all blockchain data structures and the rules of the application's
+ * state transition machine.
  */
 export interface Consensus {
   block: Long;
+  app: Long;
 }
 
 const baseApp: object = { protocol: Long.UZERO, software: '' };
 
 export const App = {
   encode(message: App, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    writer.uint32(8).uint64(message.protocol);
-    writer.uint32(18).string(message.software);
+    if (!message.protocol.isZero()) {
+      writer.uint32(8).uint64(message.protocol);
+    }
+    if (message.software !== '') {
+      writer.uint32(18).string(message.software);
+    }
     return writer;
   },
 
@@ -68,6 +73,14 @@ export const App = {
     return message;
   },
 
+  toJSON(message: App): unknown {
+    const obj: any = {};
+    message.protocol !== undefined &&
+      (obj.protocol = (message.protocol || Long.UZERO).toString());
+    message.software !== undefined && (obj.software = message.software);
+    return obj;
+  },
+
   fromPartial(object: DeepPartial<App>): App {
     const message = { ...baseApp } as App;
     if (object.protocol !== undefined && object.protocol !== null) {
@@ -82,24 +95,21 @@ export const App = {
     }
     return message;
   },
-
-  toJSON(message: App): unknown {
-    const obj: any = {};
-    message.protocol !== undefined &&
-      (obj.protocol = (message.protocol || Long.UZERO).toString());
-    message.software !== undefined && (obj.software = message.software);
-    return obj;
-  },
 };
 
-const baseConsensus: object = { block: Long.UZERO };
+const baseConsensus: object = { block: Long.UZERO, app: Long.UZERO };
 
 export const Consensus = {
   encode(
     message: Consensus,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    writer.uint32(8).uint64(message.block);
+    if (!message.block.isZero()) {
+      writer.uint32(8).uint64(message.block);
+    }
+    if (!message.app.isZero()) {
+      writer.uint32(16).uint64(message.app);
+    }
     return writer;
   },
 
@@ -112,6 +122,9 @@ export const Consensus = {
       switch (tag >>> 3) {
         case 1:
           message.block = reader.uint64() as Long;
+          break;
+        case 2:
+          message.app = reader.uint64() as Long;
           break;
         default:
           reader.skipType(tag & 7);
@@ -128,7 +141,21 @@ export const Consensus = {
     } else {
       message.block = Long.UZERO;
     }
+    if (object.app !== undefined && object.app !== null) {
+      message.app = Long.fromString(object.app);
+    } else {
+      message.app = Long.UZERO;
+    }
     return message;
+  },
+
+  toJSON(message: Consensus): unknown {
+    const obj: any = {};
+    message.block !== undefined &&
+      (obj.block = (message.block || Long.UZERO).toString());
+    message.app !== undefined &&
+      (obj.app = (message.app || Long.UZERO).toString());
+    return obj;
   },
 
   fromPartial(object: DeepPartial<Consensus>): Consensus {
@@ -138,14 +165,12 @@ export const Consensus = {
     } else {
       message.block = Long.UZERO;
     }
+    if (object.app !== undefined && object.app !== null) {
+      message.app = object.app as Long;
+    } else {
+      message.app = Long.UZERO;
+    }
     return message;
-  },
-
-  toJSON(message: Consensus): unknown {
-    const obj: any = {};
-    message.block !== undefined &&
-      (obj.block = (message.block || Long.UZERO).toString());
-    return obj;
   },
 };
 

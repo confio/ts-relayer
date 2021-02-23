@@ -16,7 +16,9 @@ export const BitArray = {
     message: BitArray,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    writer.uint32(8).int64(message.bits);
+    if (!message.bits.isZero()) {
+      writer.uint32(8).int64(message.bits);
+    }
     writer.uint32(18).fork();
     for (const v of message.elems) {
       writer.uint64(v);
@@ -70,6 +72,18 @@ export const BitArray = {
     return message;
   },
 
+  toJSON(message: BitArray): unknown {
+    const obj: any = {};
+    message.bits !== undefined &&
+      (obj.bits = (message.bits || Long.ZERO).toString());
+    if (message.elems) {
+      obj.elems = message.elems.map((e) => (e || Long.UZERO).toString());
+    } else {
+      obj.elems = [];
+    }
+    return obj;
+  },
+
   fromPartial(object: DeepPartial<BitArray>): BitArray {
     const message = { ...baseBitArray } as BitArray;
     message.elems = [];
@@ -84,18 +98,6 @@ export const BitArray = {
       }
     }
     return message;
-  },
-
-  toJSON(message: BitArray): unknown {
-    const obj: any = {};
-    message.bits !== undefined &&
-      (obj.bits = (message.bits || Long.ZERO).toString());
-    if (message.elems) {
-      obj.elems = message.elems.map((e) => (e || Long.UZERO).toString());
-    } else {
-      obj.elems = [];
-    }
-    return obj;
   },
 };
 

@@ -59,7 +59,9 @@ export const GenesisState = {
     for (const v of message.ackSequences) {
       PacketSequence.encode(v!, writer.uint32(58).fork()).ldelim();
     }
-    writer.uint32(64).uint64(message.nextChannelSequence);
+    if (!message.nextChannelSequence.isZero()) {
+      writer.uint32(64).uint64(message.nextChannelSequence);
+    }
     return writer;
   },
 
@@ -177,64 +179,6 @@ export const GenesisState = {
     return message;
   },
 
-  fromPartial(object: DeepPartial<GenesisState>): GenesisState {
-    const message = { ...baseGenesisState } as GenesisState;
-    message.channels = [];
-    message.acknowledgements = [];
-    message.commitments = [];
-    message.receipts = [];
-    message.sendSequences = [];
-    message.recvSequences = [];
-    message.ackSequences = [];
-    if (object.channels !== undefined && object.channels !== null) {
-      for (const e of object.channels) {
-        message.channels.push(IdentifiedChannel.fromPartial(e));
-      }
-    }
-    if (
-      object.acknowledgements !== undefined &&
-      object.acknowledgements !== null
-    ) {
-      for (const e of object.acknowledgements) {
-        message.acknowledgements.push(PacketState.fromPartial(e));
-      }
-    }
-    if (object.commitments !== undefined && object.commitments !== null) {
-      for (const e of object.commitments) {
-        message.commitments.push(PacketState.fromPartial(e));
-      }
-    }
-    if (object.receipts !== undefined && object.receipts !== null) {
-      for (const e of object.receipts) {
-        message.receipts.push(PacketState.fromPartial(e));
-      }
-    }
-    if (object.sendSequences !== undefined && object.sendSequences !== null) {
-      for (const e of object.sendSequences) {
-        message.sendSequences.push(PacketSequence.fromPartial(e));
-      }
-    }
-    if (object.recvSequences !== undefined && object.recvSequences !== null) {
-      for (const e of object.recvSequences) {
-        message.recvSequences.push(PacketSequence.fromPartial(e));
-      }
-    }
-    if (object.ackSequences !== undefined && object.ackSequences !== null) {
-      for (const e of object.ackSequences) {
-        message.ackSequences.push(PacketSequence.fromPartial(e));
-      }
-    }
-    if (
-      object.nextChannelSequence !== undefined &&
-      object.nextChannelSequence !== null
-    ) {
-      message.nextChannelSequence = object.nextChannelSequence as Long;
-    } else {
-      message.nextChannelSequence = Long.UZERO;
-    }
-    return message;
-  },
-
   toJSON(message: GenesisState): unknown {
     const obj: any = {};
     if (message.channels) {
@@ -292,6 +236,64 @@ export const GenesisState = {
       ).toString());
     return obj;
   },
+
+  fromPartial(object: DeepPartial<GenesisState>): GenesisState {
+    const message = { ...baseGenesisState } as GenesisState;
+    message.channels = [];
+    message.acknowledgements = [];
+    message.commitments = [];
+    message.receipts = [];
+    message.sendSequences = [];
+    message.recvSequences = [];
+    message.ackSequences = [];
+    if (object.channels !== undefined && object.channels !== null) {
+      for (const e of object.channels) {
+        message.channels.push(IdentifiedChannel.fromPartial(e));
+      }
+    }
+    if (
+      object.acknowledgements !== undefined &&
+      object.acknowledgements !== null
+    ) {
+      for (const e of object.acknowledgements) {
+        message.acknowledgements.push(PacketState.fromPartial(e));
+      }
+    }
+    if (object.commitments !== undefined && object.commitments !== null) {
+      for (const e of object.commitments) {
+        message.commitments.push(PacketState.fromPartial(e));
+      }
+    }
+    if (object.receipts !== undefined && object.receipts !== null) {
+      for (const e of object.receipts) {
+        message.receipts.push(PacketState.fromPartial(e));
+      }
+    }
+    if (object.sendSequences !== undefined && object.sendSequences !== null) {
+      for (const e of object.sendSequences) {
+        message.sendSequences.push(PacketSequence.fromPartial(e));
+      }
+    }
+    if (object.recvSequences !== undefined && object.recvSequences !== null) {
+      for (const e of object.recvSequences) {
+        message.recvSequences.push(PacketSequence.fromPartial(e));
+      }
+    }
+    if (object.ackSequences !== undefined && object.ackSequences !== null) {
+      for (const e of object.ackSequences) {
+        message.ackSequences.push(PacketSequence.fromPartial(e));
+      }
+    }
+    if (
+      object.nextChannelSequence !== undefined &&
+      object.nextChannelSequence !== null
+    ) {
+      message.nextChannelSequence = object.nextChannelSequence as Long;
+    } else {
+      message.nextChannelSequence = Long.UZERO;
+    }
+    return message;
+  },
 };
 
 const basePacketSequence: object = {
@@ -305,9 +307,15 @@ export const PacketSequence = {
     message: PacketSequence,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    writer.uint32(10).string(message.portId);
-    writer.uint32(18).string(message.channelId);
-    writer.uint32(24).uint64(message.sequence);
+    if (message.portId !== '') {
+      writer.uint32(10).string(message.portId);
+    }
+    if (message.channelId !== '') {
+      writer.uint32(18).string(message.channelId);
+    }
+    if (!message.sequence.isZero()) {
+      writer.uint32(24).uint64(message.sequence);
+    }
     return writer;
   },
 
@@ -355,6 +363,15 @@ export const PacketSequence = {
     return message;
   },
 
+  toJSON(message: PacketSequence): unknown {
+    const obj: any = {};
+    message.portId !== undefined && (obj.portId = message.portId);
+    message.channelId !== undefined && (obj.channelId = message.channelId);
+    message.sequence !== undefined &&
+      (obj.sequence = (message.sequence || Long.UZERO).toString());
+    return obj;
+  },
+
   fromPartial(object: DeepPartial<PacketSequence>): PacketSequence {
     const message = { ...basePacketSequence } as PacketSequence;
     if (object.portId !== undefined && object.portId !== null) {
@@ -373,15 +390,6 @@ export const PacketSequence = {
       message.sequence = Long.UZERO;
     }
     return message;
-  },
-
-  toJSON(message: PacketSequence): unknown {
-    const obj: any = {};
-    message.portId !== undefined && (obj.portId = message.portId);
-    message.channelId !== undefined && (obj.channelId = message.channelId);
-    message.sequence !== undefined &&
-      (obj.sequence = (message.sequence || Long.UZERO).toString());
-    return obj;
   },
 };
 

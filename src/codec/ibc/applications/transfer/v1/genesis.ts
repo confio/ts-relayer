@@ -22,11 +22,13 @@ export const GenesisState = {
     message: GenesisState,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    writer.uint32(10).string(message.portId);
+    if (message.portId !== '') {
+      writer.uint32(10).string(message.portId);
+    }
     for (const v of message.denomTraces) {
       DenomTrace.encode(v!, writer.uint32(18).fork()).ldelim();
     }
-    if (message.params !== undefined && message.params !== undefined) {
+    if (message.params !== undefined) {
       Params.encode(message.params, writer.uint32(26).fork()).ldelim();
     }
     return writer;
@@ -78,6 +80,21 @@ export const GenesisState = {
     return message;
   },
 
+  toJSON(message: GenesisState): unknown {
+    const obj: any = {};
+    message.portId !== undefined && (obj.portId = message.portId);
+    if (message.denomTraces) {
+      obj.denomTraces = message.denomTraces.map((e) =>
+        e ? DenomTrace.toJSON(e) : undefined
+      );
+    } else {
+      obj.denomTraces = [];
+    }
+    message.params !== undefined &&
+      (obj.params = message.params ? Params.toJSON(message.params) : undefined);
+    return obj;
+  },
+
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = { ...baseGenesisState } as GenesisState;
     message.denomTraces = [];
@@ -97,21 +114,6 @@ export const GenesisState = {
       message.params = undefined;
     }
     return message;
-  },
-
-  toJSON(message: GenesisState): unknown {
-    const obj: any = {};
-    message.portId !== undefined && (obj.portId = message.portId);
-    if (message.denomTraces) {
-      obj.denomTraces = message.denomTraces.map((e) =>
-        e ? DenomTrace.toJSON(e) : undefined
-      );
-    } else {
-      obj.denomTraces = [];
-    }
-    message.params !== undefined &&
-      (obj.params = message.params ? Params.toJSON(message.params) : undefined);
-    return obj;
   },
 };
 
