@@ -13,18 +13,16 @@ import { IbcClient, IbcClientOptions } from './ibcclient';
 import { Logger } from './logger';
 
 export class TestLogger implements Logger {
-  /* eslint-disable @typescript-eslint/no-explicit-any */
   public readonly error: SinonSpy &
-    ((message: string, ...meta: any[]) => Logger);
+    ((message: string, meta?: Record<string, unknown>) => Logger);
   public readonly warn: SinonSpy &
-    ((message: string, ...meta: any[]) => Logger);
+    ((message: string, meta?: Record<string, unknown>) => Logger);
   public readonly info: SinonSpy &
-    ((message: string, ...meta: any[]) => Logger);
+    ((message: string, meta?: Record<string, unknown>) => Logger);
   public readonly verbose: SinonSpy &
-    ((message: string, ...meta: any[]) => Logger);
+    ((message: string, meta?: Record<string, unknown>) => Logger);
   public readonly debug: SinonSpy &
-    ((message: string, ...meta: any[]) => Logger);
-  /* eslint-enable @typescript-eslint/no-explicit-any */
+    ((message: string, meta?: Record<string, unknown>) => Logger);
 
   constructor() {
     this.error = sinon.fake.returns(this);
