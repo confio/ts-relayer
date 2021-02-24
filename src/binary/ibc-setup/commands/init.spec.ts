@@ -47,8 +47,6 @@ test('read existing registry.yaml', async (t) => {
 
   await run(options);
 
-  t.assert(fsExistSync.calledWithExactly(options.home));
-  t.assert(fsExistSync.calledWithExactly(registryPath));
   t.assert(fsMkdirSync.notCalled);
   t.assert(axiosGet.notCalled);
   t.assert(fsReadFileSync.calledOnceWith(registryPath));
@@ -79,8 +77,6 @@ test('initialize home directory and pull registry.yaml from remote', async (t) =
 
   await run(options);
 
-  t.assert(fsExistSync.calledWithExactly(options.home));
-  t.assert(fsExistSync.calledWithExactly(registryPath));
   t.assert(fsMkdirSync.calledOnceWith(options.home));
   t.assert(axiosGet.calledOnce);
   t.assert(fsReadFileSync.calledOnceWith(registryPath));
