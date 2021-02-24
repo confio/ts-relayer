@@ -7,25 +7,25 @@ import yaml from 'js-yaml';
 import { GlobalOptions } from '../types';
 import { resolveOption } from '../utils/resolve-option';
 
-type Options = GlobalOptions & {
+export type Options = GlobalOptions & {
   src: string;
   dest: string;
 };
 
 type ProgramOptions = Partial<Options>;
 
-function getDefaultHome() {
-  if (!process.env.HOME) {
-    throw new Error('$HOME environment variable is not set.');
-  }
-
-  return `${process.env.HOME}/.ibc-setup`;
-}
-
 const REGISTRY_FILE = 'registry.yaml';
 
 export function init(_: unknown, program: Command) {
   const programOptions: ProgramOptions = program.opts();
+
+  function getDefaultHome() {
+    if (!process.env.HOME) {
+      throw new Error('$HOME environment variable is not set.');
+    }
+
+    return `${process.env.HOME}/.ibc-setup`;
+  }
 
   const options = {
     src: resolveOption('src', programOptions.src, process.env.RELAYER_SRC),
