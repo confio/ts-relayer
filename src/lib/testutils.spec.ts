@@ -10,26 +10,30 @@ import sinon, { SinonSpy } from 'sinon';
 import { Order } from '../codec/ibc/core/channel/v1/channel';
 
 import { IbcClient, IbcClientOptions } from './ibcclient';
-import { Logger } from './logger';
+import { Logger, LogMethod } from './logger';
 
 export class TestLogger implements Logger {
-  public readonly error: SinonSpy &
-    ((message: string, meta?: Record<string, unknown>) => Logger);
-  public readonly warn: SinonSpy &
-    ((message: string, meta?: Record<string, unknown>) => Logger);
-  public readonly info: SinonSpy &
-    ((message: string, meta?: Record<string, unknown>) => Logger);
-  public readonly verbose: SinonSpy &
-    ((message: string, meta?: Record<string, unknown>) => Logger);
-  public readonly debug: SinonSpy &
-    ((message: string, meta?: Record<string, unknown>) => Logger);
+  public readonly error: SinonSpy & LogMethod;
+  public readonly warn: SinonSpy & LogMethod;
+  public readonly info: SinonSpy & LogMethod;
+  public readonly verbose: SinonSpy & LogMethod;
+  public readonly debug: SinonSpy & LogMethod;
 
-  constructor() {
-    this.error = sinon.fake.returns(this);
-    this.warn = sinon.fake.returns(this);
-    this.info = sinon.fake.returns(this);
-    this.verbose = sinon.fake.returns(this);
-    this.debug = sinon.fake.returns(this);
+  constructor(shouldLog = false) {
+    const createSpy = (logFn: (message: string, meta?: string) => unknown) =>
+      sinon.spy(
+        ((message: string, meta?: Record<string, unknown>): Logger => {
+          logFn(message, meta ? JSON.stringify(meta) : undefined);
+          return this;
+        }).bind(this)
+      );
+    const createFake = (() => sinon.fake.returns(this)).bind(this);
+
+    this.error = shouldLog ? createSpy(console.error) : createFake();
+    this.warn = shouldLog ? createSpy(console.warn) : createFake();
+    this.info = shouldLog ? createSpy(console.info) : createFake();
+    this.verbose = shouldLog ? createSpy(console.log) : createFake();
+    this.debug = shouldLog ? createSpy(console.debug) : createFake();
   }
 }
 
