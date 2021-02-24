@@ -6,6 +6,7 @@ import yaml from 'js-yaml';
 
 import { GlobalOptions } from '../types';
 import { resolveOption } from '../utils/resolve-option';
+import axios from 'axios';
 
 export type Options = GlobalOptions & {
   src: string;
@@ -36,7 +37,7 @@ export function init(_: unknown, program: Command) {
   run(options);
 }
 
-export function run(options: Options) {
+export async function run(options: Options) {
   if (!fs.existsSync(options.home)) {
     fs.mkdirSync(options.home, { recursive: true });
     console.log(`Initialized home directory at ${options.home}`);
@@ -46,7 +47,12 @@ export function run(options: Options) {
 
   const REGISTRY_FILE_PATH = path.join(options.home, REGISTRY_FILE);
   if (!fs.existsSync(REGISTRY_FILE_PATH)) {
-    // TODO: download registry.yaml from default location
+    const registryFromRemote = await axios.get(
+      'https://raw.githubusercontent.com/confio/ts-relayer/main/demo/registry.yaml'
+    );
+    fs.writeFileSync(REGISTRY_FILE_PATH, registryFromRemote.data, {
+      encoding: 'utf-8',
+    });
   } else if (!fs.lstatSync(REGISTRY_FILE_PATH).isFile()) {
     throw new Error(`${REGISTRY_FILE_PATH} must be a file. It is a directory.`);
   }
