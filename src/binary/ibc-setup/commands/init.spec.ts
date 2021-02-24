@@ -12,16 +12,17 @@ const fsMkdirSync = sinon.stub(fs, 'mkdirSync');
 const axiosGet = sinon.stub(axios, 'get');
 const fsReadFileSync = sinon.stub(fs, 'readFileSync');
 const fsWriteFileSync = sinon.stub(fs, 'writeFileSync');
-const fsLstatSync = sinon.stub(fs, 'lstatSync');
+sinon.replace(
+  fs,
+  'lstatSync',
+  sinon.fake.returns({
+    isDirectory: () => true,
+    isFile: () => true,
+  })
+);
 
 test.beforeEach(() => {
   sinon.reset();
-
-  fsLstatSync.returns({
-    ...new fs.Stats(),
-    isDirectory: () => true,
-    isFile: () => true,
-  });
 });
 
 test('read existing registry.yaml', async (t) => {
