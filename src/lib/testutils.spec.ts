@@ -5,10 +5,37 @@ import { Decimal } from '@cosmjs/math';
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 import { StargateClient } from '@cosmjs/stargate';
 import test from 'ava';
+import sinon, { SinonSpy } from 'sinon';
 
 import { Order } from '../codec/ibc/core/channel/v1/channel';
 
 import { IbcClient, IbcClientOptions } from './ibcclient';
+import { Logger, LogMethod } from './logger';
+
+export class TestLogger implements Logger {
+  public readonly error: SinonSpy & LogMethod;
+  public readonly warn: SinonSpy & LogMethod;
+  public readonly info: SinonSpy & LogMethod;
+  public readonly verbose: SinonSpy & LogMethod;
+  public readonly debug: SinonSpy & LogMethod;
+
+  constructor(shouldLog = false) {
+    const createSpy = (logFn: (message: string, meta?: string) => unknown) =>
+      sinon.spy(
+        ((message: string, meta?: Record<string, unknown>): Logger => {
+          logFn(message, meta ? JSON.stringify(meta) : undefined);
+          return this;
+        }).bind(this)
+      );
+    const createFake = (() => sinon.fake.returns(this)).bind(this);
+
+    this.error = shouldLog ? createSpy(console.error) : createFake();
+    this.warn = shouldLog ? createSpy(console.warn) : createFake();
+    this.info = shouldLog ? createSpy(console.info) : createFake();
+    this.verbose = shouldLog ? createSpy(console.log) : createFake();
+    this.debug = shouldLog ? createSpy(console.debug) : createFake();
+  }
+}
 
 export const simapp = {
   tendermintUrlWs: 'ws://localhost:26658',
@@ -103,7 +130,8 @@ export async function queryClient(opts: QueryOpts): Promise<StargateClient> {
 
 export async function signingClient(
   opts: SigningOpts,
-  mnemonic: string
+  mnemonic: string,
+  logger?: Logger
 ): Promise<IbcClient> {
   const signer = await DirectSecp256k1HdWallet.fromMnemonic(
     mnemonic,
@@ -117,6 +145,7 @@ export async function signingClient(
       amount: Decimal.fromAtomics('5', 2), // 0.05
       denom: opts.denomFee,
     },
+    logger,
   };
   const client = await IbcClient.connectWithSigner(
     opts.tendermintUrlHttp,
@@ -127,11 +156,11 @@ export async function signingClient(
   return client;
 }
 
-export async function setup(): Promise<IbcClient[]> {
+export async function setup(logger?: Logger): Promise<IbcClient[]> {
   // create apps and fund an account
   const mnemonic = generateMnemonic();
-  const src = await signingClient(simapp, mnemonic);
-  const dest = await signingClient(wasmd, mnemonic);
+  const src = await signingClient(simapp, mnemonic, logger);
+  const dest = await signingClient(wasmd, mnemonic, logger);
   await fundAccount(wasmd, dest.senderAddress, '200000');
   await fundAccount(simapp, src.senderAddress, '200000');
   return [src, dest];

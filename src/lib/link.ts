@@ -15,6 +15,7 @@ import {
   prepareChannelHandshake,
   prepareConnectionHandshake,
 } from './ibcclient';
+import { Logger, NoopLogger } from './logger';
 import { parseAcksFromLogs, toIntHeight, toProtoHeight } from './utils';
 
 /**
@@ -46,6 +47,7 @@ const genesisUnbondingTime = 1814400;
 export class Link {
   public readonly endA: Endpoint;
   public readonly endB: Endpoint;
+  public readonly logger: Logger;
 
   /**
    * findConnection attempts to reuse an existing Client/Connection.
@@ -58,7 +60,8 @@ export class Link {
     nodeA: IbcClient,
     nodeB: IbcClient,
     connA: string,
-    connB: string
+    connB: string,
+    logger?: Logger
   ): Promise<Link> {
     const [
       { connection: connectionA },
@@ -121,7 +124,7 @@ export class Link {
 
     const endA = new Endpoint(nodeA, clientIdA, connA);
     const endB = new Endpoint(nodeB, clientIdB, connB);
-    const link = new Link(endA, endB);
+    const link = new Link(endA, endB, logger);
 
     const [knownHeightA, knownHeightB] = [
       toIntHeight(clientStateA.latestHeight),
@@ -182,7 +185,8 @@ export class Link {
    */
   public static async createWithNewConnections(
     nodeA: IbcClient,
-    nodeB: IbcClient
+    nodeB: IbcClient,
+    logger?: Logger
   ): Promise<Link> {
     const [clientIdA, clientIdB] = await createClients(nodeA, nodeB);
 
@@ -224,14 +228,15 @@ export class Link {
 
     const endA = new Endpoint(nodeA, clientIdA, connIdA);
     const endB = new Endpoint(nodeB, clientIdB, connIdB);
-    return new Link(endA, endB);
+    return new Link(endA, endB, logger);
   }
 
   // you can use this if you already have the info out of bounds
   // TODO; check the validity of that data?
-  public constructor(endA: Endpoint, endB: Endpoint) {
+  public constructor(endA: Endpoint, endB: Endpoint, logger?: Logger) {
     this.endA = endA;
     this.endB = endB;
+    this.logger = logger ?? new NoopLogger();
   }
 
   /**
@@ -244,6 +249,7 @@ export class Link {
    * Just needs trusting period on both side
    */
   public async updateClient(sender: Side): Promise<number> {
+    this.logger.info(`Updating client for side ${sender}.`);
     const { src, dest } = this.getEnds(sender);
     const height = await dest.client.doUpdateClient(dest.clientID, src.client);
     return height;
@@ -279,8 +285,10 @@ export class Link {
     ordering: Order,
     version: string
   ): Promise<ChannelPair> {
+    this.logger.info(
+      `Create channel with sender ${sender}: ${srcPort} => ${destPort}`
+    );
     const { src, dest } = this.getEnds(sender);
-
     // init on src
     const { channelId: channelIdSrc } = await src.client.channelOpenInit(
       srcPort,

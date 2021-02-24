@@ -67,6 +67,7 @@ import {
 } from '../codec/tendermint/types/types';
 import { ValidatorSet } from '../codec/tendermint/types/validator';
 
+import { Logger, NoopLogger } from './logger';
 import { IbcExtension, setupIbcExtension } from './queries/ibc';
 import {
   Ack,
@@ -185,6 +186,7 @@ export interface IbcFeeTable extends FeeTable {
 
 export type IbcClientOptions = SigningStargateClientOptions & {
   gasLimits?: Partial<GasLimits<IbcFeeTable>>;
+  logger?: Logger;
 };
 
 const defaultGasPrice = GasPrice.fromString('0.025ucosm');
@@ -210,6 +212,7 @@ export class IbcClient {
     IbcExtension;
   public readonly tm: TendermintClient;
   public readonly senderAddress: string;
+  public readonly logger: Logger;
 
   public static async connectWithSigner(
     endpoint: string,
@@ -246,12 +249,13 @@ export class IbcClient {
       setupIbcExtension
     );
     this.senderAddress = senderAddress;
-    const { gasPrice = defaultGasPrice, gasLimits = {} } = options;
+    const { gasPrice = defaultGasPrice, gasLimits = {}, logger } = options;
     this.fees = buildFeeTable<IbcFeeTable>(
       gasPrice,
       defaultGasLimits,
       gasLimits
     );
+    this.logger = logger ?? new NoopLogger();
   }
 
   public getChainId(): Promise<string> {
@@ -259,6 +263,7 @@ export class IbcClient {
   }
 
   public async latestHeader(): Promise<RpcHeader> {
+    this.logger.verbose('Get latest header');
     // TODO: expose header method on tmClient and use that
     const block = await this.tm.block();
     return block.block.header;
@@ -507,6 +512,13 @@ export class IbcClient {
     transferAmount: readonly Coin[],
     memo?: string
   ): Promise<MsgResult> {
+    this.logger.verbose(`Send tokens to ${recipientAddress}`);
+    this.logger.debug('Send tokens:', {
+      senderAddress: this.senderAddress,
+      recipientAddress,
+      transferAmount,
+      memo,
+    });
     const result = await this.sign.sendTokens(
       this.senderAddress,
       recipientAddress,
@@ -801,6 +813,7 @@ export class IbcClient {
     connectionId: string,
     version: string
   ): Promise<CreateChannelResult> {
+    this.logger.verbose('Channel Open Init');
     const senderAddress = this.senderAddress;
     const msg = {
       typeUrl: '/ibc.core.channel.v1.MsgChannelOpenInit',
@@ -818,6 +831,7 @@ export class IbcClient {
         signer: senderAddress,
       }),
     };
+    this.logger.debug('MsgChannelOpenInit', msg);
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
