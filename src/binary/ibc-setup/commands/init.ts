@@ -52,6 +52,6 @@ export function run(options: Options) {
   }
 
   const registry = yaml.load(fs.readFileSync(REGISTRY_FILE_PATH, 'utf-8'));
-  // TODO: registry file validation?
+  // TODO #75: registry file validation
   console.log(registry);
 }
