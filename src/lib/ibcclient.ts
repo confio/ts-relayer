@@ -263,7 +263,7 @@ export class IbcClient {
   }
 
   public async latestHeader(): Promise<RpcHeader> {
-    this.logger.info('Getting latest header');
+    this.logger.verbose('Get latest header');
     // TODO: expose header method on tmClient and use that
     const block = await this.tm.block();
     return block.block.header;
@@ -512,6 +512,13 @@ export class IbcClient {
     transferAmount: readonly Coin[],
     memo?: string
   ): Promise<MsgResult> {
+    this.logger.verbose(`Send tokens to ${recipientAddress}`);
+    this.logger.debug('Send tokens:', {
+      senderAddress: this.senderAddress,
+      recipientAddress,
+      transferAmount,
+      memo,
+    });
     const result = await this.sign.sendTokens(
       this.senderAddress,
       recipientAddress,
@@ -806,6 +813,7 @@ export class IbcClient {
     connectionId: string,
     version: string
   ): Promise<CreateChannelResult> {
+    this.logger.verbose('Channel Open Init');
     const senderAddress = this.senderAddress;
     const msg = {
       typeUrl: '/ibc.core.channel.v1.MsgChannelOpenInit',
@@ -823,6 +831,7 @@ export class IbcClient {
         signer: senderAddress,
       }),
     };
+    this.logger.debug('MsgChannelOpenInit', msg);
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,

@@ -29,7 +29,7 @@ test.serial('create simapp client on wasmd', async (t) => {
   const preLen = preClients.clientStates.length;
 
   const header = await src.latestHeader();
-  t.assert(logger.info.calledOnce, logger.info.callCount.toString());
+  t.assert(logger.verbose.calledOnce, logger.verbose.callCount.toString());
 
   const conState = buildConsensusState(header);
   const cliState = buildClientState(

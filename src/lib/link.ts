@@ -249,9 +249,9 @@ export class Link {
    * Just needs trusting period on both side
    */
   public async updateClient(sender: Side): Promise<number> {
+    this.logger.info(`Updating client for side ${sender}.`);
     const { src, dest } = this.getEnds(sender);
     const height = await dest.client.doUpdateClient(dest.clientID, src.client);
-    this.logger.info(`Updated client for side ${sender} to height ${height}.`);
     return height;
   }
 
@@ -285,8 +285,10 @@ export class Link {
     ordering: Order,
     version: string
   ): Promise<ChannelPair> {
+    this.logger.info(
+      `Create channel with sender ${sender}: ${srcPort} => ${destPort}`
+    );
     const { src, dest } = this.getEnds(sender);
-
     // init on src
     const { channelId: channelIdSrc } = await src.client.channelOpenInit(
       srcPort,
