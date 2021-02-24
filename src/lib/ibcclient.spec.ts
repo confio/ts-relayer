@@ -233,7 +233,7 @@ test.serial('transfer message and send packets', async (t) => {
 test.serial('tests parsing with multi-message', async (t) => {
   const logger = new TestLogger();
   // set up ics20 channel
-  const [nodeA, nodeB] = await setup();
+  const [nodeA, nodeB] = await setup(logger);
   const link = await Link.createWithNewConnections(nodeA, nodeB, logger);
   const channels = await link.createChannel(
     'A',
@@ -251,6 +251,15 @@ test.serial('tests parsing with multi-message', async (t) => {
   const { logs: sendLogs } = await nodeA.sendTokens(srcAddr, [
     { amount: '5000', denom: simapp.denomFee },
   ]);
+  t.assert(
+    logger.verbose.calledWithMatch(/Send tokens to/),
+    logger.verbose.callCount.toString()
+  );
+  t.assert(
+    logger.debug.calledWithMatch(/Send tokens:/),
+    logger.debug.callCount.toString()
+  );
+
   const sendPackets = parsePacketsFromLogs(sendLogs);
   t.is(sendPackets.length, 0);
 
