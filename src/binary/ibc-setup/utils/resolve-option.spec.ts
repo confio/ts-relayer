@@ -15,7 +15,7 @@ test('leftmost defined option takes precedence', (t) => {
     undefined,
     stringOption1
   );
-  t.is(option1, 'string option 1');
+  t.is(option1, stringOption1);
 
   const option2 = resolveOption(
     'second option',
@@ -23,7 +23,7 @@ test('leftmost defined option takes precedence', (t) => {
     undefined,
     undefined
   );
-  t.is(option2, 'string option 2');
+  t.is(option2, stringOption2);
 
   const option3 = resolveOption(
     'third option',
@@ -33,7 +33,7 @@ test('leftmost defined option takes precedence', (t) => {
     stringOption1,
     undefined
   );
-  t.is(option3, 'string option 2');
+  t.is(option3, stringOption2);
 });
 
 test('resolves function arguments', (t) => {
