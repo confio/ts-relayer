@@ -259,6 +259,7 @@ export class IbcClient {
   }
 
   public getChainId(): Promise<string> {
+    this.logger.verbose('Get chain ID');
     return this.sign.getChainId();
   }
 
@@ -270,6 +271,7 @@ export class IbcClient {
   }
 
   public async header(height: number): Promise<RpcHeader> {
+    this.logger.verbose(`Get header for height ${height}`);
     // TODO: expose header method on tmClient and use that
     const resp = await this.tm.blockchain(height, height);
     return resp.blockMetas[0].header;
@@ -282,6 +284,11 @@ export class IbcClient {
   }
 
   public getCommit(height?: number): Promise<CommitResponse> {
+    this.logger.verbose(
+      height === undefined
+        ? 'Get latest commit'
+        : `Get commit for height ${height}`
+    );
     return this.tm.commit(height);
   }
 
@@ -323,6 +330,7 @@ export class IbcClient {
   }
 
   public async getValidatorSet(height: number): Promise<ValidatorSet> {
+    this.logger.verbose(`Get validator set for height ${height}`);
     // we need to query the header to find out who the proposer was, and pull them out
     const { proposerAddress } = await this.header(height);
     const validators = await this.tm.validators(height);
@@ -541,6 +549,11 @@ export class IbcClient {
     msgs: EncodeObject[],
     fees: StdFee
   ): Promise<MsgResult> {
+    this.logger.verbose(`Broadcast multiple msgs`);
+    this.logger.debug(`Multiple msgs:`, {
+      msgs,
+      fees,
+    });
     const senderAddress = this.senderAddress;
     const result = await this.sign.signAndBroadcast(senderAddress, msgs, fees);
     if (isBroadcastTxFailure(result)) {
@@ -558,6 +571,7 @@ export class IbcClient {
     clientState: TendermintClientState,
     consensusState: TendermintConsensusState
   ): Promise<CreateClientResult> {
+    this.logger.verbose(`Create Tendermint client`);
     const senderAddress = this.senderAddress;
     const createMsg = {
       typeUrl: '/ibc.core.client.v1.MsgCreateClient',
@@ -573,6 +587,7 @@ export class IbcClient {
         },
       }),
     };
+    this.logger.debug('MsgCreateClient', createMsg);
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
@@ -601,6 +616,7 @@ export class IbcClient {
     clientId: string,
     header: TendermintHeader
   ): Promise<MsgResult> {
+    this.logger.verbose(`Update Tendermint client ${clientId}`);
     const senderAddress = this.senderAddress;
     const updateMsg = {
       typeUrl: '/ibc.core.client.v1.MsgUpdateClient',
@@ -613,6 +629,7 @@ export class IbcClient {
         },
       }),
     };
+    this.logger.debug(`MsgUpdateClient`, updateMsg);
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
@@ -634,6 +651,7 @@ export class IbcClient {
     clientId: string,
     remoteClientId: string
   ): Promise<CreateConnectionResult> {
+    this.logger.info(`Connection open init: ${clientId} => ${remoteClientId}`);
     const senderAddress = this.senderAddress;
     const msg = {
       typeUrl: '/ibc.core.connection.v1.MsgConnectionOpenInit',
@@ -648,6 +666,7 @@ export class IbcClient {
         signer: senderAddress,
       }),
     };
+    this.logger.debug(`MsgConnectionOpenInit`, msg);
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
@@ -663,6 +682,7 @@ export class IbcClient {
       'connection_open_init',
       'connection_id'
     ).value;
+    this.logger.debug(`Connection open init successful: ${connectionId}`);
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
@@ -675,6 +695,9 @@ export class IbcClient {
     myClientId: string,
     proof: ConnectionHandshakeProof
   ): Promise<CreateConnectionResult> {
+    this.logger.info(
+      `Connection open try: ${myClientId} => ${proof.clientId} (${proof.connectionId})`
+    );
     const senderAddress = this.senderAddress;
     const {
       clientId,
@@ -706,6 +729,7 @@ export class IbcClient {
         consensusHeight,
       }),
     };
+    this.logger.debug('MsgConnectionOpenTry', msg);
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
@@ -721,6 +745,9 @@ export class IbcClient {
       'connection_open_try',
       'connection_id'
     ).value;
+    this.logger.debug(
+      `Connection open try successful: ${myConnectionId} => ${connectionId}`
+    );
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
@@ -733,6 +760,9 @@ export class IbcClient {
     myConnectionId: string,
     proof: ConnectionHandshakeProof
   ): Promise<MsgResult> {
+    this.logger.info(
+      `Connection open ack: ${myConnectionId} => ${proof.connectionId}`
+    );
     const senderAddress = this.senderAddress;
     const {
       connectionId,
@@ -758,6 +788,7 @@ export class IbcClient {
         consensusHeight,
       }),
     };
+    this.logger.debug('MsgConnectionOpenAck', msg);
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
@@ -778,6 +809,7 @@ export class IbcClient {
   public async connOpenConfirm(
     proof: ConnectionHandshakeProof
   ): Promise<MsgResult> {
+    this.logger.info(`Connection open confirm: ${proof.connectionId}`);
     const senderAddress = this.senderAddress;
     const { connectionId, proofHeight, proofConnection: proofAck } = proof;
     const msg = {
@@ -789,6 +821,7 @@ export class IbcClient {
         proofAck,
       }),
     };
+    this.logger.debug('MsgConnectionOpenConfirm', msg);
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
@@ -813,7 +846,9 @@ export class IbcClient {
     connectionId: string,
     version: string
   ): Promise<CreateChannelResult> {
-    this.logger.verbose('Channel Open Init');
+    this.logger.verbose(
+      `Channel open init: ${portId} => ${remotePortId} (${connectionId})`
+    );
     const senderAddress = this.senderAddress;
     const msg = {
       typeUrl: '/ibc.core.channel.v1.MsgChannelOpenInit',
@@ -847,6 +882,7 @@ export class IbcClient {
       'channel_open_init',
       'channel_id'
     ).value;
+    this.logger.debug(`Channel open init successful: ${channelId}`);
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
@@ -864,6 +900,9 @@ export class IbcClient {
     counterpartyVersion: string,
     proof: ChannelHandshake
   ): Promise<CreateChannelResult> {
+    this.logger.verbose(
+      `Channel open try: ${portId} => ${remote.portId} (${remote.channelId})`
+    );
     const senderAddress = this.senderAddress;
     const { proofHeight, proof: proofInit } = proof;
     const msg = {
@@ -883,6 +922,7 @@ export class IbcClient {
         signer: senderAddress,
       }),
     };
+    this.logger.debug('MsgChannelOpenTry', msg);
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
@@ -898,6 +938,9 @@ export class IbcClient {
       'channel_open_try',
       'channel_id'
     ).value;
+    this.logger.debug(
+      `Channel open try successful: ${channelId} => ${remote.channelId})`
+    );
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
@@ -913,6 +956,9 @@ export class IbcClient {
     counterpartyVersion: string,
     proof: ChannelHandshake
   ): Promise<MsgResult> {
+    this.logger.verbose(
+      `Channel open ack for port ${portId}: ${channelId} => ${counterpartyChannelId}`
+    );
     const senderAddress = this.senderAddress;
     const { proofHeight, proof: proofTry } = proof;
     const msg = {
@@ -927,6 +973,7 @@ export class IbcClient {
         signer: senderAddress,
       }),
     };
+    this.logger.debug('MsgChannelOpenAck', msg);
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
@@ -949,6 +996,9 @@ export class IbcClient {
     channelId: string,
     proof: ChannelHandshake
   ): Promise<MsgResult> {
+    this.logger.verbose(
+      `Chanel open confirm for port ${portId}: ${channelId} => ${proof.id.channelId}`
+    );
     const senderAddress = this.senderAddress;
     const { proofHeight, proof: proofAck } = proof;
     const msg = {
@@ -961,6 +1011,7 @@ export class IbcClient {
         signer: senderAddress,
       }),
     };
+    this.logger.debug('MsgChannelOpenConfirm', msg);
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
@@ -991,6 +1042,7 @@ export class IbcClient {
     proofCommitments: readonly Uint8Array[],
     proofHeight?: Height
   ): Promise<MsgResult> {
+    this.logger.verbose(`Receive packets (${packets.length})`);
     if (packets.length !== proofCommitments.length) {
       throw new Error(
         `Have ${packets.length} packets, but ${proofCommitments.length} proofs`
@@ -1014,6 +1066,7 @@ export class IbcClient {
       };
       msgs.push(msg);
     }
+    this.logger.debug('MsgRecvPacket(s)', { msgs });
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       msgs,
@@ -1043,6 +1096,7 @@ export class IbcClient {
     proofAckeds: readonly Uint8Array[],
     proofHeight?: Height
   ): Promise<MsgResult> {
+    this.logger.verbose(`Acknowledge packets (${acks.length})`);
     if (acks.length !== proofAckeds.length) {
       throw new Error(
         `Have ${acks.length} acks, but ${proofAckeds.length} proofs`
@@ -1067,6 +1121,7 @@ export class IbcClient {
       };
       msgs.push(msg);
     }
+    this.logger.debug('MsgAcknowledgement(s)', { msgs });
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       msgs,
@@ -1089,6 +1144,7 @@ export class IbcClient {
     nextSequenceRecv: Long,
     proofHeight?: Height
   ): Promise<MsgResult> {
+    this.logger.verbose(`Timeout packet ${packet.sequence}`);
     const senderAddress = this.senderAddress;
     const msg = {
       typeUrl: '/ibc.core.channel.v1.MsgTimeout',
@@ -1100,6 +1156,7 @@ export class IbcClient {
         signer: senderAddress,
       }),
     };
+    this.logger.debug('MsgTimeout', msg);
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
@@ -1124,6 +1181,7 @@ export class IbcClient {
     timeoutBlock?: number,
     timeoutTime?: number
   ): Promise<MsgResult> {
+    this.logger.verbose(`Transfer tokens to ${receiver}`);
     const senderAddress = this.senderAddress;
     const timeoutHeight = timeoutBlock
       ? toProtoHeight(timeoutBlock)
@@ -1141,6 +1199,7 @@ export class IbcClient {
         timeoutTimestamp,
       }),
     };
+    this.logger.debug('MsgTransfer', msg);
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,

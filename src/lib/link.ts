@@ -249,7 +249,7 @@ export class Link {
    * Just needs trusting period on both side
    */
   public async updateClient(sender: Side): Promise<number> {
-    this.logger.info(`Updating client for side ${sender}.`);
+    this.logger.info(`Update client for sender ${sender}`);
     const { src, dest } = this.getEnds(sender);
     const height = await dest.client.doUpdateClient(dest.clientID, src.client);
     return height;
@@ -264,6 +264,9 @@ export class Link {
     source: Side,
     minHeight: number
   ): Promise<number> {
+    this.logger.info(
+      `Check whether client for source ${source} >= height ${minHeight}`
+    );
     const { src, dest } = this.getEnds(source);
     const client = await dest.client.query.ibc.client.stateTm(dest.clientID);
     let knownHeight = client.latestHeight?.revisionHeight?.toNumber() ?? 0;
@@ -358,6 +361,7 @@ export class Link {
     source: Side,
     opts: QueryOpts = {}
   ): Promise<PacketWithMetadata[]> {
+    this.logger.verbose(`Get pending packets for source ${source}`);
     const { src, dest } = this.getEnds(source);
     const allPackets = await src.querySentPackets(opts);
     if (allPackets.length === 0) {
@@ -391,6 +395,7 @@ export class Link {
     source: Side,
     opts: QueryOpts = {}
   ): Promise<AckWithMetadata[]> {
+    this.logger.verbose(`Get pending acks for source ${source}`);
     const { src, dest } = this.getEnds(source);
     const allAcks = await src.queryWrittenAcks(opts);
     if (allAcks.length === 0) {
@@ -414,6 +419,7 @@ export class Link {
 
   // Returns the last height that this side knows of the other blockchain
   public async lastKnownHeader(side: Side): Promise<number> {
+    this.logger.verbose(`Get last known header for side ${side}`);
     const { src } = this.getEnds(side);
     const client = await src.client.query.ibc.client.stateTm(src.clientID);
     return client.latestHeight?.revisionHeight?.toNumber() ?? 0;
@@ -427,6 +433,7 @@ export class Link {
     source: Side,
     packets: readonly PacketWithMetadata[]
   ): Promise<AckWithMetadata[]> {
+    this.logger.info(`Relay packets for source ${source}`);
     const { src, dest } = this.getEnds(source);
 
     // check if we need to update client at all
@@ -455,6 +462,7 @@ export class Link {
     source: Side,
     acks: readonly AckWithMetadata[]
   ): Promise<number> {
+    this.logger.info(`Relay acks for source ${source}`);
     const { src, dest } = this.getEnds(source);
 
     // check if we need to update client at all
