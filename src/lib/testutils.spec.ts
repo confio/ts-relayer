@@ -1,5 +1,5 @@
 // This file outputs some basic test functionality, and includes tests that they work
-import { Bip39, Random } from '@cosmjs/crypto';
+import { Bip39, Random, stringToPath } from '@cosmjs/crypto';
 import { Bech32 } from '@cosmjs/encoding';
 import { Decimal } from '@cosmjs/math';
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
@@ -183,10 +183,33 @@ export function generateMnemonic(): string {
   return Bip39.encode(Random.getBytes(16)).toString();
 }
 
+export async function deriveAddress(
+  mnemomic: string,
+  prefix: string,
+  path: string
+): Promise<string> {
+  const hdpath = stringToPath(path);
+  const wallet = await DirectSecp256k1HdWallet.fromMnemonic(
+    mnemomic,
+    hdpath,
+    prefix
+  );
+  const accounts = await wallet.getAccounts();
+  return accounts[0].address;
+}
+
 export function randomAddress(prefix: string): string {
   const random = Random.getBytes(20);
   return Bech32.encode(prefix, random);
 }
+
+test.only('generate address from mnemonic', async (t) => {
+  // const mnemonic = generateMnemonic();
+  const mnemonic =
+    'deer tomorrow version toddler able sleep simple shuffle scissors august staff result';
+  const address = await deriveAddress(mnemonic, 'wasm', "m/44'/108'/0'/1'");
+  t.is(address, 'wasm1vv4kt7fh9asmcuetq403s37ugx642azdv29zsm');
+});
 
 test('query account balance - simapp', async (t) => {
   const client = await queryClient(simapp);
