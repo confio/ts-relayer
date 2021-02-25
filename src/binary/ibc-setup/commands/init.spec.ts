@@ -31,19 +31,17 @@ test('read existing registry.yaml', async (t) => {
     src: 'AAA',
     dest: 'BBB',
   };
-
-  fsExistSync.onCall(0).returns(true).onCall(1).returns(true);
-
   const registryPath = `${options.home}/registry.yaml`;
   const registryYaml = `
   version: 1
   `;
 
+  fsExistSync.onCall(0).returns(true).onCall(1).returns(true);
   axiosGet.resolves({
     data: registryYaml,
   });
   fsReadFileSync.returns(registryYaml);
-  fsWriteFileSync.returns(undefined);
+  fsWriteFileSync.returns();
 
   await run(options);
 
@@ -60,15 +58,13 @@ test('initialize home directory and pull registry.yaml from remote', async (t) =
     src: 'AAA',
     dest: 'BBB',
   };
-
-  fsExistSync.onCall(0).returns(false).onCall(1).returns(false);
-  fsMkdirSync.returns(options.home);
-
   const registryPath = `${options.home}/registry.yaml`;
   const registryYaml = `
   version: 1
   `;
 
+  fsExistSync.onCall(0).returns(false).onCall(1).returns(false);
+  fsMkdirSync.returns(options.home);
   axiosGet.resolves({
     data: registryYaml,
   });
