@@ -32,6 +32,23 @@ When you are done, you can run the following in any console:
 ./scripts/wasmd/stop.sh
 ```
 
+### Running CLIs
+
+Build the project.
+
+```bash
+yarn build
+```
+
+Link the binaries so you can reference them w/o specifying the full path. Use `npm` since [yarn has issues with setting permissions](https://github.com/yarnpkg/yarn/issues/3587).
+
+```bash
+npm link
+ibc-setup # should be available
+
+./build/main/binary/ibc-setup/index.js # run w/o linking
+```
+
 ### Testing
 
 You must have the local blockchains running for the tests to pass.
