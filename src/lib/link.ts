@@ -362,32 +362,57 @@ export class Link {
     opts: QueryOpts = {}
   ): Promise<PacketWithMetadata[]> {
     this.logger.verbose(`Get pending packets for source ${source}`);
+    const delim = ':';
     const { src, dest } = this.getEnds(source);
     const allPackets = await src.querySentPackets(opts);
     if (allPackets.length === 0) {
       return [];
     }
-    const { destinationPort, destinationChannel } = allPackets[0].packet;
-    // // TODO: handle this when there are multiple channels,
-    // // something like:
-    // const received = await Promise.all(
-    //   allPackets.map(({ packet }) =>
-    //     dest.client.query.ibc.channel.unreceivedPackets(
-    //       packet.destinationPort,
-    //       packet.destinationChannel,
-    //       [packet.sequence.toNumber()]
-    //     )
-    //   )
-    // );
-    const toCheck = allPackets.map(({ packet }) => packet.sequence.toNumber());
-    const { sequences } = await dest.client.query.ibc.channel.unreceivedPackets(
-      destinationPort,
-      destinationChannel,
-      toCheck
+
+    const packetsPerDestination = allPackets.reduce(
+      (
+        sorted: Record<string, readonly number[]>,
+        { packet: { destinationPort, destinationChannel, sequence } }
+      ) => {
+        const key = `${destinationPort}${delim}${destinationChannel}`;
+        return {
+          ...sorted,
+          [key]: [...(sorted[key] ?? []), sequence.toNumber()],
+        };
+      },
+      {}
     );
-    const unreceived = new Set(sequences.map((seq) => seq.toNumber()));
-    return allPackets.filter(({ packet }) =>
-      unreceived.has(packet.sequence.toNumber())
+    const unreceivedResponses = await Promise.all(
+      Object.entries(packetsPerDestination).map(([destination, sequences]) => {
+        const [port, channel] = destination.split(':');
+        return Promise.all([
+          port,
+          channel,
+          dest.client.query.ibc.channel.unreceivedPackets(
+            port,
+            channel,
+            sequences
+          ),
+        ]);
+      })
+    );
+
+    const unreceived = unreceivedResponses.reduce(
+      (nested: Record<string, Set<number>>, [port, channel, { sequences }]) => {
+        const key = `${port}${delim}${channel}`;
+        return {
+          ...nested,
+          [key]: new Set(sequences.map((sequence) => sequence.toNumber())),
+        };
+      },
+      {}
+    );
+
+    return allPackets.filter(
+      ({ packet: { destinationPort, destinationChannel, sequence } }) =>
+        unreceived[`${destinationPort}${delim}${destinationChannel}`].has(
+          sequence.toNumber()
+        )
     );
   }
 
