@@ -285,3 +285,130 @@ test.serial('submit multiple tx, get unreceived packets', async (t) => {
   // and it matches the one we did not send
   t.deepEqual(postAcks[0], acks[1]);
 });
+
+test.serial(
+  'submit multiple tx on multiple channels, get unreceived packets',
+  async (t) => {
+    const logger = new TestLogger();
+    // setup a channel
+    const [nodeA, nodeB] = await setup(logger);
+    const link = await Link.createWithNewConnections(nodeA, nodeB, logger);
+    const channels1 = await link.createChannel(
+      'A',
+      ics20.srcPortId,
+      ics20.destPortId,
+      ics20.ordering,
+      ics20.version
+    );
+    const channels2 = await link.createChannel(
+      'A',
+      ics20.srcPortId,
+      ics20.destPortId,
+      ics20.ordering,
+      ics20.version
+    );
+    t.not(channels1.src.channelId, channels2.src.channelId);
+
+    // no packets here
+    const noPackets = await link.endA.querySentPackets();
+    t.is(noPackets.length, 0);
+
+    // some basic setup for the transfers
+    const recipient = randomAddress(wasmd.prefix);
+    const destHeight = (await nodeB.latestHeader()).height + 500; // valid for 500 blocks
+    const amounts = [1000, 2222, 3456];
+    // const totalSent = amounts.reduce((a, b) => a + b, 0);
+
+    // let's make 3 transfer tx at different heights on each channel pair
+    interface Meta {
+      height: number;
+      channelId: string;
+    }
+    const txHeights = {
+      channels1: [] as Meta[],
+      channels2: [] as Meta[],
+    };
+
+    for (const amount of amounts) {
+      const token = {
+        amount: amount.toString(),
+        denom: simapp.denomFee,
+      };
+      const { height } = await nodeA.transferTokens(
+        channels1.src.portId,
+        channels1.src.channelId,
+        token,
+        recipient,
+        destHeight
+      );
+      txHeights.channels1.push({ height, channelId: channels1.src.channelId });
+    }
+    for (const amount of amounts) {
+      const token = {
+        amount: amount.toString(),
+        denom: simapp.denomFee,
+      };
+      const { height } = await nodeA.transferTokens(
+        channels2.src.portId,
+        channels2.src.channelId,
+        token,
+        recipient,
+        destHeight
+      );
+      txHeights.channels2.push({ height, channelId: channels2.src.channelId });
+    }
+
+    // need to wait briefly for it to be indexed
+    await sleep(100);
+
+    // now query for all packets, ensuring we mapped the channels properly
+    const packets = await link.getPendingPackets('A');
+    t.is(packets.length, 6);
+    t.deepEqual(
+      packets.map(({ height, packet }) => ({
+        height,
+        channelId: packet.sourceChannel,
+      })),
+      [...txHeights.channels1, ...txHeights.channels2]
+    );
+
+    // ensure the sender is set properly
+    for (const packet of packets) {
+      t.is(packet.sender, nodeA.senderAddress);
+    }
+
+    // ensure no acks yet
+    const preAcks = await link.getPendingAcks('B');
+    t.is(preAcks.length, 0);
+
+    // submit 4 of them (out of order) - make sure not to use same sequences on both sides
+    const packetsToSubmit = [packets[0], packets[1], packets[4], packets[5]];
+    const txAcks = await link.relayPackets('A', packetsToSubmit);
+    t.is(txAcks.length, 4);
+
+    // ensure only two marked pending (for tx1)
+    const postPackets = await link.getPendingPackets('A');
+    t.is(postPackets.length, 2);
+    t.is(postPackets[0].height, txHeights.channels1[2].height);
+    t.is(postPackets[1].height, txHeights.channels2[0].height);
+
+    // ensure acks can be queried
+    const acks = await link.getPendingAcks('B');
+    t.is(acks.length, 4);
+
+    // make sure we ack on different channels (and different sequences)
+    t.not(
+      acks[0].originalPacket.sourceChannel,
+      acks[3].originalPacket.sourceChannel
+    );
+    t.not(acks[0].originalPacket.sequence, acks[3].originalPacket.sequence);
+    await link.relayAcks('B', [acks[0], acks[3]]);
+
+    // ensure only two acks are still pending
+    const postAcks = await link.getPendingAcks('B');
+    t.is(postAcks.length, 2);
+    // and it matches the ones we did not send
+    t.deepEqual(postAcks[0], acks[1]);
+    t.deepEqual(postAcks[1], acks[2]);
+  }
+);

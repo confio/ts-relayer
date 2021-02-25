@@ -95,6 +95,8 @@ test.serial('submit multiple tx, query all packets', async (t) => {
   );
   const txAcks = parseAcksFromLogs(relayLog);
   t.is(txAcks.length, 2);
+  // do we always need to sleep for the indexer?
+  await link.endB.client.waitForIndexer();
 
   // check that acks can be queried on B (and not A)
   const acksA2 = await link.endA.queryWrittenAcks();
