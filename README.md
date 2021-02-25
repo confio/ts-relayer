@@ -40,7 +40,7 @@ Build the project.
 yarn build
 ```
 
-Link the binaries so you can reference them w/o specyfing the full path. Use `npm` since [yarn has issues with setting permissions](https://github.com/yarnpkg/yarn/issues/3587).
+Link the binaries so you can reference them w/o specifying the full path. Use `npm` since [yarn has issues with setting permissions](https://github.com/yarnpkg/yarn/issues/3587).
 
 ```bash
 npm link
