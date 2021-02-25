@@ -8,7 +8,7 @@ chains:
     # this determines the gas payments we make (and defines the fee token)
     gas_price: 0.025umayo
     # the path we use to derive the private key from the mnemonic
-    hd_path: 44'/108'/0'/1'
+    hd_path: m/44'/108'/0'/1'
     # you can include multiple RPC endpoints and it will rotate through them if
     # one is down
     rpc:
@@ -17,13 +17,13 @@ chains:
     chain_id: testing
     prefix: wasm
     gas_price: 0.025ucosm
-    hd_path: 44'/108'/0'/2'
+    hd_path: m/44'/108'/0'/2'
     rpc:
       - http://localhost:26659
   local_simapp:
     chain_id: simd-testing
     prefix: cosmos
     gas_price: 0.025ucosm
-    hd_path: 44'/108'/0'/3'
+    hd_path: m/44'/108'/0'/3'
     rpc:
       - http://localhost:26658
