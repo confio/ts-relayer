@@ -1,7 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 
-import { Bip39, Random } from '@cosmjs/crypto';
+import { Bip39, Random, stringToPath } from '@cosmjs/crypto';
+import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 import axios from 'axios';
 import yaml from 'js-yaml';
 
@@ -13,11 +14,40 @@ export type Options = GlobalOptions & {
   readonly dest: string;
 };
 
+type Registry = {
+  version: string;
+  chains: Record<
+    string,
+    {
+      chain_id: string;
+      prefix: string;
+      gas_price: string;
+      hd_path: string;
+      rpc: string[];
+    }
+  >;
+};
+
 const registryFile = 'registry.yaml';
 const appFile = 'app.yaml';
 
-export function generateMnemonic(): string {
+function generateMnemonic(): string {
   return Bip39.encode(Random.getBytes(16)).toString();
+}
+
+async function deriveAddress(
+  mnemomic: string,
+  prefix: string,
+  path: string
+): Promise<string> {
+  const hdpath = stringToPath(path);
+  const wallet = await DirectSecp256k1HdWallet.fromMnemonic(
+    mnemomic,
+    hdpath,
+    prefix
+  );
+  const accounts = await wallet.getAccounts();
+  return accounts[0].address;
 }
 
 export function init(flags: Partial<Options>) {
@@ -39,7 +69,6 @@ export function init(flags: Partial<Options>) {
 }
 
 export async function run(options: Options) {
-  console.log(generateMnemonic());
   const appFilePath = path.join(options.home, appFile);
   if (fs.existsSync(appFilePath)) {
     console.log(`The ${appFile} is already initialized at ${options.home}`);
@@ -67,15 +96,35 @@ export async function run(options: Options) {
     throw new Error(`${registryFilePath} must be a file.`);
   }
 
-  yaml.load(fs.readFileSync(registryFilePath, 'utf-8'));
+  const registry = yaml.load(
+    fs.readFileSync(registryFilePath, 'utf-8')
+  ) as Registry;
   // TODO #75: registry file validation
 
-  const appYaml = yaml.dump({
-    src: options.src,
-    dest: options.dest,
-    mnemonic: generateMnemonic(),
-  });
+  const chainSrc = registry.chains[options.src];
+  const chainDest = registry.chains[options.dest];
+
+  const mnemonic = generateMnemonic();
+
+  const appYaml = yaml.dump(
+    {
+      src: options.src,
+      dest: options.dest,
+      mnemonic,
+    },
+    {
+      lineWidth: 1000,
+    }
+  );
 
   fs.writeFileSync(appFilePath, appYaml, { encoding: 'utf-8' });
   console.log(`Saved configuration to ${appFilePath}`);
+
+  const [addressSrc, addressDest] = await Promise.all([
+    deriveAddress(mnemonic, chainSrc.prefix, chainSrc.hd_path),
+    deriveAddress(mnemonic, chainDest.prefix, chainSrc.hd_path),
+  ]);
+
+  console.log(`Source address: ${addressSrc}`);
+  console.log(`Destination address: ${addressDest}`);
 }

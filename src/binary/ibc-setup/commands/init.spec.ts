@@ -22,6 +22,37 @@ sinon.replace(
   })
 );
 
+const registryYaml = `
+version: 1
+
+chains:
+  musselnet:
+    chain_id: musselnet-4
+    # bech32 prefix for addresses
+    prefix: wasm
+    # this determines the gas payments we make (and defines the fee token)
+    gas_price: 0.025umayo
+    # the path we use to derive the private key from the mnemonic
+    hd_path: m/44'/108'/0'/1'
+    # you can include multiple RPC endpoints and it will rotate through them if
+    # one is down
+    rpc:
+      - https://rpc.musselnet.cosmwasm.com:443
+  local_wasm:
+    chain_id: testing
+    prefix: wasm
+    gas_price: 0.025ucosm
+    hd_path: m/44'/108'/0'/2'
+    rpc:
+      - http://localhost:26659
+  local_simapp:
+    chain_id: simd-testing
+    prefix: cosmos
+    gas_price: 0.025ucosm
+    hd_path: m/44'/108'/0'/3'
+    rpc:
+      - http://localhost:26658`;
+
 test.beforeEach(() => {
   sinon.reset();
 });
@@ -29,14 +60,11 @@ test.beforeEach(() => {
 test('create app.yaml', async (t) => {
   const options: Options = {
     home: '/home/user',
-    src: 'AAA',
-    dest: 'BBB',
+    src: 'local_wasm',
+    dest: 'local_simapp',
   };
   const appPath = `${options.home}/app.yaml`;
   const registryPath = `${options.home}/registry.yaml`;
-  const registryYaml = `
-  version: 1
-  `;
 
   fsExistSync
     .onCall(0)
@@ -64,19 +92,21 @@ test('create app.yaml', async (t) => {
   );
   t.is(path, appPath);
   t.regex(contents as string, appYamlRegexp);
+
+  t.assert(consoleLog.getCall(-2).calledWithMatch(/Source address: [\w ]+/));
+  t.assert(
+    consoleLog.getCall(-1).calledWithMatch(/Destination address: [\w ]+/)
+  );
 });
 
 test('initialize home directory, pull registry.yaml and create app.yaml', async (t) => {
   const options: Options = {
     home: '/home/user',
-    src: 'AAA',
-    dest: 'BBB',
+    src: 'local_wasm',
+    dest: 'local_simapp',
   };
   const appPath = `${options.home}/app.yaml`;
   const registryPath = `${options.home}/registry.yaml`;
-  const registryYaml = `
-  version: 1
-  `;
 
   fsExistSync
     .onCall(0)
@@ -107,16 +137,21 @@ test('initialize home directory, pull registry.yaml and create app.yaml', async 
   );
   t.is(path, appPath);
   t.regex(contents as string, appYamlRegexp);
+
+  t.assert(consoleLog.getCall(-2).calledWithMatch(/Source address: [\w ]+/));
+  t.assert(
+    consoleLog.getCall(-1).calledWithMatch(/Destination address: [\w ]+/)
+  );
 });
 
 test('throws when cannot fetch registry.yaml from remote', async (t) => {
   const options: Options = {
     home: '/home/user',
-    src: 'AAA',
-    dest: 'BBB',
+    src: 'local_wasm',
+    dest: 'local_simapp',
   };
 
-  fsExistSync.onCall(0).returns(false).onCall(1).returns(false);
+  fsExistSync.returns(false);
   fsMkdirSync.returns(options.home);
   axiosGet.rejects();
   fsReadFileSync.returns('');
