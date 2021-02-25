@@ -94,11 +94,11 @@ test('throws when cannot fetch registry.yaml from remote', async (t) => {
   fsReadFileSync.returns('');
   fsWriteFileSync.returns();
 
-  const error = await t.throwsAsync(async () => await run(options), {
+  await t.throwsAsync(async () => await run(options), {
     instanceOf: Error,
+    message: /Cannot fetch registry.yaml/,
   });
 
   t.assert(fsMkdirSync.calledOnceWith(options.home));
   t.assert(axiosGet.calledOnce);
-  t.assert(error.message.includes('Cannot fetch registry.yaml from remote.'));
 });
