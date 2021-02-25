@@ -8,7 +8,7 @@ const functionWithString = () => 'function option';
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const functionWithVoid = () => {};
 
-test('leftmost not undefined option takes precedence', (t) => {
+test('leftmost defined option takes precedence', (t) => {
   const option1 = resolveOption(
     'first option', // identifier
     undefined,
