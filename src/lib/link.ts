@@ -1,6 +1,6 @@
 import { arrayContentEquals } from '@cosmjs/utils';
 
-import { Order, State } from '../codec/ibc/core/channel/v1/channel';
+import { Order, Packet, State } from '../codec/ibc/core/channel/v1/channel';
 
 import {
   AckWithMetadata,
@@ -362,50 +362,23 @@ export class Link {
     opts: QueryOpts = {}
   ): Promise<PacketWithMetadata[]> {
     this.logger.verbose(`Get pending packets for source ${source}`);
-    const delim = ':';
     const { src, dest } = this.getEnds(source);
     const allPackets = await src.querySentPackets(opts);
-    if (allPackets.length === 0) {
-      return [];
-    }
 
-    const packetId = (packet: {
-      destinationPort: string;
-      destinationChannel: string;
-    }) => `${packet.destinationPort}${delim}${packet.destinationChannel}`;
-
-    const packetsPerDestination = allPackets.reduce(
-      (sorted: Record<string, readonly number[]>, { packet }) => {
-        const key = packetId(packet);
-        return {
-          ...sorted,
-          [key]: [...(sorted[key] ?? []), packet.sequence.toNumber()],
-        };
-      },
-      {}
-    );
-    const unreceivedResponses = await Promise.all(
-      Object.entries(packetsPerDestination).map(
-        async ([destination, sequences]) => {
-          const [port, channel] = destination.split(':');
-          const notfound = await dest.client.query.ibc.channel.unreceivedPackets(
-            port,
-            channel,
-            sequences
-          );
-          return { key: destination, sequences: notfound.sequences };
-        }
-      )
-    );
-    const unreceived = unreceivedResponses.reduce(
-      (nested: Record<string, Set<number>>, { key, sequences }) => {
-        return {
-          ...nested,
-          [key]: new Set(sequences.map((sequence) => sequence.toNumber())),
-        };
-      },
-      {}
-    );
+    const toFilter = allPackets.map(({ packet }) => packet);
+    const query = async (
+      port: string,
+      channel: string,
+      sequences: readonly number[]
+    ) => {
+      const res = await dest.client.query.ibc.channel.unreceivedPackets(
+        port,
+        channel,
+        sequences
+      );
+      return res.sequences.map((seq) => seq.toNumber());
+    };
+    const unreceived = await this.filterUnreceived(toFilter, query);
 
     return allPackets.filter(({ packet }) =>
       unreceived[packetId(packet)].has(packet.sequence.toNumber())
@@ -436,6 +409,49 @@ export class Link {
     return allAcks.filter((ack) =>
       unreceived.has(ack.originalPacket.sequence.toNumber())
     );
+  }
+
+  private async filterUnreceived(
+    packets: Packet[],
+    unreceivedQuery: (
+      port: string,
+      channel: string,
+      sequences: readonly number[]
+    ) => Promise<number[]>
+  ): Promise<Record<string, Set<number>>> {
+    if (packets.length === 0) {
+      return {};
+    }
+
+    const packetsPerDestination = packets.reduce(
+      (sorted: Record<string, readonly number[]>, packet) => {
+        const key = packetId(packet);
+        return {
+          ...sorted,
+          [key]: [...(sorted[key] ?? []), packet.sequence.toNumber()],
+        };
+      },
+      {}
+    );
+    const unreceivedResponses = await Promise.all(
+      Object.entries(packetsPerDestination).map(
+        async ([destination, sequences]) => {
+          const [port, channel] = destination.split(packetIdDelim);
+          const notfound = await unreceivedQuery(port, channel, sequences);
+          return { key: destination, sequences: notfound };
+        }
+      )
+    );
+    const unreceived = unreceivedResponses.reduce(
+      (nested: Record<string, Set<number>>, { key, sequences }) => {
+        return {
+          ...nested,
+          [key]: new Set(sequences),
+        };
+      },
+      {}
+    );
+    return unreceived;
   }
 
   // Returns the last height that this side knows of the other blockchain
@@ -515,6 +531,12 @@ export class Link {
     }
   }
 }
+
+const packetIdDelim = ':';
+const packetId = (packet: {
+  destinationPort: string;
+  destinationChannel: string;
+}) => `${packet.destinationPort}${packetIdDelim}${packet.destinationChannel}`;
 
 interface EndpointPair {
   readonly src: Endpoint;
