@@ -165,3 +165,19 @@ test('throws when cannot fetch registry.yaml from remote', async (t) => {
   t.assert(fsMkdirSync.calledOnceWith(options.home));
   t.assert(axiosGet.calledOnce);
 });
+
+test('returns early if app.yaml exists', async (t) => {
+  const options: Options = {
+    home: '/home/user',
+    src: 'local_wasm',
+    dest: 'local_simapp',
+  };
+
+  fsExistSync.onCall(0).returns(true);
+
+  await run(options);
+
+  t.assert(fsExistSync.calledOnce);
+  t.assert(consoleLog.calledWithMatch(/app.yaml is already initialized/));
+  t.assert(consoleLog.calledOnce);
+});
