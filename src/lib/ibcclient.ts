@@ -283,6 +283,11 @@ export class IbcClient {
     await sleep(500);
   }
 
+  // we may have to wait a bit before a tx returns and making queries on the event log
+  public async waitForIndexer(): Promise<void> {
+    await sleep(50);
+  }
+
   public getCommit(height?: number): Promise<CommitResponse> {
     this.logger.verbose(
       height === undefined

@@ -378,7 +378,7 @@ export class Link {
       );
       return res.sequences.map((seq) => seq.toNumber());
     };
-    const unreceived = await this.filterUnreceived(toFilter, query);
+    const unreceived = await this.filterUnreceived(toFilter, query, packetId);
 
     return allPackets.filter(({ packet }) =>
       unreceived[packetId(packet)].has(packet.sequence.toNumber())
@@ -392,22 +392,24 @@ export class Link {
     this.logger.verbose(`Get pending acks for source ${source}`);
     const { src, dest } = this.getEnds(source);
     const allAcks = await src.queryWrittenAcks(opts);
-    if (allAcks.length === 0) {
-      return [];
-    }
-    const { sourcePort, sourceChannel } = allAcks[0].originalPacket;
-    // TODO: handle this when there are multiple channels,
-    const toCheck = allAcks.map((ack) =>
-      ack.originalPacket.sequence.toNumber()
-    );
-    const { sequences } = await dest.client.query.ibc.channel.unreceivedAcks(
-      sourcePort,
-      sourceChannel,
-      toCheck
-    );
-    const unreceived = new Set(sequences.map((seq) => seq.toNumber()));
-    return allAcks.filter((ack) =>
-      unreceived.has(ack.originalPacket.sequence.toNumber())
+
+    const toFilter = allAcks.map(({ originalPacket }) => originalPacket);
+    const query = async (
+      port: string,
+      channel: string,
+      sequences: readonly number[]
+    ) => {
+      const res = await dest.client.query.ibc.channel.unreceivedAcks(
+        port,
+        channel,
+        sequences
+      );
+      return res.sequences.map((seq) => seq.toNumber());
+    };
+    const unreceived = await this.filterUnreceived(toFilter, query, ackId);
+
+    return allAcks.filter(({ originalPacket: packet }) =>
+      unreceived[ackId(packet)].has(packet.sequence.toNumber())
     );
   }
 
@@ -417,7 +419,8 @@ export class Link {
       port: string,
       channel: string,
       sequences: readonly number[]
-    ) => Promise<number[]>
+    ) => Promise<number[]>,
+    idFunc: (packet: Packet) => string
   ): Promise<Record<string, Set<number>>> {
     if (packets.length === 0) {
       return {};
@@ -425,7 +428,7 @@ export class Link {
 
     const packetsPerDestination = packets.reduce(
       (sorted: Record<string, readonly number[]>, packet) => {
-        const key = packetId(packet);
+        const key = idFunc(packet);
         return {
           ...sorted,
           [key]: [...(sorted[key] ?? []), packet.sequence.toNumber()],
@@ -436,7 +439,7 @@ export class Link {
     const unreceivedResponses = await Promise.all(
       Object.entries(packetsPerDestination).map(
         async ([destination, sequences]) => {
-          const [port, channel] = destination.split(packetIdDelim);
+          const [port, channel] = destination.split(idDelim);
           const notfound = await unreceivedQuery(port, channel, sequences);
           return { key: destination, sequences: notfound };
         }
@@ -532,11 +535,11 @@ export class Link {
   }
 }
 
-const packetIdDelim = ':';
-const packetId = (packet: {
-  destinationPort: string;
-  destinationChannel: string;
-}) => `${packet.destinationPort}${packetIdDelim}${packet.destinationChannel}`;
+const idDelim = ':';
+const packetId = (packet: Packet) =>
+  `${packet.destinationPort}${idDelim}${packet.destinationChannel}`;
+const ackId = (packet: Packet) =>
+  `${packet.sourcePort}${idDelim}${packet.sourceChannel}`;
 
 interface EndpointPair {
   readonly src: Endpoint;

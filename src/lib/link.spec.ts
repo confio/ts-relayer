@@ -286,7 +286,7 @@ test.serial('submit multiple tx, get unreceived packets', async (t) => {
   t.deepEqual(postAcks[0], acks[1]);
 });
 
-test.serial.only(
+test.serial(
   'submit multiple tx on multiple channels, get unreceived packets',
   async (t) => {
     const logger = new TestLogger();
@@ -371,7 +371,6 @@ test.serial.only(
       })),
       [...txHeights.channels1, ...txHeights.channels2]
     );
-    console.log([...txHeights.channels1, ...txHeights.channels2]);
 
     // ensure the sender is set properly
     for (const packet of packets) {
@@ -396,12 +395,6 @@ test.serial.only(
     // ensure acks can be queried
     const acks = await link.getPendingAcks('B');
     t.is(acks.length, 4);
-    console.log(
-      acks.map((ack) => ({
-        height: ack.height,
-        channelId: ack.originalPacket.sourceChannel,
-      }))
-    );
 
     // make sure we ack on different channels (and different sequences)
     t.not(
