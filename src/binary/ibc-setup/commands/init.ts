@@ -42,12 +42,16 @@ export async function run(options: Options) {
 
   const registryFilePath = path.join(options.home, registryFile);
   if (!fs.existsSync(registryFilePath)) {
-    const registryFromRemote = await axios.get(
-      'https://raw.githubusercontent.com/confio/ts-relayer/main/demo/registry.yaml'
-    );
-    fs.writeFileSync(registryFilePath, registryFromRemote.data, {
-      encoding: 'utf-8',
-    });
+    try {
+      const registryFromRemote = await axios.get(
+        'https://raw.githubusercontent.com/confio/ts-relayer/main/demo/registry.yaml'
+      );
+      fs.writeFileSync(registryFilePath, registryFromRemote.data, {
+        encoding: 'utf-8',
+      });
+    } catch (error) {
+      throw new Error(`Cannot fetch ${registryFile} from remote. ${error}`);
+    }
   } else if (!fs.lstatSync(registryFilePath).isFile()) {
     throw new Error(`${registryFilePath} must be a file. It is a directory.`);
   }

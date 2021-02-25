@@ -69,7 +69,7 @@ test('initialize home directory and pull registry.yaml from remote', async (t) =
     data: registryYaml,
   });
   fsReadFileSync.returns(registryYaml);
-  fsWriteFileSync.returns(undefined);
+  fsWriteFileSync.returns();
 
   await run(options);
 
@@ -79,4 +79,26 @@ test('initialize home directory and pull registry.yaml from remote', async (t) =
   t.assert(fsWriteFileSync.calledOnceWith(registryPath, registryYaml));
   t.assert(consoleLog.calledWithMatch(new RegExp(`at ${options.home}`)));
   t.assert(consoleLog.calledWith({ version: 1 }));
+});
+
+test('throws when cannot fetch registry.yaml from remote', async (t) => {
+  const options: Options = {
+    home: '/home/user',
+    src: 'AAA',
+    dest: 'BBB',
+  };
+
+  fsExistSync.onCall(0).returns(false).onCall(1).returns(false);
+  fsMkdirSync.returns(options.home);
+  axiosGet.rejects();
+  fsReadFileSync.returns('');
+  fsWriteFileSync.returns();
+
+  const error = await t.throwsAsync(async () => await run(options), {
+    instanceOf: Error,
+  });
+
+  t.assert(fsMkdirSync.calledOnceWith(options.home));
+  t.assert(axiosGet.calledOnce);
+  t.assert(error.message.includes('Cannot fetch registry.yaml from remote.'));
 });
