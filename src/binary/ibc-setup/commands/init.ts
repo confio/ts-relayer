@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
+import { Bip39, Random } from '@cosmjs/crypto';
 import axios from 'axios';
 import yaml from 'js-yaml';
 
@@ -13,6 +14,11 @@ export type Options = GlobalOptions & {
 };
 
 const registryFile = 'registry.yaml';
+const appFile = 'app.yaml';
+
+export function generateMnemonic(): string {
+  return Bip39.encode(Random.getBytes(16)).toString();
+}
 
 export function init(flags: Partial<Options>) {
   function getDefaultHome() {
@@ -33,6 +39,13 @@ export function init(flags: Partial<Options>) {
 }
 
 export async function run(options: Options) {
+  console.log(generateMnemonic());
+  const appFilePath = path.join(options.home, appFile);
+  if (fs.existsSync(appFilePath)) {
+    console.log(`The ${appFile} is already initialized at ${options.home}`);
+    return;
+  }
+
   if (!fs.existsSync(options.home)) {
     fs.mkdirSync(options.home, { recursive: true });
     console.log(`Initialized home directory at ${options.home}`);
@@ -46,9 +59,7 @@ export async function run(options: Options) {
       const registryFromRemote = await axios.get(
         'https://raw.githubusercontent.com/confio/ts-relayer/main/demo/registry.yaml'
       );
-      fs.writeFileSync(registryFilePath, registryFromRemote.data, {
-        encoding: 'utf-8',
-      });
+      fs.writeFileSync(registryFilePath, registryFromRemote.data);
     } catch (error) {
       throw new Error(`Cannot fetch ${registryFile} from remote. ${error}`);
     }
@@ -56,7 +67,15 @@ export async function run(options: Options) {
     throw new Error(`${registryFilePath} must be a file.`);
   }
 
-  const registry = yaml.load(fs.readFileSync(registryFilePath, 'utf-8'));
+  yaml.load(fs.readFileSync(registryFilePath, 'utf-8'));
   // TODO #75: registry file validation
-  console.log(registry);
+
+  const appYaml = yaml.dump({
+    src: options.src,
+    dest: options.dest,
+    mnemonic: generateMnemonic(),
+  });
+
+  fs.writeFileSync(appFilePath, appYaml, { encoding: 'utf-8' });
+  console.log(`Saved configuration to ${appFilePath}`);
 }

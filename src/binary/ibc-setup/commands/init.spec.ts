@@ -12,6 +12,7 @@ const fsMkdirSync = sinon.stub(fs, 'mkdirSync');
 const axiosGet = sinon.stub(axios, 'get');
 const fsReadFileSync = sinon.stub(fs, 'readFileSync');
 const fsWriteFileSync = sinon.stub(fs, 'writeFileSync');
+
 sinon.replace(
   fs,
   'lstatSync',
@@ -25,18 +26,25 @@ test.beforeEach(() => {
   sinon.reset();
 });
 
-test('read existing registry.yaml', async (t) => {
+test('create app.yaml', async (t) => {
   const options: Options = {
     home: '/home/user',
     src: 'AAA',
     dest: 'BBB',
   };
+  const appPath = `${options.home}/app.yaml`;
   const registryPath = `${options.home}/registry.yaml`;
   const registryYaml = `
   version: 1
   `;
 
-  fsExistSync.onCall(0).returns(true).onCall(1).returns(true);
+  fsExistSync
+    .onCall(0)
+    .returns(false)
+    .onCall(1)
+    .returns(true)
+    .onCall(2)
+    .returns(true);
   axiosGet.resolves({
     data: registryYaml,
   });
@@ -48,22 +56,35 @@ test('read existing registry.yaml', async (t) => {
   t.assert(fsMkdirSync.notCalled);
   t.assert(axiosGet.notCalled);
   t.assert(fsReadFileSync.calledOnceWith(registryPath));
-  t.assert(fsWriteFileSync.notCalled);
-  t.assert(consoleLog.calledWith({ version: 1 }));
+
+  const [path, contents] = fsWriteFileSync.getCall(0).args;
+  const appYamlRegexp = new RegExp(
+    `src: ${options.src}\ndest: ${options.dest}\nmnemonic: [\\w ]+`,
+    'mg'
+  );
+  t.is(path, appPath);
+  t.regex(contents as string, appYamlRegexp);
 });
 
-test('initialize home directory and pull registry.yaml from remote', async (t) => {
+test('initialize home directory, pull registry.yaml and create app.yaml', async (t) => {
   const options: Options = {
     home: '/home/user',
     src: 'AAA',
     dest: 'BBB',
   };
+  const appPath = `${options.home}/app.yaml`;
   const registryPath = `${options.home}/registry.yaml`;
   const registryYaml = `
   version: 1
   `;
 
-  fsExistSync.onCall(0).returns(false).onCall(1).returns(false);
+  fsExistSync
+    .onCall(0)
+    .returns(false)
+    .onCall(1)
+    .returns(false)
+    .onCall(2)
+    .returns(false);
   fsMkdirSync.returns(options.home);
   axiosGet.resolves({
     data: registryYaml,
@@ -76,9 +97,16 @@ test('initialize home directory and pull registry.yaml from remote', async (t) =
   t.assert(fsMkdirSync.calledOnceWith(options.home));
   t.assert(axiosGet.calledOnce);
   t.assert(fsReadFileSync.calledOnceWith(registryPath));
-  t.assert(fsWriteFileSync.calledOnceWith(registryPath, registryYaml));
+  t.assert(fsWriteFileSync.calledWithExactly(registryPath, registryYaml));
   t.assert(consoleLog.calledWithMatch(new RegExp(`at ${options.home}`)));
-  t.assert(consoleLog.calledWith({ version: 1 }));
+
+  const [path, contents] = fsWriteFileSync.getCall(1).args;
+  const appYamlRegexp = new RegExp(
+    `src: ${options.src}\ndest: ${options.dest}\nmnemonic: [\\w ]+`,
+    'mg'
+  );
+  t.is(path, appPath);
+  t.regex(contents as string, appYamlRegexp);
 });
 
 test('throws when cannot fetch registry.yaml from remote', async (t) => {
