@@ -37,7 +37,7 @@ export async function run(options: Options) {
     fs.mkdirSync(options.home, { recursive: true });
     console.log(`Initialized home directory at ${options.home}`);
   } else if (!fs.lstatSync(options.home).isDirectory()) {
-    throw new Error(`${options.home} must be a directory. It is a file.`);
+    throw new Error(`${options.home} must be a directory.`);
   }
 
   const registryFilePath = path.join(options.home, registryFile);
@@ -53,7 +53,7 @@ export async function run(options: Options) {
       throw new Error(`Cannot fetch ${registryFile} from remote. ${error}`);
     }
   } else if (!fs.lstatSync(registryFilePath).isFile()) {
-    throw new Error(`${registryFilePath} must be a file. It is a directory.`);
+    throw new Error(`${registryFilePath} must be a file.`);
   }
 
   const registry = yaml.load(fs.readFileSync(registryFilePath, 'utf-8'));
