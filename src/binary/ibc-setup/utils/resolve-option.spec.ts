@@ -74,11 +74,14 @@ test('throws if nothing is defined', (t) => {
       undefined,
       functionWithVoid
     );
-  t.throws(option1, { instanceOf: Error });
+  t.throws(option1, {
+    instanceOf: Error,
+    message: /first option/,
+  });
 
   const option2 = () =>
     resolveOption('second option', undefined, undefined, undefined);
-  t.throws(option2, { instanceOf: Error });
+  t.throws(option2, { instanceOf: Error, message: /second option/ });
 
   const option3 = () =>
     resolveOption(
@@ -87,5 +90,8 @@ test('throws if nothing is defined', (t) => {
       functionWithVoid,
       functionWithVoid
     );
-  t.throws(option3, { instanceOf: Error });
+  t.throws(option3, {
+    instanceOf: Error,
+    message: /third option/,
+  });
 });
