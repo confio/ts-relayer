@@ -21,4 +21,4 @@ program
   .option('--dest <chain>')
   .action(init);
 
-program.parse();
+program.parse(process.argv);
