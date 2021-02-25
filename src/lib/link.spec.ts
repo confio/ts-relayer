@@ -286,7 +286,7 @@ test.serial('submit multiple tx, get unreceived packets', async (t) => {
   t.deepEqual(postAcks[0], acks[1]);
 });
 
-test.serial(
+test.serial.only(
   'submit multiple tx on multiple channels, get unreceived packets',
   async (t) => {
     const logger = new TestLogger();
@@ -307,6 +307,7 @@ test.serial(
       ics20.ordering,
       ics20.version
     );
+    t.not(channels1.src.channelId, channels2.src.channelId);
 
     // no packets here
     const noPackets = await link.endA.querySentPackets();
@@ -319,9 +320,13 @@ test.serial(
     // const totalSent = amounts.reduce((a, b) => a + b, 0);
 
     // let's make 3 transfer tx at different heights on each channel pair
+    interface Meta {
+      height: number;
+      channelId: string;
+    }
     const txHeights = {
-      channels1: [] as number[],
-      channels2: [] as number[],
+      channels1: [] as Meta[],
+      channels2: [] as Meta[],
     };
 
     for (const amount of amounts) {
@@ -336,7 +341,7 @@ test.serial(
         recipient,
         destHeight
       );
-      txHeights.channels1.push(height);
+      txHeights.channels1.push({ height, channelId: channels1.src.channelId });
     }
     for (const amount of amounts) {
       const token = {
@@ -350,19 +355,24 @@ test.serial(
         recipient,
         destHeight
       );
-      txHeights.channels2.push(height);
+      txHeights.channels2.push({ height, channelId: channels2.src.channelId });
     }
 
     // need to wait briefly for it to be indexed
     await sleep(100);
 
-    // now query for all packets
+    // now query for all packets, ensuring we mapped the channels properly
     const packets = await link.getPendingPackets('A');
     t.is(packets.length, 6);
     t.deepEqual(
-      packets.map(({ height }) => height),
+      packets.map(({ height, packet }) => ({
+        height,
+        channelId: packet.sourceChannel,
+      })),
       [...txHeights.channels1, ...txHeights.channels2]
     );
+    console.log([...txHeights.channels1, ...txHeights.channels2]);
+
     // ensure the sender is set properly
     for (const packet of packets) {
       t.is(packet.sender, nodeA.senderAddress);
@@ -372,33 +382,40 @@ test.serial(
     const preAcks = await link.getPendingAcks('B');
     t.is(preAcks.length, 0);
 
-    // let's pre-update to test conditional logic (no need to update below)
-    await nodeA.waitOneBlock();
-    await link.updateClient('A');
-
-    // submit 4 of them (out of order)
-    const packetsToSubmit = [packets[0], packets[2], packets[3], packets[5]];
+    // submit 4 of them (out of order) - make sure not to use same sequences on both sides
+    const packetsToSubmit = [packets[0], packets[1], packets[4], packets[5]];
     const txAcks = await link.relayPackets('A', packetsToSubmit);
     t.is(txAcks.length, 4);
 
     // ensure only two marked pending (for tx1)
     const postPackets = await link.getPendingPackets('A');
     t.is(postPackets.length, 2);
-    t.is(postPackets[0].height, txHeights.channels1[1]);
-    t.is(postPackets[1].height, txHeights.channels2[1]);
+    t.is(postPackets[0].height, txHeights.channels1[2].height);
+    t.is(postPackets[1].height, txHeights.channels2[0].height);
 
     // ensure acks can be queried
     const acks = await link.getPendingAcks('B');
     t.is(acks.length, 4);
+    console.log(
+      acks.map((ack) => ({
+        height: ack.height,
+        channelId: ack.originalPacket.sourceChannel,
+      }))
+    );
 
-    // submit two of the acks, without waiting (it must update client)
-    await link.relayAcks('B', [acks[0], acks[2]]);
+    // make sure we ack on different channels (and different sequences)
+    t.not(
+      acks[0].originalPacket.sourceChannel,
+      acks[3].originalPacket.sourceChannel
+    );
+    t.not(acks[0].originalPacket.sequence, acks[3].originalPacket.sequence);
+    await link.relayAcks('B', [acks[0], acks[3]]);
 
     // ensure only two acks are still pending
     const postAcks = await link.getPendingAcks('B');
     t.is(postAcks.length, 2);
     // and it matches the ones we did not send
     t.deepEqual(postAcks[0], acks[1]);
-    t.deepEqual(postAcks[1], acks[3]);
+    t.deepEqual(postAcks[1], acks[2]);
   }
 );
