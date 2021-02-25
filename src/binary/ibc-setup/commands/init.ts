@@ -12,7 +12,7 @@ export type Options = GlobalOptions & {
   readonly dest: string;
 };
 
-const REGISTRY_FILE = 'registry.yaml';
+const registryFile = 'registry.yaml';
 
 export function init(flags: Partial<Options>) {
   function getDefaultHome() {
@@ -40,19 +40,19 @@ export async function run(options: Options) {
     throw new Error(`${options.home} must be a directory. It is a file.`);
   }
 
-  const REGISTRY_FILE_PATH = path.join(options.home, REGISTRY_FILE);
-  if (!fs.existsSync(REGISTRY_FILE_PATH)) {
+  const registryFilePath = path.join(options.home, registryFile);
+  if (!fs.existsSync(registryFilePath)) {
     const registryFromRemote = await axios.get(
       'https://raw.githubusercontent.com/confio/ts-relayer/main/demo/registry.yaml'
     );
-    fs.writeFileSync(REGISTRY_FILE_PATH, registryFromRemote.data, {
+    fs.writeFileSync(registryFilePath, registryFromRemote.data, {
       encoding: 'utf-8',
     });
-  } else if (!fs.lstatSync(REGISTRY_FILE_PATH).isFile()) {
-    throw new Error(`${REGISTRY_FILE_PATH} must be a file. It is a directory.`);
+  } else if (!fs.lstatSync(registryFilePath).isFile()) {
+    throw new Error(`${registryFilePath} must be a file. It is a directory.`);
   }
 
-  const registry = yaml.load(fs.readFileSync(REGISTRY_FILE_PATH, 'utf-8'));
+  const registry = yaml.load(fs.readFileSync(registryFilePath, 'utf-8'));
   // TODO #75: registry file validation
   console.log(registry);
 }
