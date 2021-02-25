@@ -1,25 +1,20 @@
 import fs from 'fs';
 import path from 'path';
 
-import { Command } from 'commander';
+import axios from 'axios';
 import yaml from 'js-yaml';
 
 import { GlobalOptions } from '../types';
 import { resolveOption } from '../utils/resolve-option';
-import axios from 'axios';
 
 export type Options = GlobalOptions & {
   src: string;
   dest: string;
 };
 
-type ProgramOptions = Partial<Options>;
-
 const REGISTRY_FILE = 'registry.yaml';
 
-export function init(_: unknown, program: Command) {
-  const programOptions: ProgramOptions = program.opts();
-
+export function init(flags: Partial<Options>) {
   function getDefaultHome() {
     if (!process.env.HOME) {
       throw new Error('$HOME environment variable is not set.');
@@ -29,9 +24,9 @@ export function init(_: unknown, program: Command) {
   }
 
   const options = {
-    src: resolveOption('src', programOptions.src, process.env.RELAYER_SRC),
-    dest: resolveOption('dest', programOptions.dest, process.env.RELAYER_DEST),
-    home: resolveOption('home', programOptions.home, getDefaultHome),
+    src: resolveOption('src', flags.src, process.env.RELAYER_SRC),
+    dest: resolveOption('dest', flags.dest, process.env.RELAYER_DEST),
+    home: resolveOption('home', flags.home, getDefaultHome),
   };
 
   run(options);
