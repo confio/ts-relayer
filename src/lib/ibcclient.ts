@@ -285,7 +285,9 @@ export class IbcClient {
 
   public getCommit(height?: number): Promise<CommitResponse> {
     this.logger.verbose(
-      height === undefined ? 'Get commit' : `Get commit for height ${height}`
+      height === undefined
+        ? 'Get latest commit'
+        : `Get commit for height ${height}`
     );
     return this.tm.commit(height);
   }
@@ -680,6 +682,7 @@ export class IbcClient {
       'connection_open_init',
       'connection_id'
     ).value;
+    this.logger.debug(`Connection open init successful: ${connectionId}`);
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
@@ -692,7 +695,9 @@ export class IbcClient {
     myClientId: string,
     proof: ConnectionHandshakeProof
   ): Promise<CreateConnectionResult> {
-    this.logger.info(`Connection open try for my client ${myClientId}`);
+    this.logger.info(
+      `Connection open try: ${myClientId} => ${proof.clientId} (${proof.connectionId})`
+    );
     const senderAddress = this.senderAddress;
     const {
       clientId,
@@ -740,6 +745,9 @@ export class IbcClient {
       'connection_open_try',
       'connection_id'
     ).value;
+    this.logger.debug(
+      `Connection open try successful: ${myConnectionId} => ${connectionId}`
+    );
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
@@ -752,7 +760,9 @@ export class IbcClient {
     myConnectionId: string,
     proof: ConnectionHandshakeProof
   ): Promise<MsgResult> {
-    this.logger.info(`Connection open ack for my connection ${myConnectionId}`);
+    this.logger.info(
+      `Connection open ack: ${myConnectionId} => ${proof.connectionId}`
+    );
     const senderAddress = this.senderAddress;
     const {
       connectionId,
@@ -799,7 +809,7 @@ export class IbcClient {
   public async connOpenConfirm(
     proof: ConnectionHandshakeProof
   ): Promise<MsgResult> {
-    this.logger.info('Connection open confirm');
+    this.logger.info(`Connection open confirm: ${proof.connectionId}`);
     const senderAddress = this.senderAddress;
     const { connectionId, proofHeight, proofConnection: proofAck } = proof;
     const msg = {
@@ -836,7 +846,9 @@ export class IbcClient {
     connectionId: string,
     version: string
   ): Promise<CreateChannelResult> {
-    this.logger.verbose(`Channel open init: ${portId} => ${remotePortId}`);
+    this.logger.verbose(
+      `Channel open init: ${portId} => ${remotePortId} (${connectionId})`
+    );
     const senderAddress = this.senderAddress;
     const msg = {
       typeUrl: '/ibc.core.channel.v1.MsgChannelOpenInit',
@@ -870,6 +882,7 @@ export class IbcClient {
       'channel_open_init',
       'channel_id'
     ).value;
+    this.logger.debug(`Channel open init successful: ${channelId}`);
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
@@ -887,7 +900,9 @@ export class IbcClient {
     counterpartyVersion: string,
     proof: ChannelHandshake
   ): Promise<CreateChannelResult> {
-    this.logger.verbose(`Channel open try for port ${portId}`);
+    this.logger.verbose(
+      `Channel open try: ${portId} => ${remote.portId} (${remote.channelId})`
+    );
     const senderAddress = this.senderAddress;
     const { proofHeight, proof: proofInit } = proof;
     const msg = {
@@ -923,6 +938,9 @@ export class IbcClient {
       'channel_open_try',
       'channel_id'
     ).value;
+    this.logger.debug(
+      `Channel open try successful: ${channelId} => ${remote.channelId})`
+    );
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
@@ -979,7 +997,7 @@ export class IbcClient {
     proof: ChannelHandshake
   ): Promise<MsgResult> {
     this.logger.verbose(
-      `Chanel open confirm for port ${portId} and channel ${channelId}`
+      `Chanel open confirm for port ${portId}: ${channelId} => ${proof.id.channelId}`
     );
     const senderAddress = this.senderAddress;
     const { proofHeight, proof: proofAck } = proof;

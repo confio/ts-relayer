@@ -249,7 +249,7 @@ export class Link {
    * Just needs trusting period on both side
    */
   public async updateClient(sender: Side): Promise<number> {
-    this.logger.info(`Update client for sender ${sender}.`);
+    this.logger.info(`Update client for sender ${sender}`);
     const { src, dest } = this.getEnds(sender);
     const height = await dest.client.doUpdateClient(dest.clientID, src.client);
     return height;
@@ -265,7 +265,7 @@ export class Link {
     minHeight: number
   ): Promise<number> {
     this.logger.info(
-      `Update client for source ${source} to min height ${minHeight}`
+      `Check whether client for source ${source} >= height ${minHeight}`
     );
     const { src, dest } = this.getEnds(source);
     const client = await dest.client.query.ibc.client.stateTm(dest.clientID);
@@ -361,7 +361,7 @@ export class Link {
     source: Side,
     opts: QueryOpts = {}
   ): Promise<PacketWithMetadata[]> {
-    this.logger.info(`Get pending packets for source ${source}`);
+    this.logger.verbose(`Get pending packets for source ${source}`);
     const { src, dest } = this.getEnds(source);
     const allPackets = await src.querySentPackets(opts);
     if (allPackets.length === 0) {
@@ -395,7 +395,7 @@ export class Link {
     source: Side,
     opts: QueryOpts = {}
   ): Promise<AckWithMetadata[]> {
-    this.logger.info(`Get pending acks for source ${source}`);
+    this.logger.verbose(`Get pending acks for source ${source}`);
     const { src, dest } = this.getEnds(source);
     const allAcks = await src.queryWrittenAcks(opts);
     if (allAcks.length === 0) {
@@ -419,7 +419,7 @@ export class Link {
 
   // Returns the last height that this side knows of the other blockchain
   public async lastKnownHeader(side: Side): Promise<number> {
-    this.logger.info(`Get last known header for side ${side}`);
+    this.logger.verbose(`Get last known header for side ${side}`);
     const { src } = this.getEnds(side);
     const client = await src.client.query.ibc.client.stateTm(src.clientID);
     return client.latestHeight?.revisionHeight?.toNumber() ?? 0;
