@@ -1,3 +1,3 @@
 export type GlobalOptions = {
-  home: string;
+  readonly home: string;
 };

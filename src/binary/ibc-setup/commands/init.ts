@@ -8,8 +8,8 @@ import { GlobalOptions } from '../types';
 import { resolveOption } from '../utils/resolve-option';
 
 export type Options = GlobalOptions & {
-  src: string;
-  dest: string;
+  readonly src: string;
+  readonly dest: string;
 };
 
 const REGISTRY_FILE = 'registry.yaml';
