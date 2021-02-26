@@ -122,9 +122,8 @@ export async function run(options: Options) {
 
   const [addressSrc, addressDest] = await Promise.all([
     deriveAddress(mnemonic, chainSrc.prefix, chainSrc.hd_path),
-    deriveAddress(mnemonic, chainDest.prefix, chainSrc.hd_path),
+    deriveAddress(mnemonic, chainDest.prefix, chainDest.hd_path),
   ]);
-
   console.log(`Source address: ${addressSrc}`);
   console.log(`Destination address: ${addressDest}`);
 }
