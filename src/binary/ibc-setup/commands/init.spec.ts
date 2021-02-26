@@ -181,3 +181,33 @@ test('returns early if app.yaml exists', async (t) => {
   t.assert(consoleLog.calledWithMatch(/app.yaml is already initialized/));
   t.assert(consoleLog.calledOnce);
 });
+
+test('throws if provided chain does not exist in the registry', async (t) => {
+  const options: Options = {
+    home: '/home/user',
+    src: 'chain_that_does_not_exist',
+    dest: 'local_simapp',
+  };
+  const registryPath = `${options.home}/registry.yaml`;
+
+  fsExistSync
+    .onCall(0)
+    .returns(false)
+    .onCall(1)
+    .returns(true)
+    .onCall(2)
+    .returns(true);
+  axiosGet.resolves({
+    data: registryYaml,
+  });
+  fsReadFileSync.returns(registryYaml);
+
+  await t.throwsAsync(async () => await run(options), {
+    instanceOf: Error,
+    message: /chain_that_does_not_exist/,
+  });
+
+  t.assert(fsMkdirSync.notCalled);
+  t.assert(axiosGet.notCalled);
+  t.assert(fsReadFileSync.calledOnceWith(registryPath));
+});
