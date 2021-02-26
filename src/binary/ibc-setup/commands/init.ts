@@ -1,8 +1,10 @@
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 
 import { Bip39, Random, stringToPath } from '@cosmjs/crypto';
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
+import Ajv, { JSONSchemaType } from 'ajv';
 import axios from 'axios';
 import yaml from 'js-yaml';
 
@@ -23,7 +25,7 @@ type Chain = {
 };
 
 type Registry = {
-  version: string;
+  version: number;
   chains: Record<string, Chain>;
 };
 
@@ -54,7 +56,6 @@ export function init(flags: Partial<Options>) {
     if (!process.env.HOME) {
       throw new Error('$HOME environment variable is not set.');
     }
-
     return `${process.env.HOME}/.ibc-setup`;
   }
 
@@ -95,10 +96,48 @@ export async function run(options: Options) {
     throw new Error(`${registryFilePath} must be a file.`);
   }
 
-  const registry = yaml.load(
-    fs.readFileSync(registryFilePath, 'utf-8')
-  ) as Registry;
-  // TODO #75: registry file validation
+  const registry = yaml.load(fs.readFileSync(registryFilePath, 'utf-8'));
+
+  const ajv = new Ajv({ allErrors: true });
+  const schema: JSONSchemaType<Registry> = {
+    type: 'object',
+    required: ['chains', 'version'],
+    additionalProperties: false,
+    properties: {
+      version: {
+        type: 'number',
+      },
+      chains: {
+        type: 'object',
+        minProperties: 2,
+        required: [options.src, options.dest], // ensure registry compatibility with "src" and "dest"
+        additionalProperties: false,
+        patternProperties: {
+          '^(.*)$': {
+            type: 'object',
+            required: ['chain_id', 'gas_price', 'hd_path', 'prefix', 'rpc'],
+            additionalProperties: false,
+            properties: {
+              chain_id: { type: 'string' },
+              prefix: { type: 'string' },
+              gas_price: { type: 'string' },
+              hd_path: { type: 'string' },
+              rpc: { type: 'array', items: { type: 'string' } },
+            },
+          },
+        },
+      },
+    },
+  };
+  const validate = ajv.compile(schema);
+  if (!validate(registry)) {
+    const errors = (validate.errors ?? []).map(
+      ({ dataPath, message }) => `"${dataPath}" ${message}`
+    );
+    throw new Error(
+      [`${registryFile} validation failed.`, ...errors].join(os.EOL)
+    );
+  }
 
   const chainSrc = registry.chains[options.src];
   const chainDest = registry.chains[options.dest];
