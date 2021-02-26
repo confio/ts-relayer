@@ -112,7 +112,7 @@ export async function run(options: Options) {
       mnemonic,
     },
     {
-      lineWidth: 1000,
+      lineWidth: 1000, // to ensure mnemonic is not split on multiple lines
     }
   );
 
