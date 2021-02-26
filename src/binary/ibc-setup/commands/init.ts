@@ -14,18 +14,17 @@ export type Options = GlobalOptions & {
   readonly dest: string;
 };
 
+type Chain = {
+  chain_id: string;
+  prefix: string;
+  gas_price: string;
+  hd_path: string;
+  rpc: string[];
+};
+
 type Registry = {
   version: string;
-  chains: Record<
-    string,
-    {
-      chain_id: string;
-      prefix: string;
-      gas_price: string;
-      hd_path: string;
-      rpc: string[];
-    }
-  >;
+  chains: Record<string, Chain>;
 };
 
 const registryFile = 'registry.yaml';
