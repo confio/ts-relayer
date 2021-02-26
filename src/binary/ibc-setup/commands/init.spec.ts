@@ -204,7 +204,7 @@ test('throws if provided chain does not exist in the registry', async (t) => {
 
   await t.throwsAsync(async () => await run(options), {
     instanceOf: Error,
-    message: /chain_that_does_not_exist/,
+    message: new RegExp(`${options.src} is missing in the registry`),
   });
 
   t.assert(fsMkdirSync.notCalled);

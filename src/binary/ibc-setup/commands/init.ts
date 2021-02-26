@@ -110,7 +110,7 @@ export async function run(options: Options) {
       chains: {
         type: 'object',
         minProperties: 2,
-        required: [options.src, options.dest], // ensure registry compatibility with "src" and "dest"
+        required: [],
         additionalProperties: false,
         patternProperties: {
           '^(.*)$': {
@@ -139,8 +139,17 @@ export async function run(options: Options) {
     );
   }
 
-  const chainSrc = registry.chains[options.src];
-  const chainDest = registry.chains[options.dest];
+  const [chainSrc, chainDest] = [options.src, options.dest].map((chain) => {
+    const chainData = registry.chains[chain];
+
+    if (!chainData) {
+      throw new Error(
+        `Chain ${chain} is missing in the registry, either check the spelling or add the chain definition to ${registryFilePath}`
+      );
+    }
+
+    return chainData;
+  });
 
   const mnemonic = generateMnemonic();
 
