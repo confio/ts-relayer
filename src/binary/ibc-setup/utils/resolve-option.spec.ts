@@ -5,28 +5,18 @@ import { resolveOption } from './resolve-option';
 const stringOption1 = 'string option 1';
 const stringOption2 = 'string option 2';
 const functionWithString = () => 'function option';
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-const functionWithVoid = () => {};
+const functionWithUndefined = () => {
+  return undefined;
+};
 
-test('leftmost defined option takes precedence', (t) => {
-  const option1 = resolveOption(
-    'first option', // identifier
-    undefined,
-    undefined,
-    stringOption1
-  );
+test.only('leftmost defined option takes precedence', (t) => {
+  const option1 = resolveOption(undefined, undefined, stringOption1);
   t.is(option1, stringOption1);
 
-  const option2 = resolveOption(
-    'second option',
-    stringOption2,
-    undefined,
-    undefined
-  );
+  const option2 = resolveOption(stringOption2, undefined, undefined);
   t.is(option2, stringOption2);
 
   const option3 = resolveOption(
-    'third option',
     stringOption2,
     stringOption1,
     stringOption1,
@@ -37,26 +27,15 @@ test('leftmost defined option takes precedence', (t) => {
 });
 
 test('resolves function arguments', (t) => {
-  const option1 = resolveOption(
-    'first option',
-    undefined,
-    functionWithString,
-    stringOption1
-  );
+  const option1 = resolveOption(undefined, functionWithString, stringOption1);
   t.is(option1, 'function option');
 
-  const option2 = resolveOption(
-    'second option',
-    functionWithString,
-    undefined,
-    undefined
-  );
+  const option2 = resolveOption(functionWithString, undefined, undefined);
   t.is(option2, 'function option');
 
   const option3 = resolveOption(
-    'third option',
     undefined,
-    functionWithVoid,
+    functionWithUndefined,
     functionWithString,
     stringOption1,
     undefined
@@ -64,34 +43,27 @@ test('resolves function arguments', (t) => {
   t.is(option3, 'function option');
 });
 
-test('throws if nothing is defined', (t) => {
+test('returns undefined for undefined options', (t) => {
   const option1 = () =>
     resolveOption(
-      'first option',
       undefined,
-      functionWithVoid,
+      functionWithUndefined,
       undefined,
       undefined,
-      functionWithVoid
+      functionWithUndefined
     );
-  t.throws(option1, {
-    instanceOf: Error,
-    message: /first option/,
-  });
+  t.is(option1, undefined);
 
   const option2 = () =>
     resolveOption('second option', undefined, undefined, undefined);
-  t.throws(option2, { instanceOf: Error, message: /second option/ });
+  // t.throws(option2, { instanceOf: Error, message: /second option/ });
+  t.is(option2, undefined);
 
   const option3 = () =>
     resolveOption(
-      'third option',
-      functionWithVoid,
-      functionWithVoid,
-      functionWithVoid
+      functionWithUndefined,
+      functionWithUndefined,
+      functionWithUndefined
     );
-  t.throws(option3, {
-    instanceOf: Error,
-    message: /third option/,
-  });
+  t.is(option3, undefined);
 });

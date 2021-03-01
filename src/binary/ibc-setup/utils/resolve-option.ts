@@ -1,16 +1,13 @@
 export function resolveOption(
-  identifier: string,
-  ...args: Array<
-    (string | undefined | null) | (() => string | undefined | void)
-  >
+  ...args: Array<(string | undefined) | (() => string | undefined)>
 ) {
   for (const option of args) {
     const value = typeof option === 'function' ? option() : option;
 
-    if (typeof value !== 'undefined') {
+    if (value) {
       return value;
     }
   }
 
-  throw new Error(`Cannot resolve "${identifier}" option.`);
+  return undefined;
 }

@@ -1,20 +1,15 @@
 import { resolveOption } from '../utils/resolve-option';
 
-type Flags = {
+type Options = {
   keyFile?: string;
 };
 
-type Options = {
-  keyFile: string | null;
-};
-
-export function keysGenerate(flags: Flags) {
+export function keysGenerate(flags: Options) {
   const options = {
     keyFile: resolveOption(
       'key-file',
       flags.keyFile,
-      process.env.RELAYER_KEY_FILE,
-      null
+      process.env.RELAYER_KEY_FILE
     ),
   };
 
