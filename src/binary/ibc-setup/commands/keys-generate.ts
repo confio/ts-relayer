@@ -3,7 +3,7 @@ import fs from 'fs';
 import { generateMnemonic } from '../utils/generate-mnemonic';
 import { resolveOption } from '../utils/resolve-option';
 
-type Options = {
+export type Options = {
   keyFile?: string;
 };
 
@@ -19,7 +19,7 @@ export function keysGenerate(flags: Options) {
   run(options);
 }
 
-function run(options: Options) {
+export function run(options: Options) {
   const mnemonic = generateMnemonic();
 
   if (options.keyFile) {
