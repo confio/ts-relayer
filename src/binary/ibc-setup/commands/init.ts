@@ -9,6 +9,7 @@ import axios from 'axios';
 import yaml from 'js-yaml';
 
 import { generateMnemonic } from '../utils/generate-mnemonic';
+import { getDefaultHomePath } from '../utils/get-default-home-path';
 import { resolveRequiredOption } from '../utils/resolve-required-option';
 
 export type Options = {
@@ -49,17 +50,14 @@ async function deriveAddress(
 }
 
 export function init(flags: Partial<Options>) {
-  function getDefaultHome() {
-    if (!process.env.HOME) {
-      throw new Error('$HOME environment variable is not set.');
-    }
-    return `${process.env.HOME}/.ibc-setup`;
-  }
-
   const options = {
     src: resolveRequiredOption('src')(flags.src, process.env.RELAYER_SRC),
     dest: resolveRequiredOption('dest')(flags.dest, process.env.RELAYER_DEST),
-    home: resolveRequiredOption('home')(flags.home, getDefaultHome),
+    home: resolveRequiredOption('home')(
+      flags.home,
+      process.env.RELAYER_HOME,
+      getDefaultHomePath
+    ),
   };
 
   run(options);
