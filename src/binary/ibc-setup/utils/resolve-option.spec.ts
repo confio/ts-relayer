@@ -9,7 +9,7 @@ const functionWithUndefined = () => {
   return undefined;
 };
 
-test.only('leftmost defined option takes precedence', (t) => {
+test('leftmost defined option takes precedence', (t) => {
   const option1 = resolveOption(undefined, undefined, stringOption1);
   t.is(option1, stringOption1);
 
