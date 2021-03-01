@@ -4,6 +4,7 @@ import { Command } from 'commander';
 
 import { init } from './commands/init';
 import { keysGenerate } from './commands/keys-generate';
+import { keysList } from './commands/keys-list';
 
 export const program = new Command();
 
@@ -29,5 +30,13 @@ keys
   .description('keys generate command description')
   .option('--key-file <path>')
   .action(keysGenerate);
+
+keys
+  .command('list')
+  .description('keys list command description')
+  .option('--mnemonic <mnemonic>')
+  .option('--key-file <path>')
+  .option('-i, --interactive')
+  .action(keysList);
 
 program.parse(process.argv);
