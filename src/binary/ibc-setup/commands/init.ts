@@ -7,6 +7,7 @@ import axios from 'axios';
 import yaml from 'js-yaml';
 
 import { appFile, registryFile } from '../../../constants';
+import { Registry } from '../types';
 import { deriveAddress } from '../utils/derive-address';
 import { generateMnemonic } from '../utils/generate-mnemonic';
 import { getDefaultHomePath } from '../utils/get-default-home-path';
@@ -16,19 +17,6 @@ export type Options = {
   readonly home: string;
   readonly src: string;
   readonly dest: string;
-};
-
-type Chain = {
-  chain_id: string;
-  prefix: string;
-  gas_price: string;
-  hd_path: string;
-  rpc: string[];
-};
-
-type Registry = {
-  version: number;
-  chains: Record<string, Chain>;
 };
 
 export function init(flags: Partial<Options>) {
