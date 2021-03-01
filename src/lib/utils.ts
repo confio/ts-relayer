@@ -40,6 +40,20 @@ export function toProtoHeight(height: number): Height {
   });
 }
 
+export function parseRevisionNumber(chainId: string): Long {
+  const sections = chainId.split('-');
+  if (sections.length > 1) {
+    const last = sections[sections.length - 1];
+    try {
+      const num = parseInt(last, 10);
+      return Long.fromNumber(num);
+    } catch {
+      return new Long(0);
+    }
+  }
+  return new Long(0);
+}
+
 // may will run the transform if value is defined, otherwise returns undefined
 export function may<T, U>(
   transform: (val: T) => U,

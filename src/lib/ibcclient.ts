@@ -75,6 +75,7 @@ import {
   createBroadcastTxErrorMessage,
   mapRpcPubKeyToProto,
   multiplyFees,
+  parseRevisionNumber,
   timestampFromDateNanos,
   toIntHeight,
   toProtoHeight,
@@ -213,6 +214,9 @@ export class IbcClient {
   public readonly senderAddress: string;
   public readonly logger: Logger;
 
+  public readonly chainId: string;
+  public readonly revisionNumber: Long;
+
   public static async connectWithSigner(
     endpoint: string,
     signer: OfflineSigner,
@@ -230,13 +234,21 @@ export class IbcClient {
       mergedOptions
     );
     const tmClient = await Tendermint34Client.connect(endpoint);
-    return new IbcClient(signingClient, tmClient, senderAddress, options);
+    const chainId = await signingClient.getChainId();
+    return new IbcClient(
+      signingClient,
+      tmClient,
+      senderAddress,
+      chainId,
+      options
+    );
   }
 
   private constructor(
     signingClient: SigningStargateClient,
     tmClient: Tendermint34Client,
     senderAddress: string,
+    chainId: string,
     options: IbcClientOptions
   ) {
     this.sign = signingClient;
@@ -248,6 +260,9 @@ export class IbcClient {
       setupIbcExtension
     );
     this.senderAddress = senderAddress;
+    this.chainId = chainId;
+    this.revisionNumber = parseRevisionNumber(chainId);
+
     const { gasPrice = defaultGasPrice, gasLimits = {}, logger } = options;
     this.fees = buildFeeTable<IbcFeeTable>(
       gasPrice,
@@ -255,6 +270,13 @@ export class IbcClient {
       gasLimits
     );
     this.logger = logger ?? new NoopLogger();
+  }
+
+  public revisionHeight(height: number): Height {
+    return Height.fromPartial({
+      revisionHeight: new Long(height),
+      revisionNumber: this.revisionNumber,
+    });
   }
 
   public getChainId(): Promise<string> {
