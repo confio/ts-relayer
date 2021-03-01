@@ -8,6 +8,7 @@ import Ajv, { JSONSchemaType } from 'ajv';
 import axios from 'axios';
 import yaml from 'js-yaml';
 
+import { appFile, registryFile } from '../../../constants';
 import { generateMnemonic } from '../utils/generate-mnemonic';
 import { getDefaultHomePath } from '../utils/get-default-home-path';
 import { resolveRequiredOption } from '../utils/resolve-required-option';
@@ -30,9 +31,6 @@ type Registry = {
   version: number;
   chains: Record<string, Chain>;
 };
-
-const registryFile = 'registry.yaml';
-const appFile = 'app.yaml';
 
 async function deriveAddress(
   mnemomic: string,
