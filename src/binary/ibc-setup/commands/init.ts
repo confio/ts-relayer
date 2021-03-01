@@ -2,13 +2,12 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 
-import { stringToPath } from '@cosmjs/crypto';
-import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 import Ajv, { JSONSchemaType } from 'ajv';
 import axios from 'axios';
 import yaml from 'js-yaml';
 
 import { appFile, registryFile } from '../../../constants';
+import { deriveAddress } from '../utils/derive-address';
 import { generateMnemonic } from '../utils/generate-mnemonic';
 import { getDefaultHomePath } from '../utils/get-default-home-path';
 import { resolveRequiredOption } from '../utils/resolve-required-option';
@@ -31,21 +30,6 @@ type Registry = {
   version: number;
   chains: Record<string, Chain>;
 };
-
-async function deriveAddress(
-  mnemomic: string,
-  prefix: string,
-  path: string
-): Promise<string> {
-  const hdpath = stringToPath(path);
-  const wallet = await DirectSecp256k1HdWallet.fromMnemonic(
-    mnemomic,
-    hdpath,
-    prefix
-  );
-  const accounts = await wallet.getAccounts();
-  return accounts[0].address;
-}
 
 export function init(flags: Partial<Options>) {
   const options = {
