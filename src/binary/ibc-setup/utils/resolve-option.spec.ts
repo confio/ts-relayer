@@ -56,7 +56,6 @@ test('returns undefined for undefined options', (t) => {
 
   const option2 = () =>
     resolveOption('second option', undefined, undefined, undefined);
-  // t.throws(option2, { instanceOf: Error, message: /second option/ });
   t.is(option2, undefined);
 
   const option3 = () =>
