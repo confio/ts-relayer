@@ -3,15 +3,15 @@
 // import { resolveOption } from '../utils/resolve-option';
 
 export type Options = {
-  keyFile?: string;
-  mnemonic?: string;
-  interactive?: boolean;
-  home?: string;
+  readonly home: string;
+  readonly keyFile?: string;
+  readonly mnemonic?: string;
+  readonly interactive?: boolean;
 };
 
 export function keysList(flags: Options) {
   console.log(flags);
-  const options: Options = {};
+  //   const options: Options = {};
 
   //   run(options);
 }

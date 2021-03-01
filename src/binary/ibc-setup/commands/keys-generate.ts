@@ -4,7 +4,7 @@ import { generateMnemonic } from '../utils/generate-mnemonic';
 import { resolveOption } from '../utils/resolve-option';
 
 export type Options = {
-  keyFile?: string;
+  readonly keyFile?: string;
 };
 
 export function keysGenerate(flags: Options) {

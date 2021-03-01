@@ -8,11 +8,11 @@ import Ajv, { JSONSchemaType } from 'ajv';
 import axios from 'axios';
 import yaml from 'js-yaml';
 
-import { GlobalOptions } from '../types';
 import { generateMnemonic } from '../utils/generate-mnemonic';
 import { resolveRequiredOption } from '../utils/resolve-required-option';
 
-export type Options = GlobalOptions & {
+export type Options = {
+  readonly home: string;
   readonly src: string;
   readonly dest: string;
 };
