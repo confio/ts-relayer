@@ -44,25 +44,22 @@ test('resolves function arguments', (t) => {
 });
 
 test('returns undefined for undefined options', (t) => {
-  const option1 = () =>
-    resolveOption(
-      undefined,
-      functionWithUndefined,
-      undefined,
-      undefined,
-      functionWithUndefined
-    );
+  const option1 = resolveOption(
+    undefined,
+    functionWithUndefined,
+    undefined,
+    undefined,
+    functionWithUndefined
+  );
   t.is(option1, undefined);
 
-  const option2 = () =>
-    resolveOption('second option', undefined, undefined, undefined);
+  const option2 = resolveOption(undefined, undefined, undefined);
   t.is(option2, undefined);
 
-  const option3 = () =>
-    resolveOption(
-      functionWithUndefined,
-      functionWithUndefined,
-      functionWithUndefined
-    );
+  const option3 = resolveOption(
+    functionWithUndefined,
+    functionWithUndefined,
+    functionWithUndefined
+  );
   t.is(option3, undefined);
 });
