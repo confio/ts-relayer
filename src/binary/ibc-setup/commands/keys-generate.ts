@@ -1,3 +1,6 @@
+import fs from 'fs';
+
+import { generateMnemonic } from '../utils/generate-mnemonic';
 import { resolveOption } from '../utils/resolve-option';
 
 type Options = {
@@ -17,5 +20,13 @@ export function keysGenerate(flags: Options) {
 }
 
 function run(options: Options) {
-  console.log('keys generate run', options);
+  const mnemonic = generateMnemonic();
+
+  if (options.keyFile) {
+    fs.writeFileSync(options.keyFile, mnemonic, 'utf-8');
+    console.log(`Saved mnemonic to ${options.keyFile}`);
+    return;
+  }
+
+  console.log(mnemonic);
 }
