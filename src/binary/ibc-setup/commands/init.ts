@@ -2,14 +2,15 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 
-import { Bip39, Random, stringToPath } from '@cosmjs/crypto';
+import { stringToPath } from '@cosmjs/crypto';
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 import Ajv, { JSONSchemaType } from 'ajv';
 import axios from 'axios';
 import yaml from 'js-yaml';
 
 import { GlobalOptions } from '../types';
-import { resolveOption } from '../utils/resolve-option';
+import { generateMnemonic } from '../utils/generate-mnemonic';
+import { resolveRequiredOption } from '../utils/resolve-required-option';
 
 export type Options = GlobalOptions & {
   readonly src: string;
@@ -31,10 +32,6 @@ type Registry = {
 
 const registryFile = 'registry.yaml';
 const appFile = 'app.yaml';
-
-function generateMnemonic(): string {
-  return Bip39.encode(Random.getBytes(16)).toString();
-}
 
 async function deriveAddress(
   mnemomic: string,
@@ -60,9 +57,9 @@ export function init(flags: Partial<Options>) {
   }
 
   const options = {
-    src: resolveOption('src', flags.src, process.env.RELAYER_SRC),
-    dest: resolveOption('dest', flags.dest, process.env.RELAYER_DEST),
-    home: resolveOption('home', flags.home, getDefaultHome),
+    src: resolveRequiredOption('src', flags.src, process.env.RELAYER_SRC),
+    dest: resolveRequiredOption('dest', flags.dest, process.env.RELAYER_DEST),
+    home: resolveRequiredOption('home', flags.home, getDefaultHome),
   };
 
   run(options);
