@@ -16,7 +16,7 @@ type Flags = {
   readonly mnemonic?: string;
 };
 
-type Options = {
+export type Options = {
   readonly home: string;
   readonly mnemonic: string;
 };
