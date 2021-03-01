@@ -35,7 +35,7 @@ test.serial('create simapp client on wasmd', async (t) => {
     await src.getChainId(),
     1000,
     500,
-    header.height
+    src.revisionHeight(header.height)
   );
   const res = await dest.createTendermintClient(cliState, conState);
   t.assert(res.clientId.startsWith('07-tendermint-'));
@@ -59,7 +59,7 @@ test.serial('create and update wasmd client on simapp', async (t) => {
     await src.getChainId(),
     1000,
     500,
-    header.height
+    src.revisionHeight(header.height)
   );
   const { clientId } = await dest.createTendermintClient(cliState, conState);
   const state = await dest.query.ibc.client.stateTm(clientId);

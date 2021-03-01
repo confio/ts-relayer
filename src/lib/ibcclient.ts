@@ -1265,7 +1265,7 @@ export async function buildCreateClientArgs(
     await src.getChainId(),
     unbondingPeriodSec,
     trustPeriodSec,
-    header.height
+    src.revisionHeight(header.height)
   );
   return { consensusState, clientState };
 }

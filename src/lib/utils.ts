@@ -110,7 +110,7 @@ export function buildClientState(
   chainId: string,
   unbondingPeriodSec: number,
   trustPeriodSec: number,
-  height: number
+  height: Height
 ): TendermintClientState {
   // Copied here until https://github.com/confio/ics23/issues/36 is resolved
   // https://github.com/confio/ics23/blob/master/js/src/proofs.ts#L11-L26
@@ -162,10 +162,7 @@ export function buildClientState(
     maxClockDrift: {
       seconds: new Long(20),
     },
-    latestHeight: {
-      revisionNumber: new Long(0), // ??
-      revisionHeight: new Long(height),
-    },
+    latestHeight: height,
     proofSpecs: [iavlSpec, tendermintSpec],
     upgradePath: ['upgrade', 'upgradedIBCState'],
     allowUpdateAfterExpiry: false,
