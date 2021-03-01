@@ -22,10 +22,9 @@ import {
   SigningStargateClientOptions,
 } from '@cosmjs/stargate';
 import {
-  adaptor34,
   CommitResponse,
   Header as RpcHeader,
-  Client as TendermintClient,
+  Tendermint34Client,
 } from '@cosmjs/tendermint-rpc';
 import { arrayContentEquals, sleep } from '@cosmjs/utils';
 import Long from 'long';
@@ -210,7 +209,7 @@ export class IbcClient {
     AuthExtension &
     BankExtension &
     IbcExtension;
-  public readonly tm: TendermintClient;
+  public readonly tm: Tendermint34Client;
   public readonly senderAddress: string;
   public readonly logger: Logger;
 
@@ -230,13 +229,13 @@ export class IbcClient {
       signer,
       mergedOptions
     );
-    const tmClient = await TendermintClient.connect(endpoint, adaptor34);
+    const tmClient = await Tendermint34Client.connect(endpoint);
     return new IbcClient(signingClient, tmClient, senderAddress, options);
   }
 
   private constructor(
     signingClient: SigningStargateClient,
-    tmClient: TendermintClient,
+    tmClient: Tendermint34Client,
     senderAddress: string,
     options: IbcClientOptions
   ) {
@@ -338,7 +337,7 @@ export class IbcClient {
     this.logger.verbose(`Get validator set for height ${height}`);
     // we need to query the header to find out who the proposer was, and pull them out
     const { proposerAddress } = await this.header(height);
-    const validators = await this.tm.validators(height);
+    const validators = await this.tm.validators({ height });
     const mappedValidators = validators.validators.map((val) => ({
       address: val.address,
       pubKey: mapRpcPubKeyToProto(val.pubkey),
