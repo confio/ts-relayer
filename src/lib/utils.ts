@@ -33,11 +33,11 @@ export function toIntHeight(height?: Height): number {
   return height?.revisionHeight?.toNumber() ?? 0;
 }
 
-export function toProtoHeight(height: number): Height {
-  return Height.fromPartial({
-    revisionHeight: new Long(height),
-    revisionNumber: new Long(0), // TODO: do we need this?
-  });
+export function ensureIntHeight(height: number | Height): number {
+  if (typeof height === 'number') {
+    return height;
+  }
+  return toIntHeight(height);
 }
 
 export function parseRevisionNumber(chainId: string): Long {

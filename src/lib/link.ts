@@ -1,6 +1,7 @@
 import { arrayContentEquals } from '@cosmjs/utils';
 
 import { Order, Packet, State } from '../codec/ibc/core/channel/v1/channel';
+import { Height } from '../codec/ibc/core/client/v1/client';
 
 import {
   AckWithMetadata,
@@ -16,7 +17,7 @@ import {
   prepareConnectionHandshake,
 } from './ibcclient';
 import { Logger, NoopLogger } from './logger';
-import { parseAcksFromLogs, toIntHeight, toProtoHeight } from './utils';
+import { parseAcksFromLogs, toIntHeight } from './utils';
 
 /**
  * Many actions on link focus on a src and a dest. Rather than add two functions,
@@ -248,7 +249,7 @@ export class Link {
    * Relayer binary should call this from a heartbeat which checks if needed and updates.
    * Just needs trusting period on both side
    */
-  public async updateClient(sender: Side): Promise<number> {
+  public async updateClient(sender: Side): Promise<Height> {
     this.logger.info(`Update client for sender ${sender}`);
     const { src, dest } = this.getEnds(sender);
     const height = await dest.client.doUpdateClient(dest.clientID, src.client);
@@ -263,22 +264,22 @@ export class Link {
   public async updateClientToHeight(
     source: Side,
     minHeight: number
-  ): Promise<number> {
+  ): Promise<Height> {
     this.logger.info(
       `Check whether client for source ${source} >= height ${minHeight}`
     );
     const { src, dest } = this.getEnds(source);
     const client = await dest.client.query.ibc.client.stateTm(dest.clientID);
-    let knownHeight = client.latestHeight?.revisionHeight?.toNumber() ?? 0;
-
-    if (knownHeight < minHeight) {
-      const curHeight = (await src.client.latestHeader()).height;
-      if (curHeight < minHeight) {
-        await src.client.waitOneBlock();
-      }
-      knownHeight = await this.updateClient(source);
+    const knownHeight = client.latestHeight?.revisionHeight?.toNumber() ?? 0;
+    if (knownHeight >= minHeight && client.latestHeight !== undefined) {
+      return client.latestHeight;
     }
-    return knownHeight;
+
+    const curHeight = (await src.client.latestHeader()).height;
+    if (curHeight < minHeight) {
+      await src.client.waitOneBlock();
+    }
+    return this.updateClient(source);
   }
 
   public async createChannel(
@@ -487,7 +488,7 @@ export class Link {
     const { logs, height } = await dest.client.receivePackets(
       submit,
       proofs,
-      toProtoHeight(headerHeight)
+      headerHeight
     );
     const acks = parseAcksFromLogs(logs);
     return acks.map((ack) => ({ height, ...ack }));
@@ -515,7 +516,7 @@ export class Link {
     const { height } = await dest.client.acknowledgePackets(
       acks,
       proofs,
-      toProtoHeight(headerHeight)
+      headerHeight
     );
     return height;
   }

@@ -73,12 +73,12 @@ import {
   buildClientState,
   buildConsensusState,
   createBroadcastTxErrorMessage,
+  ensureIntHeight,
   mapRpcPubKeyToProto,
   multiplyFees,
   parseRevisionNumber,
   timestampFromDateNanos,
   toIntHeight,
-  toProtoHeight,
 } from './utils';
 
 /**** These are needed to bootstrap the endpoints */
@@ -279,6 +279,11 @@ export class IbcClient {
     });
   }
 
+  public async timeoutHeight(blocksInFuture: number): Promise<Height> {
+    const header = await this.latestHeader();
+    return this.revisionHeight(header.height + blocksInFuture);
+  }
+
   public getChainId(): Promise<string> {
     this.logger.verbose('Get chain ID');
     return this.sign.getChainId();
@@ -421,9 +426,10 @@ export class IbcClient {
   public async getConnectionProof(
     clientId: string,
     connectionId: string,
-    headerHeight: number
+    headerHeight: Height | number
   ): Promise<ConnectionHandshakeProof> {
-    const queryHeight = headerHeight - 1;
+    const normalHeight = ensureIntHeight(headerHeight);
+    const queryHeight = normalHeight - 1;
 
     const {
       clientState,
@@ -457,7 +463,7 @@ export class IbcClient {
       clientId,
       clientState,
       connectionId,
-      proofHeight: toProtoHeight(headerHeight),
+      proofHeight: this.revisionHeight(normalHeight),
       proofConnection,
       proofClient,
       proofConsensus,
@@ -473,9 +479,10 @@ export class IbcClient {
   // note: the queries will be for the block before this header, so the proofs match up (appHash is on H+1)
   public async getChannelProof(
     id: ChannelInfo,
-    headerHeight: number
+    headerHeight: Height | number
   ): Promise<ChannelHandshake> {
-    const queryHeight = headerHeight - 1;
+    const normalHeight = ensureIntHeight(headerHeight);
+    const queryHeight = normalHeight - 1;
 
     const { proof } = await this.query.ibc.proof.channel.channel(
       id.portId,
@@ -485,16 +492,16 @@ export class IbcClient {
 
     return {
       id,
-      proofHeight: toProtoHeight(headerHeight),
+      proofHeight: this.revisionHeight(normalHeight),
       proof,
     };
   }
 
   public async getPacketProof(
     packet: Packet,
-    headerHeight: number
+    headerHeight: Height | number
   ): Promise<Uint8Array> {
-    const queryHeight = headerHeight - 1;
+    const queryHeight = ensureIntHeight(headerHeight) - 1;
 
     const { proof } = await this.query.ibc.proof.channel.packetCommitment(
       packet.sourcePort,
@@ -508,9 +515,9 @@ export class IbcClient {
 
   public async getAckProof(
     { originalPacket }: Ack,
-    headerHeight: number
+    headerHeight: Height | number
   ): Promise<Uint8Array> {
-    const queryHeight = headerHeight - 1;
+    const queryHeight = ensureIntHeight(headerHeight) - 1;
 
     const { proof } = await this.query.ibc.proof.channel.packetAcknowledgement(
       originalPacket.destinationPort,
@@ -532,11 +539,12 @@ export class IbcClient {
   public async doUpdateClient(
     clientId: string,
     src: IbcClient
-  ): Promise<number> {
+  ): Promise<Height> {
     const { latestHeight } = await this.query.ibc.client.stateTm(clientId);
     const header = await src.buildHeader(toIntHeight(latestHeight));
     await this.updateTendermintClient(clientId, header);
-    return header.signedHeader?.header?.height?.toNumber() ?? 0;
+    const height = header.signedHeader?.header?.height?.toNumber() ?? 0;
+    return this.revisionHeight(height);
   }
 
   /***** These are all direct wrappers around message constructors ********/
@@ -1204,14 +1212,11 @@ export class IbcClient {
     sourceChannel: string,
     token: Coin,
     receiver: string,
-    timeoutBlock?: number,
+    timeoutHeight?: Height,
     timeoutTime?: number
   ): Promise<MsgResult> {
     this.logger.verbose(`Transfer tokens to ${receiver}`);
     const senderAddress = this.senderAddress;
-    const timeoutHeight = timeoutBlock
-      ? toProtoHeight(timeoutBlock)
-      : undefined;
     const timeoutTimestamp = new Long(timeoutTime ?? 0);
     const msg = {
       typeUrl: '/ibc.applications.transfer.v1.MsgTransfer',
