@@ -3,6 +3,7 @@
 import { Command } from 'commander';
 
 import { init } from './commands/init';
+import { keysGenerate } from './commands/keys-generate';
 
 export const program = new Command();
 
@@ -20,5 +21,13 @@ program
   .option('--src <chain>')
   .option('--dest <chain>')
   .action(init);
+
+const keys = program.command('keys');
+
+keys
+  .command('generate')
+  .description('keys generate command description')
+  .option('--key-file <path>')
+  .action(keysGenerate);
 
 program.parse(process.argv);
