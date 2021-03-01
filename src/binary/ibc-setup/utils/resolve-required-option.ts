@@ -2,7 +2,7 @@ import { resolveOption } from './resolve-option';
 
 export function resolveRequiredOption(
   identifier: string,
-  ...args: Array<(string | undefined) | (() => string | undefined)>
+  ...args: Parameters<typeof resolveOption>
 ) {
   const option = resolveOption(...args);
 
