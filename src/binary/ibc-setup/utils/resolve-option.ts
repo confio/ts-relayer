@@ -4,7 +4,7 @@ export function resolveOption(
   for (const option of args) {
     const value = typeof option === 'function' ? option() : option;
 
-    if (value) {
+    if (typeof value !== 'undefined') {
       return value;
     }
   }
