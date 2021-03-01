@@ -57,9 +57,9 @@ export function init(flags: Partial<Options>) {
   }
 
   const options = {
-    src: resolveRequiredOption('src', flags.src, process.env.RELAYER_SRC),
-    dest: resolveRequiredOption('dest', flags.dest, process.env.RELAYER_DEST),
-    home: resolveRequiredOption('home', flags.home, getDefaultHome),
+    src: resolveRequiredOption('src')(flags.src, process.env.RELAYER_SRC),
+    dest: resolveRequiredOption('dest')(flags.dest, process.env.RELAYER_DEST),
+    home: resolveRequiredOption('home')(flags.home, getDefaultHome),
   };
 
   run(options);

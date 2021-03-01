@@ -9,11 +9,7 @@ export type Options = {
 
 export function keysGenerate(flags: Options) {
   const options = {
-    keyFile: resolveOption(
-      'key-file',
-      flags.keyFile,
-      process.env.RELAYER_KEY_FILE
-    ),
+    keyFile: resolveOption(flags.keyFile, process.env.RELAYER_KEY_FILE),
   };
 
   run(options);

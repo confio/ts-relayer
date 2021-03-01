@@ -3,8 +3,7 @@ import test from 'ava';
 import { resolveRequiredOption } from './resolve-required-option';
 
 test('uses resolveOption func', (t) => {
-  const option = resolveRequiredOption(
-    'some option', // identifier
+  const option = resolveRequiredOption('some option')(
     undefined,
     undefined,
     'some string',
@@ -15,6 +14,6 @@ test('uses resolveOption func', (t) => {
 
 test('throws if all options are undefined', (t) => {
   const option = () =>
-    resolveRequiredOption('some option', undefined, undefined, undefined);
+    resolveRequiredOption('some option')(undefined, undefined, undefined);
   t.throws(option, { instanceOf: Error, message: /some option/ });
 });
