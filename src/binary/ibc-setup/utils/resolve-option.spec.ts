@@ -5,8 +5,8 @@ import { resolveOption } from './resolve-option';
 const stringOption1 = 'string option 1';
 const stringOption2 = 'string option 2';
 const functionWithString = () => 'function option';
-const functionWithUndefined = () => {
-  return undefined;
+const functionWithNull = () => {
+  return null;
 };
 
 test('leftmost defined option takes precedence', (t) => {
@@ -35,7 +35,7 @@ test('resolves function arguments', (t) => {
 
   const option3 = resolveOption(
     undefined,
-    functionWithUndefined,
+    functionWithNull,
     functionWithString,
     stringOption1,
     undefined
@@ -43,23 +43,23 @@ test('resolves function arguments', (t) => {
   t.is(option3, 'function option');
 });
 
-test('returns undefined for undefined options', (t) => {
+test('returns null for undefined/null options', (t) => {
   const option1 = resolveOption(
     undefined,
-    functionWithUndefined,
+    functionWithNull,
+    null,
     undefined,
-    undefined,
-    functionWithUndefined
+    functionWithNull
   );
-  t.is(option1, undefined);
+  t.is(option1, null);
 
-  const option2 = resolveOption(undefined, undefined, undefined);
-  t.is(option2, undefined);
+  const option2 = resolveOption(undefined, null, undefined);
+  t.is(option2, null);
 
   const option3 = resolveOption(
-    functionWithUndefined,
-    functionWithUndefined,
-    functionWithUndefined
+    functionWithNull,
+    functionWithNull,
+    functionWithNull
   );
-  t.is(option3, undefined);
+  t.is(option3, null);
 });

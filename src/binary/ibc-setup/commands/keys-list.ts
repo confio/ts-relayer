@@ -1,12 +1,13 @@
-import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import readline from 'readline';
 
 import { registryFile } from '../../constants';
 import { deriveAddress } from '../utils/derive-address';
 import { getDefaultHomePath } from '../utils/get-default-home-path';
+import { loadAndValidateApp } from '../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../utils/load-and-validate-registry';
+import { resolveMnemonicOption } from '../utils/resolve-mnemonic-option';
+import { resolveOption } from '../utils/resolve-option';
 import { resolveRequiredOption } from '../utils/resolve-required-option';
 
 type Flags = {
@@ -21,49 +22,28 @@ export type Options = {
   readonly mnemonic: string;
 };
 
-export async function readMnemonicFromStdin(interactive: Flags['interactive']) {
-  if (!interactive) {
-    return undefined;
-  }
-
-  const readlineInterface = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  const mnemonic = await new Promise<string>((resolve) => {
-    readlineInterface.question('enter mnemonic phrase: ', (stdin) => {
-      readlineInterface.close();
-      resolve(stdin);
-    });
-  });
-
-  return mnemonic;
-}
-
-function readMnemonicFromFile(keyFile: Flags['keyFile']) {
-  if (!keyFile) {
-    return undefined;
-  }
-
-  return () => {
-    return fs.readFileSync(keyFile, 'utf-8').trim();
-  };
-}
-
 export async function keysList(flags: Flags) {
+  const home = resolveRequiredOption('home')(
+    flags.home,
+    process.env.RELAYER_HOME,
+    getDefaultHomePath
+  );
+
+  const app = loadAndValidateApp(home);
+  const keyFile = resolveOption(
+    flags.keyFile,
+    app?.keyFile,
+    process.env.KEY_FILE
+  );
+
   const options: Options = {
-    home: resolveRequiredOption('home')(
-      flags.home,
-      process.env.RELAYER_HOME,
-      getDefaultHomePath
-    ),
-    mnemonic: resolveRequiredOption('mnemonic')(
-      await readMnemonicFromStdin(flags.interactive),
-      flags.mnemonic,
-      readMnemonicFromFile(flags.keyFile),
-      process.env.RELAYER_MNEMONIC
-    ),
+    home,
+    mnemonic: await resolveMnemonicOption({
+      interactive: flags.interactive,
+      mnemonic: flags.mnemonic,
+      keyFile: keyFile,
+      app,
+    }),
   };
 
   await run(options);

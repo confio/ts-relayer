@@ -10,3 +10,10 @@ export type Registry = {
   version: number;
   chains: Record<string, Chain>;
 };
+
+export type App = {
+  src?: string;
+  dest?: string;
+  mnemonic?: string;
+  keyFile?: string;
+};

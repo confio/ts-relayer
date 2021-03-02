@@ -1,13 +1,13 @@
 export function resolveOption(
-  ...args: Array<(string | undefined) | (() => string | undefined)>
+  ...args: Array<(string | undefined | null) | (() => string | null)>
 ) {
   for (const option of args) {
     const value = typeof option === 'function' ? option() : option;
 
-    if (typeof value !== 'undefined') {
+    if (value !== undefined && value !== null) {
       return value;
     }
   }
 
-  return undefined;
+  return null;
 }

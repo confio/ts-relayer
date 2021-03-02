@@ -16,7 +16,7 @@ test.beforeEach(() => {
 
 test('generates mnemonic to stdout', (t) => {
   const options: Options = {
-    keyFile: undefined,
+    keyFile: null,
   };
 
   run(options);

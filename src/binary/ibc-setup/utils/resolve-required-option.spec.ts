@@ -5,15 +5,15 @@ import { resolveRequiredOption } from './resolve-required-option';
 test('uses resolveOption func', (t) => {
   const option = resolveRequiredOption('some option')(
     undefined,
-    undefined,
+    null,
     'some string',
     'another string'
   );
   t.is(option, 'some string');
 });
 
-test('throws if all options are undefined', (t) => {
+test('throws if all options are undefined or null', (t) => {
   const option = () =>
-    resolveRequiredOption('some option')(undefined, undefined, undefined);
+    resolveRequiredOption('some option')(undefined, null, undefined);
   t.throws(option, { instanceOf: Error, message: /some option/ });
 });

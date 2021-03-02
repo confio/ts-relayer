@@ -11,13 +11,15 @@ import { getDefaultHomePath } from '../utils/get-default-home-path';
 import { loadAndValidateRegistry } from '../utils/load-and-validate-registry';
 import { resolveRequiredOption } from '../utils/resolve-required-option';
 
-export type Options = {
-  readonly home: string;
-  readonly src: string;
-  readonly dest: string;
+export type Flags = {
+  readonly home?: string;
+  readonly src?: string;
+  readonly dest?: string;
 };
 
-export function init(flags: Partial<Options>) {
+export type Options = Required<Flags>;
+
+export function init(flags: Flags) {
   const options = {
     src: resolveRequiredOption('src')(flags.src, process.env.RELAYER_SRC),
     dest: resolveRequiredOption('dest')(flags.dest, process.env.RELAYER_DEST),

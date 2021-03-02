@@ -3,11 +3,15 @@ import fs from 'fs';
 import { generateMnemonic } from '../utils/generate-mnemonic';
 import { resolveOption } from '../utils/resolve-option';
 
-export type Options = {
+export type Flags = {
   readonly keyFile?: string;
 };
 
-export function keysGenerate(flags: Options) {
+export type Options = {
+  readonly keyFile: string | null;
+};
+
+export function keysGenerate(flags: Flags) {
   const options = {
     keyFile: resolveOption(flags.keyFile, process.env.RELAYER_KEY_FILE),
   };
