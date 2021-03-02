@@ -47,16 +47,12 @@ export function subtractBlock(height: Height, count = 1): Height {
   };
 }
 
+const regexRevNum = new RegExp('-([1-9][0-9]*)$');
+
 export function parseRevisionNumber(chainId: string): Long {
-  const sections = chainId.split('-');
-  if (sections.length > 1) {
-    const last = sections[sections.length - 1];
-    try {
-      const num = parseInt(last, 10);
-      return Long.fromNumber(num);
-    } catch {
-      return new Long(0);
-    }
+  const match = chainId.match(regexRevNum);
+  if (match && match.length >= 2) {
+    return Long.fromString(match[1]);
   }
   return new Long(0);
 }
