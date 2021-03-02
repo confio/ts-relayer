@@ -51,12 +51,10 @@ jobs:
           command: |
             curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
             sudo apt-get install -y nodejs
-      # - run:
-      #     name: Install yarn
-      #     command: |
-      #       sudo chown -R $USER /usr/lib/node_modules
-      #       sudo chown -R $USER /usr/bin
-      #       npm i -g yarn
+      - run:
+          name: Set yarn version to latest stable
+          command: |
+            yarn set version latest
       - run:
           name: Version information
           command: echo "node $(node --version)"; echo "yarn $(yarn --version)"
