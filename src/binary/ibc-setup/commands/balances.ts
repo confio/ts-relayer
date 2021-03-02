@@ -1,7 +1,6 @@
 import path from 'path';
 
 import { GasPrice } from '@cosmjs/launchpad';
-import { Decimal } from '@cosmjs/math';
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 
 import { IbcClient } from '../../../lib/ibcclient';
