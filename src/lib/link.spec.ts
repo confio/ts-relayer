@@ -3,6 +3,7 @@ import test from 'ava';
 
 import { State } from '../codec/ibc/core/channel/v1/channel';
 
+import { prepareChannelHandshake } from './ibcclient';
 import { Link } from './link';
 import {
   ics20,
@@ -163,6 +164,77 @@ test.serial('reuse existing connections', async (t) => {
   );
   t.notDeepEqual(newChannels.dest, oldChannels.src);
 });
+
+test.serial(
+  'reuse existing connections with partially open channel',
+  async (t) => {
+    const [src, dest] = await setup();
+
+    const oldLink = await Link.createWithNewConnections(src, dest);
+    const connA = oldLink.endA.connectionID;
+    const connB = oldLink.endB.connectionID;
+
+    const { channelId: srcChannelId } = await src.channelOpenInit(
+      ics20.srcPortId,
+      ics20.destPortId,
+      ics20.ordering,
+      connA,
+      ics20.version
+    );
+    const proof = await prepareChannelHandshake(
+      src,
+      dest,
+      oldLink.endB.clientID,
+      ics20.srcPortId,
+      srcChannelId
+    );
+    const { channelId: destChannelId } = await dest.channelOpenTry(
+      ics20.destPortId,
+      { portId: ics20.srcPortId, channelId: srcChannelId },
+      ics20.ordering,
+      connA,
+      ics20.version,
+      ics20.version,
+      proof
+    );
+
+    const newLink = await Link.createWithExistingConnections(
+      src,
+      dest,
+      connA,
+      connB
+    );
+    const channelSrc = await newLink.endA.client.query.ibc.channel.channel(
+      ics20.srcPortId,
+      srcChannelId
+    );
+    t.is(channelSrc.channel?.state, State.STATE_INIT);
+    t.is(channelSrc.channel?.ordering, ics20.ordering);
+    // Counterparty channel ID not yet known
+    t.is(channelSrc.channel?.counterparty?.channelId, '');
+    const channelDest = await newLink.endB.client.query.ibc.channel.channel(
+      ics20.destPortId,
+      destChannelId
+    );
+    t.is(channelDest.channel?.state, State.STATE_TRYOPEN);
+    t.is(channelDest.channel?.ordering, ics20.ordering);
+    t.is(channelDest.channel?.counterparty?.channelId, srcChannelId);
+
+    // Check everything is fine by creating a new channel
+    // switch src and dest just to test another path
+    const newChannels = await newLink.createChannel(
+      'B',
+      ics20.destPortId,
+      ics20.srcPortId,
+      ics20.ordering,
+      ics20.version
+    );
+    t.notDeepEqual(newChannels.dest, {
+      portId: ics20.srcPortId,
+      channelId: srcChannelId,
+    });
+  }
+);
 
 test.serial('errors when reusing an invalid connection', async (t) => {
   const [src, dest] = await setup();
