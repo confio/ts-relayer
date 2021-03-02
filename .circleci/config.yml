@@ -8,15 +8,13 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "package.json" }}
-      - run: yarn install
-      # TODO: enable this when we check in yarn.lock
-      # - run: yarn install --frozen-lockfile
+            - v1-dependencies-{{ checksum "yarn.lock" }}
+      - run: yarn install --frozen-lockfile
       - save_cache:
           paths:
             - ~/.cache/yarn
             - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
+          key: v1-dependencies-{{ checksum "yarn.lock" }}
       - run: yarn build
       - run: yarn test:lint
       - run: yarn test:prettier
@@ -65,14 +63,13 @@ jobs:
       - restore_cache:
           name: Restore Yarn Package Cache
           keys:
-            # - yarn-packages-{{ checksum "yarn.lock" }}
-            - yarn-packages-{{ checksum "package.json" }}
-      - run: yarn install
-      # - run: yarn install --frozen-lockfile
+            - yarn-packages-{{ checksum "yarn.lock" }}
+      # - run: yarn install
+      - run: yarn install --frozen-lockfile
       - run: yarn build
       - save_cache:
           name: Save Yarn Package Cache
-          key: yarn-packages-{{ checksum "package.json" }}
+          key: yarn-packages-{{ checksum "yarn.lock" }}
           paths:
             - ~/.cache/yarn
             - node_modules
