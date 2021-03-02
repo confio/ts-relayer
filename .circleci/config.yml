@@ -54,6 +54,7 @@ jobs:
       - run:
           name: Install yarn
           command: |
+            sudo chown -R $USER /usr/lib/node_modules
             npm i -g yarn
       - run:
           name: Version information
