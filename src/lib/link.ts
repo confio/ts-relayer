@@ -127,13 +127,17 @@ export class Link {
     const endB = new Endpoint(nodeB, clientIdB, connB);
     const link = new Link(endA, endB, logger);
 
-    const [knownHeightA, knownHeightB] = [
-      toIntHeight(clientStateA.latestHeight),
-      toIntHeight(clientStateB.latestHeight),
-    ];
     await Promise.all([
-      link.assertHeadersMatchConsensusState('A', clientIdA, knownHeightA),
-      link.assertHeadersMatchConsensusState('B', clientIdB, knownHeightB),
+      link.assertHeadersMatchConsensusState(
+        'A',
+        clientIdA,
+        clientStateA.latestHeight
+      ),
+      link.assertHeadersMatchConsensusState(
+        'B',
+        clientIdB,
+        clientStateB.latestHeight
+      ),
     ]);
 
     return link;
@@ -149,14 +153,14 @@ export class Link {
   public async assertHeadersMatchConsensusState(
     proofSide: Side,
     clientId: string,
-    height: number
+    height?: Height
   ): Promise<void> {
     const { src, dest } = this.getEnds(proofSide);
 
     // Check headers match consensus state (at least validators)
     const [consensusState, header] = await Promise.all([
       src.client.query.ibc.client.consensusStateTm(clientId, height),
-      dest.client.header(height),
+      dest.client.header(toIntHeight(height)),
     ]);
     // ensure consensus and headers match for next validator hashes
     if (
@@ -311,6 +315,7 @@ export class Link {
       srcPort,
       channelIdSrc
     );
+
     const { channelId: channelIdDest } = await dest.client.channelOpenTry(
       destPort,
       { portId: srcPort, channelId: channelIdSrc },

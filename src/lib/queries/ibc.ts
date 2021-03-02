@@ -173,7 +173,7 @@ export interface IbcExtension {
       readonly allStatesTm: () => Promise<TendermintClientState[]>;
       readonly consensusStateTm: (
         clientId: string,
-        height?: number
+        height?: Height
       ) => Promise<TendermintConsensusState>;
     };
     readonly connection: {
@@ -523,15 +523,13 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
         },
         consensusStateTm: async (
           clientId: string,
-          consensusHeight?: number
+          consensusHeight?: Height
         ) => {
           const response = await clientQueryService.ConsensusState(
             QueryConsensusStateRequest.fromPartial({
               clientId: clientId,
-              revisionHeight:
-                consensusHeight !== undefined
-                  ? Long.fromNumber(consensusHeight, true)
-                  : undefined,
+              revisionHeight: consensusHeight?.revisionHeight,
+              revisionNumber: consensusHeight?.revisionNumber,
               latestHeight: consensusHeight === undefined,
             })
           );
