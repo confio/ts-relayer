@@ -197,41 +197,41 @@ export interface IbcExtension {
         readonly channel: (
           portId: string,
           channelId: string,
-          proveHeight?: number
+          proofHeight: Height
         ) => Promise<QueryChannelResponse>;
         readonly packetCommitment: (
           portId: string,
           channelId: string,
           sequence: number,
-          proveHeight?: number
+          proofHeight: Height
         ) => Promise<QueryPacketCommitmentResponse>;
         readonly packetAcknowledgement: (
           portId: string,
           channelId: string,
           sequence: number,
-          proveHeight?: number
+          proofHeight: Height
         ) => Promise<QueryPacketAcknowledgementResponse>;
         readonly nextSequenceReceive: (
           portId: string,
           channelId: string,
-          proveHeight?: number
+          proofHeight: Height
         ) => Promise<QueryNextSequenceReceiveResponse>;
       };
       readonly client: {
         readonly state: (
           clientId: string,
-          height?: number
+          proofHeight: Height
         ) => Promise<QueryClientStateResponse & { proofHeight: Height }>;
         readonly consensusState: (
           clientId: string,
-          consensusHeight: number,
-          proveHeight?: number
+          consensusHeight: Height,
+          proofHeight: Height
         ) => Promise<QueryConsensusStateResponse>;
       };
       readonly connection: {
         readonly connection: (
           connectionId: string,
-          height?: number
+          proofHeight: Height
         ) => Promise<QueryConnectionResponse>;
       };
     };
@@ -582,39 +582,41 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           channel: async (
             portId: string,
             channelId: string,
-            proveHeight?: number
+            proofHeight: Height
           ) => {
             // key: https://github.com/cosmos/cosmos-sdk/blob/ef0a7344af345882729598bc2958a21143930a6b/x/ibc/24-host/keys.go#L117-L120
             const key = toAscii(
               `channelEnds/ports/${portId}/channels/${channelId}`
             );
-            const proven = await base.queryRawProof('ibc', key, proveHeight);
+            const proven = await base.queryRawProof(
+              'ibc',
+              key,
+              proofHeight.revisionHeight.toNumber()
+            );
             const channel = Channel.decode(proven.value);
             const proof = convertProofsToIcs23(proven.proof);
-            const proofHeight = Height.fromPartial({
-              revisionHeight: new Long(proven.height),
-            });
             return {
               channel: channel,
               proof: proof,
-              proofHeight: proofHeight,
+              proofHeight,
             };
           },
           packetCommitment: async (
             portId: string,
             channelId: string,
             sequence: number,
-            proveHeight?: number
+            proofHeight: Height
           ) => {
             const key = toAscii(
               `commitments/ports/${portId}/channels/${channelId}/sequences/${sequence}`
             );
-            const proven = await base.queryRawProof('ibc', key, proveHeight);
+            const proven = await base.queryRawProof(
+              'ibc',
+              key,
+              proofHeight.revisionHeight.toNumber()
+            );
             const commitment = proven.value;
             const proof = convertProofsToIcs23(proven.proof);
-            const proofHeight = Height.fromPartial({
-              revisionHeight: new Long(proven.height),
-            });
             return {
               commitment: commitment,
               proof: proof,
@@ -625,17 +627,18 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             portId: string,
             channelId: string,
             sequence: number,
-            proveHeight?: number
+            proofHeight: Height
           ) => {
             const key = toAscii(
               `acks/ports/${portId}/channels/${channelId}/sequences/${sequence}`
             );
-            const proven = await base.queryRawProof('ibc', key, proveHeight);
+            const proven = await base.queryRawProof(
+              'ibc',
+              key,
+              proofHeight.revisionHeight.toNumber()
+            );
             const acknowledgement = proven.value;
             const proof = convertProofsToIcs23(proven.proof);
-            const proofHeight = Height.fromPartial({
-              revisionHeight: new Long(proven.height),
-            });
             return {
               acknowledgement: acknowledgement,
               proof: proof,
@@ -645,17 +648,18 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           nextSequenceReceive: async (
             portId: string,
             channelId: string,
-            proveHeight?: number
+            proofHeight: Height
           ) => {
             const key = toAscii(
               `nextSequenceRecv/ports/${portId}/channels/${channelId}`
             );
-            const proven = await base.queryRawProof('ibc', key, proveHeight);
+            const proven = await base.queryRawProof(
+              'ibc',
+              key,
+              proofHeight.revisionHeight.toNumber()
+            );
             const nextSequenceReceive = Long.fromBytesBE([...proven.value]);
             const proof = convertProofsToIcs23(proven.proof);
-            const proofHeight = Height.fromPartial({
-              revisionHeight: new Long(proven.height),
-            });
             return {
               nextSequenceReceive: nextSequenceReceive,
               proof: proof,
@@ -664,18 +668,15 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           },
         },
         client: {
-          state: async (clientId: string, height?: number) => {
+          state: async (clientId: string, proofHeight: Height) => {
             const key = `clients/${clientId}/clientState`;
             const proven = await base.queryRawProof(
               'ibc',
               toAscii(key),
-              height
+              proofHeight.revisionHeight.toNumber()
             );
             const clientState = Any.decode(proven.value);
             const proof = convertProofsToIcs23(proven.proof);
-            const proofHeight = Height.fromPartial({
-              revisionHeight: new Long(proven.height),
-            });
             return {
               clientState,
               proof,
@@ -684,21 +685,18 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           },
           consensusState: async (
             clientId: string,
-            consensusHeight: number,
-            proveHeight?: number
+            consensusHeight: Height,
+            proofHeight: Height
           ) => {
             // TODO: accept other revisionNumber
-            const key = `clients/${clientId}/consensusStates/0-${consensusHeight}`;
+            const key = `clients/${clientId}/consensusStates/${consensusHeight.revisionNumber}-${consensusHeight.revisionHeight}`;
             const proven = await base.queryRawProof(
               'ibc',
               toAscii(key),
-              proveHeight
+              proofHeight.revisionHeight.toNumber()
             );
             const consensusState = Any.decode(proven.value);
             const proof = convertProofsToIcs23(proven.proof);
-            const proofHeight = Height.fromPartial({
-              revisionHeight: new Long(proven.height),
-            });
             return {
               consensusState,
               proof,
@@ -707,18 +705,15 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           },
         },
         connection: {
-          connection: async (connectionId: string, height?: number) => {
+          connection: async (connectionId: string, proofHeight: Height) => {
             const key = `connections/${connectionId}`;
             const proven = await base.queryRawProof(
               'ibc',
               toAscii(key),
-              height
+              proofHeight.revisionHeight.toNumber()
             );
             const connection = ConnectionEnd.decode(proven.value);
             const proof = convertProofsToIcs23(proven.proof);
-            const proofHeight = Height.fromPartial({
-              revisionHeight: new Long(proven.height),
-            });
             return {
               connection,
               proof,

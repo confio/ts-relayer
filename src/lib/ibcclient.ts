@@ -26,7 +26,7 @@ import {
   Header as RpcHeader,
   Tendermint34Client,
 } from '@cosmjs/tendermint-rpc';
-import { arrayContentEquals, sleep } from '@cosmjs/utils';
+import { arrayContentEquals, assert, sleep } from '@cosmjs/utils';
 import Long from 'long';
 
 import { Any } from '../codec/google/protobuf/any';
@@ -73,10 +73,10 @@ import {
   buildClientState,
   buildConsensusState,
   createBroadcastTxErrorMessage,
-  ensureIntHeight,
   mapRpcPubKeyToProto,
   multiplyFees,
   parseRevisionNumber,
+  subtractBlock,
   timestampFromDateNanos,
   toIntHeight,
 } from './utils';
@@ -279,6 +279,15 @@ export class IbcClient {
     });
   }
 
+  public ensureRevisionHeight(height: number | Height): Height {
+    const revisionHeight =
+      typeof height === 'number' ? height : height.revisionHeight.toNumber();
+    return Height.fromPartial({
+      revisionHeight: new Long(revisionHeight),
+      revisionNumber: this.revisionNumber,
+    });
+  }
+
   public async timeoutHeight(blocksInFuture: number): Promise<Height> {
     const header = await this.latestHeader();
     return this.revisionHeight(header.height + blocksInFuture);
@@ -428,8 +437,8 @@ export class IbcClient {
     connectionId: string,
     headerHeight: Height | number
   ): Promise<ConnectionHandshakeProof> {
-    const normalHeight = ensureIntHeight(headerHeight);
-    const queryHeight = normalHeight - 1;
+    const proofHeight = this.ensureRevisionHeight(headerHeight);
+    const queryHeight = subtractBlock(proofHeight, 1);
 
     const {
       clientState,
@@ -441,6 +450,7 @@ export class IbcClient {
     const {
       latestHeight: consensusHeight,
     } = await this.query.ibc.client.stateTm(clientId);
+    assert(consensusHeight);
 
     // get the init proof
     const {
@@ -455,7 +465,7 @@ export class IbcClient {
       proof: proofConsensus,
     } = await this.query.ibc.proof.client.consensusState(
       clientId,
-      toIntHeight(consensusHeight),
+      consensusHeight,
       queryHeight
     );
 
@@ -463,7 +473,7 @@ export class IbcClient {
       clientId,
       clientState,
       connectionId,
-      proofHeight: this.revisionHeight(normalHeight),
+      proofHeight,
       proofConnection,
       proofClient,
       proofConsensus,
@@ -481,8 +491,8 @@ export class IbcClient {
     id: ChannelInfo,
     headerHeight: Height | number
   ): Promise<ChannelHandshake> {
-    const normalHeight = ensureIntHeight(headerHeight);
-    const queryHeight = normalHeight - 1;
+    const proofHeight = this.ensureRevisionHeight(headerHeight);
+    const queryHeight = subtractBlock(proofHeight, 1);
 
     const { proof } = await this.query.ibc.proof.channel.channel(
       id.portId,
@@ -492,7 +502,7 @@ export class IbcClient {
 
     return {
       id,
-      proofHeight: this.revisionHeight(normalHeight),
+      proofHeight,
       proof,
     };
   }
@@ -501,7 +511,8 @@ export class IbcClient {
     packet: Packet,
     headerHeight: Height | number
   ): Promise<Uint8Array> {
-    const queryHeight = ensureIntHeight(headerHeight) - 1;
+    const proofHeight = this.ensureRevisionHeight(headerHeight);
+    const queryHeight = subtractBlock(proofHeight, 1);
 
     const { proof } = await this.query.ibc.proof.channel.packetCommitment(
       packet.sourcePort,
@@ -517,7 +528,8 @@ export class IbcClient {
     { originalPacket }: Ack,
     headerHeight: Height | number
   ): Promise<Uint8Array> {
-    const queryHeight = ensureIntHeight(headerHeight) - 1;
+    const proofHeight = this.ensureRevisionHeight(headerHeight);
+    const queryHeight = subtractBlock(proofHeight, 1);
 
     const { proof } = await this.query.ibc.proof.channel.packetAcknowledgement(
       originalPacket.destinationPort,
@@ -743,6 +755,9 @@ export class IbcClient {
       proofConsensus,
       consensusHeight,
     } = proof;
+    console.log(
+      `proof height: ${proofHeight.revisionNumber}-${proofHeight.revisionHeight}`
+    );
     const msg = {
       typeUrl: '/ibc.core.connection.v1.MsgConnectionOpenTry',
       value: MsgConnectionOpenTry.fromPartial({
@@ -1262,7 +1277,7 @@ export async function buildCreateClientArgs(
   const header = await src.latestHeader();
   const consensusState = buildConsensusState(header);
   const clientState = buildClientState(
-    await src.getChainId(),
+    src.chainId,
     unbondingPeriodSec,
     trustPeriodSec,
     src.revisionHeight(header.height)
@@ -1302,6 +1317,9 @@ export async function prepareChannelHandshake(
   // update client on dest
   const headerHeight = await dest.doUpdateClient(clientIdDest, src);
   // get a proof (for the proven height)
+  console.log(
+    `query header height: ${headerHeight.revisionNumber}-${headerHeight.revisionHeight}`
+  );
   const proof = await src.getChannelProof({ portId, channelId }, headerHeight);
   return proof;
 }

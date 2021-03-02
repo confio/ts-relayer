@@ -111,6 +111,8 @@ test.serial('perform connection handshake', async (t) => {
     args.consensusState
   );
   t.assert(destClientId.startsWith('07-tendermint-'));
+  console.log(src.chainId);
+  console.log(JSON.stringify(args, undefined, 2));
 
   // client on src -> dest
   const args2 = await buildCreateClientArgs(dest, genesisUnbondingTime, 5000);
@@ -119,6 +121,8 @@ test.serial('perform connection handshake', async (t) => {
     args2.consensusState
   );
   t.assert(srcClientId.startsWith('07-tendermint-'));
+  console.log(dest.chainId);
+  console.log(JSON.stringify(args2, undefined, 2));
 
   // connectionInit on src
   const { connectionId: srcConnId } = await src.connOpenInit(

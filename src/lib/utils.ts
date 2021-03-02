@@ -40,6 +40,13 @@ export function ensureIntHeight(height: number | Height): number {
   return toIntHeight(height);
 }
 
+export function subtractBlock(height: Height, count = 1): Height {
+  return {
+    revisionNumber: height.revisionNumber,
+    revisionHeight: height.revisionHeight.subtract(count),
+  };
+}
+
 export function parseRevisionNumber(chainId: string): Long {
   const sections = chainId.split('-');
   if (sections.length > 1) {
