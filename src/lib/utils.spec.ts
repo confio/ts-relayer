@@ -15,3 +15,20 @@ test('can parse revision numbers', (t) => {
   const nonums2 = parseRevisionNumber('hello-world');
   t.is(nonums2.toNumber(), 0);
 });
+
+test('can parse strange revision numbers', (t) => {
+  // all of these should give 0
+  const strangers = [
+    '',
+    '-',
+    'hello-',
+    'hello-123-',
+    'hello-0123',
+    'hello-00123',
+    'hello-1.23',
+  ];
+  for (const strange of strangers) {
+    const rev = parseRevisionNumber(strange);
+    t.is(rev.toNumber(), 0, strange);
+  }
+});
