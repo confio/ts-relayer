@@ -270,6 +270,7 @@ export class Link {
     );
     const { src, dest } = this.getEnds(source);
     const client = await dest.client.query.ibc.client.stateTm(dest.clientID);
+    // TODO: revisit where revision number comes from - this must be the number from the source chain
     const knownHeight = client.latestHeight?.revisionHeight?.toNumber() ?? 0;
     if (knownHeight >= minHeight && client.latestHeight !== undefined) {
       return client.latestHeight;

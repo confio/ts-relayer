@@ -68,6 +68,10 @@ function decodeTendermintConsensusStateAny(
   return TendermintConsensusState.decode(clientState.value);
 }
 
+export function heightQueryString(height: Height): string {
+  return `${height.revisionNumber}-${height.revisionHeight}`;
+}
+
 export interface IbcExtension {
   readonly ibc: {
     readonly channel: {
@@ -688,8 +692,8 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             consensusHeight: Height,
             proofHeight: Height
           ) => {
-            // TODO: accept other revisionNumber
-            const key = `clients/${clientId}/consensusStates/${consensusHeight.revisionNumber}-${consensusHeight.revisionHeight}`;
+            const height = heightQueryString(consensusHeight);
+            const key = `clients/${clientId}/consensusStates/${height}`;
             const proven = await base.queryRawProof(
               'ibc',
               toAscii(key),

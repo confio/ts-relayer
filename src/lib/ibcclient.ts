@@ -412,17 +412,16 @@ export class IbcClient {
   //   Height, Round, BlockId, TimeStamp, ChainID
   public async buildHeader(lastHeight: number): Promise<TendermintHeader> {
     const signedHeader = await this.getSignedHeader();
+    // "assert that trustedVals is NextValidators of last trusted header"
+    // https://github.com/cosmos/cosmos-sdk/blob/v0.41.0/x/ibc/light-clients/07-tendermint/types/update.go#L74
+    const validatorHeight = lastHeight + 1;
     /* eslint @typescript-eslint/no-non-null-assertion: "off" */
     const curHeight = signedHeader.header!.height.toNumber();
     return TendermintHeader.fromPartial({
       signedHeader,
       validatorSet: await this.getValidatorSet(curHeight),
-      trustedHeight: {
-        revisionHeight: new Long(lastHeight),
-      },
-      // "assert that trustedVals is NextValidators of last trusted header"
-      // https://github.com/cosmos/cosmos-sdk/blob/v0.41.0/x/ibc/light-clients/07-tendermint/types/update.go#L74
-      trustedValidators: await this.getValidatorSet(lastHeight + 1),
+      trustedHeight: this.revisionHeight(lastHeight),
+      trustedValidators: await this.getValidatorSet(validatorHeight),
     });
   }
 
@@ -556,7 +555,7 @@ export class IbcClient {
     const header = await src.buildHeader(toIntHeight(latestHeight));
     await this.updateTendermintClient(clientId, header);
     const height = header.signedHeader?.header?.height?.toNumber() ?? 0;
-    return this.revisionHeight(height);
+    return src.revisionHeight(height);
   }
 
   /***** These are all direct wrappers around message constructors ********/
@@ -755,9 +754,6 @@ export class IbcClient {
       proofConsensus,
       consensusHeight,
     } = proof;
-    console.log(
-      `proof height: ${proofHeight.revisionNumber}-${proofHeight.revisionHeight}`
-    );
     const msg = {
       typeUrl: '/ibc.core.connection.v1.MsgConnectionOpenTry',
       value: MsgConnectionOpenTry.fromPartial({
@@ -1296,6 +1292,7 @@ export async function prepareConnectionHandshake(
   await src.waitOneBlock();
   // update client on dest
   const headerHeight = await dest.doUpdateClient(clientIdDest, src);
+
   // get a proof (for the proven height)
   const proof = await src.getConnectionProof(
     clientIdSrc,
@@ -1317,9 +1314,6 @@ export async function prepareChannelHandshake(
   // update client on dest
   const headerHeight = await dest.doUpdateClient(clientIdDest, src);
   // get a proof (for the proven height)
-  console.log(
-    `query header height: ${headerHeight.revisionNumber}-${headerHeight.revisionHeight}`
-  );
   const proof = await src.getChannelProof({ portId, channelId }, headerHeight);
   return proof;
 }
