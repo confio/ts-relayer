@@ -2,6 +2,7 @@
 
 import { Command, Option } from 'commander';
 
+import { balances } from './commands/balances';
 import { init } from './commands/init';
 import { keysGenerate } from './commands/keys-generate';
 import { keysList } from './commands/keys-list';
@@ -15,6 +16,9 @@ const homeOption = new Option(
   '--home <path>',
   'home option description (default: $HOME/.ibc-setup)'
 );
+const keyFileOption = new Option('--key-file <path>');
+const mnemonicOption = new Option('--mnemonic <mnemonic>');
+const interactiveOption = new Option('-i, --interactive');
 
 program
   .command('init')
@@ -29,16 +33,25 @@ const keys = program.command('keys');
 keys
   .command('generate')
   .description('keys generate command description')
-  .option('--key-file <path>')
+  .addOption(keyFileOption)
   .action(keysGenerate);
 
 keys
   .command('list')
   .description('keys list command description')
   .addOption(homeOption)
-  .option('--mnemonic <mnemonic>')
-  .option('--key-file <path>')
-  .option('-i, --interactive')
+  .addOption(mnemonicOption)
+  .addOption(keyFileOption)
+  .addOption(interactiveOption)
   .action(keysList);
+
+program
+  .command('balances')
+  .description('balances command description')
+  .addOption(homeOption)
+  .addOption(mnemonicOption)
+  .addOption(keyFileOption)
+  .addOption(interactiveOption)
+  .action(balances);
 
 program.parse(process.argv);
