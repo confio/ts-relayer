@@ -280,12 +280,19 @@ export class IbcClient {
   }
 
   public ensureRevisionHeight(height: number | Height): Height {
-    const revisionHeight =
-      typeof height === 'number' ? height : height.revisionHeight.toNumber();
-    return Height.fromPartial({
-      revisionHeight: new Long(revisionHeight),
-      revisionNumber: this.revisionNumber,
-    });
+    let revisionHeight: Long;
+    const revisionNumber = this.revisionNumber;
+    if (typeof height === 'number') {
+      revisionHeight = Long.fromNumber(height);
+    } else {
+      if (height.revisionNumber.toNumber() !== revisionNumber.toNumber()) {
+        throw new Error(
+          `Using incorrect revisionNumber ${height.revisionNumber} on chain with ${this.revisionNumber}`
+        );
+      }
+      revisionHeight = height.revisionHeight;
+    }
+    return Height.fromPartial({ revisionHeight, revisionNumber });
   }
 
   public async timeoutHeight(blocksInFuture: number): Promise<Height> {
