@@ -15,9 +15,14 @@ async function readMnemonicFromStdin(interactive: boolean) {
     output: process.stdout,
   });
 
-  const mnemonic = await new Promise<string>((resolve) => {
+  const mnemonic = await new Promise<string>((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      reject('Timeout for entering mnemonic exceeded.');
+    }, 60 * 1000);
+
     readlineInterface.question('enter mnemonic phrase: ', (stdin) => {
       readlineInterface.close();
+      clearTimeout(timeout);
       resolve(stdin);
     });
   });
