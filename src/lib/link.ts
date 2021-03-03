@@ -712,31 +712,37 @@ export class Link {
     return height;
   }
 
+  // Source: the side that originally sent the packet
+  // We need to relay a proof from dest -> source
   public async timeoutPackets(
     source: Side,
     packets: readonly PacketWithMetadata[]
   ): Promise<void> {
     this.logger.info(`Timeout packets for source ${source}`);
     console.log('N PACKETS:', packets.length);
-    const { src } = this.getEnds(source);
+    const { src, dest } = this.getEnds(source);
+    const destSide = otherSide(source);
 
-    // check if we need to update client at all
-    const neededHeight = Math.max(...packets.map((x) => x.height)) + 1;
-    const headerHeight = await this.updateClientToHeight(source, neededHeight);
-    await this.updateClientToHeight(source, neededHeight);
+    // We need a header that is after the timeout, not after the packet was committed
+    // This can get complex with timeout timestamps. Let's just update to latest
+    await dest.client.waitOneBlock();
+    const headerHeight = await this.updateClient(destSide);
 
-    const [packet] = packets;
-    const fakeAck = {
-      originalPacket: packet.packet,
-      acknowledgement: new Uint8Array(),
-    };
-    const proof = await src.client.getAckProof(fakeAck, headerHeight);
-    const timeoutResponse = await src.client.timeoutPacket(
-      packet.packet,
-      proof,
-      new Long(5)
-    );
-    console.log(timeoutResponse);
+    for (const packet of packets) {
+      const fakeAck = {
+        originalPacket: packet.packet,
+        acknowledgement: new Uint8Array(),
+      };
+      const proof = await dest.client.getTimeoutProof(fakeAck, headerHeight);
+      const timeoutResponse = await src.client.timeoutPacket(
+        packet.packet,
+        proof,
+        // TODO: get this real value
+        new Long(5),
+        headerHeight
+      );
+      console.log(timeoutResponse);
+    }
   }
 
   private getEnds(src: Side): EndpointPair {

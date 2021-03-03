@@ -203,6 +203,12 @@ export interface IbcExtension {
           channelId: string,
           proofHeight: Height
         ) => Promise<QueryChannelResponse>;
+        readonly receiptProof: (
+          portId: string,
+          channelId: string,
+          sequence: number,
+          proofHeight: Height
+        ) => Promise<Uint8Array>;
         readonly packetCommitment: (
           portId: string,
           channelId: string,
@@ -602,6 +608,25 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
               proof: proof,
               proofHeight,
             };
+          },
+          // designed only for timeout, modify if we need actual value not just proof
+          // could not verify absence of key receipts/ports/transfer/channels/channel-5/sequences/2
+          receiptProof: async (
+            portId: string,
+            channelId: string,
+            sequence: number,
+            proofHeight: Height
+          ) => {
+            const key = toAscii(
+              `receipts/ports/${portId}/channels/${channelId}/sequences/${sequence}`
+            );
+            const proven = await base.queryRawProof(
+              'ibc',
+              key,
+              proofHeight.revisionHeight.toNumber()
+            );
+            const proof = convertProofsToIcs23(proven.proof);
+            return proof;
           },
           packetCommitment: async (
             portId: string,

@@ -615,8 +615,8 @@ test.serial.only('timeout expired packets', async (t) => {
     submitDestHeight,
     timeoutDestHeight,
     submitDestHeight,
-  ].map((height) => nodeA.revisionHeight(height));
-  console.log('TIMEOUTS', timeoutHeights);
+    // we need the timeout height of the *receiving* chain
+  ].map((height) => nodeB.revisionHeight(height));
 
   // let's make 3 transfer tx at different heights
   const txHeights = [];

@@ -552,6 +552,22 @@ export class IbcClient {
     return proof;
   }
 
+  public async getTimeoutProof(
+    { originalPacket }: Ack,
+    headerHeight: Height | number
+  ): Promise<Uint8Array> {
+    const proofHeight = this.ensureRevisionHeight(headerHeight);
+    const queryHeight = subtractBlock(proofHeight, 1);
+
+    const proof = await this.query.ibc.proof.channel.receiptProof(
+      originalPacket.destinationPort,
+      originalPacket.destinationChannel,
+      originalPacket.sequence.toNumber(),
+      queryHeight
+    );
+    return proof;
+  }
+
   /*
   These are helpers to query, build data and submit a message
   Currently all prefixed with doXxx, but please look for better naming
@@ -1200,7 +1216,7 @@ export class IbcClient {
     packet: Packet,
     proofUnreceived: Uint8Array,
     nextSequenceRecv: Long,
-    proofHeight?: Height
+    proofHeight: Height
   ): Promise<MsgResult> {
     this.logger.verbose(`Timeout packet ${packet.sequence}`);
     const senderAddress = this.senderAddress;
