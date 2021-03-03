@@ -541,13 +541,14 @@ export class IbcClient {
     const proofHeight = this.ensureRevisionHeight(headerHeight);
     const queryHeight = subtractBlock(proofHeight, 1);
 
-    const { proof } = await this.query.ibc.proof.channel.packetAcknowledgement(
+    const res = await this.query.ibc.proof.channel.packetAcknowledgement(
       originalPacket.destinationPort,
       originalPacket.destinationChannel,
       originalPacket.sequence.toNumber(),
       queryHeight
     );
-
+    console.log(res);
+    const { proof } = res;
     return proof;
   }
 

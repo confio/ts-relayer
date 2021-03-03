@@ -1,4 +1,5 @@
 import { arrayContentEquals } from '@cosmjs/utils';
+import Long from 'long';
 
 import { Order, Packet, State } from '../codec/ibc/core/channel/v1/channel';
 import { Height } from '../codec/ibc/core/client/v1/client';
@@ -709,6 +710,33 @@ export class Link {
       headerHeight
     );
     return height;
+  }
+
+  public async timeoutPackets(
+    source: Side,
+    packets: readonly PacketWithMetadata[]
+  ): Promise<void> {
+    this.logger.info(`Timeout packets for source ${source}`);
+    console.log('N PACKETS:', packets.length);
+    const { src } = this.getEnds(source);
+
+    // check if we need to update client at all
+    const neededHeight = Math.max(...packets.map((x) => x.height)) + 1;
+    const headerHeight = await this.updateClientToHeight(source, neededHeight);
+    await this.updateClientToHeight(source, neededHeight);
+
+    const [packet] = packets;
+    const fakeAck = {
+      originalPacket: packet.packet,
+      acknowledgement: new Uint8Array(),
+    };
+    const proof = await src.client.getAckProof(fakeAck, headerHeight);
+    const timeoutResponse = await src.client.timeoutPacket(
+      packet.packet,
+      proof,
+      new Long(5)
+    );
+    console.log(timeoutResponse);
   }
 
   private getEnds(src: Side): EndpointPair {

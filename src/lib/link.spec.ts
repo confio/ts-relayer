@@ -7,12 +7,14 @@ import { prepareChannelHandshake } from './ibcclient';
 import { Link, RelayedHeights } from './link';
 import {
   ics20,
+  randomAddress,
   setup,
   simapp,
   TestLogger,
   transferTokens,
   wasmd,
 } from './testutils';
+import { splitPendingPackets } from './utils';
 
 test.serial('establish new client-connection', async (t) => {
   const logger = new TestLogger();
@@ -585,3 +587,87 @@ test.serial(
     await checkPending(0, 0, 0, 0);
   }
 );
+
+test.serial.only('timeout expired packets', async (t) => {
+  const logger = new TestLogger();
+  const [nodeA, nodeB] = await setup(logger);
+
+  const link = await Link.createWithNewConnections(nodeA, nodeB, logger);
+  const channels = await link.createChannel(
+    'A',
+    ics20.srcPortId,
+    ics20.destPortId,
+    ics20.ordering,
+    ics20.version
+  );
+
+  // no packets here
+  const noPackets = await link.endA.querySentPackets();
+  t.is(noPackets.length, 0);
+
+  // some basic setup for the transfers
+  const recipient = randomAddress(wasmd.prefix);
+  const latestHeight = (await nodeB.latestHeader()).height;
+  const timeoutDestHeight = latestHeight + 2;
+  const submitDestHeight = latestHeight + 500; // valid for 500 blocks
+  const amounts = [1000, 2222, 3456];
+  const timeoutHeights = [
+    submitDestHeight,
+    timeoutDestHeight,
+    submitDestHeight,
+  ].map((height) => nodeA.revisionHeight(height));
+  console.log('TIMEOUTS', timeoutHeights);
+
+  // let's make 3 transfer tx at different heights
+  const txHeights = [];
+  for (let i = 0; i < amounts.length; ++i) {
+    const token = { amount: amounts[i].toString(), denom: simapp.denomFee };
+    const { height } = await nodeA.transferTokens(
+      channels.src.portId,
+      channels.src.channelId,
+      token,
+      recipient,
+      timeoutHeights[i]
+    );
+    txHeights.push(height);
+  }
+  // ensure these are different
+  t.assert(txHeights[1] > txHeights[0], txHeights.toString());
+  t.assert(txHeights[2] > txHeights[1], txHeights.toString());
+  // need to wait briefly for it to be indexed
+  await sleep(100);
+
+  // now query for all packets
+  const packets = await link.getPendingPackets('A');
+  t.is(packets.length, 3);
+  t.deepEqual(
+    packets.map(({ height }) => height),
+    txHeights
+  );
+
+  // ensure no acks yet
+  const preAcks = await link.getPendingAcks('B');
+  t.is(preAcks.length, 0);
+
+  // wait for timeout and pre-update client
+  await nodeA.waitOneBlock();
+  await nodeA.waitOneBlock();
+  await nodeA.waitOneBlock();
+  const currentHeight = await link.updateClient('A');
+
+  const { toSubmit, toTimeout } = splitPendingPackets(currentHeight, packets);
+  t.is(toSubmit.length, 2);
+  t.is(toTimeout.length, 1);
+
+  // submit the ones which didn't timeout
+  const txAcks = await link.relayPackets('A', toSubmit);
+  t.is(txAcks.length, 2);
+
+  // try to submit the one which did timeout
+  await t.throwsAsync(() => link.relayPackets('A', toTimeout));
+
+  await link.updateClient('A');
+  await link.updateClient('B');
+  // timeout remaining packet
+  await link.timeoutPackets('A', toTimeout);
+});

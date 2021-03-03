@@ -18,6 +18,8 @@ import {
 } from '../codec/ibc/lightclients/tendermint/v1/tendermint';
 import { PublicKey as ProtoPubKey } from '../codec/tendermint/crypto/keys';
 
+import { PacketWithMetadata } from './endpoint';
+
 export interface Ack {
   readonly acknowledgement: Uint8Array;
   readonly originalPacket: Packet;
@@ -302,4 +304,35 @@ export function multiplyFees({ gas, amount }: StdFee, mult: number): StdFee {
 export function multiplyCoin({ amount, denom }: Coin, mult: number): Coin {
   const multAmount = Number.parseInt(amount, 10) * mult;
   return { amount: multAmount.toString(), denom };
+}
+
+export function splitPendingPackets(
+  currentHeight: Height,
+  packets: readonly PacketWithMetadata[]
+): {
+  readonly toSubmit: readonly PacketWithMetadata[];
+  readonly toTimeout: readonly PacketWithMetadata[];
+} {
+  return packets.reduce(
+    (acc, packet) => {
+      const timeoutHeight = packet.packet.timeoutHeight;
+      const shouldTimeout =
+        timeoutHeight &&
+        timeoutHeight.revisionHeight.toNumber() <=
+          currentHeight.revisionHeight.toNumber();
+      return shouldTimeout
+        ? {
+            ...acc,
+            toTimeout: [...acc.toTimeout, packet],
+          }
+        : {
+            ...acc,
+            toSubmit: [...acc.toSubmit, packet],
+          };
+    },
+    {
+      toSubmit: [] as readonly PacketWithMetadata[],
+      toTimeout: [] as readonly PacketWithMetadata[],
+    }
+  );
 }
