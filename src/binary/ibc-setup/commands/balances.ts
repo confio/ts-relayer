@@ -5,37 +5,28 @@ import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 
 import { IbcClient } from '../../../lib/ibcclient';
 import { registryFile } from '../../constants';
-import { getDefaultHomePath } from '../utils/get-default-home-path';
 import { loadAndValidateApp } from '../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../utils/load-and-validate-registry';
-import { resolveMnemonicOption } from '../utils/resolve-mnemonic-option';
-import { resolveOption } from '../utils/resolve-option';
-import { resolveRequiredOption } from '../utils/resolve-required-option';
+import { resolveHomeOption } from '../utils/options/shared/resolve-home-option';
+import { resolveKeyFileOption } from '../utils/options/shared/resolve-key-file-option';
+import { resolveMnemonicOption } from '../utils/options/shared/resolve-mnemonic-option';
 
 import { Flags, getAddresses, Options } from './keys-list';
 
 export async function balances(flags: Flags) {
-  const home = resolveRequiredOption('home')(
-    flags.home,
-    process.env.RELAYER_HOME,
-    getDefaultHomePath
-  );
+  const home = resolveHomeOption({ homeFlag: flags.home });
   const app = loadAndValidateApp(home);
-
-  const keyFile = resolveOption(
-    flags.keyFile,
-    app?.keyFile,
-    process.env.KEY_FILE
-  );
+  const keyFile = resolveKeyFileOption({ keyFileFlag: flags.keyFile, app });
+  const mnemonic = await resolveMnemonicOption({
+    interactiveFlag: flags.interactive,
+    mnemonicFlag: flags.mnemonic,
+    keyFile: keyFile,
+    app,
+  });
 
   const options: Options = {
     home,
-    mnemonic: await resolveMnemonicOption({
-      interactive: flags.interactive,
-      mnemonic: flags.mnemonic,
-      keyFile: keyFile,
-      app,
-    }),
+    mnemonic,
   };
 
   await run(options);

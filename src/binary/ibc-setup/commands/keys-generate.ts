@@ -1,7 +1,7 @@
 import fs from 'fs';
 
 import { generateMnemonic } from '../utils/generate-mnemonic';
-import { resolveOption } from '../utils/resolve-option';
+import { resolveOption } from '../utils/options/resolve-option';
 
 export type Flags = {
   readonly keyFile?: string;
