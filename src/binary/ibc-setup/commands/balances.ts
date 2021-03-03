@@ -16,6 +16,8 @@ import { resolveMnemonicOption } from '../utils/options/shared/resolve-mnemonic-
 
 import { Flags, getAddresses, Options } from './keys-list';
 
+export { Options }; // re-export for testing
+
 export async function balances(flags: Flags) {
   const home = resolveHomeOption({ homeFlag: flags.home });
   const app = loadAndValidateApp(home);
@@ -74,6 +76,11 @@ export async function run(options: Options) {
     .filter(([, coin]) => Number(coin.amount) > 0)
     .map(([chain, coin]) => `${chain}: ${coin.amount}`)
     .join(os.EOL);
+
+  if (!balances) {
+    console.log('No funds found on any balance.');
+    return;
+  }
 
   console.log(balances);
 }
