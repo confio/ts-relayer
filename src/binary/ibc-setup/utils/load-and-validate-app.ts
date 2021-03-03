@@ -1,4 +1,4 @@
-import fs, { appendFileSync } from 'fs';
+import fs from 'fs';
 import os from 'os';
 import path from 'path';
 
@@ -8,18 +8,22 @@ import yaml from 'js-yaml';
 import { appFile } from '../../constants';
 import { App } from '../types';
 
-export function loadAndValidateApp(home: string) {
-  const appFilePath = path.join(home, appFile);
+function readAppYaml(filepath: string) {
+  try {
+    return fs.readFileSync(filepath, 'utf-8');
+  } catch {
+    return null;
+  }
+}
 
-  if (!fs.existsSync(appFilePath)) {
+export function loadAndValidateApp(home: string) {
+  const appContents = readAppYaml(path.join(home, appFile));
+
+  if (!appContents) {
     return null;
   }
 
-  if (!fs.lstatSync(appFilePath).isFile()) {
-    throw new Error(`${appendFileSync} must be a file.`);
-  }
-
-  const app = yaml.load(fs.readFileSync(path.join(home, appFile), 'utf-8'));
+  const app = yaml.load(appContents);
 
   const ajv = new Ajv({ allErrors: true });
   const schema: JSONSchemaType<App> = {
