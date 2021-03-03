@@ -62,23 +62,16 @@ export async function run(options: Options) {
           }
         );
 
-        const balance = await client.query.bank.unverified.balance(
+        const coin = await client.query.bank.unverified.balance(
           address,
           gasPrice.denom
         );
 
-        return [chain, balance];
+        return [chain, coin];
       })
     )
   )
-    .filter(() => {
-      // args: [chain, coin]
-      // TODO: filter balance > 0
-
-      // return all for now
-      return true;
-    })
-
+    .filter(([, coin]) => Number(coin.amount) > 0)
     .map(([chain, coin]) => `${chain}: ${coin.amount}`)
     .join(os.EOL);
 
