@@ -32,8 +32,8 @@ export async function keysList(flags: Flags) {
   const app = loadAndValidateApp(home);
   const keyFile = resolveOption(
     flags.keyFile,
-    app?.keyFile,
-    process.env.KEY_FILE
+    process.env.KEY_FILE,
+    app?.keyFile
   );
 
   const options: Options = {

@@ -51,8 +51,8 @@ export async function resolveMnemonicOption({
   return resolveRequiredOption('mnemonic')(
     await readMnemonicFromStdin(interactive),
     mnemonicFlag,
-    app?.mnemonic,
     process.env.RELAYER_MNEMONIC,
+    app?.mnemonic,
     readMnemonicFromFile(keyFile)
   );
 }
