@@ -14,6 +14,11 @@ test('uses resolveOption func', (t) => {
 
 test('throws if all options are undefined or null', (t) => {
   const option = () =>
-    resolveRequiredOption('some option')(undefined, null, undefined);
+    resolveRequiredOption('some option')(
+      undefined,
+      null,
+      () => null,
+      undefined
+    );
   t.throws(option, { instanceOf: Error, message: /some option/ });
 });
