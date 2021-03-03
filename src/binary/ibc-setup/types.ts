@@ -11,7 +11,7 @@ export type Registry = {
   chains: Record<string, Chain>;
 };
 
-export type App = {
+export type AppConfig = {
   src?: string;
   dest?: string;
   mnemonic?: string;

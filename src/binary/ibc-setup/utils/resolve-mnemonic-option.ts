@@ -1,7 +1,7 @@
 import fs from 'fs';
 import readline from 'readline';
 
-import { App } from '../types';
+import { AppConfig } from '../types';
 
 import { resolveRequiredOption } from './resolve-required-option';
 
@@ -44,7 +44,7 @@ type Params = {
   interactive: boolean;
   mnemonic?: string;
   keyFile: string | null;
-  app: App | null;
+  app: AppConfig | null;
 };
 
 export async function resolveMnemonicOption({

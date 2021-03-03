@@ -6,7 +6,7 @@ import Ajv, { JSONSchemaType } from 'ajv';
 import yaml from 'js-yaml';
 
 import { appFile } from '../../constants';
-import { App } from '../types';
+import { AppConfig } from '../types';
 
 function readAppYaml(filepath: string) {
   try {
@@ -26,7 +26,7 @@ export function loadAndValidateApp(home: string) {
   const app = yaml.load(appContents);
 
   const ajv = new Ajv({ allErrors: true });
-  const schema: JSONSchemaType<App> = {
+  const schema: JSONSchemaType<AppConfig> = {
     type: 'object',
     additionalProperties: false,
     required: [],
