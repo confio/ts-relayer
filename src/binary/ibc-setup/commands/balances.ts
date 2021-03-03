@@ -1,7 +1,10 @@
+import os from 'os';
 import path from 'path';
 
+import { stringToPath } from '@cosmjs/crypto';
 import { GasPrice } from '@cosmjs/launchpad';
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
+import { Coin } from '@cosmjs/proto-signing/build/codec/cosmos/base/v1beta1/coin';
 
 import { IbcClient } from '../../../lib/ibcclient';
 import { registryFile } from '../../constants';
@@ -38,27 +41,46 @@ export async function run(options: Options) {
 
   const addresses = await getAddresses(registry.chains, options.mnemonic);
 
-  for (const [chain, data, address] of addresses) {
-    const signer = await DirectSecp256k1HdWallet.fromMnemonic(
-      options.mnemonic,
-      undefined,
-      data.prefix
-    );
+  const balances = (
+    await Promise.all(
+      addresses.map<Promise<[string, Coin]>>(async ([chain, data, address]) => {
+        const signer = await DirectSecp256k1HdWallet.fromMnemonic(
+          options.mnemonic,
+          stringToPath(data.hd_path),
+          data.prefix
+        );
 
-    const gasPrice = GasPrice.fromString(data.gas_price);
+        const gasPrice = GasPrice.fromString(data.gas_price);
 
-    const client = await IbcClient.connectWithSigner(
-      data.rpc[0], // rpc[0] is guaranteed to be defined by registry validator
-      signer,
-      address,
-      {
-        prefix: data.prefix,
-        gasPrice,
-      }
-    );
+        const client = await IbcClient.connectWithSigner(
+          data.rpc[0], // rpc[0] is guaranteed to be defined by registry validator
+          signer,
+          address,
+          {
+            prefix: data.prefix,
+            gasPrice,
+          }
+        );
 
-    const balances = await client.query.bank.unverified.allBalances(address);
+        const balance = await client.query.bank.unverified.balance(
+          address,
+          gasPrice.denom
+        );
 
-    console.log(chain, balances);
-  }
+        return [chain, balance];
+      })
+    )
+  )
+    .filter(() => {
+      // args: [chain, coin]
+      // TODO: filter balance > 0
+
+      // return all for now
+      return true;
+    })
+
+    .map(([chain, coin]) => `${chain}: ${coin.amount}`)
+    .join(os.EOL);
+
+  console.log(balances);
 }
