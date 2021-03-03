@@ -1,5 +1,4 @@
 import { arrayContentEquals } from '@cosmjs/utils';
-import Long from 'long';
 
 import { Order, Packet, State } from '../codec/ibc/core/channel/v1/channel';
 import { Height } from '../codec/ibc/core/client/v1/client';
@@ -719,7 +718,6 @@ export class Link {
     packets: readonly PacketWithMetadata[]
   ): Promise<void> {
     this.logger.info(`Timeout packets for source ${source}`);
-    console.log('N PACKETS:', packets.length);
     const { src, dest } = this.getEnds(source);
     const destSide = otherSide(source);
 
@@ -728,17 +726,24 @@ export class Link {
     await dest.client.waitOneBlock();
     const headerHeight = await this.updateClient(destSide);
 
-    for (const packet of packets) {
+    for (const { packet } of packets) {
       const fakeAck = {
-        originalPacket: packet.packet,
+        originalPacket: packet,
         acknowledgement: new Uint8Array(),
       };
       const proof = await dest.client.getTimeoutProof(fakeAck, headerHeight);
+      const {
+        nextSequenceReceive,
+      } = await dest.client.query.ibc.channel.nextSequenceReceive(
+        packet.destinationPort,
+        packet.destinationChannel
+      );
+      console.log(nextSequenceReceive);
+      // TODO: handle multiple packets in one Tx inside ibcclient
       const timeoutResponse = await src.client.timeoutPacket(
-        packet.packet,
+        packet,
         proof,
-        // TODO: get this real value
-        new Long(5),
+        nextSequenceReceive,
         headerHeight
       );
       console.log(timeoutResponse);

@@ -666,8 +666,6 @@ test.serial.only('timeout expired packets', async (t) => {
   // try to submit the one which did timeout
   await t.throwsAsync(() => link.relayPackets('A', toTimeout));
 
-  await link.updateClient('A');
-  await link.updateClient('B');
   // timeout remaining packet
   await link.timeoutPackets('A', toTimeout);
 });
