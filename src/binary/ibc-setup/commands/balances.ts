@@ -73,7 +73,7 @@ export async function run(options: Options) {
       })
     )
   )
-    .filter(([, coin]) => Number(coin.amount) > 0)
+    .filter(([, coin]) => coin.amount !== '0')
     .map(([chain, coin]) => `${chain}: ${coin.amount}`)
     .join(os.EOL);
 
