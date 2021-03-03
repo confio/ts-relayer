@@ -149,7 +149,7 @@ max_body_bytes = 1000000
 max_header_bytes = 1048576
 
 # The path to a file containing certificate that is used to create the HTTPS server.
-# Migth be either absolute path or path related to tendermint's config directory.
+# Might be either absolute path or path related to Tendermint's config directory.
 # If the certificate is signed by a certificate authority,
 # the certFile should be the concatenation of the server's certificate, any intermediates,
 # and the CA's certificate.
@@ -158,8 +158,8 @@ max_header_bytes = 1048576
 tls_cert_file = ""
 
 # The path to a file containing matching private key that is used to create the HTTPS server.
-# Migth be either absolute path or path related to tendermint's config directory.
-# NOTE: both tls_cert_file and tls_key_file must be present for Tendermint to create HTTPS server.
+# Might be either absolute path or path related to Tendermint's config directory.
+# NOTE: both tls-cert-file and tls-key-file must be present for Tendermint to create HTTPS server.
 # Otherwise, HTTP server is run.
 tls_key_file = ""
 
@@ -240,7 +240,7 @@ handshake_timeout = "20s"
 dial_timeout = "3s"
 
 #######################################################
-###          Mempool Configurattion Option          ###
+###          Mempool Configuration Option          ###
 #######################################################
 [mempool]
 
@@ -321,21 +321,21 @@ version = "v0"
 wal_file = "data/cs.wal/wal"
 
 # How long we wait for a proposal block before prevoting nil
-timeout_propose = "100ms"
+timeout_propose = "300ms"
 # How much timeout_propose increases with each round
 timeout_propose_delta = "100ms"
 # How long we wait after receiving +2/3 prevotes for “anything” (ie. not a single block or nil)
-timeout_prevote = "100ms"
+timeout_prevote = "300ms"
 # How much the timeout_prevote increases with each round
 timeout_prevote_delta = "100ms"
 # How long we wait after receiving +2/3 precommits for “anything” (ie. not a single block or nil)
-timeout_precommit = "100ms"
+timeout_precommit = "300ms"
 # How much the timeout_precommit increases with each round
 timeout_precommit_delta = "100ms"
 # How long we wait after committing a block, before starting on the new
 # height (this gives us a chance to receive some more precommits, even
 # though we already have +2/3).
-timeout_commit = "200ms"
+timeout_commit = "1s"
 
 # How many blocks to look back to check existence of the node's consensus votes before joining consensus
 # When non-zero, the node will panic upon restart

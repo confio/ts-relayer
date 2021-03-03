@@ -3,7 +3,7 @@ set -o errexit -o nounset
 command -v shellcheck >/dev/null && shellcheck "$0"
 
 PASSWORD=${PASSWORD:-1234567890}
-CHAIN_ID=${CHAIN_ID:-simd-testing}
+CHAIN_ID=${CHAIN_ID:-ibc-1}
 MONIKER=${MONIKER:-simd-moniker}
 
 # The staking and the fee tokens. The supply of the staking token is low compared to the fee token (factor 100).
