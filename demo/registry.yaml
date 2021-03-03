@@ -21,7 +21,7 @@ chains:
     rpc:
       - http://localhost:26659
   local_simapp:
-    chain_id: simd-testing
+    chain_id: ibc-1
     prefix: cosmos
     gas_price: 0.025ucosm
     hd_path: m/44'/108'/0'/3'

@@ -40,7 +40,7 @@ export class TestLogger implements Logger {
 export const simapp = {
   tendermintUrlWs: 'ws://localhost:26658',
   tendermintUrlHttp: 'http://localhost:26658',
-  chainId: 'simd-testing',
+  chainId: 'ibc-1',
   prefix: 'cosmos',
   denomStaking: 'ustake',
   denomFee: 'ucosm',
@@ -71,7 +71,7 @@ export const simapp = {
 export const wasmd = {
   tendermintUrlWs: 'ws://localhost:26659',
   tendermintUrlHttp: 'http://localhost:26659',
-  chainId: 'testing',
+  chainId: 'wasmd-1',
   prefix: 'wasm',
   denomStaking: 'ustake',
   denomFee: 'ucosm',
