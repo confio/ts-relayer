@@ -33,11 +33,28 @@ export function toIntHeight(height?: Height): number {
   return height?.revisionHeight?.toNumber() ?? 0;
 }
 
-export function toProtoHeight(height: number): Height {
-  return Height.fromPartial({
-    revisionHeight: new Long(height),
-    revisionNumber: new Long(0), // TODO: do we need this?
-  });
+export function ensureIntHeight(height: number | Height): number {
+  if (typeof height === 'number') {
+    return height;
+  }
+  return toIntHeight(height);
+}
+
+export function subtractBlock(height: Height, count = 1): Height {
+  return {
+    revisionNumber: height.revisionNumber,
+    revisionHeight: height.revisionHeight.subtract(count),
+  };
+}
+
+const regexRevNum = new RegExp('-([1-9][0-9]*)$');
+
+export function parseRevisionNumber(chainId: string): Long {
+  const match = chainId.match(regexRevNum);
+  if (match && match.length >= 2) {
+    return Long.fromString(match[1]);
+  }
+  return new Long(0);
 }
 
 // may will run the transform if value is defined, otherwise returns undefined
@@ -96,7 +113,7 @@ export function buildClientState(
   chainId: string,
   unbondingPeriodSec: number,
   trustPeriodSec: number,
-  height: number
+  height: Height
 ): TendermintClientState {
   // Copied here until https://github.com/confio/ics23/issues/36 is resolved
   // https://github.com/confio/ics23/blob/master/js/src/proofs.ts#L11-L26
@@ -148,10 +165,7 @@ export function buildClientState(
     maxClockDrift: {
       seconds: new Long(20),
     },
-    latestHeight: {
-      revisionNumber: new Long(0), // ??
-      revisionHeight: new Long(height),
-    },
+    latestHeight: height,
     proofSpecs: [iavlSpec, tendermintSpec],
     upgradePath: ['upgrade', 'upgradedIBCState'],
     allowUpdateAfterExpiry: false,

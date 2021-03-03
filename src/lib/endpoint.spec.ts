@@ -2,7 +2,7 @@ import test from 'ava';
 
 import { Link } from './link';
 import { ics20, randomAddress, setup, simapp, wasmd } from './testutils.spec';
-import { parseAcksFromLogs, toProtoHeight } from './utils';
+import { parseAcksFromLogs } from './utils';
 
 test.serial('submit multiple tx, query all packets', async (t) => {
   // setup a channel
@@ -22,7 +22,7 @@ test.serial('submit multiple tx, query all packets', async (t) => {
 
   // some basic setup for the transfers
   const recipient = randomAddress(wasmd.prefix);
-  const destHeight = (await nodeB.latestHeader()).height + 500; // valid for 500 blocks
+  const destHeight = await nodeB.timeoutHeight(500); // valid for 500 blocks
   const amounts = [1000, 2222, 3456];
   // const totalSent = amounts.reduce((a, b) => a + b, 0);
 
@@ -91,7 +91,7 @@ test.serial('submit multiple tx, query all packets', async (t) => {
   const { logs: relayLog } = await nodeB.receivePackets(
     sendPackets,
     proofs,
-    toProtoHeight(headerHeight)
+    headerHeight
   );
   const txAcks = parseAcksFromLogs(relayLog);
   t.is(txAcks.length, 2);

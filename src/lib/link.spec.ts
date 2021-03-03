@@ -291,7 +291,7 @@ test.serial('submit multiple tx, get unreceived packets', async (t) => {
 
   // some basic setup for the transfers
   const recipient = randomAddress(wasmd.prefix);
-  const destHeight = (await nodeB.latestHeader()).height + 500; // valid for 500 blocks
+  const destHeight = await nodeB.timeoutHeight(500); // valid for 500 blocks
   const amounts = [1000, 2222, 3456];
   // const totalSent = amounts.reduce((a, b) => a + b, 0);
 
@@ -387,7 +387,7 @@ test.serial(
 
     // some basic setup for the transfers
     const recipient = randomAddress(wasmd.prefix);
-    const destHeight = (await nodeB.latestHeader()).height + 500; // valid for 500 blocks
+    const destHeight = await nodeB.timeoutHeight(500); // valid for 500 blocks
     const amounts = [1000, 2222, 3456];
     // const totalSent = amounts.reduce((a, b) => a + b, 0);
 

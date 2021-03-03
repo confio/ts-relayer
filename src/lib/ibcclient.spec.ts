@@ -18,7 +18,6 @@ import {
   buildConsensusState,
   parseAcksFromLogs,
   parsePacketsFromLogs,
-  toProtoHeight,
 } from './utils';
 
 test.serial('create simapp client on wasmd', async (t) => {
@@ -36,7 +35,7 @@ test.serial('create simapp client on wasmd', async (t) => {
     await src.getChainId(),
     1000,
     500,
-    header.height
+    src.revisionHeight(header.height)
   );
   const res = await dest.createTendermintClient(cliState, conState);
   t.assert(res.clientId.startsWith('07-tendermint-'));
@@ -60,7 +59,7 @@ test.serial('create and update wasmd client on simapp', async (t) => {
     await src.getChainId(),
     1000,
     500,
-    header.height
+    src.revisionHeight(header.height)
   );
   const { clientId } = await dest.createTendermintClient(cliState, conState);
   const state = await dest.query.ibc.client.stateTm(clientId);
@@ -184,14 +183,14 @@ test.serial('transfer message and send packets', async (t) => {
   t.is(preBalance.length, 0);
 
   // submit a transfer message
-  const destHeight = (await nodeB.latestHeader()).height;
+  const destHeight = await nodeB.timeoutHeight(500); // valid for 500 blocks
   const token = { amount: '12345', denom: simapp.denomFee };
   const transferResult = await nodeA.transferTokens(
     channels.src.portId,
     channels.src.channelId,
     token,
     recipient,
-    destHeight + 500 // valid for 500 blocks
+    destHeight
   );
 
   const packets = parsePacketsFromLogs(transferResult.logs);
@@ -204,11 +203,7 @@ test.serial('transfer message and send packets', async (t) => {
   const headerHeight = await nodeB.doUpdateClient(link.endB.clientID, nodeA);
   const proof = await nodeA.getPacketProof(packet, headerHeight);
 
-  const relayResult = await nodeB.receivePacket(
-    packet,
-    proof,
-    toProtoHeight(headerHeight)
-  );
+  const relayResult = await nodeB.receivePacket(packet, proof, headerHeight);
 
   // query balance of recipient (should be "12345" or some odd hash...)
   const postBalance = await nodeB.query.bank.unverified.allBalances(recipient);
@@ -226,7 +221,7 @@ test.serial('transfer message and send packets', async (t) => {
   await nodeB.waitOneBlock();
   const ackHeaderHeight = await nodeA.doUpdateClient(link.endA.clientID, nodeB);
   const ackProof = await nodeB.getAckProof(ack, ackHeaderHeight);
-  await nodeA.acknowledgePacket(ack, ackProof, toProtoHeight(ackHeaderHeight));
+  await nodeA.acknowledgePacket(ack, ackProof, ackHeaderHeight);
   // Do we need to check the result? or just see the tx succeeded?
 });
 
@@ -267,9 +262,7 @@ test.serial('tests parsing with multi-message', async (t) => {
   t.is(sendAcks.length, 0);
 
   // submit 2 transfer messages
-  const timeoutHeight = toProtoHeight(
-    (await nodeB.latestHeader()).height + 500
-  );
+  const timeoutHeight = await nodeB.timeoutHeight(500);
   const msg = {
     typeUrl: '/ibc.applications.transfer.v1.MsgTransfer',
     value: MsgTransfer.fromPartial({
@@ -311,7 +304,7 @@ test.serial('tests parsing with multi-message', async (t) => {
   const { logs: relayLog } = await nodeB.receivePackets(
     multiPackets,
     proofs,
-    toProtoHeight(headerHeight)
+    headerHeight
   );
 
   // no recv packets here
@@ -327,9 +320,5 @@ test.serial('tests parsing with multi-message', async (t) => {
   const ackProofs = await Promise.all(
     relayAcks.map((ack) => nodeB.getAckProof(ack, ackHeaderHeight))
   );
-  await nodeA.acknowledgePackets(
-    relayAcks,
-    ackProofs,
-    toProtoHeight(ackHeaderHeight)
-  );
+  await nodeA.acknowledgePackets(relayAcks, ackProofs, ackHeaderHeight);
 });
