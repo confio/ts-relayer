@@ -4,8 +4,8 @@ import path from 'path';
 import { stringToPath } from '@cosmjs/crypto';
 import { GasPrice } from '@cosmjs/launchpad';
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
-import { Coin } from '@cosmjs/proto-signing/build/codec/cosmos/base/v1beta1/coin';
 
+import { Coin } from '../../../codec/cosmos/base/v1beta1/coin';
 import { IbcClient } from '../../../lib/ibcclient';
 import { registryFile } from '../../constants';
 import { loadAndValidateApp } from '../utils/load-and-validate-app';
