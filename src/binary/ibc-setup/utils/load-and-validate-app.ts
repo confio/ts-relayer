@@ -11,7 +11,11 @@ import { AppConfig } from '../types';
 function readAppYaml(filepath: string) {
   try {
     return fs.readFileSync(filepath, 'utf-8');
-  } catch {
+  } catch (error) {
+    if (error.code !== 'ENOENT') {
+      throw error;
+    }
+
     return null;
   }
 }
