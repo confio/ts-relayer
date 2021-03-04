@@ -3,6 +3,7 @@
 import { Command, Option } from 'commander';
 
 import { balances } from './commands/balances';
+import { ics20 } from './commands/ics20';
 import { init } from './commands/init';
 import { keysGenerate } from './commands/keys-generate';
 import { keysList } from './commands/keys-list';
@@ -27,6 +28,8 @@ program
   .option('--src <chain>')
   .option('--dest <chain>')
   .action(init);
+
+program.command('ics20').description('ics20 command description').action(ics20);
 
 const keys = program.command('keys');
 
