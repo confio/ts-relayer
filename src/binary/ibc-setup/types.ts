@@ -13,7 +13,11 @@ export type Registry = {
 
 export type AppConfig = {
   src?: string;
+  srcClient?: string;
+  srcConnection?: string;
   dest?: string;
+  destClient?: string;
+  destConnection?: string;
   mnemonic?: string;
   keyFile?: string;
 };

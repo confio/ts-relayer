@@ -36,7 +36,11 @@ export function loadAndValidateApp(home: string) {
     required: [],
     properties: {
       src: { type: 'string', nullable: true, default: null },
+      srcClient: { type: 'string', nullable: true, default: null },
+      srcConnection: { type: 'string', nullable: true, default: null },
       dest: { type: 'string', nullable: true },
+      destClient: { type: 'string', nullable: true },
+      destConnection: { type: 'string', nullable: true },
       mnemonic: { type: 'string', nullable: true },
       keyFile: { type: 'string', nullable: true },
     },

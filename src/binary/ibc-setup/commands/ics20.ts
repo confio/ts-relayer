@@ -1,20 +1,20 @@
-import path, { resolve } from 'path';
+import fs from 'fs';
+import path from 'path';
 
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
+import yaml from 'js-yaml';
 
 import { Order } from '../../../codec/ibc/core/channel/v1/channel';
 import { IbcClient } from '../../../lib/ibcclient';
 import { Link } from '../../../lib/link';
-import { registryFile } from '../../constants';
-import { Chain } from '../types';
-import { getDefaultHomePath } from '../utils/get-default-home-path';
+import { appFile, registryFile } from '../../constants';
+import { Chain, AppConfig } from '../types';
 import { loadAndValidateApp } from '../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../utils/load-and-validate-registry';
-import { resolveMnemonicOption } from '../utils/resolve-mnemonic-option';
-import { resolveOption } from '../utils/resolve-option';
-import { resolveRequiredOption } from '../utils/resolve-required-option';
-import { resolveKeyFileOption } from '../utils/options/shared/resolve-key-file-option';
+import { resolveRequiredOption } from '../utils/options/resolve-required-option';
 import { resolveHomeOption } from '../utils/options/shared/resolve-home-option';
+import { resolveKeyFileOption } from '../utils/options/shared/resolve-key-file-option';
+import { resolveMnemonicOption } from '../utils/options/shared/resolve-mnemonic-option';
 
 export type Flags = {
   readonly interactive: boolean;
@@ -41,10 +41,15 @@ const defaultPort = 'transfer';
 export async function ics20(flags: Flags): Promise<void> {
   const home = resolveHomeOption({ homeFlag: flags.home });
   const app = loadAndValidateApp(home);
+
+  if (!app) {
+    throw new Error(`${appFile} not found at ${home}`);
+  }
+
   const keyFile = resolveKeyFileOption({ keyFileFlag: flags.keyFile, app });
   const mnemonic = await resolveMnemonicOption({
-    interactive: flags.interactive,
-    mnemonic: flags.mnemonic,
+    interactiveFlag: flags.interactive,
+    mnemonicFlag: flags.mnemonic,
     keyFile,
     app,
   });
@@ -64,25 +69,28 @@ export async function ics20(flags: Flags): Promise<void> {
     defaultPort
   );
 
-  run({
-    src,
-    dest,
-    home,
-    mnemonic,
-    srcPort,
-    destPort,
-  });
+  run(
+    {
+      src,
+      dest,
+      home,
+      mnemonic,
+      srcPort,
+      destPort,
+    },
+    app
+  );
 }
 
-export async function run(options: Options): Promise<void> {
+export async function run(options: Options, app: AppConfig): Promise<void> {
   const registryFilePath = path.join(options.home, registryFile);
   const { chains } = loadAndValidateRegistry(registryFilePath);
   const srcChain = chains[options.src];
-  if (srcChain === undefined) {
+  if (!srcChain) {
     throw new Error('src chain not found in registry');
   }
   const destChain = chains[options.dest];
-  if (destChain === undefined) {
+  if (!destChain) {
     throw new Error('dest chain not found in registry');
   }
   const ordering = Order.ORDER_UNORDERED;
@@ -90,7 +98,28 @@ export async function run(options: Options): Promise<void> {
 
   const nodeA = await createClient(options.mnemonic, srcChain);
   const nodeB = await createClient(options.mnemonic, destChain);
+  // TODO: Handle if connection flag is provided
   const link = await Link.createWithNewConnections(nodeA, nodeB);
+
+  const srcClient = link.endA.clientID;
+  const destClient = link.endB.clientID;
+  const srcConnection = link.endA.connectionID;
+  const destConnection = link.endB.connectionID;
+  const appFilePath = path.join(options.home, appFile);
+  const appYaml = yaml.dump(
+    {
+      ...app,
+      srcClient,
+      destClient,
+      srcConnection,
+      destConnection,
+    },
+    {
+      lineWidth: 1000,
+    }
+  );
+
+  fs.writeFileSync(appFilePath, appYaml, { encoding: 'utf-8' });
 
   const channels = await link.createChannel(
     'A',
@@ -99,9 +128,8 @@ export async function run(options: Options): Promise<void> {
     ordering,
     version
   );
-  console.log(channels);
 
-  throw new Error('not implemented');
+  console.log(channels);
 }
 
 async function createClient(

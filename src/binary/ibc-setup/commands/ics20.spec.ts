@@ -3,12 +3,12 @@ import fs from 'fs';
 import test from 'ava';
 import sinon from 'sinon';
 
-import { Options, run } from './ics20';
+// import { Options, run } from './ics20';
 
 const fsReadFileSync = sinon.stub(fs, 'readFileSync');
 
-const defaultMnemonic =
-  'enlist hip relief stomach skate base shallow young switch frequent cry park';
+// const defaultMnemonic =
+//   'enlist hip relief stomach skate base shallow young switch frequent cry park';
 
 const registryYaml = `
 version: 1
@@ -46,17 +46,17 @@ test.beforeEach(() => {
 });
 
 test.only('ics20 create channels with new connection', async (t) => {
-  const options: Options = {
-    home: '/home/user',
-    mnemonic: defaultMnemonic,
-    src: 'local_wasm',
-    dest: 'local_simapp',
-    srcPort: 'transfer',
-    destPort: 'custom',
-  };
+  // const options: Options = {
+  //   home: '/home/user',
+  //   mnemonic: defaultMnemonic,
+  //   src: 'local_wasm',
+  //   dest: 'local_simapp',
+  //   srcPort: 'transfer',
+  //   destPort: 'custom',
+  // };
 
   fsReadFileSync.returns(registryYaml);
 
-  await run(options);
+  // await run(options, app);
   t.assert(false);
 });
