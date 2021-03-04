@@ -15,7 +15,7 @@ const mnemonic =
   'accident harvest weasel surge source return tag supreme sorry isolate wave mammal';
 
 function buildIbcArgs(rpc: string) {
-  return [rpc, { getAccounts: {}, signDirect: {} }, '', {}] as const;
+  return [rpc, sinon.match.any, sinon.match.any, sinon.match.any] as const;
 }
 const ibcClient = sinon.stub(IbcClient, 'connectWithSigner');
 const musselnetArgs = buildIbcArgs('https://rpc.musselnet.cosmwasm.com:443');
@@ -121,8 +121,7 @@ test('omits chains with zero balance', async (t) => {
   t.assert(
     consoleLog.calledWithExactly(
       ['musselnet: 1musselnetdenom', 'local_simapp: 3simappdenom'].join(os.EOL)
-    ),
-    consoleLog.getCall(0).args[0]
+    )
   );
 });
 
