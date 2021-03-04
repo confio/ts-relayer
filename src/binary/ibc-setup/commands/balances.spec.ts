@@ -5,25 +5,25 @@ import test from 'ava';
 import sinon from 'sinon';
 
 import { IbcClient } from '../../../lib/ibcclient';
-import { generateMnemonic } from '../utils/generate-mnemonic';
 
 import { Options, run } from './balances';
 
 const consoleLog = sinon.stub(console, 'log');
 const fsReadFileSync = sinon.stub(fs, 'readFileSync');
 const ibcClient = sinon.stub(IbcClient, 'connectWithSigner');
-const mnemonic = generateMnemonic();
+const mnemonic =
+  'accident harvest weasel surge source return tag supreme sorry isolate wave mammal';
 
-function fakeBalance(amount: string) {
-  return (Promise.resolve({
+async function createFakeIbcClient(amount: string, denom: string) {
+  return ({
     query: {
       bank: {
         unverified: {
-          balance: sinon.fake.returns({ amount, denom: 'sampledenom' }),
+          balance: sinon.fake.returns({ amount, denom }),
         },
       },
     },
-  }) as unknown) as Promise<IbcClient>;
+  } as unknown) as Promise<IbcClient>;
 }
 
 test.beforeEach(() => {
@@ -70,11 +70,11 @@ test('lists chains with non-zero balance', async (t) => {
   fsReadFileSync.returns(registryYaml);
   ibcClient
     .onCall(0)
-    .returns(fakeBalance('1'))
+    .returns(createFakeIbcClient('1', 'musselnetdenom'))
     .onCall(1)
-    .returns(fakeBalance('2'))
+    .returns(createFakeIbcClient('2', 'wasmdenom'))
     .onCall(2)
-    .returns(fakeBalance('3'));
+    .returns(createFakeIbcClient('3', 'simappdenom'));
 
   await run(options);
 
@@ -82,7 +82,11 @@ test('lists chains with non-zero balance', async (t) => {
   t.assert(consoleLog.calledOnce);
   t.assert(
     consoleLog.calledWithExactly(
-      ['musselnet: 1', 'local_wasm: 2', 'local_simapp: 3'].join(os.EOL)
+      [
+        'musselnet: 1musselnetdenom',
+        'local_wasm: 2wasmdenom',
+        'local_simapp: 3simappdenom',
+      ].join(os.EOL)
     )
   );
 });
@@ -96,11 +100,11 @@ test('omits chains with zero balance', async (t) => {
   fsReadFileSync.returns(registryYaml);
   ibcClient
     .onCall(0)
-    .returns(fakeBalance('1'))
+    .returns(createFakeIbcClient('1', 'musselnetdenom'))
     .onCall(1)
-    .returns(fakeBalance('0'))
+    .returns(createFakeIbcClient('0', 'wasmdenom'))
     .onCall(2)
-    .returns(fakeBalance('3'));
+    .returns(createFakeIbcClient('3', 'simappdenom'));
 
   await run(options);
 
@@ -108,7 +112,7 @@ test('omits chains with zero balance', async (t) => {
   t.assert(consoleLog.calledOnce);
   t.assert(
     consoleLog.calledWithExactly(
-      ['musselnet: 1', 'local_simapp: 3'].join(os.EOL)
+      ['musselnet: 1musselnetdenom', 'local_simapp: 3simappdenom'].join(os.EOL)
     )
   );
 });
@@ -122,11 +126,11 @@ test('informs when there are no funds on any balance', async (t) => {
   fsReadFileSync.returns(registryYaml);
   ibcClient
     .onCall(0)
-    .returns(fakeBalance('0'))
+    .returns(createFakeIbcClient('0', 'musselnetdenom'))
     .onCall(1)
-    .returns(fakeBalance('0'))
+    .returns(createFakeIbcClient('0', 'wasmdenom'))
     .onCall(2)
-    .returns(fakeBalance('0'));
+    .returns(createFakeIbcClient('0', 'simappdenom'));
 
   await run(options);
 
