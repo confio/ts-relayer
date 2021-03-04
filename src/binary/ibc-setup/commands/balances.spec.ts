@@ -11,9 +11,16 @@ import { Options } from './keys-list';
 
 const consoleLog = sinon.stub(console, 'log');
 const fsReadFileSync = sinon.stub(fs, 'readFileSync');
-const ibcClient = sinon.stub(IbcClient, 'connectWithSigner');
 const mnemonic =
   'accident harvest weasel surge source return tag supreme sorry isolate wave mammal';
+
+function buildIbcArgs(rpc: string) {
+  return [rpc, { getAccounts: {}, signDirect: {} }, '', {}] as const;
+}
+const ibcClient = sinon.stub(IbcClient, 'connectWithSigner');
+const musselnetArgs = buildIbcArgs('https://rpc.musselnet.cosmwasm.com:443');
+const localWasmArgs = buildIbcArgs('http://localhost:26659');
+const localSimappArgs = buildIbcArgs('http://localhost:26658');
 
 async function createFakeIbcClient(amount: string, denom: string) {
   return ({
@@ -70,11 +77,11 @@ test('lists chains with non-zero balance', async (t) => {
 
   fsReadFileSync.returns(registryYaml);
   ibcClient
-    .onCall(0)
+    .withArgs(...musselnetArgs)
     .returns(createFakeIbcClient('1', 'musselnetdenom'))
-    .onCall(1)
+    .withArgs(...localWasmArgs)
     .returns(createFakeIbcClient('2', 'wasmdenom'))
-    .onCall(2)
+    .withArgs(...localSimappArgs)
     .returns(createFakeIbcClient('3', 'simappdenom'));
 
   await run(options);
@@ -100,11 +107,11 @@ test('omits chains with zero balance', async (t) => {
 
   fsReadFileSync.returns(registryYaml);
   ibcClient
-    .onCall(0)
+    .withArgs(...musselnetArgs)
     .returns(createFakeIbcClient('1', 'musselnetdenom'))
-    .onCall(1)
+    .withArgs(...localWasmArgs)
     .returns(createFakeIbcClient('0', 'wasmdenom'))
-    .onCall(2)
+    .withArgs(...localSimappArgs)
     .returns(createFakeIbcClient('3', 'simappdenom'));
 
   await run(options);
@@ -127,11 +134,11 @@ test('informs when there are no funds on any balance', async (t) => {
 
   fsReadFileSync.returns(registryYaml);
   ibcClient
-    .onCall(0)
+    .withArgs(...musselnetArgs)
     .returns(createFakeIbcClient('0', 'musselnetdenom'))
-    .onCall(1)
+    .withArgs(...localWasmArgs)
     .returns(createFakeIbcClient('0', 'wasmdenom'))
-    .onCall(2)
+    .withArgs(...localSimappArgs)
     .returns(createFakeIbcClient('0', 'simappdenom'));
 
   await run(options);
