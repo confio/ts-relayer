@@ -55,7 +55,7 @@ test('lists addresses for every chain in the registry', async (t) => {
 
   await run(options);
 
-  t.assert(fsReadFileSync);
+  t.assert(fsReadFileSync.calledOnce);
   t.assert(consoleLog.calledOnce);
   t.assert(
     consoleLog.calledWithMatch(

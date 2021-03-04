@@ -34,7 +34,7 @@ export function loadAndValidateRegistry(filepath: string) {
               prefix: { type: 'string' },
               gas_price: { type: 'string' },
               hd_path: { type: 'string' },
-              rpc: { type: 'array', items: { type: 'string' } },
+              rpc: { type: 'array', items: { type: 'string' }, minItems: 1 },
             },
           },
         },

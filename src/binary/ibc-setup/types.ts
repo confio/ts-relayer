@@ -1,4 +1,4 @@
-type Chain = {
+export type Chain = {
   chain_id: string;
   prefix: string;
   gas_price: string;

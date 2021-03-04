@@ -2,15 +2,15 @@ import os from 'os';
 import path from 'path';
 
 import { registryFile } from '../../constants';
+import { Chain } from '../types';
 import { deriveAddress } from '../utils/derive-address';
-import { getDefaultHomePath } from '../utils/get-default-home-path';
 import { loadAndValidateApp } from '../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../utils/load-and-validate-registry';
-import { resolveMnemonicOption } from '../utils/resolve-mnemonic-option';
-import { resolveOption } from '../utils/resolve-option';
-import { resolveRequiredOption } from '../utils/resolve-required-option';
+import { resolveHomeOption } from '../utils/options/shared/resolve-home-option';
+import { resolveKeyFileOption } from '../utils/options/shared/resolve-key-file-option';
+import { resolveMnemonicOption } from '../utils/options/shared/resolve-mnemonic-option';
 
-type Flags = {
+export type Flags = {
   readonly interactive: boolean;
   readonly home?: string;
   readonly keyFile?: string;
@@ -23,50 +23,45 @@ export type Options = {
 };
 
 export async function keysList(flags: Flags) {
-  const home = resolveRequiredOption('home')(
-    flags.home,
-    process.env.RELAYER_HOME,
-    getDefaultHomePath
-  );
-
+  const home = resolveHomeOption({ homeFlag: flags.home });
   const app = loadAndValidateApp(home);
-  const keyFile = resolveOption(
-    flags.keyFile,
-    process.env.KEY_FILE,
-    app?.keyFile
-  );
+  const keyFile = resolveKeyFileOption({ keyFileFlag: flags.keyFile, app });
+  const mnemonic = await resolveMnemonicOption({
+    interactiveFlag: flags.interactive,
+    mnemonicFlag: flags.mnemonic,
+    keyFile: keyFile,
+    app,
+  });
 
   const options: Options = {
     home,
-    mnemonic: await resolveMnemonicOption({
-      interactive: flags.interactive,
-      mnemonic: flags.mnemonic,
-      keyFile: keyFile,
-      app,
-    }),
+    mnemonic,
   };
 
   await run(options);
+}
+
+export async function getAddresses(
+  registryChains: Record<string, Chain>,
+  mnemonic: string
+): Promise<[chain: string, data: Chain, address: string][]> {
+  const chains = Object.entries(registryChains);
+
+  return (
+    await Promise.all(
+      chains.map(([, data]) =>
+        deriveAddress(mnemonic, data.prefix, data.hd_path)
+      )
+    )
+  ).map((address, index) => [chains[index][0], chains[index][1], address]);
 }
 
 export async function run(options: Options) {
   const registryFilePath = path.join(options.home, registryFile);
   const registry = loadAndValidateRegistry(registryFilePath);
 
-  const chains = Object.entries(registry.chains);
-
-  const addresses = (
-    await Promise.all(
-      chains.map(([, data]) =>
-        deriveAddress(options.mnemonic, data.prefix, data.hd_path)
-      )
-    )
-  )
-    .map((address, index) => {
-      const chain = chains[index][0];
-
-      return `${chain}: ${address}`;
-    })
+  const addresses = (await getAddresses(registry.chains, options.mnemonic))
+    .map(([chain, , address]) => `${chain}: ${address}`)
     .join(os.EOL);
 
   console.log(addresses);
