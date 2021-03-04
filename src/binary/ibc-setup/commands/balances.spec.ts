@@ -6,7 +6,8 @@ import sinon from 'sinon';
 
 import { IbcClient } from '../../../lib/ibcclient';
 
-import { Options, run } from './balances';
+import { run } from './balances';
+import { Options } from './keys-list';
 
 const consoleLog = sinon.stub(console, 'log');
 const fsReadFileSync = sinon.stub(fs, 'readFileSync');

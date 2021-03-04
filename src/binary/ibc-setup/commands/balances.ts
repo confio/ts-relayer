@@ -16,8 +16,6 @@ import { resolveMnemonicOption } from '../utils/options/shared/resolve-mnemonic-
 
 import { Flags, getAddresses, Options } from './keys-list';
 
-export { Options }; // re-export for testing
-
 export async function balances(flags: Flags) {
   const home = resolveHomeOption({ homeFlag: flags.home });
   const app = loadAndValidateApp(home);
