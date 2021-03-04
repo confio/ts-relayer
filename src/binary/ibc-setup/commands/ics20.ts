@@ -8,7 +8,7 @@ import { Order } from '../../../codec/ibc/core/channel/v1/channel';
 import { IbcClient } from '../../../lib/ibcclient';
 import { Link } from '../../../lib/link';
 import { appFile, registryFile } from '../../constants';
-import { Chain, AppConfig } from '../types';
+import { AppConfig, Chain } from '../types';
 import { loadAndValidateApp } from '../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../utils/load-and-validate-registry';
 import { resolveRequiredOption } from '../utils/options/resolve-required-option';
@@ -129,7 +129,9 @@ export async function run(options: Options, app: AppConfig): Promise<void> {
     version
   );
 
-  console.log(channels);
+  console.log(
+    `Created channels for connections ${link.endA.connectionID} <=> ${link.endB.connectionID}: ${channels.src.channelId} (${channels.src.portId}) => ${channels.dest.channelId} (${channels.dest.portId})`
+  );
 }
 
 async function createClient(
