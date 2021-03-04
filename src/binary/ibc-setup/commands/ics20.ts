@@ -1,4 +1,4 @@
-import path from 'path';
+import path, { resolve } from 'path';
 
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 
@@ -13,6 +13,8 @@ import { loadAndValidateRegistry } from '../utils/load-and-validate-registry';
 import { resolveMnemonicOption } from '../utils/resolve-mnemonic-option';
 import { resolveOption } from '../utils/resolve-option';
 import { resolveRequiredOption } from '../utils/resolve-required-option';
+import { resolveKeyFileOption } from '../utils/options/shared/resolve-key-file-option';
+import { resolveHomeOption } from '../utils/options/shared/resolve-home-option';
 
 export type Flags = {
   readonly interactive: boolean;
@@ -37,32 +39,30 @@ export type Options = {
 const defaultPort = 'transfer';
 
 export async function ics20(flags: Flags): Promise<void> {
-  const home = resolveRequiredOption('home')(
-    flags.home,
-    process.env.RELAYER_HOME,
-    getDefaultHomePath
-  );
-  const appConfig = loadAndValidateApp(home);
-  const keyFile = resolveOption(
-    flags.keyFile,
-    process.env.KEY_FILE,
-    appConfig?.keyFile
-  );
+  const home = resolveHomeOption({ homeFlag: flags.home });
+  const app = loadAndValidateApp(home);
+  const keyFile = resolveKeyFileOption({ keyFileFlag: flags.keyFile, app });
   const mnemonic = await resolveMnemonicOption({
     interactive: flags.interactive,
     mnemonic: flags.mnemonic,
     keyFile,
-    app: appConfig,
+    app,
   });
   const src = resolveRequiredOption('src')(flags.src, process.env.RELAYER_SRC);
   const dest = resolveRequiredOption('dest')(
     flags.dest,
     process.env.RELAYER_DEST
   );
-  const srcPort =
-    resolveOption(flags.srcPort, process.env.RELAYER_SRC_PORT) ?? defaultPort;
-  const destPort =
-    resolveOption(flags.destPort, process.env.RELAYER_DEST_PORT) ?? defaultPort;
+  const srcPort = resolveRequiredOption('srcPort')(
+    flags.srcPort,
+    process.env.RELAYER_SRC_PORT,
+    defaultPort
+  );
+  const destPort = resolveRequiredOption('destPort')(
+    flags.destPort,
+    process.env.RELAYER_DEST_PORT,
+    defaultPort
+  );
 
   run({
     src,
