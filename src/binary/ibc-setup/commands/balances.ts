@@ -74,7 +74,7 @@ export async function run(options: Options) {
     )
   )
     .filter(([, coin]) => coin.amount !== '0')
-    .map(([chain, coin]) => `${chain}: ${coin.amount}`)
+    .map(([chain, coin]) => `${chain}: ${coin.amount}${coin.denom}`)
     .join(os.EOL);
 
   if (!balances) {
