@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
+import { stringToPath } from '@cosmjs/crypto';
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 import yaml from 'js-yaml';
 
@@ -137,13 +138,13 @@ export async function run(options: Options, app: AppConfig): Promise<void> {
   );
 }
 
-async function createClient(
+export async function createClient(
   mnemonic: string,
-  { prefix, rpc }: Chain
+  { prefix, rpc, hd_path }: Chain
 ): Promise<IbcClient> {
   const signer = await DirectSecp256k1HdWallet.fromMnemonic(
     mnemonic,
-    undefined,
+    stringToPath(hd_path),
     prefix
   );
   const [{ address }] = await signer.getAccounts();
