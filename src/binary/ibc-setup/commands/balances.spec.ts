@@ -114,7 +114,8 @@ test('omits chains with zero balance', async (t) => {
   t.assert(
     consoleLog.calledWithExactly(
       ['musselnet: 1musselnetdenom', 'local_simapp: 3simappdenom'].join(os.EOL)
-    )
+    ),
+    consoleLog.getCall(0).args[0]
   );
 });
 
