@@ -84,6 +84,7 @@ destConnection: .+
   t.assert(fsWriteFileSync.calledOnce);
   t.is(args[0], path.join(options.home, appFile));
   t.regex(args[1], contentsRegexp);
-  t.assert(consoleLog.calledOnce);
+  t.assert(consoleLog.calledTwice);
+  t.assert(consoleLog.calledWithMatch(/Created connections/));
   t.assert(consoleLog.calledWithMatch(/Created channels/));
 });

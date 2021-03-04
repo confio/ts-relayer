@@ -100,6 +100,9 @@ export async function run(options: Options, app: AppConfig): Promise<void> {
   const nodeB = await createClient(options.mnemonic, destChain);
   // TODO: Handle if connection flag is provided
   const link = await Link.createWithNewConnections(nodeA, nodeB);
+  console.log(
+    `Created connections ${link.endA.connectionID} (${link.endA.clientID}) <=> ${link.endB.connectionID} (${link.endB.clientID})`
+  );
 
   const srcClient = link.endA.clientID;
   const destClient = link.endB.clientID;
