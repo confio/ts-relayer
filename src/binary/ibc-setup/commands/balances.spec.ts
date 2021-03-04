@@ -24,7 +24,7 @@ async function createFakeIbcClient(amount: string, denom: string) {
         },
       },
     },
-  } as unknown) as Promise<IbcClient>;
+  } as unknown) as IbcClient;
 }
 
 test.beforeEach(() => {
