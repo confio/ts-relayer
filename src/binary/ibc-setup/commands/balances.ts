@@ -78,7 +78,7 @@ export async function run(options: Options) {
     .join(os.EOL);
 
   if (!balances) {
-    console.log('No funds found on any balance.');
+    console.log('No funds found for default denomination on any chain.');
     return;
   }
 
