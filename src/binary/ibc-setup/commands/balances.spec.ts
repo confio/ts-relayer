@@ -78,7 +78,7 @@ test('lists chains with non-zero balance', async (t) => {
 
   await run(options);
 
-  t.assert(fsReadFileSync);
+  t.assert(fsReadFileSync.calledOnce);
   t.assert(consoleLog.calledOnce);
   t.assert(
     consoleLog.calledWithExactly(
@@ -104,7 +104,7 @@ test('omits chains with zero balance', async (t) => {
 
   await run(options);
 
-  t.assert(fsReadFileSync);
+  t.assert(fsReadFileSync.calledOnce);
   t.assert(consoleLog.calledOnce);
   t.assert(
     consoleLog.calledWithExactly(
@@ -130,7 +130,7 @@ test('informs when there are no funds on any balance', async (t) => {
 
   await run(options);
 
-  t.assert(fsReadFileSync);
+  t.assert(fsReadFileSync.calledOnce);
   t.assert(consoleLog.calledOnce);
   t.assert(consoleLog.calledWithMatch(/No funds/));
 });
