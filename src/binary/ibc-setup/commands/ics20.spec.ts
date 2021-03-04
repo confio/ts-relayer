@@ -1,14 +1,19 @@
 import fs from 'fs';
+import path from 'path';
 
 import test from 'ava';
 import sinon from 'sinon';
 
-// import { Options, run } from './ics20';
+import { appFile } from '../../constants';
 
+import { Options, run } from './ics20';
+
+const fsWriteFileSync = sinon.stub(fs, 'writeFileSync');
 const fsReadFileSync = sinon.stub(fs, 'readFileSync');
+const consoleLog = sinon.stub(console, 'log');
 
-// const defaultMnemonic =
-//   'enlist hip relief stomach skate base shallow young switch frequent cry park';
+const mnemonic =
+  'enlist hip relief stomach skate base shallow young switch frequent cry park';
 
 const registryYaml = `
 version: 1
@@ -41,22 +46,44 @@ chains:
     rpc:
       - http://localhost:26658`;
 
+const app = {
+  src: 'local_wasm',
+  dest: 'local_simapp',
+};
+
 test.beforeEach(() => {
   sinon.reset();
 });
 
 test.only('ics20 create channels with new connection', async (t) => {
-  // const options: Options = {
-  //   home: '/home/user',
-  //   mnemonic: defaultMnemonic,
-  //   src: 'local_wasm',
-  //   dest: 'local_simapp',
-  //   srcPort: 'transfer',
-  //   destPort: 'custom',
-  // };
+  const options: Options = {
+    home: '/home/user',
+    mnemonic,
+    src: 'local_wasm',
+    dest: 'local_simapp',
+    srcPort: 'transfer',
+    destPort: 'custom',
+  };
 
   fsReadFileSync.returns(registryYaml);
+  fsWriteFileSync.returns();
 
-  // await run(options, app);
-  t.assert(false);
+  await run(options, app);
+
+  const contentsRegexp = new RegExp(
+    `src: local_wasm
+dest: local_simapp
+srcClient: .+
+destClient: .+
+srcConnection: .+
+destConnection: .+
+`
+  );
+
+  const args = fsWriteFileSync.getCall(0).args as [string, string];
+  t.assert(fsWriteFileSync.calledOnce);
+  t.is(args[0], path.join(options.home, appFile));
+  t.regex(args[1], contentsRegexp);
+  t.assert(consoleLog.calledOnce);
+  t.assert(consoleLog.calledWithMatch(/Created channels/));
 });
