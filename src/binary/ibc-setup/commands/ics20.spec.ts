@@ -110,11 +110,17 @@ destConnection: .+
 
   t.is(
     nextAllConnectionsWasm.connections.length,
-    allConnectionsWasm.connections.length + 1
+    allConnectionsWasm.connections.length + 1,
+    `all: ${JSON.stringify(
+      allConnectionsWasm.connections
+    )} next: ${JSON.stringify(nextAllConnectionsWasm.connections)}`
   );
   t.is(
     nextAllConnectionsSimapp.connections.length,
-    allConnectionsSimapp.connections.length + 1
+    allConnectionsSimapp.connections.length + 1,
+    `all: ${JSON.stringify(
+      allConnectionsSimapp.connections
+    )} next: ${JSON.stringify(nextAllConnectionsSimapp.connections)}`
   );
   // t.is(nextConnectionWasm.connection?.clientId, srcClient);
   // t.is(nextConnectionSimapp.connection?.clientId, destClient);
