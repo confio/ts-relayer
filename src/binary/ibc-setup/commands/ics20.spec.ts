@@ -20,30 +20,16 @@ const registryYaml = `
 version: 1
 
 chains:
-  musselnet:
-    chain_id: musselnet-4
-    # bech32 prefix for addresses
-    prefix: wasm
-    # this determines the gas payments we make (and defines the fee token)
-    gas_price: 0.025umayo
-    # the path we use to derive the private key from the mnemonic
-    hd_path: m/44'/108'/0'/1'
-    # you can include multiple RPC endpoints and it will rotate through them if
-    # one is down
-    rpc:
-      - https://rpc.musselnet.cosmwasm.com:443
   local_wasm:
     chain_id: testing
     prefix: wasm
     gas_price: 0.025ucosm
-    hd_path: m/44'/108'/0'/2'
     rpc:
       - http://localhost:26659
   local_simapp:
     chain_id: simd-testing
     prefix: cosmos
     gas_price: 0.025ucosm
-    hd_path: m/44'/108'/0'/3'
     rpc:
       - http://localhost:26658`;
 
@@ -59,13 +45,11 @@ test.beforeEach(() => {
 test.serial('ics20 create channels with new connection', async (t) => {
   const ibcClientWasm = await createClient(mnemonic, {
     prefix: 'wasm',
-    // hd_path: `m/44'/108'/0'/2'`,
     rpc: ['http://localhost:26659'],
   });
 
   const ibcClientSimapp = await createClient(mnemonic, {
     prefix: 'cosmos',
-    // hd_path: `m/44'/108'/0'/3'`,
     rpc: ['http://localhost:26658'],
   });
 
@@ -79,6 +63,7 @@ test.serial('ics20 create channels with new connection', async (t) => {
     dest: 'local_simapp',
     srcPort: 'transfer',
     destPort: 'custom',
+    connections: null,
   };
 
   fsReadFileSync.returns(registryYaml);
@@ -90,8 +75,6 @@ test.serial('ics20 create channels with new connection', async (t) => {
   const contentsRegexp = new RegExp(
     `src: local_wasm
 dest: local_simapp
-srcClient: .+
-destClient: .+
 srcConnection: .+
 destConnection: .+
 `
@@ -107,11 +90,11 @@ destConnection: .+
   const srcConnectionIdMatch = /srcConnection: (?<connection>.+)/.exec(args[1]);
   const srcConnectionId = srcConnectionIdMatch?.groups?.connection;
   assert(srcConnectionId);
-  const srcClientMatch = /srcClient: (?<srcClient>.+)/.exec(args[1]);
-  const srcClient = srcClientMatch?.groups?.srcClient;
-  const nextConnectionWasm = await ibcClientWasm.query.ibc.connection.connection(
-    srcConnectionId
-  );
+  // const srcClientMatch = /srcClient: (?<srcClient>.+)/.exec(args[1]);
+  // const srcClient = srcClientMatch?.groups?.srcClient;
+  // const nextConnectionWasm = await ibcClientWasm.query.ibc.connection.connection(
+  //   srcConnectionId
+  // );
 
   const nextAllConnectionsSimapp = await ibcClientSimapp.query.ibc.connection.allConnections();
   const destConnectionIdMatch = /destConnection: (?<connection>.+)/.exec(
@@ -119,11 +102,11 @@ destConnection: .+
   );
   const destConnectionId = destConnectionIdMatch?.groups?.connection;
   assert(destConnectionId);
-  const destClientMatch = /destClient: (?<destClient>.+)/.exec(args[1]);
-  const destClient = destClientMatch?.groups?.destClient;
-  const nextConnectionSimapp = await ibcClientWasm.query.ibc.connection.connection(
-    destConnectionId
-  );
+  // const destClientMatch = /destClient: (?<destClient>.+)/.exec(args[1]);
+  // const destClient = destClientMatch?.groups?.destClient;
+  // const nextConnectionSimapp = await ibcClientWasm.query.ibc.connection.connection(
+  //   destConnectionId
+  // );
 
   t.is(
     nextAllConnectionsWasm.connections.length,
@@ -133,6 +116,6 @@ destConnection: .+
     nextAllConnectionsSimapp.connections.length,
     allConnectionsSimapp.connections.length + 1
   );
-  t.is(nextConnectionWasm.connection?.clientId, srcClient);
-  t.is(nextConnectionSimapp.connection?.clientId, destClient);
+  // t.is(nextConnectionWasm.connection?.clientId, srcClient);
+  // t.is(nextConnectionSimapp.connection?.clientId, destClient);
 });

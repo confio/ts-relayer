@@ -37,8 +37,10 @@ program
   .addOption(srcOption)
   .addOption(destOption)
   .addOption(mnemonicOption)
-  .option('--srcPort <port>')
-  .option('--destPort <port>')
+  .option('--src-port <port>')
+  .option('--dest-port <port>')
+  .option('--src-connection <connection>')
+  .option('--dest-connection <connection>')
   .action(ics20);
 
 const keys = program.command('keys');

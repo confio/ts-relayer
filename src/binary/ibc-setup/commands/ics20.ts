@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
+import { stringToPath } from '@cosmjs/crypto';
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 import yaml from 'js-yaml';
 
@@ -11,10 +12,16 @@ import { appFile, registryFile } from '../../constants';
 import { AppConfig, Chain } from '../types';
 import { loadAndValidateApp } from '../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../utils/load-and-validate-registry';
+import { resolveOption } from '../utils/options/resolve-option';
 import { resolveRequiredOption } from '../utils/options/resolve-required-option';
 import { resolveHomeOption } from '../utils/options/shared/resolve-home-option';
 import { resolveKeyFileOption } from '../utils/options/shared/resolve-key-file-option';
 import { resolveMnemonicOption } from '../utils/options/shared/resolve-mnemonic-option';
+
+type Connections = {
+  src: string;
+  dest: string;
+} | null;
 
 export type Flags = {
   readonly interactive: boolean;
@@ -24,7 +31,9 @@ export type Flags = {
   readonly src?: string;
   readonly dest?: string;
   readonly srcPort?: string;
-  readonly destPort: string;
+  readonly destPort?: string;
+  readonly srcConnection?: string;
+  readonly destConnection?: string;
 };
 
 export type Options = {
@@ -34,9 +43,36 @@ export type Options = {
   readonly dest: string;
   readonly srcPort: string;
   readonly destPort: string;
+  readonly connections: Connections;
 };
 
 const defaultPort = 'transfer';
+
+function resolveConnections(
+  srcConnection: string | null,
+  destConnection: string | null
+): Connections {
+  if (!srcConnection && destConnection) {
+    throw new Error(
+      `You have defined "destConnection" but no "srcConnection". Please define "srcConnection" and "destConnection" at the same time.`
+    );
+  }
+
+  if (srcConnection && !destConnection) {
+    throw new Error(
+      `You have defined "srcConnection" but no "destConnection". Please define "srcConnection" and "destConnection" at the same time.`
+    );
+  }
+
+  if (srcConnection && destConnection) {
+    return {
+      src: srcConnection,
+      dest: destConnection,
+    };
+  }
+
+  return null;
+}
 
 export async function ics20(flags: Flags): Promise<void> {
   const home = resolveHomeOption({ homeFlag: flags.home });
@@ -68,6 +104,18 @@ export async function ics20(flags: Flags): Promise<void> {
     process.env.RELAYER_DEST_PORT,
     defaultPort
   );
+  const srcConnection = resolveOption(
+    flags.srcConnection,
+    app.srcConnection,
+    process.env.RELAYER_SRC_CONNECTION
+  );
+  const destConnection = resolveOption(
+    flags.destConnection,
+    app.destConnection,
+    process.env.RELAYER_DEST_CONNECTION
+  );
+
+  const connections = resolveConnections(srcConnection, destConnection);
 
   run(
     {
@@ -77,9 +125,35 @@ export async function ics20(flags: Flags): Promise<void> {
       mnemonic,
       srcPort,
       destPort,
+      connections,
     },
     app
   );
+}
+
+async function resolveLink(
+  nodeA: IbcClient,
+  nodeB: IbcClient,
+  connections: Connections
+) {
+  if (connections) {
+    const link = await Link.createWithExistingConnections(
+      nodeA,
+      nodeB,
+      connections.src,
+      connections.dest
+    );
+    console.log(
+      `Using existing connections ${link.endA.connectionID} (${link.endA.clientID}) <=> ${link.endB.connectionID} (${link.endB.clientID})`
+    );
+    return link;
+  }
+
+  const link = await Link.createWithNewConnections(nodeA, nodeB);
+  console.log(
+    `Created connections ${link.endA.connectionID} (${link.endA.clientID}) <=> ${link.endB.connectionID} (${link.endB.clientID})`
+  );
+  return link;
 }
 
 export async function run(options: Options, app: AppConfig): Promise<void> {
@@ -98,22 +172,14 @@ export async function run(options: Options, app: AppConfig): Promise<void> {
 
   const nodeA = await createClient(options.mnemonic, srcChain);
   const nodeB = await createClient(options.mnemonic, destChain);
-  // TODO: Handle if connection flag is provided
-  const link = await Link.createWithNewConnections(nodeA, nodeB);
-  console.log(
-    `Created connections ${link.endA.connectionID} (${link.endA.clientID}) <=> ${link.endB.connectionID} (${link.endB.clientID})`
-  );
+  const link = await resolveLink(nodeA, nodeB, options.connections);
 
-  const srcClient = link.endA.clientID;
-  const destClient = link.endB.clientID;
   const srcConnection = link.endA.connectionID;
   const destConnection = link.endB.connectionID;
   const appFilePath = path.join(options.home, appFile);
   const appYaml = yaml.dump(
     {
       ...app,
-      srcClient,
-      destClient,
       srcConnection,
       destConnection,
     },
@@ -139,12 +205,11 @@ export async function run(options: Options, app: AppConfig): Promise<void> {
 
 export async function createClient(
   mnemonic: string,
-  { prefix, rpc }: Pick<Chain, 'prefix' | 'rpc'>
+  { prefix, rpc, hd_path }: Pick<Chain, 'prefix' | 'rpc' | 'hd_path'>
 ): Promise<IbcClient> {
   const signer = await DirectSecp256k1HdWallet.fromMnemonic(
     mnemonic,
-    // stringToPath(hd_path),
-    undefined,
+    hd_path ? stringToPath(hd_path) : undefined,
     prefix
   );
   const [{ address }] = await signer.getAccounts();
