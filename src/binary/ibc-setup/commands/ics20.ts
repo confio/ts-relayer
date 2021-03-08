@@ -12,7 +12,6 @@ import { appFile, registryFile } from '../../constants';
 import { AppConfig, Chain } from '../types';
 import { loadAndValidateApp } from '../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../utils/load-and-validate-registry';
-import { resolveOption } from '../utils/options/resolve-option';
 import { resolveRequiredOption } from '../utils/options/resolve-required-option';
 import { resolveHomeOption } from '../utils/options/shared/resolve-home-option';
 import { resolveKeyFileOption } from '../utils/options/shared/resolve-key-file-option';
@@ -32,8 +31,6 @@ export type Flags = {
   readonly dest?: string;
   readonly srcPort?: string;
   readonly destPort?: string;
-  readonly srcConnection?: string;
-  readonly destConnection?: string;
 };
 
 export type Options = {
@@ -48,19 +45,19 @@ export type Options = {
 
 const defaultPort = 'transfer';
 
-function resolveConnections(
-  srcConnection: string | null,
-  destConnection: string | null
-): Connections {
+function resolveConnections({
+  srcConnection,
+  destConnection,
+}: AppConfig): Connections {
   if (!srcConnection && destConnection) {
     throw new Error(
-      `You have defined "destConnection" but no "srcConnection". Please define "srcConnection" and "destConnection" at the same time.`
+      `You have defined "destConnection" but no "srcConnection". Both "srcConnection" and "destConnection" must be present.`
     );
   }
 
   if (srcConnection && !destConnection) {
     throw new Error(
-      `You have defined "srcConnection" but no "destConnection". Please define "srcConnection" and "destConnection" at the same time.`
+      `You have defined "srcConnection" but no "destConnection". Both "srcConnection" and "destConnection" must be present.`
     );
   }
 
@@ -89,9 +86,14 @@ export async function ics20(flags: Flags): Promise<void> {
     keyFile,
     app,
   });
-  const src = resolveRequiredOption('src')(flags.src, process.env.RELAYER_SRC);
+  const src = resolveRequiredOption('src')(
+    flags.src,
+    app.src,
+    process.env.RELAYER_SRC
+  );
   const dest = resolveRequiredOption('dest')(
     flags.dest,
+    app.dest,
     process.env.RELAYER_DEST
   );
   const srcPort = resolveRequiredOption('srcPort')(
@@ -104,18 +106,7 @@ export async function ics20(flags: Flags): Promise<void> {
     process.env.RELAYER_DEST_PORT,
     defaultPort
   );
-  const srcConnection = resolveOption(
-    flags.srcConnection,
-    process.env.RELAYER_SRC_CONNECTION,
-    app.srcConnection
-  );
-  const destConnection = resolveOption(
-    flags.destConnection,
-    process.env.RELAYER_DEST_CONNECTION,
-    app.destConnection
-  );
-
-  const connections = resolveConnections(srcConnection, destConnection);
+  const connections = resolveConnections(app);
 
   run(
     {
