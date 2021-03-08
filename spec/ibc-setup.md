@@ -41,7 +41,7 @@ each side, but default to `transfer` if those are not present.
 - else (you must define `srcConnection` and `destConnection` at the same time or none of them):
   - create a new client on both sides
   - create a new connection between these clients
-- store the `client` and `connection` in `app.yaml`
+- store the `srcConnection` and `destConnection` in `app.yaml`
 - create a new unordered channel with version `ics20-1` between the two chains on the given connection and given port (default `transfer`)
 
 When this is finished, there is an established connection for ics20 transfers. If you wish to establish multiple channels on
