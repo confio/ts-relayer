@@ -33,11 +33,11 @@ This requires `registry.conf`, `app.conf` and funded accounts on both sides. If 
 it will print a clear error message on startup. It will accept two optional flags to specify the ports on
 each side, but default to `transfer` if those are not present.
 
-`ibc-setup ics20 [--src-port=transfer] [--dest-port=transfer] [--src-connection=connection-3] [--dest-connection=connection-3]` will:
+`ibc-setup ics20 [--src-port=transfer] [--dest-port=transfer]` will:
 
 - ensure accounts have funds on both sides
 - if `srcConnection` and `destConnection` are defined:
-  - ensure the `connection` exists and does connect the two given chains
+  - ensure the connections exist and do connect the two given chains
 - else (you must define `srcConnection` and `destConnection` at the same time or none of them):
   - create a new client on both sides
   - create a new connection between these clients
