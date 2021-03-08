@@ -9,6 +9,7 @@ MONIKER=${MONIKER:-simd-moniker}
 # The staking and the fee tokens. The supply of the staking token is low compared to the fee token (factor 100).
 STAKE=${STAKE_TOKEN:-ustake}
 FEE=${FEE_TOKEN:-ucosm}
+TRANSFER_PORT=${TRANSFER_PORT:-custom}
 
 # 10 STAKE and 1000 COSM
 START_BALANCE="10000000$STAKE,1000000000$FEE"
@@ -16,6 +17,7 @@ START_BALANCE="10000000$STAKE,1000000000$FEE"
 echo "Creating genesis ..."
 simd init --chain-id "$CHAIN_ID" "$MONIKER"
 sed -i "s/\"stake\"/\"$STAKE\"/" "$HOME"/.simapp/config/genesis.json # staking/governance token is hardcoded in config, change this
+sed -i "s/\"port_id\": *\"transfer\"/\"port_id\": \"$TRANSFER_PORT\"/" "$HOME"/.simapp/config/genesis.json # allow custom ibc transfer port
 
 echo "Setting up validator ..."
 if ! simd keys show validator 2>/dev/null; then

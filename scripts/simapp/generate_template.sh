@@ -17,6 +17,7 @@ chmod +x "$SCRIPT_DIR/template/run_simd.sh"
 # The usage of the accounts below is documented in README.md of this directory
 docker run --rm \
   -e PASSWORD=my-secret-password \
+  -e TRANSFER_PORT=custom \
   --mount type=bind,source="$SCRIPT_DIR/template",target=/root \
   "$REPOSITORY:$VERSION" \
   ./setup.sh \
