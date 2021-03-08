@@ -12,6 +12,7 @@ import {
 } from '../commander-options';
 
 import { balances } from './commands/balances';
+import { channels } from './commands/channels';
 import { connect } from './commands/connect';
 import { ics20 } from './commands/ics20';
 import { init } from './commands/init';
@@ -77,5 +78,15 @@ program
   .addOption(keyFileOption)
   .addOption(interactiveOption)
   .action(connect);
+
+program
+  .command('channels')
+  .description('channels command description')
+  .addOption(homeOption)
+  .addOption(mnemonicOption)
+  .addOption(interactiveOption)
+  .option('--chain <chain>')
+  .option('--port <port>')
+  .action(channels);
 
 program.parse(process.argv);

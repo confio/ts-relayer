@@ -2,6 +2,7 @@ import fs from 'fs';
 import readline from 'readline';
 
 import { AppConfig } from '../../../types';
+import { resolveOption } from '../resolve-option';
 import { resolveRequiredOption } from '../resolve-required-option';
 
 async function readMnemonicFromStdin(interactive: boolean) {
@@ -46,17 +47,30 @@ type Params = {
   app: AppConfig | null;
 };
 
-export async function resolveMnemonicOption({
-  interactiveFlag,
-  keyFile,
-  mnemonicFlag,
-  app,
-}: Params) {
-  return resolveRequiredOption('mnemonic')(
+export async function resolveMnemonicOption(
+  params: Params,
+  optional: true
+): Promise<string | null>;
+export async function resolveMnemonicOption(
+  params: Params,
+  optional?: false
+): Promise<string>;
+
+export async function resolveMnemonicOption(
+  { interactiveFlag, keyFile, mnemonicFlag, app }: Params,
+  optional = false
+) {
+  const args = [
     await readMnemonicFromStdin(interactiveFlag),
     mnemonicFlag,
     process.env.RELAYER_MNEMONIC,
     app?.mnemonic,
-    readMnemonicFromFile(keyFile)
-  );
+    readMnemonicFromFile(keyFile),
+  ];
+
+  if (optional) {
+    return resolveOption(...args);
+  }
+
+  return resolveRequiredOption('mnemonic')(...args);
 }
