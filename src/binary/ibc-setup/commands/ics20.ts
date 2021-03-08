@@ -106,13 +106,13 @@ export async function ics20(flags: Flags): Promise<void> {
   );
   const srcConnection = resolveOption(
     flags.srcConnection,
-    app.srcConnection,
-    process.env.RELAYER_SRC_CONNECTION
+    process.env.RELAYER_SRC_CONNECTION,
+    app.srcConnection
   );
   const destConnection = resolveOption(
     flags.destConnection,
-    app.destConnection,
-    process.env.RELAYER_DEST_CONNECTION
+    process.env.RELAYER_DEST_CONNECTION,
+    app.destConnection
   );
 
   const connections = resolveConnections(srcConnection, destConnection);
