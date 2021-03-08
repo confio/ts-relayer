@@ -71,6 +71,8 @@ program
 program
   .command('connect')
   .description('connect command description')
+  .addOption(srcOption)
+  .addOption(destOption)
   .addOption(homeOption)
   .addOption(mnemonicOption)
   .addOption(keyFileOption)
