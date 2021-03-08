@@ -144,7 +144,7 @@ async function resolveLink(
       connections.dest
     );
     console.log(
-      `Using existing connections ${link.endA.connectionID} (${link.endA.clientID}) <=> ${link.endB.connectionID} (${link.endB.clientID})`
+      `Used existing connections ${link.endA.connectionID} (${link.endA.clientID}) <=> ${link.endB.connectionID} (${link.endB.clientID})`
     );
     return link;
   }
