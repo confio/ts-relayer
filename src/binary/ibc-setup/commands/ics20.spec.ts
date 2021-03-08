@@ -117,69 +117,66 @@ destConnection: .+
   t.assert(nextConnectionSimapp.connection);
 });
 
-test.serial.only(
-  'ics20 create channels with existing connection',
-  async (t) => {
-    const ibcClientSimapp = await createClient(mnemonic, {
-      prefix: 'cosmos',
-      rpc: ['http://localhost:26658'],
-    });
-    const ibcClientWasm = await createClient(mnemonic, {
-      prefix: 'wasm',
-      rpc: ['http://localhost:26659'],
-    });
-    const link = await Link.createWithNewConnections(
-      ibcClientWasm,
-      ibcClientSimapp
-    );
+test.serial('ics20 create channels with existing connection', async (t) => {
+  const ibcClientSimapp = await createClient(mnemonic, {
+    prefix: 'cosmos',
+    rpc: ['http://localhost:26658'],
+  });
+  const ibcClientWasm = await createClient(mnemonic, {
+    prefix: 'wasm',
+    rpc: ['http://localhost:26659'],
+  });
+  const link = await Link.createWithNewConnections(
+    ibcClientWasm,
+    ibcClientSimapp
+  );
 
-    const allConnectionsSimapp = await ibcClientSimapp.query.ibc.connection.allConnections();
-    const allConnectionsWasm = await ibcClientWasm.query.ibc.connection.allConnections();
+  const allConnectionsSimapp = await ibcClientSimapp.query.ibc.connection.allConnections();
+  const allConnectionsWasm = await ibcClientWasm.query.ibc.connection.allConnections();
 
-    const options: Options = {
-      home: '/home/user',
-      mnemonic,
-      src: 'local_wasm',
-      dest: 'local_simapp',
-      srcPort: 'transfer',
-      destPort: 'custom',
-      connections: {
-        src: link.endA.connectionID,
-        dest: link.endB.connectionID,
-      },
-    };
+  const options: Options = {
+    home: '/home/user',
+    mnemonic,
+    src: 'local_wasm',
+    dest: 'local_simapp',
+    srcPort: 'transfer',
+    destPort: 'custom',
+    connections: {
+      src: link.endA.connectionID,
+      dest: link.endB.connectionID,
+    },
+  };
 
-    fsReadFileSync.returns(registryYaml);
-    fsWriteFileSync.returns();
+  fsReadFileSync.returns(registryYaml);
+  fsWriteFileSync.returns();
 
-    await run(options, app);
+  await run(options, app);
 
-    const args = fsWriteFileSync.getCall(0).args as [string, string];
-    const contentsRegexp = new RegExp(
-      `src: local_wasm
+  const args = fsWriteFileSync.getCall(0).args as [string, string];
+  const contentsRegexp = new RegExp(
+    `src: local_wasm
 dest: local_simapp
 srcConnection: ${link.endA.connectionID}
 destConnection: ${link.endB.connectionID}
 `
-    );
+  );
 
-    t.assert(fsWriteFileSync.calledOnce);
-    t.is(args[0], path.join(options.home, appFile));
-    t.regex(args[1], contentsRegexp);
-    t.assert(consoleLog.calledTwice);
-    t.assert(consoleLog.calledWithMatch(/Used existing connections/));
-    t.assert(consoleLog.calledWithMatch(/Created channels/));
+  t.assert(fsWriteFileSync.calledOnce);
+  t.is(args[0], path.join(options.home, appFile));
+  t.regex(args[1], contentsRegexp);
+  t.assert(consoleLog.calledTwice);
+  t.assert(consoleLog.calledWithMatch(/Used existing connections/));
+  t.assert(consoleLog.calledWithMatch(/Created channels/));
 
-    const nextAllConnectionsWasm = await ibcClientWasm.query.ibc.connection.allConnections();
-    const nextAllConnectionsSimapp = await ibcClientSimapp.query.ibc.connection.allConnections();
+  const nextAllConnectionsWasm = await ibcClientWasm.query.ibc.connection.allConnections();
+  const nextAllConnectionsSimapp = await ibcClientSimapp.query.ibc.connection.allConnections();
 
-    t.is(
-      nextAllConnectionsWasm.connections.length,
-      allConnectionsWasm.connections.length
-    );
-    t.is(
-      nextAllConnectionsSimapp.connections.length,
-      allConnectionsSimapp.connections.length
-    );
-  }
-);
+  t.is(
+    nextAllConnectionsWasm.connections.length,
+    allConnectionsWasm.connections.length
+  );
+  t.is(
+    nextAllConnectionsSimapp.connections.length,
+    allConnectionsSimapp.connections.length
+  );
+});
