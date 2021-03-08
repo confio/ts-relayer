@@ -90,11 +90,9 @@ destConnection: .+
   const srcConnectionIdMatch = /srcConnection: (?<connection>.+)/.exec(args[1]);
   const srcConnectionId = srcConnectionIdMatch?.groups?.connection;
   assert(srcConnectionId);
-  // const srcClientMatch = /srcClient: (?<srcClient>.+)/.exec(args[1]);
-  // const srcClient = srcClientMatch?.groups?.srcClient;
-  // const nextConnectionWasm = await ibcClientWasm.query.ibc.connection.connection(
-  //   srcConnectionId
-  // );
+  const nextConnectionWasm = await ibcClientWasm.query.ibc.connection.connection(
+    srcConnectionId
+  );
 
   const nextAllConnectionsSimapp = await ibcClientSimapp.query.ibc.connection.allConnections();
   const destConnectionIdMatch = /destConnection: (?<connection>.+)/.exec(
@@ -102,26 +100,18 @@ destConnection: .+
   );
   const destConnectionId = destConnectionIdMatch?.groups?.connection;
   assert(destConnectionId);
-  // const destClientMatch = /destClient: (?<destClient>.+)/.exec(args[1]);
-  // const destClient = destClientMatch?.groups?.destClient;
-  // const nextConnectionSimapp = await ibcClientWasm.query.ibc.connection.connection(
-  //   destConnectionId
-  // );
+  const nextConnectionSimapp = await ibcClientWasm.query.ibc.connection.connection(
+    destConnectionId
+  );
 
   t.is(
     nextAllConnectionsWasm.connections.length,
-    allConnectionsWasm.connections.length + 1,
-    `all: ${JSON.stringify(
-      allConnectionsWasm.connections
-    )} next: ${JSON.stringify(nextAllConnectionsWasm.connections)}`
+    allConnectionsWasm.connections.length + 1
   );
   t.is(
     nextAllConnectionsSimapp.connections.length,
-    allConnectionsSimapp.connections.length + 1,
-    `all: ${JSON.stringify(
-      allConnectionsSimapp.connections
-    )} next: ${JSON.stringify(nextAllConnectionsSimapp.connections)}`
+    allConnectionsSimapp.connections.length + 1
   );
-  // t.is(nextConnectionWasm.connection?.clientId, srcClient);
-  // t.is(nextConnectionSimapp.connection?.clientId, destClient);
+  t.assert(nextConnectionWasm.connection?.clientId);
+  t.assert(nextConnectionSimapp.connection?.clientId);
 });
