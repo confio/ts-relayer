@@ -27,13 +27,13 @@ export function loadAndValidateRegistry(filepath: string) {
         patternProperties: {
           '^(.*)$': {
             type: 'object',
-            required: ['chain_id', 'gas_price', 'hd_path', 'prefix', 'rpc'],
+            required: ['chain_id', 'gas_price', 'prefix', 'rpc'],
             additionalProperties: false,
             properties: {
               chain_id: { type: 'string' },
               prefix: { type: 'string' },
               gas_price: { type: 'string' },
-              hd_path: { type: 'string' },
+              hd_path: { type: 'string', nullable: true },
               rpc: { type: 'array', items: { type: 'string' }, minItems: 1 },
             },
           },

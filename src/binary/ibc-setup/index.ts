@@ -3,6 +3,7 @@
 import { Command, Option } from 'commander';
 
 import { balances } from './commands/balances';
+import { ics20 } from './commands/ics20';
 import { init } from './commands/init';
 import { keysGenerate } from './commands/keys-generate';
 import { keysList } from './commands/keys-list';
@@ -19,14 +20,26 @@ const homeOption = new Option(
 const keyFileOption = new Option('--key-file <path>');
 const mnemonicOption = new Option('--mnemonic <mnemonic>');
 const interactiveOption = new Option('-i, --interactive');
+const srcOption = new Option('--src <chain>');
+const destOption = new Option('--dest <chain>');
 
 program
   .command('init')
   .description('init command description')
   .addOption(homeOption)
-  .option('--src <chain>')
-  .option('--dest <chain>')
+  .addOption(srcOption)
+  .addOption(destOption)
   .action(init);
+
+program
+  .command('ics20')
+  .description('ics20 command description')
+  .addOption(srcOption)
+  .addOption(destOption)
+  .addOption(mnemonicOption)
+  .option('--src-port <port>')
+  .option('--dest-port <port>')
+  .action(ics20);
 
 const keys = program.command('keys');
 

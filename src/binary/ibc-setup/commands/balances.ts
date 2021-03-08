@@ -46,7 +46,7 @@ export async function run(options: Options) {
       addresses.map<Promise<[string, Coin]>>(async ([chain, data, address]) => {
         const signer = await DirectSecp256k1HdWallet.fromMnemonic(
           options.mnemonic,
-          stringToPath(data.hd_path),
+          data.hd_path ? stringToPath(data.hd_path) : undefined,
           data.prefix
         );
 
