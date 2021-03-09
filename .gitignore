@@ -7,3 +7,5 @@ src/**.js
 coverage
 *.log
 proto/
+# only commit yarn.lock
+package-lock.json
