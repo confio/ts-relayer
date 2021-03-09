@@ -47,12 +47,12 @@ export async function connect(flags: Flags) {
   });
   const src = resolveRequiredOption('src')(
     flags.src,
-    app?.src, // todo: ??
+    app?.src,
     process.env.RELAYER_SRC
   );
   const dest = resolveRequiredOption('dest')(
     flags.dest,
-    app?.dest, // todo: ??
+    app?.dest,
     process.env.RELAYER_DEST
   );
 
