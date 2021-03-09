@@ -26,6 +26,8 @@ program
   .addOption(interactiveOption)
   .addOption(keyFileOption)
   .addOption(mnemonicOption)
+  .option('--src-connection <connection>')
+  .option('--dest-connection <connection>')
   .action(start);
 
 program.parse(process.argv);
