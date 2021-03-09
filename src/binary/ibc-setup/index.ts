@@ -3,6 +3,7 @@
 import { Command, Option } from 'commander';
 
 import { balances } from './commands/balances';
+import { connect } from './commands/connect';
 import { ics20 } from './commands/ics20';
 import { init } from './commands/init';
 import { keysGenerate } from './commands/keys-generate';
@@ -66,5 +67,16 @@ program
   .addOption(keyFileOption)
   .addOption(interactiveOption)
   .action(balances);
+
+program
+  .command('connect')
+  .description('connect command description')
+  .addOption(srcOption)
+  .addOption(destOption)
+  .addOption(homeOption)
+  .addOption(mnemonicOption)
+  .addOption(keyFileOption)
+  .addOption(interactiveOption)
+  .action(connect);
 
 program.parse(process.argv);
