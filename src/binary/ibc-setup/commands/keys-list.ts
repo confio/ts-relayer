@@ -2,13 +2,13 @@ import os from 'os';
 import path from 'path';
 
 import { registryFile } from '../../constants';
-import { Chain } from '../types';
-import { deriveAddress } from '../utils/derive-address';
-import { loadAndValidateApp } from '../utils/load-and-validate-app';
-import { loadAndValidateRegistry } from '../utils/load-and-validate-registry';
-import { resolveHomeOption } from '../utils/options/shared/resolve-home-option';
-import { resolveKeyFileOption } from '../utils/options/shared/resolve-key-file-option';
-import { resolveMnemonicOption } from '../utils/options/shared/resolve-mnemonic-option';
+import { Chain } from '../../types';
+import { deriveAddress } from '../../utils/derive-address';
+import { loadAndValidateApp } from '../../utils/load-and-validate-app';
+import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
+import { resolveHomeOption } from '../../utils/options/shared/resolve-home-option';
+import { resolveKeyFileOption } from '../../utils/options/shared/resolve-key-file-option';
+import { resolveMnemonicOption } from '../../utils/options/shared/resolve-mnemonic-option';
 
 export type Flags = {
   readonly interactive: boolean;

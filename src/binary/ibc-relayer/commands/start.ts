@@ -1,12 +1,12 @@
 import path from 'path';
 
 import { registryFile } from '../../constants';
-import { loadAndValidateApp } from '../../ibc-setup/utils/load-and-validate-app';
-import { loadAndValidateRegistry } from '../../ibc-setup/utils/load-and-validate-registry';
-import { resolveRequiredOption } from '../../ibc-setup/utils/options/resolve-required-option';
-import { resolveHomeOption } from '../../ibc-setup/utils/options/shared/resolve-home-option';
-import { resolveKeyFileOption } from '../../ibc-setup/utils/options/shared/resolve-key-file-option';
-import { resolveMnemonicOption } from '../../ibc-setup/utils/options/shared/resolve-mnemonic-option';
+import { loadAndValidateApp } from '../../utils/load-and-validate-app';
+import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
+import { resolveRequiredOption } from '../../utils/options/resolve-required-option';
+import { resolveHomeOption } from '../../utils/options/shared/resolve-home-option';
+import { resolveKeyFileOption } from '../../utils/options/shared/resolve-key-file-option';
+import { resolveMnemonicOption } from '../../utils/options/shared/resolve-mnemonic-option';
 
 type Flags = {
   interactive: boolean;

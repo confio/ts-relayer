@@ -8,11 +8,11 @@ import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 import { Coin } from '../../../codec/cosmos/base/v1beta1/coin';
 import { IbcClient } from '../../../lib/ibcclient';
 import { registryFile } from '../../constants';
-import { loadAndValidateApp } from '../utils/load-and-validate-app';
-import { loadAndValidateRegistry } from '../utils/load-and-validate-registry';
-import { resolveHomeOption } from '../utils/options/shared/resolve-home-option';
-import { resolveKeyFileOption } from '../utils/options/shared/resolve-key-file-option';
-import { resolveMnemonicOption } from '../utils/options/shared/resolve-mnemonic-option';
+import { loadAndValidateApp } from '../../utils/load-and-validate-app';
+import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
+import { resolveHomeOption } from '../../utils/options/shared/resolve-home-option';
+import { resolveKeyFileOption } from '../../utils/options/shared/resolve-key-file-option';
+import { resolveMnemonicOption } from '../../utils/options/shared/resolve-mnemonic-option';
 
 import { Flags, getAddresses, Options } from './keys-list';
 
