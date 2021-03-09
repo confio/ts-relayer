@@ -122,6 +122,7 @@
     ]
   },
   "bin": {
-    "ibc-setup": "build/main/binary/ibc-setup/index.js"
+    "ibc-setup": "build/main/binary/ibc-setup/index.js",
+    "ibc-relayer": "build/main/binary/ibc-relayer/index.js"
   }
 }

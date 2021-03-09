@@ -237,3 +237,19 @@ test.serial('send initial funds - wasmd', async (t) => {
   t.is(account.length, 1);
   t.deepEqual(account[0], { amount: '500', denom: wasmd.denomFee });
 });
+
+test.serial.skip('fund relayer', async (t) => {
+  // copy these values from `ibc-setup keys list`
+  await fundAccount(
+    wasmd,
+    'wasm1090w503askudf40zzkkaj45dax98mdjym7p32e',
+    '50000000'
+  );
+  await fundAccount(
+    simapp,
+    'cosmos1t4p6yt2r9rcwfesj0feyu9x3ywhlvyww0azh0a',
+    '50000000'
+  );
+  // to make ava happy
+  t.is(1, 1);
+});

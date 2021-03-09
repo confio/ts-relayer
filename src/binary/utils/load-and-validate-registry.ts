@@ -4,7 +4,7 @@ import os from 'os';
 import Ajv, { JSONSchemaType } from 'ajv';
 import yaml from 'js-yaml';
 
-import { registryFile } from '../../constants';
+import { registryFile } from '../constants';
 import { Registry } from '../types';
 
 export function loadAndValidateRegistry(filepath: string) {

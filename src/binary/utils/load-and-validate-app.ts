@@ -5,7 +5,7 @@ import path from 'path';
 import Ajv, { JSONSchemaType } from 'ajv';
 import yaml from 'js-yaml';
 
-import { appFile } from '../../constants';
+import { appFile } from '../constants';
 import { AppConfig } from '../types';
 
 function readAppYaml(filepath: string) {

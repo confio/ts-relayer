@@ -3,7 +3,7 @@ import fs from 'fs';
 import test from 'ava';
 import sinon from 'sinon';
 
-import { generateMnemonic } from '../utils/generate-mnemonic';
+import { generateMnemonic } from '../../utils/generate-mnemonic';
 
 import { Options, run } from './keys-list';
 

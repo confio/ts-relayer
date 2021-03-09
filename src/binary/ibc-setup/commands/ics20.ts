@@ -9,13 +9,13 @@ import { Order } from '../../../codec/ibc/core/channel/v1/channel';
 import { IbcClient } from '../../../lib/ibcclient';
 import { Link } from '../../../lib/link';
 import { appFile, registryFile } from '../../constants';
-import { AppConfig, Chain } from '../types';
-import { loadAndValidateApp } from '../utils/load-and-validate-app';
-import { loadAndValidateRegistry } from '../utils/load-and-validate-registry';
-import { resolveRequiredOption } from '../utils/options/resolve-required-option';
-import { resolveHomeOption } from '../utils/options/shared/resolve-home-option';
-import { resolveKeyFileOption } from '../utils/options/shared/resolve-key-file-option';
-import { resolveMnemonicOption } from '../utils/options/shared/resolve-mnemonic-option';
+import { AppConfig, Chain } from '../../types';
+import { loadAndValidateApp } from '../../utils/load-and-validate-app';
+import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
+import { resolveRequiredOption } from '../../utils/options/resolve-required-option';
+import { resolveHomeOption } from '../../utils/options/shared/resolve-home-option';
+import { resolveKeyFileOption } from '../../utils/options/shared/resolve-key-file-option';
+import { resolveMnemonicOption } from '../../utils/options/shared/resolve-mnemonic-option';
 
 type Connections = {
   src: string;
