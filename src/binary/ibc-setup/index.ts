@@ -1,6 +1,15 @@
 #!/usr/bin/env node
 
-import { Command, Option } from 'commander';
+import { Command } from 'commander';
+
+import {
+  destOption,
+  homeOption,
+  interactiveOption,
+  keyFileOption,
+  mnemonicOption,
+  srcOption,
+} from '../commander-options';
 
 import { balances } from './commands/balances';
 import { connect } from './commands/connect';
@@ -13,16 +22,6 @@ export const program = new Command();
 
 // TODO: fill options and commands descriptions
 program.description('ibc-setup program description');
-
-const homeOption = new Option(
-  '--home <path>',
-  'home option description (default: $HOME/.ibc-setup)'
-);
-const keyFileOption = new Option('--key-file <path>');
-const mnemonicOption = new Option('--mnemonic <mnemonic>');
-const interactiveOption = new Option('-i, --interactive');
-const srcOption = new Option('--src <chain>');
-const destOption = new Option('--dest <chain>');
 
 program
   .command('init')
