@@ -239,6 +239,7 @@ export class Link {
       clientIdA,
       clientIdB
     );
+    console.log(`Clients: ${clientIdA} - ${clientIdB}`);
 
     // connectionTry on nodeB
     const proof = await prepareConnectionHandshake(
@@ -249,6 +250,7 @@ export class Link {
       connIdA
     );
     const { connectionId: connIdB } = await nodeB.connOpenTry(clientIdB, proof);
+    console.log(`Connections: ${connIdA} - ${connIdB}`);
 
     // connectionAck on nodeA
     const proofAck = await prepareConnectionHandshake(
@@ -268,7 +270,7 @@ export class Link {
       clientIdB,
       connIdA
     );
-    await nodeB.connOpenConfirm(proofConfirm);
+    await nodeB.connOpenConfirm(connIdB, proofConfirm);
 
     const endA = new Endpoint(nodeA, clientIdA, connIdA);
     const endB = new Endpoint(nodeB, clientIdB, connIdB);
@@ -405,7 +407,7 @@ export class Link {
       destPort,
       { portId: srcPort, channelId: channelIdSrc },
       ordering,
-      src.connectionID,
+      dest.connectionID,
       version,
       version,
       proof

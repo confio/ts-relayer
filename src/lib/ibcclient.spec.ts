@@ -160,7 +160,7 @@ test.serial('perform connection handshake', async (t) => {
     destClientId,
     srcConnId
   );
-  await dest.connOpenConfirm(proofConfirm);
+  await dest.connOpenConfirm(destConnId, proofConfirm);
 });
 
 test.serial('transfer message and send packets', async (t) => {

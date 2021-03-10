@@ -863,15 +863,19 @@ export class IbcClient {
   }
 
   public async connOpenConfirm(
+    myConnectionId: string,
     proof: ConnectionHandshakeProof
   ): Promise<MsgResult> {
+    console.log(
+      `Connection open confirm: ${proof.connectionId} (my: ${myConnectionId})`
+    );
     this.logger.info(`Connection open confirm: ${proof.connectionId}`);
     const senderAddress = this.senderAddress;
-    const { connectionId, proofHeight, proofConnection: proofAck } = proof;
+    const { proofHeight, proofConnection: proofAck } = proof;
     const msg = {
       typeUrl: '/ibc.core.connection.v1.MsgConnectionOpenConfirm',
       value: MsgConnectionOpenConfirm.fromPartial({
-        connectionId,
+        connectionId: myConnectionId,
         signer: senderAddress,
         proofHeight,
         proofAck,
