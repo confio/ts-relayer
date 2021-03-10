@@ -19,3 +19,9 @@ export type AppConfig = {
   mnemonic?: string;
   keyFile?: string;
 };
+
+export type LoggerFlags = {
+  logLevel?: string;
+  verbose: boolean;
+  quiet: boolean;
+};
