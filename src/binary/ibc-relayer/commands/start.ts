@@ -94,7 +94,7 @@ export async function start(flags: Flags) {
     destConnection,
     // TODO: make configurable
     runOnce: true,
-    // once per day
+    // once per day: 86400s
     maxAgeA: 86400,
     maxAgeB: 86400,
   };
@@ -116,13 +116,14 @@ async function run(options: Options, logger: Logger) {
 
   logger.info('logger is available');
 
-  const nodeA = await signingClient(srcChain, options.mnemonic);
-  const nodeB = await signingClient(destChain, options.mnemonic);
+  const nodeA = await signingClient(srcChain, options.mnemonic, logger);
+  const nodeB = await signingClient(destChain, options.mnemonic, logger);
   const link = await Link.createWithExistingConnections(
     nodeA,
     nodeB,
     options.srcConnection,
-    options.destConnection
+    options.destConnection,
+    logger
   );
 
   await relayerLoop(link, options);

@@ -427,7 +427,10 @@ export class Link {
   public async checkAndRelayPacketsAndAcks(
     relayFrom: RelayedHeights
   ): Promise<RelayedHeights> {
-    const [chainA, chainB] = [this.endA.chainId(), this.endB.chainId()];
+    const [chainA, chainB] = [
+      this.endA.client.chainId,
+      this.endB.client.chainId,
+    ];
 
     // FIXME: is there a cleaner way to get the height we queries at?
     const [
@@ -442,14 +445,13 @@ export class Link {
       this.getPendingPackets('B', { minHeight: relayFrom.packetHeightB }),
     ]);
 
-    // TODO: use logger
     if (packetsA.length > 0) {
-      console.log(
+      this.logger.info(
         `Relaying ${packetsA.length} packets from ${chainA} => ${chainB}`
       );
     }
     if (packetsB.length > 0) {
-      console.log(
+      this.logger.info(
         `Relaying ${packetsB.length} packets from ${chainB} => ${chainA}`
       );
     }
@@ -470,12 +472,15 @@ export class Link {
       this.getPendingAcks('B', { minHeight: relayFrom.ackHeightB }),
     ]);
 
-    // TODO: use logger
     if (acksA.length > 0) {
-      console.log(`Relaying ${acksA.length} acks from ${chainA} => ${chainB}`);
+      this.logger.info(
+        `Relaying ${acksA.length} acks from ${chainA} => ${chainB}`
+      );
     }
     if (acksB.length > 0) {
-      console.log(`Relaying ${acksB.length} acks from ${chainB} => ${chainA}`);
+      this.logger.info(
+        `Relaying ${acksB.length} acks from ${chainB} => ${chainA}`
+      );
     }
 
     await Promise.all([this.relayAcks('A', acksA), this.relayAcks('B', acksB)]);
@@ -486,8 +491,7 @@ export class Link {
       ackHeightA,
       ackHeightB,
     };
-    // TODO: use logger (verbose)
-    console.log(JSON.stringify(nextRelay));
+    this.logger.verbose('next heights to relay', nextRelay);
 
     return nextRelay;
   }

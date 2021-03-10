@@ -10,11 +10,11 @@ export const wasmdAddress = 'wasm1x8ztrc7zqj2t5jvtyr6ncv7fwp62z2y22alpwu';
 // we assume src is simapp for all these tests
 export const channels: ChannelPair = {
   src: {
-    channelId: 'channel-16',
+    channelId: 'channel-17',
     portId: ics20.srcPortId, // custom
   },
   dest: {
-    channelId: 'channel-14',
+    channelId: 'channel-15',
     portId: ics20.destPortId, // transfer
   },
 };
