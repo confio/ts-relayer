@@ -119,20 +119,18 @@ export class Link {
         `Client ID ${connectionB.clientId} for connection with ID ${connB} does not match counterparty client ID ${connectionA.counterparty.clientId} for connection with ID ${connA}`
       );
     }
-    const [chainIdA, chainIdB, clientStateA, clientStateB] = await Promise.all([
-      nodeA.getChainId(),
-      nodeB.getChainId(),
+    const [clientStateA, clientStateB] = await Promise.all([
       nodeA.query.ibc.client.stateTm(clientIdA),
       nodeB.query.ibc.client.stateTm(clientIdB),
     ]);
-    if (chainIdA !== clientStateB.chainId) {
+    if (nodeA.chainId !== clientStateB.chainId) {
       throw new Error(
-        `Chain ID ${chainIdA} for connection with ID ${connA} does not match remote chain ID ${clientStateA.chainId}`
+        `Chain ID ${nodeA.chainId} for connection with ID ${connA} does not match remote chain ID ${clientStateA.chainId}`
       );
     }
-    if (chainIdB !== clientStateA.chainId) {
+    if (nodeB.chainId !== clientStateA.chainId) {
       throw new Error(
-        `Chain ID ${chainIdB} for connection with ID ${connB} does not match remote chain ID ${clientStateB.chainId}`
+        `Chain ID ${nodeB.chainId} for connection with ID ${connB} does not match remote chain ID ${clientStateB.chainId}`
       );
     }
 
@@ -429,6 +427,8 @@ export class Link {
   public async checkAndRelayPacketsAndAcks(
     relayFrom: RelayedHeights
   ): Promise<RelayedHeights> {
+    const [chainA, chainB] = [this.endA.chainId(), this.endB.chainId()];
+
     // FIXME: is there a cleaner way to get the height we queries at?
     const [
       packetHeightA,
@@ -441,6 +441,18 @@ export class Link {
       this.getPendingPackets('A', { minHeight: relayFrom.packetHeightA }),
       this.getPendingPackets('B', { minHeight: relayFrom.packetHeightB }),
     ]);
+
+    // TODO: use logger
+    if (packetsA.length > 0) {
+      console.log(
+        `Relaying ${packetsA.length} packets from ${chainA} => ${chainB}`
+      );
+    }
+    if (packetsB.length > 0) {
+      console.log(
+        `Relaying ${packetsB.length} packets from ${chainB} => ${chainA}`
+      );
+    }
 
     // FIXME: use these acks first? Then query for others?
     await Promise.all([
@@ -458,14 +470,26 @@ export class Link {
       this.getPendingAcks('B', { minHeight: relayFrom.ackHeightB }),
     ]);
 
+    // TODO: use logger
+    if (acksA.length > 0) {
+      console.log(`Relaying ${acksA.length} acks from ${chainA} => ${chainB}`);
+    }
+    if (acksB.length > 0) {
+      console.log(`Relaying ${acksB.length} acks from ${chainB} => ${chainA}`);
+    }
+
     await Promise.all([this.relayAcks('A', acksA), this.relayAcks('B', acksB)]);
 
-    return {
+    const nextRelay = {
       packetHeightA,
       packetHeightB,
       ackHeightA,
       ackHeightB,
     };
+    // TODO: use logger (verbose)
+    console.log(JSON.stringify(nextRelay));
+
+    return nextRelay;
   }
 
   public async getPendingPackets(

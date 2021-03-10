@@ -54,15 +54,14 @@ ibc-setup # should be available
 This is just mean for manual testing with the local CI chains. First get some keys:
 
 ```bash
-ibc-setup init --src local_wasmd --dest local_simapp
+ibc-setup init --src local_wasm --dest local_simapp
 ibc-setup keys list
 ```
 
-Then edit [testutils.spec.ts](./src/lib/testutils.spec.ts) under `'fund relayer'` and place your keys there.
-Change it from `skip` to `only` and run it:
+Then edit [manual/consts.ts](./src/lib/manual/consts.ts) and place your keys in those address variables.
 
 ```bash
-yarn build && yarn test:unit ./src/lib/testutils.spec.ts
+yarn build && yarn test:unit ./src/lib/manual/fund-relayer.spec.ts
 ```
 
 Now you should see an updated balance, and can make an ics20 channel:
@@ -72,13 +71,19 @@ ibc-setup balances
 ibc-setup ics20 --dest-port custom
 ```
 
-With that set up, let's start the relayer:
+Now we have a channel, let's send some packets. Go back to [manual/consts.ts](./src/lib/manual/consts.ts)
+place the proper channel ids from in the channels object. Make sure to place the channel that was listed
+next to (custom) on the top part. Then run a task to generate packets:
+
+```bash
+yarn build && yarn test:unit ./src/lib/manual/create-packets.spec.ts
+```
+
+With a connection, channel, and packets, let's start the relayer:
 
 ```bash
 ibc-relayer start
 ```
-
-TODO: how to send some transfer packets to test it? Another testutils function???
 
 ### Testing
 

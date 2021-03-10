@@ -46,8 +46,8 @@ export class Endpoint {
     this.connectionID = connectionID;
   }
 
-  public async chainId(): Promise<string> {
-    return this.client.getChainId();
+  public chainId(): string {
+    return this.client.chainId;
   }
 
   public async getLatestCommit(): Promise<CommitResponse> {
