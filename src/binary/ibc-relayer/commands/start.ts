@@ -1,5 +1,6 @@
 import path from 'path';
 
+import { sleep } from '@cosmjs/utils';
 import { Logger } from 'winston';
 
 import { Link } from '../../../lib/link';
@@ -135,11 +136,15 @@ async function relayerLoop(link: Link, options: LoopOptions, logger: Logger) {
 
   const done = false;
   while (!done) {
-    logger.info('Waking up and checking for packets to relay...');
+    logger.info('... waking up and checking for packets!');
     nextRelay = await link.checkAndRelayPacketsAndAcks(nextRelay);
 
     // ensure the headers are up to date (only submits if old and we didn't just update them above)
     await link.updateClientIfStale('A', options.maxAgeB);
     await link.updateClientIfStale('B', options.maxAgeA);
+
+    // sleep until the next step
+    logger.info(`Sleeping ${options.pollingFrequency} seconds...`);
+    await sleep(options.pollingFrequency * 1000);
   }
 }
