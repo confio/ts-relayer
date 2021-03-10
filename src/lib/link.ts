@@ -208,6 +208,9 @@ export class Link {
   ): Promise<Link> {
     const [clientIdA, clientIdB] = await createClients(nodeA, nodeB);
 
+    // wait a block to ensure we have proper proofs for creating a connection (this has failed on CI before)
+    await Promise.all([nodeA.waitOneBlock(), nodeB.waitOneBlock()]);
+
     // connectionInit on nodeA
     const { connectionId: connIdA } = await nodeA.connOpenInit(
       clientIdA,
@@ -444,6 +447,9 @@ export class Link {
       this.relayPackets('A', packetsA),
       this.relayPackets('B', packetsB),
     ]);
+
+    // let's wait a bit to ensure our newly committed items are indexed
+    await this.endA.client.waitOneBlock();
 
     const [ackHeightA, ackHeightB, acksA, acksB] = await Promise.all([
       this.endA.client.currentHeight(),

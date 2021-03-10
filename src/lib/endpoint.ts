@@ -54,7 +54,7 @@ export class Endpoint {
     return this.client.getCommit();
   }
 
-  // TODO: return info for pagination, accept arg
+  // returns all packets (auto-paginates, so be careful about not setting a minHeight)
   public async querySentPackets({
     minHeight,
     maxHeight,
@@ -67,8 +67,7 @@ export class Endpoint {
       query = `${query} AND tx.height<=${maxHeight}`;
     }
 
-    // TODO: txSearchAll or do we paginate?
-    const search = await this.client.tm.txSearch({ query });
+    const search = await this.client.tm.txSearchAll({ query });
     const resultsNested = search.txs.map(({ height, result }) => {
       const parsedLogs = parseRawLog(result.log);
       const sender = logs.findAttribute(parsedLogs, 'message', 'sender').value;
@@ -81,7 +80,7 @@ export class Endpoint {
     return ([] as PacketWithMetadata[]).concat(...resultsNested);
   }
 
-  // TODO: return info for pagination, accept arg
+  // returns all acks (auto-paginates, so be careful about not setting a minHeight)
   public async queryWrittenAcks({
     minHeight,
     maxHeight,
@@ -94,8 +93,7 @@ export class Endpoint {
       query = `${query} AND tx.height<=${maxHeight}`;
     }
 
-    // TODO: txSearchAll or do we paginate?
-    const search = await this.client.tm.txSearch({ query });
+    const search = await this.client.tm.txSearchAll({ query });
     const resultsNested = search.txs.map(({ height, result }) => {
       const parsedLogs = parseRawLog(result.log);
       // const sender = logs.findAttribute(parsedLogs, 'message', 'sender').value;
@@ -106,9 +104,6 @@ export class Endpoint {
     });
     return ([] as AckWithMetadata[]).concat(...resultsNested);
   }
-
-  // TODO: subscription based packets/acks?
-  // until then, poll every X seconds
 }
 
 /**

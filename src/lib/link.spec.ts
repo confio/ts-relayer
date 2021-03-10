@@ -7,7 +7,6 @@ import { prepareChannelHandshake } from './ibcclient';
 import { Link, RelayedHeights } from './link';
 import {
   ics20,
-  randomAddress,
   setup,
   simapp,
   TestLogger,
@@ -377,51 +376,34 @@ test.serial(
     const noPackets = await link.endA.querySentPackets();
     t.is(noPackets.length, 0);
 
-    // some basic setup for the transfers
-    const recipient = randomAddress(wasmd.prefix);
-    const destHeight = await nodeB.timeoutHeight(500); // valid for 500 blocks
-    const amounts = [1000, 2222, 3456];
-    // const totalSent = amounts.reduce((a, b) => a + b, 0);
-
     // let's make 3 transfer tx at different heights on each channel pair
-    interface Meta {
-      height: number;
-      channelId: string;
-    }
+    const amounts = [1000, 2222, 3456];
+    const tx1 = await transferTokens(
+      nodeA,
+      simapp.denomFee,
+      nodeB,
+      wasmd.prefix,
+      channels1.src,
+      amounts
+    );
+    const tx2 = await transferTokens(
+      nodeA,
+      simapp.denomFee,
+      nodeB,
+      wasmd.prefix,
+      channels2.src,
+      amounts
+    );
     const txHeights = {
-      channels1: [] as Meta[],
-      channels2: [] as Meta[],
+      channels1: tx1.map((height) => ({
+        height,
+        channelId: channels1.src.channelId,
+      })),
+      channels2: tx2.map((height) => ({
+        height,
+        channelId: channels2.src.channelId,
+      })),
     };
-
-    for (const amount of amounts) {
-      const token = {
-        amount: amount.toString(),
-        denom: simapp.denomFee,
-      };
-      const { height } = await nodeA.transferTokens(
-        channels1.src.portId,
-        channels1.src.channelId,
-        token,
-        recipient,
-        destHeight
-      );
-      txHeights.channels1.push({ height, channelId: channels1.src.channelId });
-    }
-    for (const amount of amounts) {
-      const token = {
-        amount: amount.toString(),
-        denom: simapp.denomFee,
-      };
-      const { height } = await nodeA.transferTokens(
-        channels2.src.portId,
-        channels2.src.channelId,
-        token,
-        recipient,
-        destHeight
-      );
-      txHeights.channels2.push({ height, channelId: channels2.src.channelId });
-    }
-
     // need to wait briefly for it to be indexed
     await sleep(100);
 
