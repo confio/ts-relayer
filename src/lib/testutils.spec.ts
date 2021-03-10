@@ -8,7 +8,7 @@ import sinon, { SinonSpy } from 'sinon';
 
 import { Order } from '../codec/ibc/core/channel/v1/channel';
 
-import { IbcClient, IbcClientOptions } from './ibcclient';
+import { ChannelInfo, IbcClient, IbcClientOptions } from './ibcclient';
 import { Logger, LogMethod } from './logger';
 
 export class TestLogger implements Logger {
@@ -185,4 +185,37 @@ export function generateMnemonic(): string {
 export function randomAddress(prefix: string): string {
   const random = Random.getBytes(20);
   return Bech32.encode(prefix, random);
+}
+
+// Makes multiple transfers, one per item in amounts.
+// Return a list of the block heights the packets were committed in.
+export async function transferTokens(
+  src: IbcClient,
+  srcDenom: string,
+  dest: IbcClient,
+  destPrefix: string,
+  channel: ChannelInfo,
+  amounts: number[],
+  timeout?: number
+): Promise<number[]> {
+  const txHeights: number[] = [];
+  const destRcpt = randomAddress(destPrefix);
+  const destHeight = await dest.timeoutHeight(timeout ?? 500); // valid for 500 blocks or timeout if specified
+
+  for (const amount of amounts) {
+    const token = {
+      amount: amount.toString(),
+      denom: srcDenom,
+    };
+    const { height } = await src.transferTokens(
+      channel.portId,
+      channel.channelId,
+      token,
+      destRcpt,
+      destHeight
+    );
+    txHeights.push(height);
+  }
+
+  return txHeights;
 }

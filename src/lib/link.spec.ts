@@ -4,13 +4,14 @@ import test from 'ava';
 import { State } from '../codec/ibc/core/channel/v1/channel';
 
 import { prepareChannelHandshake } from './ibcclient';
-import { Link } from './link';
+import { Link, RelayedHeights } from './link';
 import {
   ics20,
   randomAddress,
   setup,
   simapp,
   TestLogger,
+  transferTokens,
   wasmd,
 } from './testutils.spec';
 
@@ -289,25 +290,16 @@ test.serial('submit multiple tx, get unreceived packets', async (t) => {
   const noPackets = await link.endA.querySentPackets();
   t.is(noPackets.length, 0);
 
-  // some basic setup for the transfers
-  const recipient = randomAddress(wasmd.prefix);
-  const destHeight = await nodeB.timeoutHeight(500); // valid for 500 blocks
-  const amounts = [1000, 2222, 3456];
-  // const totalSent = amounts.reduce((a, b) => a + b, 0);
-
   // let's make 3 transfer tx at different heights
-  const txHeights = [];
-  for (const amount of amounts) {
-    const token = { amount: amount.toString(), denom: simapp.denomFee };
-    const { height } = await nodeA.transferTokens(
-      channels.src.portId,
-      channels.src.channelId,
-      token,
-      recipient,
-      destHeight
-    );
-    txHeights.push(height);
-  }
+  const amounts = [1000, 2222, 3456];
+  const txHeights = await transferTokens(
+    nodeA,
+    simapp.denomFee,
+    nodeB,
+    wasmd.prefix,
+    channels.src,
+    amounts
+  );
   // ensure these are different
   t.assert(txHeights[1] > txHeights[0], txHeights.toString());
   t.assert(txHeights[2] > txHeights[1], txHeights.toString());
@@ -513,5 +505,85 @@ test.serial(
     const updateB = await link.updateClientIfStale('B', 2);
     assert(updateB);
     t.assert(updateB.revisionHeight.toNumber() > heightB);
+  }
+);
+
+test.serial.only(
+  'checkAndRelayPacketsAndAcks relays packets properly',
+  async (t) => {
+    // setup a channel
+    const [nodeA, nodeB] = await setup();
+    const link = await Link.createWithNewConnections(nodeA, nodeB);
+    const channels = await link.createChannel(
+      'A',
+      ics20.srcPortId,
+      ics20.destPortId,
+      ics20.ordering,
+      ics20.version
+    );
+
+    const checkPending = async (
+      packA: number,
+      packB: number,
+      ackA: number,
+      ackB: number
+    ) => {
+      const packetsA = await link.getPendingPackets('A');
+      t.is(packetsA.length, packA);
+      const packetsB = await link.getPendingPackets('B');
+      t.is(packetsB.length, packB);
+
+      const acksA = await link.getPendingAcks('A');
+      t.is(acksA.length, ackA);
+      const acksB = await link.getPendingAcks('B');
+      t.is(acksB.length, ackB);
+    };
+
+    // no packets here
+    await checkPending(0, 0, 0, 0);
+
+    // ensure no problems running relayer with no packets
+    await link.checkAndRelayPacketsAndAcks({});
+
+    // send 3 from A -> B
+    const amountsA = [1000, 2222, 3456];
+    const txHeightsA = await transferTokens(
+      nodeA,
+      simapp.denomFee,
+      nodeB,
+      wasmd.prefix,
+      channels.src,
+      amountsA
+    );
+    // send 2 from B -> A
+    const amountsB = [76543, 12345];
+    const txHeightsB = await transferTokens(
+      nodeB,
+      wasmd.denomFee,
+      nodeA,
+      simapp.prefix,
+      channels.dest,
+      amountsB
+    );
+
+    // ensure these packets are present in query
+    await checkPending(3, 2, 0, 0);
+
+    // let's one on each side (should filter only the last == minHeight)
+    const relayFrom: RelayedHeights = {
+      packetHeighA: txHeightsA[2],
+      packetHeightB: txHeightsB[1],
+    };
+    // TODO: check the result here and ensure it is after the latest height
+    await link.checkAndRelayPacketsAndAcks(relayFrom);
+
+    // ensure those packets were sent, and their acks as well
+    checkPending(2, 1, 0, 0);
+
+    // sent the remaining packets (no minimum)
+    await link.checkAndRelayPacketsAndAcks({});
+
+    // ensure those packets were sent, and their acks as well
+    checkPending(0, 0, 0, 0);
   }
 );

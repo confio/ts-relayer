@@ -13,15 +13,14 @@ yarn build && yarn test:unit ./src/lib/manual_setup.spec.ts
 
 import test from 'ava';
 
-import { ChannelInfo, IbcClient } from './ibcclient';
 import { ChannelPair } from './link';
 import {
   fundAccount,
   ics20,
-  randomAddress,
   setup,
   simapp,
   TestLogger,
+  transferTokens,
   wasmd,
 } from './testutils.spec';
 
@@ -56,7 +55,7 @@ test.serial('send valid packets on existing channel', async (t) => {
 
   // send some from src to dest
   const srcAmounts = [1200, 32222, 3456];
-  await sendTokens(
+  const srcPackets = await transferTokens(
     src,
     simapp.denomFee,
     dest,
@@ -64,9 +63,11 @@ test.serial('send valid packets on existing channel', async (t) => {
     channels.src,
     srcAmounts
   );
+  t.is(srcAmounts.length, srcPackets.length);
+
   // send some from dest to src
   const destAmounts = [426238, 321989];
-  await sendTokens(
+  const destPackets = await transferTokens(
     dest,
     wasmd.denomFee,
     src,
@@ -74,34 +75,5 @@ test.serial('send valid packets on existing channel', async (t) => {
     channels.dest,
     destAmounts
   );
-
-  // to make ava happy
-  t.is(1, 1);
+  t.is(destAmounts.length, destPackets.length);
 });
-
-async function sendTokens(
-  src: IbcClient,
-  srcDenom: string,
-  dest: IbcClient,
-  destPrefix: string,
-  channel: ChannelInfo,
-  amounts: number[],
-  timeout?: number
-): Promise<void> {
-  // send some from src to dest
-  const destRcpt = randomAddress(destPrefix);
-  const destHeight = await dest.timeoutHeight(timeout ?? 500); // valid for 500 blocks or timeout if specified
-  for (const amount of amounts) {
-    const token = {
-      amount: amount.toString(),
-      denom: srcDenom,
-    };
-    await src.transferTokens(
-      channel.portId,
-      channel.channelId,
-      token,
-      destRcpt,
-      destHeight
-    );
-  }
-}

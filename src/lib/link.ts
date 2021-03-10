@@ -566,6 +566,9 @@ export class Link {
     source: Side,
     packets: readonly PacketWithMetadata[]
   ): Promise<AckWithMetadata[]> {
+    if (packets.length === 0) {
+      return [];
+    }
     this.logger.info(`Relay packets for source ${source}`);
     const { src, dest } = this.getEnds(source);
 
@@ -590,11 +593,15 @@ export class Link {
   // (yes, dest is where the packet was sent, but the ack was written on src).
   // if acks are all older than the last consensusHeight, then we don't update the client.
   //
-  // Returns the block height the acks were included in
+  // Returns the block height the acks were included in, or null if no acks sent
   public async relayAcks(
     source: Side,
     acks: readonly AckWithMetadata[]
-  ): Promise<number> {
+  ): Promise<number | null> {
+    if (acks.length === 0) {
+      return null;
+    }
+
     this.logger.info(`Relay acks for source ${source}`);
     const { src, dest } = this.getEnds(source);
 
