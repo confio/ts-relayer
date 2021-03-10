@@ -28,7 +28,8 @@ type Flags = {
 
 // TODO: do we want to make this a flag?
 type LoopOptions = {
-  runOnce: boolean;
+  // how many seconds we sleep between relaying batches
+  pollingFrequency: number;
   // number of seconds old the client on chain A can be
   maxAgeA: number;
   // number of seconds old the client on chain B can be
@@ -93,7 +94,7 @@ export async function start(flags: Flags) {
     srcConnection,
     destConnection,
     // TODO: make configurable
-    runOnce: true,
+    pollingFrequency: 60,
     // once per day: 86400s
     maxAgeA: 86400,
     maxAgeB: 86400,
@@ -124,20 +125,21 @@ async function run(options: Options, logger: Logger) {
     logger
   );
 
-  await relayerLoop(link, options);
+  await relayerLoop(link, options, logger);
 }
 
-async function relayerLoop(link: Link, options: LoopOptions) {
-  if (!options.runOnce) {
-    throw new Error('Loop is not supported yet, try runOnce = true');
-  }
-
-  // TODO: fill this in with real data (how far back do we start querying... where do we store state?)
+async function relayerLoop(link: Link, options: LoopOptions, logger: Logger) {
+  // TODO: fill this in with real data on init
+  // (how far back do we start querying... where do we store state?)
   let nextRelay = {};
-  nextRelay = await link.checkAndRelayPacketsAndAcks(nextRelay);
-  console.log(nextRelay);
 
-  // ensure the headers are up to date (only submits if old and we didn't just update them above)
-  await link.updateClientIfStale('A', options.maxAgeB);
-  await link.updateClientIfStale('B', options.maxAgeA);
+  const done = false;
+  while (!done) {
+    logger.info('Waking up and checking for packets to relay...');
+    nextRelay = await link.checkAndRelayPacketsAndAcks(nextRelay);
+
+    // ensure the headers are up to date (only submits if old and we didn't just update them above)
+    await link.updateClientIfStale('A', options.maxAgeB);
+    await link.updateClientIfStale('B', options.maxAgeA);
+  }
 }
