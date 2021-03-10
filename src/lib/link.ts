@@ -17,7 +17,11 @@ import {
   prepareConnectionHandshake,
 } from './ibcclient';
 import { Logger, NoopLogger } from './logger';
-import { parseAcksFromLogs, toIntHeight } from './utils';
+import {
+  parseAcksFromLogs,
+  timestampFromDateNanos,
+  toIntHeight,
+} from './utils';
 
 /**
  * Many actions on link focus on a src and a dest. Rather than add two functions,
@@ -260,11 +264,50 @@ export class Link {
     return height;
   }
 
-  // Ensures the dest has a proof of at least minHeight from source.
-  // Will not execute any tx if not needed.
-  // Will wait a block if needed until the header is available.
-  //
-  // Returns the latest header now available on dest
+  /**
+   * Checks if the last proven header on the destination is older than maxAge,
+   * and if so, update the client. Returns the new client height if updated,
+   * or null if no update needed
+   *
+   * @param sender
+   * @param maxAge
+   */
+  public async updateIfStale(
+    sender: Side,
+    maxAge: number
+  ): Promise<Height | null> {
+    // TODO: test this
+    this.logger.info(
+      `Checking if ${otherSide(sender)} has recent header of ${sender}`
+    );
+    const { src, dest } = this.getEnds(sender);
+    const knownHeader = await dest.client.query.ibc.client.consensusStateTm(
+      dest.clientID
+    );
+    const currentHeader = await src.client.latestHeader();
+
+    // quit now if we don't need to update
+    const knownSeconds = knownHeader.timestamp?.seconds?.toNumber();
+    if (knownSeconds) {
+      const curSeconds = timestampFromDateNanos(
+        currentHeader.time
+      ).seconds.toNumber();
+      if (curSeconds - knownSeconds < maxAge) {
+        return null;
+      }
+    }
+
+    // otherwise, do the update
+    return this.updateClient(sender);
+  }
+
+  /**
+   * Ensures the dest has a proof of at least minHeight from source.
+   * Will not execute any tx if not needed.
+   * Will wait a block if needed until the header is available.
+   *
+   * Returns the latest header height now available on dest
+   */
   public async updateClientToHeight(
     source: Side,
     minHeight: number
