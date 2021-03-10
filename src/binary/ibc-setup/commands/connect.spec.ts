@@ -91,7 +91,7 @@ destConnection: .+
   const srcConnectionIdMatch = /srcConnection: (?<connection>.+)/.exec(args[1]);
   const srcConnectionId = srcConnectionIdMatch?.groups?.connection;
   assert(srcConnectionId);
-  const nextConnectionSimapp = await ibcClientWasm.query.ibc.connection.connection(
+  const nextConnectionSimapp = await ibcClientSimapp.query.ibc.connection.connection(
     srcConnectionId
   );
 
