@@ -268,7 +268,7 @@ export class Link {
       clientIdB,
       connIdA
     );
-    await nodeB.connOpenConfirm(proofConfirm);
+    await nodeB.connOpenConfirm(connIdB, proofConfirm);
 
     const endA = new Endpoint(nodeA, clientIdA, connIdA);
     const endB = new Endpoint(nodeB, clientIdB, connIdB);
@@ -405,7 +405,7 @@ export class Link {
       destPort,
       { portId: srcPort, channelId: channelIdSrc },
       ordering,
-      src.connectionID,
+      dest.connectionID,
       version,
       version,
       proof

@@ -96,7 +96,7 @@ destConnection: .+
   );
   const destConnectionId = destConnectionIdMatch?.groups?.connection;
   assert(destConnectionId);
-  const nextConnectionSimapp = await ibcClientWasm.query.ibc.connection.connection(
+  const nextConnectionSimapp = await ibcClientSimapp.query.ibc.connection.connection(
     destConnectionId
   );
 

@@ -32,4 +32,4 @@ docker run --rm \
   --mount type=volume,source=wasmd_data,target=/root \
   "$REPOSITORY:$VERSION" \
   ./run_wasmd.sh /template \
-  2>&1 | grep 'Executed block'
+  2>&1 | grep 'executed block'

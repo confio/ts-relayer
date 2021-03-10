@@ -49,10 +49,6 @@ test.serial('create and update wasmd client on simapp', async (t) => {
   const [src, dest] = await setup();
 
   const header = await src.latestHeader();
-  // add some checks here as it randomly fails with "header from the future"
-  console.log('first header time', header.time);
-  const remoteHeader1 = await dest.latestHeader();
-  console.log('remote header time', remoteHeader1.time);
 
   const conState = buildConsensusState(header);
   const cliState = buildClientState(
@@ -74,10 +70,6 @@ test.serial('create and update wasmd client on simapp', async (t) => {
   const newHeight = newHeader.signedHeader?.header?.height;
   t.not(newHeight?.toNumber(), header.height);
 
-  // add some checks here as it randomly fails with "header from the future"
-  console.log('new header time', newHeader.signedHeader?.header?.time);
-  const remoteHeader2 = await dest.latestHeader();
-  console.log('remote header time', remoteHeader2.time);
   await dest.updateTendermintClient(clientId, newHeader);
 
   // any other checks?
@@ -160,7 +152,7 @@ test.serial('perform connection handshake', async (t) => {
     destClientId,
     srcConnId
   );
-  await dest.connOpenConfirm(proofConfirm);
+  await dest.connOpenConfirm(destConnId, proofConfirm);
 });
 
 test.serial('transfer message and send packets', async (t) => {
