@@ -281,7 +281,7 @@ export class Link {
    * @param sender
    * @param maxAge
    */
-  public async updateIfStale(
+  public async updateClientIfStale(
     sender: Side,
     maxAge: number
   ): Promise<Height | null> {

@@ -1,4 +1,4 @@
-import { sleep } from '@cosmjs/utils';
+import { assert, sleep } from '@cosmjs/utils';
 import test from 'ava';
 
 import { State } from '../codec/ibc/core/channel/v1/channel';
@@ -482,5 +482,36 @@ test.serial(
     // and it matches the ones we did not send
     t.deepEqual(postAcks[0], acks[1]);
     t.deepEqual(postAcks[1], acks[2]);
+  }
+);
+
+test.serial(
+  'updateClientIfStale only runs if it is too long since an update',
+  async (t) => {
+    // setup
+    const logger = new TestLogger();
+    const [nodeA, nodeB] = await setup(logger);
+    const link = await Link.createWithNewConnections(nodeA, nodeB, logger);
+
+    // height before waiting
+    const heightA = (await nodeA.latestHeader()).height;
+    const heightB = (await nodeB.latestHeader()).height;
+
+    // wait a few seconds so we can get stale ones
+    await sleep(3000);
+
+    // we definitely have updated within the last 1000 seconds, this should do nothing
+    const noUpdateA = await link.updateClientIfStale('A', 1000);
+    t.is(noUpdateA, null);
+    const noUpdateB = await link.updateClientIfStale('B', 1000);
+    t.is(noUpdateB, null);
+
+    // we haven't updated in the last 2 seconds, this should trigger the update
+    const updateA = await link.updateClientIfStale('A', 2);
+    assert(updateA);
+    t.assert(updateA.revisionHeight.toNumber() > heightA);
+    const updateB = await link.updateClientIfStale('B', 2);
+    assert(updateB);
+    t.assert(updateB.revisionHeight.toNumber() > heightB);
   }
 );
