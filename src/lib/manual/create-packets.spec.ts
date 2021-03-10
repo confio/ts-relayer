@@ -16,7 +16,7 @@ import { setup, simapp, TestLogger, transferTokens, wasmd } from '../testutils';
 
 import { channels } from './consts';
 
-test.serial('send valid packets on existing channel', async (t) => {
+test.serial.skip('send valid packets on existing channel', async (t) => {
   // create the basic clients
   const logger = new TestLogger();
   const [src, dest] = await setup(logger);
