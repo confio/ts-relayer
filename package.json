@@ -56,7 +56,8 @@
     "axios": "^0.21.1",
     "commander": "^7.1.0",
     "js-yaml": "^4.0.0",
-    "protobufjs": "~6.10.2"
+    "protobufjs": "~6.10.2",
+    "winston": "^3.3.3"
   },
   "devDependencies": {
     "@ava/typescript": "^1.1.1",
