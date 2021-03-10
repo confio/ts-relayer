@@ -1,3 +1,5 @@
+import { GasPrice } from '@cosmjs/launchpad';
+
 export type Chain = {
   chain_id: string;
   prefix: string;
@@ -25,3 +27,7 @@ export type LoggerFlags = {
   verbose: boolean;
   quiet: boolean;
 };
+
+export function feeDenom(chain: Chain): string {
+  return GasPrice.fromString(chain.gas_price).denom;
+}

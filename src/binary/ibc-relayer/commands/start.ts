@@ -2,6 +2,7 @@ import path from 'path';
 
 import { Logger } from 'winston';
 
+import { Link } from '../../../lib/link';
 import { registryFile } from '../../constants';
 import { createLogger, Level } from '../../create-logger';
 import { LoggerFlags } from '../../types';
@@ -12,6 +13,7 @@ import { resolveRequiredOption } from '../../utils/options/resolve-required-opti
 import { resolveHomeOption } from '../../utils/options/shared/resolve-home-option';
 import { resolveKeyFileOption } from '../../utils/options/shared/resolve-key-file-option';
 import { resolveMnemonicOption } from '../../utils/options/shared/resolve-mnemonic-option';
+import { signingClient } from '../../utils/signing-client';
 
 type Flags = {
   interactive: boolean;
@@ -24,6 +26,15 @@ type Flags = {
   destConnection?: string;
 } & LoggerFlags;
 
+// TODO: do we want to make this a flag?
+type LoopOptions = {
+  runOnce: boolean;
+  // number of seconds old the client on chain A can be
+  maxAgeA: number;
+  // number of seconds old the client on chain B can be
+  maxAgeB: number;
+};
+
 type Options = {
   home: string;
   src: string;
@@ -31,7 +42,7 @@ type Options = {
   mnemonic: string;
   srcConnection: string;
   destConnection: string;
-};
+} & LoopOptions;
 
 export async function start(flags: Flags) {
   const logLevel = resolveOption(
@@ -81,12 +92,17 @@ export async function start(flags: Flags) {
     mnemonic,
     srcConnection,
     destConnection,
+    // TODO: make configurable
+    runOnce: true,
+    // once per day
+    maxAgeA: 86400,
+    maxAgeB: 86400,
   };
 
-  run(options, logger);
+  await run(options, logger);
 }
 
-function run(options: Options, logger: Logger) {
+async function run(options: Options, logger: Logger) {
   const registryFilePath = path.join(options.home, registryFile);
   const { chains } = loadAndValidateRegistry(registryFilePath);
   const srcChain = chains[options.src];
@@ -98,6 +114,31 @@ function run(options: Options, logger: Logger) {
     throw new Error('dest chain not found in registry');
   }
 
-  console.log('ibc-relayer start with options:', options);
   logger.info('logger is available');
+
+  const nodeA = await signingClient(srcChain, options.mnemonic);
+  const nodeB = await signingClient(destChain, options.mnemonic);
+  const link = await Link.createWithExistingConnections(
+    nodeA,
+    nodeB,
+    options.srcConnection,
+    options.destConnection
+  );
+
+  await relayerLoop(link, options);
+}
+
+async function relayerLoop(link: Link, options: LoopOptions) {
+  if (!options.runOnce) {
+    throw new Error('Loop is not supported yet, try runOnce = true');
+  }
+
+  // TODO: fill this in with real data (how far back do we start querying... where do we store state?)
+  let nextRelay = {};
+  nextRelay = await link.checkAndRelayPacketsAndAcks(nextRelay);
+  console.log(nextRelay);
+
+  // ensure the headers are up to date (only submits if old and we didn't just update them above)
+  await link.updateClientIfStale('A', options.maxAgeB);
+  await link.updateClientIfStale('B', options.maxAgeA);
 }
