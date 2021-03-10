@@ -6,7 +6,7 @@
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
           "account_number": "0",
-          "address": "cosmos1k0utpaq7kvm0fgrs6xvj4vgh2gq9vvhzl4rg7p",
+          "address": "cosmos1h7mudyy25wjqh2v2t5j42njsuucgk49pvtfda0",
           "pub_key": null,
           "sequence": "0"
         },
@@ -144,12 +144,12 @@
           "address": "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6",
           "coins": [
             {
-              "amount": "1000000000",
-              "denom": "ucosm"
+              "amount": "10000000",
+              "denom": "umoo"
             },
             {
-              "amount": "10000000",
-              "denom": "ustake"
+              "amount": "1000000000",
+              "denom": "umuon"
             }
           ]
         },
@@ -157,12 +157,12 @@
           "address": "cosmos1xy4yqngt0nlkdcenxymg8tenrghmek4nmqm28k",
           "coins": [
             {
-              "amount": "1000000000",
-              "denom": "ucosm"
+              "amount": "10000000",
+              "denom": "umoo"
             },
             {
-              "amount": "10000000",
-              "denom": "ustake"
+              "amount": "1000000000",
+              "denom": "umuon"
             }
           ]
         },
@@ -170,12 +170,12 @@
           "address": "cosmos1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5",
           "coins": [
             {
-              "amount": "1000000000",
-              "denom": "ucosm"
+              "amount": "10000000",
+              "denom": "umoo"
             },
             {
-              "amount": "10000000",
-              "denom": "ustake"
+              "amount": "1000000000",
+              "denom": "umuon"
             }
           ]
         },
@@ -183,12 +183,12 @@
           "address": "cosmos1f7j7ryulwjfe9ljplvhtcaxa6wqgula3etktce",
           "coins": [
             {
-              "amount": "1000000000",
-              "denom": "ucosm"
+              "amount": "10000000",
+              "denom": "umoo"
             },
             {
-              "amount": "10000000",
-              "denom": "ustake"
+              "amount": "1000000000",
+              "denom": "umuon"
             }
           ]
         },
@@ -196,12 +196,12 @@
           "address": "cosmos1vkv9sfwaak76weyamqx0flmng2vuquxqcuqukh",
           "coins": [
             {
-              "amount": "1000000000",
-              "denom": "ucosm"
+              "amount": "10000000",
+              "denom": "umoo"
             },
             {
-              "amount": "10000000",
-              "denom": "ustake"
+              "amount": "1000000000",
+              "denom": "umuon"
             }
           ]
         },
@@ -209,12 +209,12 @@
           "address": "cosmos10dyr9899g6t0pelew4nvf4j5c3jcgv0r73qga5",
           "coins": [
             {
-              "amount": "1000000000",
-              "denom": "ucosm"
+              "amount": "10000000",
+              "denom": "umoo"
             },
             {
-              "amount": "10000000",
-              "denom": "ustake"
+              "amount": "1000000000",
+              "denom": "umuon"
             }
           ]
         },
@@ -222,12 +222,12 @@
           "address": "cosmos106jwym4s9aujcmes26myzzwqsccw09sdm0v5au",
           "coins": [
             {
-              "amount": "1000000000",
-              "denom": "ucosm"
+              "amount": "10000000",
+              "denom": "umoo"
             },
             {
-              "amount": "10000000",
-              "denom": "ustake"
+              "amount": "1000000000",
+              "denom": "umuon"
             }
           ]
         },
@@ -235,12 +235,12 @@
           "address": "cosmos14qemq0vw6y3gc3u3e0aty2e764u4gs5le3hada",
           "coins": [
             {
-              "amount": "1000000000",
-              "denom": "ucosm"
+              "amount": "10000000",
+              "denom": "umoo"
             },
             {
-              "amount": "10000000",
-              "denom": "ustake"
+              "amount": "1000000000",
+              "denom": "umuon"
             }
           ]
         },
@@ -248,25 +248,12 @@
           "address": "cosmos142u9fgcjdlycfcez3lw8x6x5h7rfjlnfhpw2lx",
           "coins": [
             {
-              "amount": "1000000000",
-              "denom": "ucosm"
+              "amount": "10000000",
+              "denom": "umoo"
             },
             {
-              "amount": "10000000",
-              "denom": "ustake"
-            }
-          ]
-        },
-        {
-          "address": "cosmos1k0utpaq7kvm0fgrs6xvj4vgh2gq9vvhzl4rg7p",
-          "coins": [
-            {
               "amount": "1000000000",
-              "denom": "ucosm"
-            },
-            {
-              "amount": "10000000",
-              "denom": "ustake"
+              "denom": "umuon"
             }
           ]
         },
@@ -274,12 +261,12 @@
           "address": "cosmos1hsm76p4ahyhl5yh3ve9ur49r5kemhp2r0dcjvx",
           "coins": [
             {
-              "amount": "1000000000",
-              "denom": "ucosm"
+              "amount": "10000000",
+              "denom": "umoo"
             },
             {
-              "amount": "10000000",
-              "denom": "ustake"
+              "amount": "1000000000",
+              "denom": "umuon"
             }
           ]
         },
@@ -287,12 +274,25 @@
           "address": "cosmos1hhg2rlu9jscacku2wwckws7932qqqu8x3gfgw0",
           "coins": [
             {
-              "amount": "1000000000",
-              "denom": "ucosm"
+              "amount": "10000000",
+              "denom": "umoo"
             },
             {
+              "amount": "1000000000",
+              "denom": "umuon"
+            }
+          ]
+        },
+        {
+          "address": "cosmos1h7mudyy25wjqh2v2t5j42njsuucgk49pvtfda0",
+          "coins": [
+            {
               "amount": "10000000",
-              "denom": "ustake"
+              "denom": "umoo"
+            },
+            {
+              "amount": "1000000000",
+              "denom": "umuon"
             }
           ]
         },
@@ -300,12 +300,12 @@
           "address": "cosmos1cjsxept9rkggzxztslae9ndgpdyt2408lk850u",
           "coins": [
             {
-              "amount": "1000000000",
-              "denom": "ucosm"
+              "amount": "10000000",
+              "denom": "umoo"
             },
             {
-              "amount": "10000000",
-              "denom": "ustake"
+              "amount": "1000000000",
+              "denom": "umuon"
             }
           ]
         },
@@ -313,12 +313,12 @@
           "address": "cosmos1c7wpeen2uv8thayf7g8q2rgpm29clj0dgrdtzw",
           "coins": [
             {
-              "amount": "1000000000",
-              "denom": "ucosm"
+              "amount": "10000000",
+              "denom": "umoo"
             },
             {
-              "amount": "10000000",
-              "denom": "ustake"
+              "amount": "1000000000",
+              "denom": "umuon"
             }
           ]
         },
@@ -326,12 +326,12 @@
           "address": "cosmos1mjxpv9ft30wer7ma7kwfxhm42l379xutplrdk6",
           "coins": [
             {
-              "amount": "1000000000",
-              "denom": "ucosm"
+              "amount": "10000000",
+              "denom": "umoo"
             },
             {
-              "amount": "10000000",
-              "denom": "ustake"
+              "amount": "1000000000",
+              "denom": "umuon"
             }
           ]
         },
@@ -339,12 +339,12 @@
           "address": "cosmos17yg9mssjenmc3jkqth6ulcwj9cxujrxxzezwta",
           "coins": [
             {
-              "amount": "1000000000",
-              "denom": "ucosm"
+              "amount": "10000000",
+              "denom": "umoo"
             },
             {
-              "amount": "10000000",
-              "denom": "ustake"
+              "amount": "1000000000",
+              "denom": "umuon"
             }
           ]
         },
@@ -352,12 +352,12 @@
           "address": "cosmos17d0jcz59jf68g52vq38tuuncmwwjk42u6mcxej",
           "coins": [
             {
-              "amount": "1000000000",
-              "denom": "ucosm"
+              "amount": "10000000",
+              "denom": "umoo"
             },
             {
-              "amount": "10000000",
-              "denom": "ustake"
+              "amount": "1000000000",
+              "denom": "umuon"
             }
           ]
         },
@@ -365,12 +365,12 @@
           "address": "cosmos1lvrwcvrqlc5ktzp2c4t22xgkx29q3y83lktgzl",
           "coins": [
             {
-              "amount": "1000000000",
-              "denom": "ucosm"
+              "amount": "10000000",
+              "denom": "umoo"
             },
             {
-              "amount": "10000000",
-              "denom": "ustake"
+              "amount": "1000000000",
+              "denom": "umuon"
             }
           ]
         }
@@ -382,12 +382,12 @@
       },
       "supply": [
         {
-          "amount": "18000000000",
-          "denom": "ucosm"
+          "amount": "180000000",
+          "denom": "umoo"
         },
         {
-          "amount": "180000000",
-          "denom": "ustake"
+          "amount": "18000000000",
+          "denom": "umuon"
         }
       ]
     },
@@ -398,7 +398,7 @@
     "crisis": {
       "constant_fee": {
         "amount": "1000",
-        "denom": "ustake"
+        "denom": "umoo"
       }
     },
     "distribution": {
@@ -442,7 +442,7 @@
                 },
                 "public_key": {
                   "@type": "/cosmos.crypto.secp256k1.PubKey",
-                  "key": "A8zRRptdU4iURW4V9ZT4NdlHmrAjBGCInbBE/v4C03Cu"
+                  "key": "Aln3HcLG2Fnfrz/vsNkBfSs2eZw4oAtH8VIF4uEG3Xgo"
                 },
                 "sequence": "0"
               }
@@ -450,7 +450,7 @@
           },
           "body": {
             "extension_options": [],
-            "memo": "55709ce4b190d810f266c2ab07ce99a8883b846f@172.17.0.2:26656",
+            "memo": "6c4c122a659f242e95f0127976bb656e2bcc1953@172.17.0.2:26656",
             "messages": [
               {
                 "@type": "/cosmos.staking.v1beta1.MsgCreateValidator",
@@ -459,7 +459,7 @@
                   "max_rate": "0.200000000000000000",
                   "rate": "0.100000000000000000"
                 },
-                "delegator_address": "cosmos1k0utpaq7kvm0fgrs6xvj4vgh2gq9vvhzl4rg7p",
+                "delegator_address": "cosmos1h7mudyy25wjqh2v2t5j42njsuucgk49pvtfda0",
                 "description": {
                   "details": "",
                   "identity": "",
@@ -470,12 +470,12 @@
                 "min_self_delegation": "1",
                 "pubkey": {
                   "@type": "/cosmos.crypto.ed25519.PubKey",
-                  "key": "TP4DgQaFWjKKxp+DFkvoA89VXdk9E/CBO9g16Pc+fsA="
+                  "key": "D7n7UC+5dwUtFfgCSQjNNSf9qRnZr4Mgm+5m640nyZA="
                 },
-                "validator_address": "cosmosvaloper1k0utpaq7kvm0fgrs6xvj4vgh2gq9vvhz6phajj",
+                "validator_address": "cosmosvaloper1h7mudyy25wjqh2v2t5j42njsuucgk49pflac3u",
                 "value": {
                   "amount": "3000000",
-                  "denom": "ustake"
+                  "denom": "umoo"
                 }
               }
             ],
@@ -483,7 +483,7 @@
             "timeout_height": "0"
           },
           "signatures": [
-            "w4uHdKCyWX0v9kT5+4aLp6X91X3lhNe47IxcwZGC0CURg3Gr10YNjpC6uddXvkpP3RmWhdvM7mvsuoo3G525NA=="
+            "RcoHwZWYZGAxP5pt1r32aKvlInKK8jEIV+n+ND4IG1N7c7I4UoIFTUBvkiC+ZMk8OvIEsO5VFJMgMGQd8BTwDA=="
           ]
         }
       ]
@@ -494,7 +494,7 @@
         "min_deposit": [
           {
             "amount": "10000000",
-            "denom": "ustake"
+            "denom": "umoo"
           }
         ]
       },
@@ -552,7 +552,7 @@
         "inflation_max": "0.200000000000000000",
         "inflation_min": "0.070000000000000000",
         "inflation_rate_change": "0.130000000000000000",
-        "mint_denom": "ustake"
+        "mint_denom": "umoo"
       }
     },
     "params": null,
@@ -573,7 +573,7 @@
       "last_total_power": "0",
       "last_validator_powers": [],
       "params": {
-        "bond_denom": "ustake",
+        "bond_denom": "umoo",
         "historical_entries": 10000,
         "max_entries": 7,
         "max_validators": 100,
@@ -613,6 +613,6 @@
     },
     "version": {}
   },
-  "genesis_time": "2021-03-10T15:35:39.799454492Z",
+  "genesis_time": "2021-03-10T22:03:04.175473148Z",
   "initial_height": "1"
 }
