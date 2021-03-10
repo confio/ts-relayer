@@ -4,7 +4,6 @@ import { Bech32 } from '@cosmjs/encoding';
 import { Decimal } from '@cosmjs/math';
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 import { StargateClient } from '@cosmjs/stargate';
-import test from 'ava';
 import sinon, { SinonSpy } from 'sinon';
 
 import { Order } from '../codec/ibc/core/channel/v1/channel';
@@ -108,7 +107,7 @@ export const ics20 = {
   ordering: Order.ORDER_UNORDERED,
 };
 
-interface SigningOpts {
+export interface SigningOpts {
   readonly tendermintUrlHttp: string;
   readonly prefix: string;
   readonly denomFee: string;
@@ -161,8 +160,8 @@ export async function setup(logger?: Logger): Promise<IbcClient[]> {
   const mnemonic = generateMnemonic();
   const src = await signingClient(simapp, mnemonic, logger);
   const dest = await signingClient(wasmd, mnemonic, logger);
-  await fundAccount(wasmd, dest.senderAddress, '400000');
-  await fundAccount(simapp, src.senderAddress, '400000');
+  await fundAccount(wasmd, dest.senderAddress, '4000000');
+  await fundAccount(simapp, src.senderAddress, '4000000');
   return [src, dest];
 }
 
@@ -187,69 +186,3 @@ export function randomAddress(prefix: string): string {
   const random = Random.getBytes(20);
   return Bech32.encode(prefix, random);
 }
-
-test('query account balance - simapp', async (t) => {
-  const client = await queryClient(simapp);
-  const account = await client.getAllBalancesUnverified(simapp.unused.address);
-  t.is(account.length, 2);
-  t.deepEqual(account[0], { amount: '1000000000', denom: simapp.denomFee });
-  t.deepEqual(account[1], { amount: '10000000', denom: simapp.denomStaking });
-});
-
-test('query account balance - wasmd', async (t) => {
-  const client = await queryClient(wasmd);
-  const account = await client.getAllBalancesUnverified(wasmd.unused.address);
-  t.is(account.length, 2);
-  t.deepEqual(account[0], { amount: '1000000000', denom: wasmd.denomFee });
-  t.deepEqual(account[1], { amount: '1000000000', denom: wasmd.denomStaking });
-});
-
-test.serial('send initial funds - simapp', async (t) => {
-  const client = await queryClient(simapp);
-  const newbie = randomAddress(simapp.prefix);
-
-  // account empty at start
-  let account = await client.getAllBalancesUnverified(newbie);
-  t.deepEqual(account, []);
-
-  // let's send some tokens
-  await fundAccount(simapp, newbie, '500');
-
-  // account has tokens
-  account = await client.getAllBalancesUnverified(newbie);
-  t.is(account.length, 1);
-  t.deepEqual(account[0], { amount: '500', denom: simapp.denomFee });
-});
-
-test.serial('send initial funds - wasmd', async (t) => {
-  const client = await queryClient(wasmd);
-  const newbie = randomAddress(wasmd.prefix);
-
-  // account empty at start
-  let account = await client.getAllBalancesUnverified(newbie);
-  t.deepEqual(account, []);
-
-  // let's send some tokens
-  await fundAccount(wasmd, newbie, '500');
-
-  // account has tokens
-  account = await client.getAllBalancesUnverified(newbie);
-  t.is(account.length, 1);
-  t.deepEqual(account[0], { amount: '500', denom: wasmd.denomFee });
-});
-
-test.serial.skip('fund relayer', async (t) => {
-  // copy these values from `ibc-setup keys list`
-  await fundAccount(
-    wasmd,
-    'wasm1090w503askudf40zzkkaj45dax98mdjym7p32e',
-    '50000000'
-  );
-  await fundAccount(
-    simapp,
-    'cosmos1t4p6yt2r9rcwfesj0feyu9x3ywhlvyww0azh0a',
-    '50000000'
-  );
-  // to make ava happy
-  t.is(1, 1);
-});

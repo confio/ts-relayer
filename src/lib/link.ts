@@ -634,12 +634,12 @@ const packetId = (packet: Packet) =>
 const ackId = (packet: Packet) =>
   `${packet.sourcePort}${idDelim}${packet.sourceChannel}`;
 
-interface EndpointPair {
+export interface EndpointPair {
   readonly src: Endpoint;
   readonly dest: Endpoint;
 }
 
-interface ChannelPair {
+export interface ChannelPair {
   readonly src: ChannelInfo;
   readonly dest: ChannelInfo;
 }
