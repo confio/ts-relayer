@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { Command } from 'commander';
+import { Command, Option } from 'commander';
 
 import {
   destOption,
@@ -28,6 +28,19 @@ program
   .addOption(mnemonicOption)
   .option('--src-connection <connection>')
   .option('--dest-connection <connection>')
+
+  .addOption(
+    new Option('--log-level <level>').choices([
+      'debug',
+      'verbose',
+      'info',
+      'warn',
+      'error',
+    ])
+  )
+  .option('-v, --verbose')
+  .option('-q, --quiet')
+
   .action(start);
 
 program.parse(process.argv);

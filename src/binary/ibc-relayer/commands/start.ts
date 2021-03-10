@@ -1,8 +1,13 @@
 import path from 'path';
 
+import { Logger } from 'winston';
+
 import { registryFile } from '../../constants';
+import { createLogger, Level } from '../../create-logger';
+import { LoggerFlags } from '../../types';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
+import { resolveOption } from '../../utils/options/resolve-option';
 import { resolveRequiredOption } from '../../utils/options/resolve-required-option';
 import { resolveHomeOption } from '../../utils/options/shared/resolve-home-option';
 import { resolveKeyFileOption } from '../../utils/options/shared/resolve-key-file-option';
@@ -17,7 +22,7 @@ type Flags = {
   mnemonic?: string;
   srcConnection?: string;
   destConnection?: string;
-};
+} & LoggerFlags;
 
 type Options = {
   home: string;
@@ -29,6 +34,14 @@ type Options = {
 };
 
 export async function start(flags: Flags) {
+  const logLevel = resolveOption(
+    flags.logLevel,
+    process.env.RELAYER_LOG_LEVEL,
+    'info'
+  );
+
+  const logger = createLogger(logLevel as Level);
+
   const home = resolveHomeOption({ homeFlag: flags.home });
   const app = loadAndValidateApp(home);
   const keyFile = resolveKeyFileOption({ keyFileFlag: flags.keyFile, app });
@@ -70,10 +83,10 @@ export async function start(flags: Flags) {
     destConnection,
   };
 
-  run(options);
+  run(options, logger);
 }
 
-function run(options: Options) {
+function run(options: Options, logger: Logger) {
   const registryFilePath = path.join(options.home, registryFile);
   const { chains } = loadAndValidateRegistry(registryFilePath);
   const srcChain = chains[options.src];
@@ -86,4 +99,5 @@ function run(options: Options) {
   }
 
   console.log('ibc-relayer start with options:', options);
+  logger.info('logger is available');
 }
