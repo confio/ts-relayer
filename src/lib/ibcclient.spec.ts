@@ -12,7 +12,7 @@ import {
   simapp,
   TestLogger,
   wasmd,
-} from './testutils.spec';
+} from './testutils';
 import {
   buildClientState,
   buildConsensusState,

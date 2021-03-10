@@ -22,7 +22,7 @@ import {
   TestLogger,
   transferTokens,
   wasmd,
-} from './testutils.spec';
+} from './testutils';
 
 // copy these values from `ibc-setup keys list`
 const simappAddress = 'cosmos1t4p6yt2r9rcwfesj0feyu9x3ywhlvyww0azh0a';

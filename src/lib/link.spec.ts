@@ -13,7 +13,7 @@ import {
   TestLogger,
   transferTokens,
   wasmd,
-} from './testutils.spec';
+} from './testutils';
 
 test.serial('establish new client-connection', async (t) => {
   const logger = new TestLogger();
