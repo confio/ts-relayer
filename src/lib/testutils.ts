@@ -41,9 +41,9 @@ export const simapp = {
   tendermintUrlHttp: 'http://localhost:26658',
   chainId: 'simd-testing',
   prefix: 'cosmos',
-  denomStaking: 'ustake',
-  denomFee: 'ucosm',
-  blockTime: 1_000, // ms
+  denomStaking: 'umoo',
+  denomFee: 'umuon',
+  blockTime: 250, // ms
   faucet: {
     mnemonic:
       'economy stock theory fatal elder harbor betray wasp final emotion task crumble siren bottom lizard educate guess current outdoor pair theory focus wife stone',
@@ -74,7 +74,7 @@ export const wasmd = {
   prefix: 'wasm',
   denomStaking: 'ustake',
   denomFee: 'ucosm',
-  blockTime: 1_000, // ms
+  blockTime: 250, // ms
   faucet: {
     mnemonic:
       'enlist hip relief stomach skate base shallow young switch frequent cry park',

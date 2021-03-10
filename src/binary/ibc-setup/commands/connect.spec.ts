@@ -30,7 +30,7 @@ chains:
   local_simapp:
     chain_id: simd-testing
     prefix: cosmos
-    gas_price: 0.025ucosm
+    gas_price: 0.025umuon
     rpc:
       - http://localhost:26658`;
 
