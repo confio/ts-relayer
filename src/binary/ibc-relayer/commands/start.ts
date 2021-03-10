@@ -114,8 +114,6 @@ async function run(options: Options, logger: Logger) {
     throw new Error('dest chain not found in registry');
   }
 
-  logger.info('logger is available');
-
   const nodeA = await signingClient(srcChain, options.mnemonic, logger);
   const nodeB = await signingClient(destChain, options.mnemonic, logger);
   const link = await Link.createWithExistingConnections(

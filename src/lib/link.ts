@@ -63,6 +63,25 @@ export class Link {
   public readonly endB: Endpoint;
   public readonly logger: Logger;
 
+  private readonly chainA: string;
+  private readonly chainB: string;
+
+  private chain(side: Side): string {
+    if (side === 'A') {
+      return this.chainA;
+    } else {
+      return this.chainB;
+    }
+  }
+
+  private otherChain(side: Side): string {
+    if (side === 'A') {
+      return this.chainB;
+    } else {
+      return this.chainA;
+    }
+  }
+
   /**
    * findConnection attempts to reuse an existing Client/Connection.
    * If none exists, then it returns an error.
@@ -77,6 +96,8 @@ export class Link {
     connB: string,
     logger?: Logger
   ): Promise<Link> {
+    const [chainA, chainB] = [nodeA.chainId, nodeB.chainId];
+
     const [
       { connection: connectionA },
       { connection: connectionB },
@@ -85,26 +106,30 @@ export class Link {
       nodeB.query.ibc.connection.connection(connB),
     ]);
     if (!connectionA) {
-      throw new Error(`Connection not found for ID ${connA}`);
+      throw new Error(`[${chainA}] Connection not found for ID ${connA}`);
     }
     if (!connectionB) {
-      throw new Error(`Connection not found for ID ${connB}`);
+      throw new Error(`[${chainB}] Connection not found for ID ${connB}`);
     }
     if (!connectionA.counterparty) {
-      throw new Error(`Counterparty not found for connection with ID ${connA}`);
+      throw new Error(
+        `[${chainA}] Counterparty not found for connection with ID ${connA}`
+      );
     }
     if (!connectionB.counterparty) {
-      throw new Error(`Counterparty not found for connection with ID ${connB}`);
+      throw new Error(
+        `[${chainB}] Counterparty not found for connection with ID ${connB}`
+      );
     }
     // ensure the connection is open
     if (connectionA.state != State.STATE_OPEN) {
       throw new Error(
-        `Connection A must be in state open, it has state ${connectionA.state}`
+        `Connection on ${chainA} must be in state open, it has state ${connectionA.state}`
       );
     }
     if (connectionB.state != State.STATE_OPEN) {
       throw new Error(
-        `Connection B must be in state open, it has state ${connectionB.state}`
+        `Connection on ${chainB} must be in state open, it has state ${connectionB.state}`
       );
     }
 
@@ -256,6 +281,8 @@ export class Link {
     this.endA = endA;
     this.endB = endB;
     this.logger = logger ?? new NoopLogger();
+    this.chainA = endA.client.chainId;
+    this.chainB = endB.client.chainId;
   }
 
   /**
@@ -268,7 +295,7 @@ export class Link {
    * Just needs trusting period on both side
    */
   public async updateClient(sender: Side): Promise<Height> {
-    this.logger.info(`Update client for sender ${sender}`);
+    this.logger.info(`Update Client on ${this.otherChain(sender)}`);
     const { src, dest } = this.getEnds(sender);
     const height = await dest.client.doUpdateClient(dest.clientID, src.client);
     return height;
@@ -287,7 +314,9 @@ export class Link {
     maxAge: number
   ): Promise<Height | null> {
     this.logger.info(
-      `Checking if ${otherSide(sender)} has recent header of ${sender}`
+      `Checking if ${this.otherChain(sender)} has recent header of ${this.chain(
+        sender
+      )}`
     );
     const { src, dest } = this.getEnds(sender);
     const knownHeader = await dest.client.query.ibc.client.consensusStateTm(
@@ -322,7 +351,9 @@ export class Link {
     minHeight: number
   ): Promise<Height> {
     this.logger.info(
-      `Check whether client for source ${source} >= height ${minHeight}`
+      `Check whether client on ${this.otherChain(
+        source
+      )} >= height ${minHeight}`
     );
     const { src, dest } = this.getEnds(source);
     const client = await dest.client.query.ibc.client.stateTm(dest.clientID);
@@ -347,7 +378,9 @@ export class Link {
     version: string
   ): Promise<ChannelPair> {
     this.logger.info(
-      `Create channel with sender ${sender}: ${srcPort} => ${destPort}`
+      `Create channel with sender ${this.chain(
+        sender
+      )}: ${srcPort} => ${destPort}`
     );
     const { src, dest } = this.getEnds(sender);
     // init on src
@@ -427,11 +460,6 @@ export class Link {
   public async checkAndRelayPacketsAndAcks(
     relayFrom: RelayedHeights
   ): Promise<RelayedHeights> {
-    const [chainA, chainB] = [
-      this.endA.client.chainId,
-      this.endB.client.chainId,
-    ];
-
     // FIXME: is there a cleaner way to get the height we queries at?
     const [
       packetHeightA,
@@ -447,12 +475,12 @@ export class Link {
 
     if (packetsA.length > 0) {
       this.logger.info(
-        `Relaying ${packetsA.length} packets from ${chainA} => ${chainB}`
+        `Relaying ${packetsA.length} packets from ${this.chainA} => ${this.chainB}`
       );
     }
     if (packetsB.length > 0) {
       this.logger.info(
-        `Relaying ${packetsB.length} packets from ${chainB} => ${chainA}`
+        `Relaying ${packetsB.length} packets from ${this.chainB} => ${this.chainA}`
       );
     }
 
@@ -474,12 +502,12 @@ export class Link {
 
     if (acksA.length > 0) {
       this.logger.info(
-        `Relaying ${acksA.length} acks from ${chainA} => ${chainB}`
+        `Relaying ${acksA.length} acks from ${this.chainA} => ${this.chainB}`
       );
     }
     if (acksB.length > 0) {
       this.logger.info(
-        `Relaying ${acksB.length} acks from ${chainB} => ${chainA}`
+        `Relaying ${acksB.length} acks from ${this.chainB} => ${this.chainA}`
       );
     }
 
@@ -500,7 +528,7 @@ export class Link {
     source: Side,
     opts: QueryOpts = {}
   ): Promise<PacketWithMetadata[]> {
-    this.logger.verbose(`Get pending packets for source ${source}`);
+    this.logger.verbose(`Get pending packets on ${this.chain(source)}`);
     const { src, dest } = this.getEnds(source);
     const allPackets = await src.querySentPackets(opts);
 
@@ -528,7 +556,7 @@ export class Link {
     source: Side,
     opts: QueryOpts = {}
   ): Promise<AckWithMetadata[]> {
-    this.logger.verbose(`Get pending acks for source ${source}`);
+    this.logger.verbose(`Get pending acks on ${this.chain(source)}`);
     const { src, dest } = this.getEnds(source);
     const allAcks = await src.queryWrittenAcks(opts);
 
@@ -598,7 +626,7 @@ export class Link {
 
   // Returns the last height that this side knows of the other blockchain
   public async lastKnownHeader(side: Side): Promise<number> {
-    this.logger.verbose(`Get last known header for side ${side}`);
+    this.logger.verbose(`Get last known header on ${this.chain(side)}`);
     const { src } = this.getEnds(side);
     const client = await src.client.query.ibc.client.stateTm(src.clientID);
     return client.latestHeight?.revisionHeight?.toNumber() ?? 0;
@@ -615,7 +643,11 @@ export class Link {
     if (packets.length === 0) {
       return [];
     }
-    this.logger.info(`Relay packets for source ${source}`);
+    this.logger.info(
+      `Relay ${packets.length} packets from ${this.chain(
+        source
+      )} => ${this.otherChain(source)}`
+    );
     const { src, dest } = this.getEnds(source);
 
     // check if we need to update client at all
@@ -648,7 +680,11 @@ export class Link {
       return null;
     }
 
-    this.logger.info(`Relay acks for source ${source}`);
+    this.logger.info(
+      `Relay ${acks.length} acks from ${this.chain(
+        source
+      )} => ${this.otherChain(source)}`
+    );
     const { src, dest } = this.getEnds(source);
 
     // check if we need to update client at all
