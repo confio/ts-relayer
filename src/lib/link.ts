@@ -40,7 +40,7 @@ export function otherSide(side: Side): Side {
 // This records the block heights from the last point where we successfully relayed packets.
 // This can be used to optimize the next round of relaying
 export interface RelayedHeights {
-  packetHeighA?: number;
+  packetHeightA?: number;
   packetHeightB?: number;
   ackHeightA?: number;
   ackHeightB?: number;
@@ -250,7 +250,7 @@ export class Link {
   }
 
   // you can use this if you already have the info out of bounds
-  // TODO; check the validity of that data?
+  // FIXME: check the validity of that data?
   public constructor(endA: Endpoint, endB: Endpoint, logger?: Logger) {
     this.endA = endA;
     this.endB = endB;
@@ -285,7 +285,6 @@ export class Link {
     sender: Side,
     maxAge: number
   ): Promise<Height | null> {
-    // TODO: test this
     this.logger.info(
       `Checking if ${otherSide(sender)} has recent header of ${sender}`
     );
@@ -427,9 +426,16 @@ export class Link {
   public async checkAndRelayPacketsAndAcks(
     relayFrom: RelayedHeights
   ): Promise<RelayedHeights> {
-    // TODO: get the packet height from this somehow
-    const [packetsA, packetsB] = await Promise.all([
-      this.getPendingPackets('A', { minHeight: relayFrom.packetHeighA }),
+    // FIXME: is there a cleaner way to get the height we queries at?
+    const [
+      packetHeightA,
+      packetHeightB,
+      packetsA,
+      packetsB,
+    ] = await Promise.all([
+      this.endA.client.currentHeight(),
+      this.endB.client.currentHeight(),
+      this.getPendingPackets('A', { minHeight: relayFrom.packetHeightA }),
       this.getPendingPackets('B', { minHeight: relayFrom.packetHeightB }),
     ]);
 
@@ -439,15 +445,21 @@ export class Link {
       this.relayPackets('B', packetsB),
     ]);
 
-    const [acksA, acksB] = await Promise.all([
+    const [ackHeightA, ackHeightB, acksA, acksB] = await Promise.all([
+      this.endA.client.currentHeight(),
+      this.endB.client.currentHeight(),
       this.getPendingAcks('A', { minHeight: relayFrom.ackHeightA }),
       this.getPendingAcks('B', { minHeight: relayFrom.ackHeightB }),
     ]);
 
     await Promise.all([this.relayAcks('A', acksA), this.relayAcks('B', acksB)]);
 
-    // TODO return newer value from above queries
-    return relayFrom;
+    return {
+      packetHeightA,
+      packetHeightB,
+      ackHeightA,
+      ackHeightB,
+    };
   }
 
   public async getPendingPackets(

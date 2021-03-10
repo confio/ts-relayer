@@ -508,7 +508,7 @@ test.serial(
   }
 );
 
-test.serial.only(
+test.serial(
   'checkAndRelayPacketsAndAcks relays packets properly',
   async (t) => {
     // setup a channel
@@ -571,19 +571,35 @@ test.serial.only(
 
     // let's one on each side (should filter only the last == minHeight)
     const relayFrom: RelayedHeights = {
-      packetHeighA: txHeightsA[2],
+      packetHeightA: txHeightsA[2],
       packetHeightB: txHeightsB[1],
     };
-    // TODO: check the result here and ensure it is after the latest height
-    await link.checkAndRelayPacketsAndAcks(relayFrom);
+    // check the result here and ensure it is after the latest height
+    const nextRelay = await link.checkAndRelayPacketsAndAcks(relayFrom);
+
+    // next acket is more recent than the transactions
+    assert(nextRelay.packetHeightA);
+    t.assert(nextRelay.packetHeightA > txHeightsA[2]);
+    assert(nextRelay.packetHeightB);
+    // since we don't wait a block after this transfer, it may be the same
+    t.assert(nextRelay.packetHeightB >= txHeightsB[1]);
+    // next ack queries is more recent than the packet queries
+    assert(nextRelay.ackHeightA);
+    t.assert(nextRelay.ackHeightA > nextRelay.packetHeightA);
+    assert(nextRelay.ackHeightB);
+    t.assert(nextRelay.ackHeightB > nextRelay.packetHeightB);
 
     // ensure those packets were sent, and their acks as well
-    checkPending(2, 1, 0, 0);
+    await checkPending(2, 1, 0, 0);
+
+    // if we send again with the return of this last relay, we don't get anything new
+    await link.checkAndRelayPacketsAndAcks(nextRelay);
+    await checkPending(2, 1, 0, 0);
 
     // sent the remaining packets (no minimum)
     await link.checkAndRelayPacketsAndAcks({});
 
     // ensure those packets were sent, and their acks as well
-    checkPending(0, 0, 0, 0);
+    await checkPending(0, 0, 0, 0);
   }
 );
