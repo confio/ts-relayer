@@ -1,21 +1,20 @@
 import fs from 'fs';
 import path from 'path';
 
-import { stringToPath } from '@cosmjs/crypto';
-import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 import yaml from 'js-yaml';
 
 import { Order } from '../../../codec/ibc/core/channel/v1/channel';
 import { IbcClient } from '../../../lib/ibcclient';
 import { Link } from '../../../lib/link';
 import { appFile, registryFile } from '../../constants';
-import { AppConfig, Chain } from '../../types';
+import { AppConfig } from '../../types';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
 import { resolveRequiredOption } from '../../utils/options/resolve-required-option';
 import { resolveHomeOption } from '../../utils/options/shared/resolve-home-option';
 import { resolveKeyFileOption } from '../../utils/options/shared/resolve-key-file-option';
 import { resolveMnemonicOption } from '../../utils/options/shared/resolve-mnemonic-option';
+import { signingClient } from '../../utils/signing-client';
 
 type Connections = {
   src: string;
@@ -161,8 +160,8 @@ export async function run(options: Options, app: AppConfig): Promise<void> {
   const ordering = Order.ORDER_UNORDERED;
   const version = 'ics20-1';
 
-  const nodeA = await createClient(options.mnemonic, srcChain);
-  const nodeB = await createClient(options.mnemonic, destChain);
+  const nodeA = await signingClient(srcChain, options.mnemonic);
+  const nodeB = await signingClient(destChain, options.mnemonic);
   const link = await resolveLink(nodeA, nodeB, options.connections);
 
   const srcConnection = link.endA.connectionID;
@@ -192,17 +191,4 @@ export async function run(options: Options, app: AppConfig): Promise<void> {
   console.log(
     `Created channels for connections ${link.endA.connectionID} <=> ${link.endB.connectionID}: ${channels.src.channelId} (${channels.src.portId}) => ${channels.dest.channelId} (${channels.dest.portId})`
   );
-}
-
-export async function createClient(
-  mnemonic: string,
-  { prefix, rpc, hd_path }: Pick<Chain, 'prefix' | 'rpc' | 'hd_path'>
-): Promise<IbcClient> {
-  const signer = await DirectSecp256k1HdWallet.fromMnemonic(
-    mnemonic,
-    hd_path ? stringToPath(hd_path) : undefined,
-    prefix
-  );
-  const [{ address }] = await signer.getAccounts();
-  return IbcClient.connectWithSigner(rpc[0], signer, address);
 }
