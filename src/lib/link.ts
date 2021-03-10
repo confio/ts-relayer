@@ -239,7 +239,6 @@ export class Link {
       clientIdA,
       clientIdB
     );
-    console.log(`Clients: ${clientIdA} - ${clientIdB}`);
 
     // connectionTry on nodeB
     const proof = await prepareConnectionHandshake(
@@ -250,7 +249,6 @@ export class Link {
       connIdA
     );
     const { connectionId: connIdB } = await nodeB.connOpenTry(clientIdB, proof);
-    console.log(`Connections: ${connIdA} - ${connIdB}`);
 
     // connectionAck on nodeA
     const proofAck = await prepareConnectionHandshake(

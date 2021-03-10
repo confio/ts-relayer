@@ -192,7 +192,7 @@ test.serial(
       ics20.destPortId,
       { portId: ics20.srcPortId, channelId: srcChannelId },
       ics20.ordering,
-      connA,
+      connB,
       ics20.version,
       ics20.version,
       proof

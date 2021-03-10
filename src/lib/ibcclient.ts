@@ -866,10 +866,7 @@ export class IbcClient {
     myConnectionId: string,
     proof: ConnectionHandshakeProof
   ): Promise<MsgResult> {
-    console.log(
-      `Connection open confirm: ${proof.connectionId} (my: ${myConnectionId})`
-    );
-    this.logger.info(`Connection open confirm: ${proof.connectionId}`);
+    this.logger.info(`Connection open confirm: ${myConnectionId}`);
     const senderAddress = this.senderAddress;
     const { proofHeight, proofConnection: proofAck } = proof;
     const msg = {
