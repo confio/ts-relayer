@@ -1,18 +1,18 @@
-import { sleep } from '@cosmjs/utils';
+import { assert, sleep } from '@cosmjs/utils';
 import test from 'ava';
 
 import { State } from '../codec/ibc/core/channel/v1/channel';
 
 import { prepareChannelHandshake } from './ibcclient';
-import { Link } from './link';
+import { Link, RelayedHeights } from './link';
 import {
   ics20,
-  randomAddress,
   setup,
   simapp,
   TestLogger,
+  transferTokens,
   wasmd,
-} from './testutils.spec';
+} from './testutils';
 
 test.serial('establish new client-connection', async (t) => {
   const logger = new TestLogger();
@@ -289,25 +289,16 @@ test.serial('submit multiple tx, get unreceived packets', async (t) => {
   const noPackets = await link.endA.querySentPackets();
   t.is(noPackets.length, 0);
 
-  // some basic setup for the transfers
-  const recipient = randomAddress(wasmd.prefix);
-  const destHeight = await nodeB.timeoutHeight(500); // valid for 500 blocks
-  const amounts = [1000, 2222, 3456];
-  // const totalSent = amounts.reduce((a, b) => a + b, 0);
-
   // let's make 3 transfer tx at different heights
-  const txHeights = [];
-  for (const amount of amounts) {
-    const token = { amount: amount.toString(), denom: simapp.denomFee };
-    const { height } = await nodeA.transferTokens(
-      channels.src.portId,
-      channels.src.channelId,
-      token,
-      recipient,
-      destHeight
-    );
-    txHeights.push(height);
-  }
+  const amounts = [1000, 2222, 3456];
+  const txHeights = await transferTokens(
+    nodeA,
+    simapp.denomFee,
+    nodeB,
+    wasmd.prefix,
+    channels.src,
+    amounts
+  );
   // ensure these are different
   t.assert(txHeights[1] > txHeights[0], txHeights.toString());
   t.assert(txHeights[2] > txHeights[1], txHeights.toString());
@@ -385,51 +376,34 @@ test.serial(
     const noPackets = await link.endA.querySentPackets();
     t.is(noPackets.length, 0);
 
-    // some basic setup for the transfers
-    const recipient = randomAddress(wasmd.prefix);
-    const destHeight = await nodeB.timeoutHeight(500); // valid for 500 blocks
-    const amounts = [1000, 2222, 3456];
-    // const totalSent = amounts.reduce((a, b) => a + b, 0);
-
     // let's make 3 transfer tx at different heights on each channel pair
-    interface Meta {
-      height: number;
-      channelId: string;
-    }
+    const amounts = [1000, 2222, 3456];
+    const tx1 = await transferTokens(
+      nodeA,
+      simapp.denomFee,
+      nodeB,
+      wasmd.prefix,
+      channels1.src,
+      amounts
+    );
+    const tx2 = await transferTokens(
+      nodeA,
+      simapp.denomFee,
+      nodeB,
+      wasmd.prefix,
+      channels2.src,
+      amounts
+    );
     const txHeights = {
-      channels1: [] as Meta[],
-      channels2: [] as Meta[],
+      channels1: tx1.map((height) => ({
+        height,
+        channelId: channels1.src.channelId,
+      })),
+      channels2: tx2.map((height) => ({
+        height,
+        channelId: channels2.src.channelId,
+      })),
     };
-
-    for (const amount of amounts) {
-      const token = {
-        amount: amount.toString(),
-        denom: simapp.denomFee,
-      };
-      const { height } = await nodeA.transferTokens(
-        channels1.src.portId,
-        channels1.src.channelId,
-        token,
-        recipient,
-        destHeight
-      );
-      txHeights.channels1.push({ height, channelId: channels1.src.channelId });
-    }
-    for (const amount of amounts) {
-      const token = {
-        amount: amount.toString(),
-        denom: simapp.denomFee,
-      };
-      const { height } = await nodeA.transferTokens(
-        channels2.src.portId,
-        channels2.src.channelId,
-        token,
-        recipient,
-        destHeight
-      );
-      txHeights.channels2.push({ height, channelId: channels2.src.channelId });
-    }
-
     // need to wait briefly for it to be indexed
     await sleep(100);
 
@@ -482,5 +456,132 @@ test.serial(
     // and it matches the ones we did not send
     t.deepEqual(postAcks[0], acks[1]);
     t.deepEqual(postAcks[1], acks[2]);
+  }
+);
+
+test.serial(
+  'updateClientIfStale only runs if it is too long since an update',
+  async (t) => {
+    // setup
+    const logger = new TestLogger();
+    const [nodeA, nodeB] = await setup(logger);
+    const link = await Link.createWithNewConnections(nodeA, nodeB, logger);
+
+    // height before waiting
+    const heightA = (await nodeA.latestHeader()).height;
+    const heightB = (await nodeB.latestHeader()).height;
+
+    // wait a few seconds so we can get stale ones
+    await sleep(3000);
+
+    // we definitely have updated within the last 1000 seconds, this should do nothing
+    const noUpdateA = await link.updateClientIfStale('A', 1000);
+    t.is(noUpdateA, null);
+    const noUpdateB = await link.updateClientIfStale('B', 1000);
+    t.is(noUpdateB, null);
+
+    // we haven't updated in the last 2 seconds, this should trigger the update
+    const updateA = await link.updateClientIfStale('A', 2);
+    assert(updateA);
+    t.assert(updateA.revisionHeight.toNumber() > heightA);
+    const updateB = await link.updateClientIfStale('B', 2);
+    assert(updateB);
+    t.assert(updateB.revisionHeight.toNumber() > heightB);
+  }
+);
+
+test.serial(
+  'checkAndRelayPacketsAndAcks relays packets properly',
+  async (t) => {
+    // setup a channel
+    const [nodeA, nodeB] = await setup();
+    const link = await Link.createWithNewConnections(nodeA, nodeB);
+    const channels = await link.createChannel(
+      'A',
+      ics20.srcPortId,
+      ics20.destPortId,
+      ics20.ordering,
+      ics20.version
+    );
+
+    const checkPending = async (
+      packA: number,
+      packB: number,
+      ackA: number,
+      ackB: number
+    ) => {
+      const packetsA = await link.getPendingPackets('A');
+      t.is(packetsA.length, packA);
+      const packetsB = await link.getPendingPackets('B');
+      t.is(packetsB.length, packB);
+
+      const acksA = await link.getPendingAcks('A');
+      t.is(acksA.length, ackA);
+      const acksB = await link.getPendingAcks('B');
+      t.is(acksB.length, ackB);
+    };
+
+    // no packets here
+    await checkPending(0, 0, 0, 0);
+
+    // ensure no problems running relayer with no packets
+    await link.checkAndRelayPacketsAndAcks({});
+
+    // send 3 from A -> B
+    const amountsA = [1000, 2222, 3456];
+    const txHeightsA = await transferTokens(
+      nodeA,
+      simapp.denomFee,
+      nodeB,
+      wasmd.prefix,
+      channels.src,
+      amountsA
+    );
+    // send 2 from B -> A
+    const amountsB = [76543, 12345];
+    const txHeightsB = await transferTokens(
+      nodeB,
+      wasmd.denomFee,
+      nodeA,
+      simapp.prefix,
+      channels.dest,
+      amountsB
+    );
+
+    // ensure these packets are present in query
+    await checkPending(3, 2, 0, 0);
+
+    // let's one on each side (should filter only the last == minHeight)
+    const relayFrom: RelayedHeights = {
+      packetHeightA: txHeightsA[2],
+      packetHeightB: txHeightsB[1],
+    };
+    // check the result here and ensure it is after the latest height
+    const nextRelay = await link.checkAndRelayPacketsAndAcks(relayFrom);
+
+    // next acket is more recent than the transactions
+    assert(nextRelay.packetHeightA);
+    t.assert(nextRelay.packetHeightA > txHeightsA[2]);
+    assert(nextRelay.packetHeightB);
+    // since we don't wait a block after this transfer, it may be the same
+    t.assert(nextRelay.packetHeightB >= txHeightsB[1]);
+    // next ack queries is more recent than the packet queries
+    assert(nextRelay.ackHeightA);
+    t.assert(nextRelay.ackHeightA > nextRelay.packetHeightA);
+    assert(nextRelay.ackHeightB);
+    t.assert(nextRelay.ackHeightB > nextRelay.packetHeightB);
+
+    // ensure those packets were sent, and their acks as well
+    await checkPending(2, 1, 0, 0);
+
+    // if we send again with the return of this last relay, we don't get anything new
+    await link.checkAndRelayPacketsAndAcks(nextRelay);
+    await checkPending(2, 1, 0, 0);
+
+    // sent the remaining packets (no minimum)
+    await link.checkAndRelayPacketsAndAcks({});
+
+    // ensure those packets were sent, and their acks as well
+    await checkPending(0, 0, 0, 0);
   }
 );

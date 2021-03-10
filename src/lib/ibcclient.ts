@@ -304,6 +304,13 @@ export class IbcClient {
     return this.sign.getChainId();
   }
 
+  public async header(height: number): Promise<RpcHeader> {
+    this.logger.verbose(`Get header for height ${height}`);
+    // TODO: expose header method on tmClient and use that
+    const resp = await this.tm.blockchain(height, height);
+    return resp.blockMetas[0].header;
+  }
+
   public async latestHeader(): Promise<RpcHeader> {
     this.logger.verbose('Get latest header');
     // TODO: expose header method on tmClient and use that
@@ -311,11 +318,9 @@ export class IbcClient {
     return block.block.header;
   }
 
-  public async header(height: number): Promise<RpcHeader> {
-    this.logger.verbose(`Get header for height ${height}`);
-    // TODO: expose header method on tmClient and use that
-    const resp = await this.tm.blockchain(height, height);
-    return resp.blockMetas[0].header;
+  public async currentHeight(): Promise<number> {
+    const status = await this.tm.status();
+    return status.syncInfo.latestBlockHeight;
   }
 
   public async waitOneBlock(): Promise<void> {

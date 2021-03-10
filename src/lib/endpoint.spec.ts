@@ -1,7 +1,7 @@
 import test from 'ava';
 
 import { Link } from './link';
-import { ics20, randomAddress, setup, simapp, wasmd } from './testutils.spec';
+import { ics20, randomAddress, setup, simapp, wasmd } from './testutils';
 import { parseAcksFromLogs } from './utils';
 
 test.serial('submit multiple tx, query all packets', async (t) => {
