@@ -3,14 +3,14 @@ import path from 'path';
 
 import { State } from '../../../codec/ibc/core/channel/v1/channel';
 import { registryFile } from '../../constants';
-import { generateMnemonic } from '../utils/generate-mnemonic';
-import { loadAndValidateApp } from '../utils/load-and-validate-app';
-import { loadAndValidateRegistry } from '../utils/load-and-validate-registry';
-import { resolveOption } from '../utils/options/resolve-option';
-import { resolveRequiredOption } from '../utils/options/resolve-required-option';
-import { resolveHomeOption } from '../utils/options/shared/resolve-home-option';
-import { resolveKeyFileOption } from '../utils/options/shared/resolve-key-file-option';
-import { resolveMnemonicOption } from '../utils/options/shared/resolve-mnemonic-option';
+import { generateMnemonic } from '../../utils/generate-mnemonic';
+import { loadAndValidateApp } from '../../utils/load-and-validate-app';
+import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
+import { resolveOption } from '../../utils/options/resolve-option';
+import { resolveRequiredOption } from '../../utils/options/resolve-required-option';
+import { resolveHomeOption } from '../../utils/options/shared/resolve-home-option';
+import { resolveKeyFileOption } from '../../utils/options/shared/resolve-key-file-option';
+import { resolveMnemonicOption } from '../../utils/options/shared/resolve-mnemonic-option';
 
 import { createClient } from './ics20';
 
