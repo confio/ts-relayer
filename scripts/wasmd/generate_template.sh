@@ -12,13 +12,17 @@ mkdir "$SCRIPT_DIR/template"
 
 export CHAIN_ID=wasmd-1
 
+# TODO: go back to just using ./setup_wasmd.sh and not mounting scripts dir
+# once https://github.com/CosmWasm/wasmd/pull/453 is merged and in our CI image
+
 # The usage of the accounts below is documented in README.md of this directory
 docker run --rm \
   -e PASSWORD=my-secret-password \
   -e CHAIN_ID \
   --mount type=bind,source="$SCRIPT_DIR/template",target=/root \
+  --mount type=bind,source="$SCRIPT_DIR/scripts/setup_wasmd.sh",target=/opt/setup_wasmd.sh \
   "$REPOSITORY:$VERSION" \
-  ./setup_wasmd.sh \
+  /opt/setup_wasmd.sh \
   wasm1pkptre7fdkl6gfrzlesjjvhxhlc3r4gm32kke3 wasm10dyr9899g6t0pelew4nvf4j5c3jcgv0r5d3a5l wasm1xy4yqngt0nlkdcenxymg8tenrghmek4n3u2lwa wasm142u9fgcjdlycfcez3lw8x6x5h7rfjlnfaallkd wasm1hsm76p4ahyhl5yh3ve9ur49r5kemhp2r93f89d \
   wasm14qemq0vw6y3gc3u3e0aty2e764u4gs5lndxgyk wasm1hhg2rlu9jscacku2wwckws7932qqqu8xm5ca8y wasm1xv9tklw7d82sezh9haa573wufgy59vmwnxhnsl wasm17yg9mssjenmc3jkqth6ulcwj9cxujrxxg9nmzk wasm1f7j7ryulwjfe9ljplvhtcaxa6wqgula3nh873j \
   wasm1lvrwcvrqlc5ktzp2c4t22xgkx29q3y83426at5 wasm1vkv9sfwaak76weyamqx0flmng2vuquxqjq3flu wasm106jwym4s9aujcmes26myzzwqsccw09sd3nap5h wasm1c7wpeen2uv8thayf7g8q2rgpm29clj0dzlu7t9 wasm1mjxpv9ft30wer7ma7kwfxhm42l379xuttrjcl3 \
