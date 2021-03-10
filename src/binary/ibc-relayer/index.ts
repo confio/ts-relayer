@@ -10,6 +10,7 @@ import {
   mnemonicOption,
   srcOption,
 } from '../commander-options';
+import { rootBoundary } from '../utils/error-boundary';
 
 import { start } from './commands/start';
 
@@ -28,7 +29,6 @@ program
   .addOption(mnemonicOption)
   .option('--src-connection <connection>')
   .option('--dest-connection <connection>')
-
   .addOption(
     new Option('--log-level <level>').choices([
       'debug',
@@ -40,7 +40,6 @@ program
   )
   .option('-v, --verbose')
   .option('-q, --quiet')
-
-  .action(start);
+  .action(rootBoundary(start));
 
 program.parse(process.argv);
