@@ -7,8 +7,10 @@ import sinon from 'sinon';
 
 import { Link } from '../../../lib/link';
 import { appFile } from '../../constants';
+import { signingClient } from '../../utils/signing-client';
 
-import { createClient, Options, run } from './ics20';
+import { simappChain, wasmdChain } from './chains';
+import { Options, run } from './ics20';
 
 const fsWriteFileSync = sinon.stub(fs, 'writeFileSync');
 const fsReadFileSync = sinon.stub(fs, 'readFileSync');
@@ -30,7 +32,7 @@ chains:
   local_simapp:
     chain_id: simd-testing
     prefix: cosmos
-    gas_price: 0.025ucosm
+    gas_price: 0.025umuon
     rpc:
       - http://localhost:26658`;
 
@@ -44,15 +46,8 @@ test.beforeEach(() => {
 });
 
 test.serial('ics20 create channels with new connection', async (t) => {
-  const ibcClientWasm = await createClient(mnemonic, {
-    prefix: 'wasm',
-    rpc: ['http://localhost:26659'],
-  });
-
-  const ibcClientSimapp = await createClient(mnemonic, {
-    prefix: 'cosmos',
-    rpc: ['http://localhost:26658'],
-  });
+  const ibcClientSimapp = await signingClient(simappChain, mnemonic);
+  const ibcClientWasm = await signingClient(wasmdChain, mnemonic);
 
   const allConnectionsWasm = await ibcClientWasm.query.ibc.connection.allConnections();
   const allConnectionsSimapp = await ibcClientSimapp.query.ibc.connection.allConnections();
@@ -118,14 +113,8 @@ destConnection: .+
 });
 
 test.serial('ics20 create channels with existing connection', async (t) => {
-  const ibcClientSimapp = await createClient(mnemonic, {
-    prefix: 'cosmos',
-    rpc: ['http://localhost:26658'],
-  });
-  const ibcClientWasm = await createClient(mnemonic, {
-    prefix: 'wasm',
-    rpc: ['http://localhost:26659'],
-  });
+  const ibcClientSimapp = await signingClient(simappChain, mnemonic);
+  const ibcClientWasm = await signingClient(wasmdChain, mnemonic);
   const link = await Link.createWithNewConnections(
     ibcClientWasm,
     ibcClientSimapp

@@ -12,8 +12,7 @@ import { resolveRequiredOption } from '../../utils/options/resolve-required-opti
 import { resolveHomeOption } from '../../utils/options/shared/resolve-home-option';
 import { resolveKeyFileOption } from '../../utils/options/shared/resolve-key-file-option';
 import { resolveMnemonicOption } from '../../utils/options/shared/resolve-mnemonic-option';
-
-import { createClient } from './ics20';
+import { signingClient } from '../../utils/signing-client';
 
 export type Flags = {
   readonly interactive: boolean;
@@ -78,8 +77,8 @@ export async function run(options: Options, app: AppConfig) {
     throw new Error(`dest channel  "${options.dest}" not found in registry`);
   }
 
-  const nodeA = await createClient(options.mnemonic, srcChain);
-  const nodeB = await createClient(options.mnemonic, destChain);
+  const nodeA = await signingClient(srcChain, options.mnemonic);
+  const nodeB = await signingClient(destChain, options.mnemonic);
   const link = await Link.createWithNewConnections(nodeA, nodeB);
 
   const appYaml = yaml.dump(

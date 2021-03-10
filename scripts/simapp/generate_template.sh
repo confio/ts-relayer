@@ -18,6 +18,8 @@ chmod +x "$SCRIPT_DIR/template/run_simd.sh"
 docker run --rm \
   -e PASSWORD=my-secret-password \
   -e TRANSFER_PORT=custom \
+  -e FEE_TOKEN=umuon \
+  -e STAKE_TOKEN=umoo \
   --mount type=bind,source="$SCRIPT_DIR/template",target=/root \
   "$REPOSITORY:$VERSION" \
   ./setup.sh \

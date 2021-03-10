@@ -11,8 +11,7 @@ import { resolveRequiredOption } from '../../utils/options/resolve-required-opti
 import { resolveHomeOption } from '../../utils/options/shared/resolve-home-option';
 import { resolveKeyFileOption } from '../../utils/options/shared/resolve-key-file-option';
 import { resolveMnemonicOption } from '../../utils/options/shared/resolve-mnemonic-option';
-
-import { createClient } from './ics20';
+import { signingClient } from '../../utils/signing-client';
 
 export type Flags = {
   readonly home?: string;
@@ -107,11 +106,7 @@ export async function run(options: Options) {
 
   const mnemonic = assureMnemonic(options.mnemonic);
 
-  const client = await createClient(mnemonic, {
-    prefix: chain.prefix,
-    rpc: chain.rpc,
-    hd_path: chain.hd_path,
-  });
+  const client = await signingClient(chain, mnemonic);
 
   const {
     channels: allChannels,
