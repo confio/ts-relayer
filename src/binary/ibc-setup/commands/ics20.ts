@@ -10,6 +10,7 @@ import { appFile, registryFile } from '../../constants';
 import { AppConfig } from '../../types';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
+import { resolveOption } from '../../utils/options/resolve-option';
 import { resolveRequiredOption } from '../../utils/options/resolve-required-option';
 import { resolveHomeOption } from '../../utils/options/shared/resolve-home-option';
 import { resolveKeyFileOption } from '../../utils/options/shared/resolve-key-file-option';
@@ -37,8 +38,8 @@ export type Options = {
   readonly mnemonic: string;
   readonly src: string;
   readonly dest: string;
-  readonly srcPort: string;
-  readonly destPort: string;
+  readonly srcPort: string | null;
+  readonly destPort: string | null;
   readonly connections: Connections;
 };
 
@@ -95,16 +96,9 @@ export async function ics20(flags: Flags): Promise<void> {
     app.dest,
     process.env.RELAYER_DEST
   );
-  const srcPort = resolveRequiredOption('srcPort')(
-    flags.srcPort,
-    process.env.RELAYER_SRC_PORT,
-    defaultPort
-  );
-  const destPort = resolveRequiredOption('destPort')(
-    flags.destPort,
-    process.env.RELAYER_DEST_PORT,
-    defaultPort
-  );
+  // we apply default ports later, once we have the registry
+  const srcPort = resolveOption(flags.srcPort, process.env.RELAYER_SRC_PORT);
+  const destPort = resolveOption(flags.destPort, process.env.RELAYER_DEST_PORT);
   const connections = resolveConnections(app);
 
   run(
@@ -180,10 +174,22 @@ export async function run(options: Options, app: AppConfig): Promise<void> {
 
   fs.writeFileSync(appFilePath, appYaml, { encoding: 'utf-8' });
 
+  // provide default port, either from registry or global default
+  const srcPort = resolveRequiredOption('src-port')(
+    options.srcPort,
+    srcChain.ics20_port,
+    defaultPort
+  );
+  const destPort = resolveRequiredOption('dest-port')(
+    options.destPort,
+    destChain.ics20_port,
+    defaultPort
+  );
+
   const channels = await link.createChannel(
     'A',
-    options.srcPort,
-    options.destPort,
+    srcPort,
+    destPort,
     ordering,
     version
   );
