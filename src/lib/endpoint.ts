@@ -1,3 +1,4 @@
+import { toHex } from '@cosmjs/encoding';
 import { logs } from '@cosmjs/launchpad';
 import { parseRawLog } from '@cosmjs/stargate';
 import { CommitResponse } from '@cosmjs/tendermint-rpc';
@@ -68,9 +69,22 @@ export class Endpoint {
     }
 
     const search = await this.client.tm.txSearchAll({ query });
-    const resultsNested = search.txs.map(({ height, result }) => {
+    const resultsNested = search.txs.map(({ hash, height, result }) => {
       const parsedLogs = parseRawLog(result.log);
-      const sender = logs.findAttribute(parsedLogs, 'message', 'sender').value;
+      this.client.logger.verbose('SentPacket events', { logs: parsedLogs });
+      // we accept message.sender (cosmos-sdk) and message.signer (x/wasm)
+      let sender = '';
+      try {
+        sender = logs.findAttribute(parsedLogs, 'message', 'sender').value;
+      } catch {
+        try {
+          sender = logs.findAttribute(parsedLogs, 'message', 'signer').value;
+        } catch {
+          this.client.logger.warn(
+            `No message.sender nor message.signer in tx ${toHex(hash)}`
+          );
+        }
+      }
       return parsePacketsFromLogs(parsedLogs).map((packet) => ({
         packet,
         height,

@@ -227,9 +227,18 @@ export class Link {
   public static async createWithNewConnections(
     nodeA: IbcClient,
     nodeB: IbcClient,
-    logger?: Logger
+    logger?: Logger,
+    // number of seconds the client (on B pointing to A) is valid without update
+    trustPeriodA?: number,
+    // number of seconds the client (on A pointing to B) is valid without update
+    trustPeriodB?: number
   ): Promise<Link> {
-    const [clientIdA, clientIdB] = await createClients(nodeA, nodeB);
+    const [clientIdA, clientIdB] = await createClients(
+      nodeA,
+      nodeB,
+      trustPeriodA,
+      trustPeriodB
+    );
 
     // wait a block to ensure we have proper proofs for creating a connection (this has failed on CI before)
     await Promise.all([nodeA.waitOneBlock(), nodeB.waitOneBlock()]);
@@ -313,7 +322,7 @@ export class Link {
     sender: Side,
     maxAge: number
   ): Promise<Height | null> {
-    this.logger.info(
+    this.logger.verbose(
       `Checking if ${this.otherChain(sender)} has recent header of ${this.chain(
         sender
       )}`
@@ -733,19 +742,34 @@ export interface ChannelPair {
   readonly dest: ChannelInfo;
 }
 
+// 2 weeks of trust
+const defaultTrustPeriod = 14 * 86400;
+
 async function createClients(
   nodeA: IbcClient,
-  nodeB: IbcClient
+  nodeB: IbcClient,
+  // number of seconds the client (on B pointing to A) is valid without update
+  trustPeriodA?: number,
+  // number of seconds the client (on A pointing to B) is valid without update
+  trustPeriodB?: number
 ): Promise<string[]> {
   // client on B pointing to A
-  const args = await buildCreateClientArgs(nodeA, genesisUnbondingTime, 5000);
+  const args = await buildCreateClientArgs(
+    nodeA,
+    genesisUnbondingTime,
+    trustPeriodA ?? defaultTrustPeriod
+  );
   const { clientId: clientIdB } = await nodeB.createTendermintClient(
     args.clientState,
     args.consensusState
   );
 
   // client on A pointing to B
-  const args2 = await buildCreateClientArgs(nodeB, genesisUnbondingTime, 5000);
+  const args2 = await buildCreateClientArgs(
+    nodeB,
+    genesisUnbondingTime,
+    trustPeriodB ?? defaultTrustPeriod
+  );
   const { clientId: clientIdA } = await nodeA.createTendermintClient(
     args2.clientState,
     args2.consensusState
