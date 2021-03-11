@@ -10,6 +10,7 @@ import { LoggerFlags } from '../../types';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
 import { resolveOption } from '../../utils/options/resolve-option';
+import { resolveRequiredNumericOption } from '../../utils/options/resolve-required-numeric-option';
 import { resolveRequiredOption } from '../../utils/options/resolve-required-option';
 import { resolveHomeOption } from '../../utils/options/shared/resolve-home-option';
 import { resolveKeyFileOption } from '../../utils/options/shared/resolve-key-file-option';
@@ -25,16 +26,18 @@ type Flags = {
   mnemonic?: string;
   srcConnection?: string;
   destConnection?: string;
+  poll?: number;
+  maxAgeSrc?: number;
+  maxAgeDest?: number;
 } & LoggerFlags;
 
-// TODO: do we want to make this a flag?
 type LoopOptions = {
   // how many seconds we sleep between relaying batches
-  pollingFrequency: number;
+  poll: number;
   // number of seconds old the client on chain A can be
-  maxAgeA: number;
+  maxAgeSrc: number;
   // number of seconds old the client on chain B can be
-  maxAgeB: number;
+  maxAgeDest: number;
 };
 
 type Options = {
@@ -45,6 +48,15 @@ type Options = {
   srcConnection: string;
   destConnection: string;
 } & LoopOptions;
+
+// some defaults for looping
+const defaultOptions: LoopOptions = {
+  // check once per minute
+  poll: 60,
+  // once per day: 86400s
+  maxAgeSrc: 86400,
+  maxAgeDest: 86400,
+};
 
 export async function start(flags: Flags) {
   const logLevel = resolveOption(
@@ -87,6 +99,20 @@ export async function start(flags: Flags) {
     process.env.RELAYER_DEST_CONNECTION
   );
 
+  // TODO: add this in app.yaml, process.env
+  const poll = resolveRequiredNumericOption('poll')(
+    flags.poll,
+    defaultOptions.poll
+  );
+  const maxAgeSrc = resolveRequiredNumericOption('max-age-a')(
+    flags.maxAgeSrc,
+    defaultOptions.maxAgeSrc
+  );
+  const maxAgeDest = resolveRequiredNumericOption('max-age-b')(
+    flags.maxAgeDest,
+    defaultOptions.maxAgeDest
+  );
+
   const options: Options = {
     src,
     dest,
@@ -95,11 +121,13 @@ export async function start(flags: Flags) {
     srcConnection,
     destConnection,
     // TODO: make configurable
-    pollingFrequency: 60,
+    poll,
     // once per day: 86400s
-    maxAgeA: 86400,
-    maxAgeB: 86400,
+    maxAgeSrc,
+    maxAgeDest,
   };
+
+  logger.verbose('Starting relayer with options', options);
 
   await run(options, logger);
 }
@@ -140,11 +168,12 @@ async function relayerLoop(link: Link, options: LoopOptions, logger: Logger) {
     nextRelay = await link.checkAndRelayPacketsAndAcks(nextRelay);
 
     // ensure the headers are up to date (only submits if old and we didn't just update them above)
-    await link.updateClientIfStale('A', options.maxAgeB);
-    await link.updateClientIfStale('B', options.maxAgeA);
+    logger.info('Ensuring clients are not stale');
+    await link.updateClientIfStale('A', options.maxAgeDest);
+    await link.updateClientIfStale('B', options.maxAgeSrc);
 
     // sleep until the next step
-    logger.info(`Sleeping ${options.pollingFrequency} seconds...`);
-    await sleep(options.pollingFrequency * 1000);
+    logger.info(`Sleeping ${options.poll} seconds...`);
+    await sleep(options.poll * 1000);
   }
 }

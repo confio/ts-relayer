@@ -313,7 +313,7 @@ export class Link {
     sender: Side,
     maxAge: number
   ): Promise<Height | null> {
-    this.logger.info(
+    this.logger.verbose(
       `Checking if ${this.otherChain(sender)} has recent header of ${this.chain(
         sender
       )}`
