@@ -212,9 +212,6 @@ export function parsePacket({ type, attributes }: ParsedEvent): Packet {
     {}
   );
 
-  console.log(
-    `Parse timeouts: ${attributesObj.packet_timeout_height} / ${attributesObj.packet_timeout_timestamp}`
-  );
   const [timeoutRevisionNumber, timeoutRevisionHeight] =
     attributesObj.packet_timeout_height?.split('-') ?? [];
   return Packet.fromPartial({
@@ -321,10 +318,15 @@ function heightGreater(a: Height | undefined, b: Height): boolean {
   if (a === undefined) {
     return true;
   }
-  let valid = a.revisionNumber > b.revisionNumber;
-  if (a.revisionNumber.toNumber() === b.revisionNumber.toNumber()) {
-    valid = a.revisionHeight > b.revisionHeight;
-  }
+  // comparing longs made some weird issues (maybe signed/unsigned)?
+  // convert to numbers to compare safely
+  const [numA, heightA, numB, heightB] = [
+    a.revisionNumber.toNumber(),
+    a.revisionHeight.toNumber(),
+    b.revisionNumber.toNumber(),
+    b.revisionHeight.toNumber(),
+  ];
+  const valid = numA > numB || (numA == numB && heightA > heightB);
   return valid;
 }
 
@@ -332,10 +334,10 @@ function heightGreater(a: Height | undefined, b: Height): boolean {
 // note a is nanoseconds, while b is seconds
 function timeGreater(a: Long | undefined, b: number): boolean {
   if (a === undefined || a.isZero()) {
-    console.log('time undefined!');
     return true;
   }
-  return a.toNumber() > b * 1_000_000_000;
+  const valid = a.toNumber() > b * 1_000_000_000;
+  return valid;
 }
 
 // take height and time from receiving chain to see which packets have timed out

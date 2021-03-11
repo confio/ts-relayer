@@ -305,7 +305,7 @@ test.serial('submit multiple tx, get unreceived packets', async (t) => {
   t.assert(txHeights[1] > txHeights[0], txHeights.toString());
   t.assert(txHeights[2] > txHeights[1], txHeights.toString());
   // need to wait briefly for it to be indexed
-  await sleep(100);
+  await nodeA.waitOneBlock();
 
   // now query for all packets
   const packets = await link.getPendingPackets('A');
@@ -331,6 +331,8 @@ test.serial('submit multiple tx, get unreceived packets', async (t) => {
   const submit = [packets[0], packets[2]];
   const txAcks = await link.relayPackets('A', submit);
   t.is(txAcks.length, 2);
+  // need to wait briefly for it to be indexed
+  await nodeA.waitOneBlock();
 
   // ensure only one marked pending (for tx1)
   const postPackets = await link.getPendingPackets('A');
@@ -494,7 +496,7 @@ test.serial(
   }
 );
 
-test.serial.only(
+test.serial(
   'checkAndRelayPacketsAndAcks relays packets properly',
   async (t) => {
     const logger = new TestLogger();
@@ -554,6 +556,7 @@ test.serial.only(
       amountsB,
       5000 // never time out
     );
+    await nodeA.waitOneBlock();
 
     // ensure these packets are present in query
     await checkPending(3, 2, 0, 0);

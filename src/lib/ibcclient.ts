@@ -1256,7 +1256,9 @@ export class IbcClient {
       throw new Error('Packets and sequences must be same length');
     }
 
-    this.logger.verbose(`Timeout packets ${packets.map((s) => s.sequence)}`);
+    this.logger.verbose(
+      `Timeout packets sequences: ${packets.map((s) => s.sequence)}`
+    );
     const senderAddress = this.senderAddress;
 
     const msgs = [];
