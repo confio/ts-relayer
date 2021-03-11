@@ -68,7 +68,7 @@ Now you should see an updated balance, and can make an ics20 channel:
 
 ```bash
 ibc-setup balances
-ibc-setup ics20 --dest-port custom
+ibc-setup ics20
 ```
 
 Now we have a channel, let's send some packets. Go back to [manual/consts.ts](./src/lib/manual/consts.ts)
