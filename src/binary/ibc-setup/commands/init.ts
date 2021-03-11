@@ -4,16 +4,18 @@ import path from 'path';
 import { FaucetClient } from '@cosmjs/faucet-client';
 import axios from 'axios';
 import yaml from 'js-yaml';
+import { Logger } from 'winston';
 
 import { appFile, registryFile } from '../../constants';
-import { feeDenom } from '../../types';
+import { createLogger } from '../../create-logger';
+import { feeDenom, LoggerFlags } from '../../types';
 import { deriveAddress } from '../../utils/derive-address';
 import { generateMnemonic } from '../../utils/generate-mnemonic';
 import { getDefaultHomePath } from '../../utils/get-default-home-path';
 import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
 import { resolveRequiredOption } from '../../utils/options/resolve-required-option';
 
-export type Flags = {
+type Flags = {
   readonly home?: string;
   readonly src?: string;
   readonly dest?: string;
@@ -21,7 +23,9 @@ export type Flags = {
 
 export type Options = Required<Flags>;
 
-export function init(flags: Flags) {
+export function init(flags: Flags & LoggerFlags) {
+  const logger = createLogger(flags);
+
   const options = {
     src: resolveRequiredOption('src')(flags.src, process.env.RELAYER_SRC),
     dest: resolveRequiredOption('dest')(flags.dest, process.env.RELAYER_DEST),
@@ -32,19 +36,19 @@ export function init(flags: Flags) {
     ),
   };
 
-  run(options);
+  run(options, logger);
 }
 
-export async function run(options: Options) {
+export async function run(options: Options, logger: Logger) {
   const appFilePath = path.join(options.home, appFile);
   if (fs.existsSync(appFilePath)) {
-    console.log(`The ${appFile} is already initialized at ${options.home}`);
+    logger.info(`The ${appFile} is already initialized at ${options.home}`);
     return;
   }
 
   if (!fs.existsSync(options.home)) {
     fs.mkdirSync(options.home, { recursive: true });
-    console.log(`Initialized home directory at ${options.home}`);
+    logger.info(`Initialized home directory at ${options.home}`);
   } else if (!fs.lstatSync(options.home).isDirectory()) {
     throw new Error(`${options.home} must be a directory.`);
   }
@@ -91,24 +95,24 @@ export async function run(options: Options) {
   );
 
   fs.writeFileSync(appFilePath, appYaml, { encoding: 'utf-8' });
-  console.log(`Saved configuration to ${appFilePath}`);
+  logger.info(`Saved configuration to ${appFilePath}`);
 
   const [addressSrc, addressDest] = await Promise.all([
     deriveAddress(mnemonic, chainSrc.prefix, chainSrc.hd_path),
     deriveAddress(mnemonic, chainDest.prefix, chainDest.hd_path),
   ]);
-  console.log(`Source address: ${addressSrc}`);
-  console.log(`Destination address: ${addressDest}`);
+  logger.info(`Source address: ${addressSrc}`);
+  logger.info(`Destination address: ${addressDest}`);
 
   // if there are faucets, ask for tokens
   if (chainSrc.faucet) {
     const srcDenom = feeDenom(chainSrc);
-    console.log(`Requesting ${srcDenom} for ${chainSrc.chain_id}...`);
+    logger.info(`Requesting ${srcDenom} for ${chainSrc.chain_id}...`);
     await new FaucetClient(chainSrc.faucet).credit(addressSrc, srcDenom);
   }
   if (chainDest.faucet) {
     const destDenom = feeDenom(chainDest);
-    console.log(`Requesting ${destDenom} for ${chainDest.chain_id}...`);
+    logger.info(`Requesting ${destDenom} for ${chainDest.chain_id}...`);
     await new FaucetClient(chainDest.faucet).credit(addressDest, destDenom);
   }
 }
