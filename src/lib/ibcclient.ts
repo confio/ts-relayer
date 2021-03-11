@@ -192,16 +192,16 @@ export type IbcClientOptions = SigningStargateClientOptions & {
 
 const defaultGasPrice = GasPrice.fromString('0.025ucosm');
 const defaultGasLimits: GasLimits<IbcFeeTable> = {
-  initClient: 100000,
-  updateClient: 400000,
-  initConnection: 100000,
-  connectionHandshake: 200000,
-  initChannel: 100000,
-  channelHandshake: 200000,
-  receivePacket: 200000,
-  ackPacket: 200000,
-  timeoutPacket: 200000,
-  transfer: 120000,
+  initClient: 150000,
+  updateClient: 600000,
+  initConnection: 150000,
+  connectionHandshake: 300000,
+  initChannel: 150000,
+  channelHandshake: 300000,
+  receivePacket: 300000,
+  ackPacket: 300000,
+  timeoutPacket: 300000,
+  transfer: 180000,
 };
 
 export class IbcClient {
