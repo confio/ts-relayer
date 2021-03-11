@@ -23,6 +23,7 @@ import {
 } from '@cosmjs/stargate';
 import {
   CommitResponse,
+  ReadonlyDateWithNanoseconds,
   Header as RpcHeader,
   Tendermint34Client,
 } from '@cosmjs/tendermint-rpc';
@@ -316,6 +317,12 @@ export class IbcClient {
     // TODO: expose header method on tmClient and use that
     const block = await this.tm.block();
     return block.block.header;
+  }
+
+  public async currentTime(): Promise<ReadonlyDateWithNanoseconds> {
+    // const status = await this.tm.status();
+    // return status.syncInfo.latestBlockTime;
+    return (await this.latestHeader()).time;
   }
 
   public async currentHeight(): Promise<number> {
@@ -1285,11 +1292,14 @@ export class IbcClient {
     token: Coin,
     receiver: string,
     timeoutHeight?: Height,
+    // timeout in seconds (we make nanoseconds below)
     timeoutTime?: number
   ): Promise<MsgResult> {
     this.logger.verbose(`Transfer tokens to ${receiver}`);
     const senderAddress = this.senderAddress;
-    const timeoutTimestamp = new Long(timeoutTime ?? 0);
+    const timeoutTimestamp = timeoutTime
+      ? Long.fromNumber(timeoutTime * 1_000_000_000)
+      : undefined;
     const msg = {
       typeUrl: '/ibc.applications.transfer.v1.MsgTransfer',
       value: MsgTransfer.fromPartial({

@@ -98,6 +98,12 @@ export function timestampFromDateNanos(
   });
 }
 
+export function secondsFromDateNanos(
+  date: ReadonlyDateWithNanoseconds
+): number {
+  return date.getTime() / 1000;
+}
+
 export function buildConsensusState(
   header: RpcHeader
 ): TendermintConsensusState {

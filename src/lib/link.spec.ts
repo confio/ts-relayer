@@ -14,7 +14,7 @@ import {
   transferTokens,
   wasmd,
 } from './testutils';
-import { splitPendingPackets } from './utils';
+import { secondsFromDateNanos, splitPendingPackets } from './utils';
 
 test.serial('establish new client-connection', async (t) => {
   const logger = new TestLogger();
@@ -607,16 +607,19 @@ test.serial.only('timeout expired packets', async (t) => {
 
   // some basic setup for the transfers
   const recipient = randomAddress(wasmd.prefix);
-  const latestHeight = await nodeB.currentHeight();
-  const timeoutDestHeight = latestHeight + 2;
-  const submitDestHeight = latestHeight + 500; // valid for 500 blocks
+  const timeoutDestHeight = await nodeB.timeoutHeight(2);
+  const submitDestHeight = await nodeB.timeoutHeight(500);
   const amounts = [1000, 2222, 3456];
   const timeoutHeights = [
     submitDestHeight,
     timeoutDestHeight,
     submitDestHeight,
     // we need the timeout height of the *receiving* chain
-  ].map((height) => nodeB.revisionHeight(height));
+  ];
+  const timedOut = secondsFromDateNanos(await nodeB.currentTime()) + 1;
+  const plentyTime = timedOut + 300;
+  const timeoutTimes = [timedOut, plentyTime, plentyTime];
+  // Note: 1st times out with time, 2nd with height, 3rd is valid
 
   // let's make 3 transfer tx at different heights
   const txHeights = [];
@@ -627,7 +630,8 @@ test.serial.only('timeout expired packets', async (t) => {
       channels.src.channelId,
       token,
       recipient,
-      timeoutHeights[i]
+      timeoutHeights[i],
+      timeoutTimes[i]
     );
     txHeights.push(height);
   }
