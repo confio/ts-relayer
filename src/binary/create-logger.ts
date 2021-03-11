@@ -3,7 +3,7 @@ import winston from 'winston';
 import { LoggerFlags } from './types';
 import { resolveOption } from './utils/options/resolve-option';
 
-const levels = {
+export const levels = {
   error: 0,
   warn: 1,
   info: 2,
