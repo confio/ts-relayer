@@ -47,6 +47,19 @@ export function resolveLevel(
 export function createLogger(flags: LoggerFlags) {
   const [level, invalidInputLevel] = resolveLevel(flags);
 
+  const fileTransport = flags.logFile
+    ? [
+        new winston.transports.File({
+          handleExceptions: true,
+          filename: flags.logFile,
+          format: winston.format.combine(
+            winston.format.timestamp(),
+            winston.format.json()
+          ),
+        }),
+      ]
+    : [];
+
   const logger = winston.createLogger({
     level,
     levels,
@@ -58,6 +71,7 @@ export function createLogger(flags: LoggerFlags) {
           winston.format.simple()
         ),
       }),
+      ...fileTransport,
     ],
   });
 

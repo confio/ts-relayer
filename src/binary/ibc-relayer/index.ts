@@ -10,7 +10,7 @@ import {
   mnemonicOption,
   srcOption,
 } from '../commander-options';
-import { rootBoundary } from '../utils/error-boundary';
+// import { rootBoundary } from '../utils/error-boundary';
 
 import { start } from './commands/start';
 
@@ -65,6 +65,7 @@ program
   )
   .option('-v, --verbose')
   .option('-q, --quiet')
-  .action(rootBoundary(start));
+  .option('--log-file <path>')
+  .action(start);
 
 program.parse(process.argv);
