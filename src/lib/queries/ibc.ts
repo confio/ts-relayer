@@ -103,7 +103,7 @@ export interface IbcExtension {
       readonly packetCommitment: (
         portId: string,
         channelId: string,
-        sequence: number
+        sequence: Long
       ) => Promise<QueryPacketCommitmentResponse>;
       readonly packetCommitments: (
         portId: string,
@@ -212,7 +212,7 @@ export interface IbcExtension {
         readonly packetCommitment: (
           portId: string,
           channelId: string,
-          sequence: number,
+          sequence: Long,
           proofHeight: Height
         ) => Promise<QueryPacketCommitmentResponse>;
         readonly packetAcknowledgement: (
@@ -329,12 +329,12 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
         packetCommitment: async (
           portId: string,
           channelId: string,
-          sequence: number
+          sequence: Long
         ) =>
           channelQueryService.PacketCommitment({
             portId: portId,
             channelId: channelId,
-            sequence: Long.fromNumber(sequence, true),
+            sequence: sequence,
           }),
         packetCommitments: async (
           portId: string,
@@ -631,11 +631,11 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           packetCommitment: async (
             portId: string,
             channelId: string,
-            sequence: number,
+            sequence: Long,
             proofHeight: Height
           ) => {
             const key = toAscii(
-              `commitments/ports/${portId}/channels/${channelId}/sequences/${sequence}`
+              `commitments/ports/${portId}/channels/${channelId}/sequences/${sequence.toNumber()}`
             );
             const proven = await base.queryRawProof(
               'ibc',

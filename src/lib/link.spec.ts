@@ -588,7 +588,7 @@ test.serial(
   }
 );
 
-test.serial.only('timeout expired packets', async (t) => {
+test.serial('timeout expired packets', async (t) => {
   const logger = new TestLogger();
   const [nodeA, nodeB] = await setup(logger);
 
@@ -684,7 +684,7 @@ test.serial.only('timeout expired packets', async (t) => {
   // timeout remaining packet
   await link.timeoutPackets('A', toTimeout);
 
-  // TODO: nothing left after timeout
-  // const afterTimeout = await link.getPendingPackets('A');
-  // t.is(afterTimeout.length, 0);
+  // nothing left after timeout
+  const afterTimeout = await link.getPendingPackets('A');
+  t.is(afterTimeout.length, 0);
 });

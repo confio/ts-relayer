@@ -554,11 +554,31 @@ export class Link {
       );
       return res.sequences.map((seq) => seq.toNumber());
     };
-    const unreceived = await this.filterUnreceived(toFilter, query, packetId);
 
-    return allPackets.filter(({ packet }) =>
+    // This gets the subset of packets that were already processed on the receiving chain
+    const unreceived = await this.filterUnreceived(toFilter, query, packetId);
+    const unreceivedPackets = allPackets.filter(({ packet }) =>
       unreceived[packetId(packet)].has(packet.sequence.toNumber())
     );
+
+    // However, some of these may have already been submitted as timeouts on the source chain. Check and filter
+    const valid = await Promise.all(
+      unreceivedPackets.map(async (packet) => {
+        const { sourcePort, sourceChannel, sequence } = packet.packet;
+        try {
+          // this throws an error if no commitment there
+          await src.client.query.ibc.channel.packetCommitment(
+            sourcePort,
+            sourceChannel,
+            sequence
+          );
+          return packet;
+        } catch {
+          return undefined;
+        }
+      })
+    );
+    return valid.filter((x) => x !== undefined) as PacketWithMetadata[];
   }
 
   public async getPendingAcks(
@@ -716,7 +736,11 @@ export class Link {
   public async timeoutPackets(
     source: Side,
     packets: readonly PacketWithMetadata[]
-  ): Promise<void> {
+  ): Promise<number | null> {
+    if (packets.length === 0) {
+      return null;
+    }
+
     this.logger.info(`Timeout packets for source ${source}`);
     const { src, dest } = this.getEnds(source);
     const destSide = otherSide(source);
@@ -746,13 +770,13 @@ export class Link {
     const proofs = proofAndSeqs.map(({ proof }) => proof);
     const seqs = proofAndSeqs.map(({ sequence }) => sequence);
 
-    const timeoutResponse = await src.client.timeoutPackets(
+    const { height } = await src.client.timeoutPackets(
       rawPackets,
       proofs,
       seqs,
       headerHeight
     );
-    console.log(JSON.stringify(timeoutResponse, undefined, 2));
+    return height;
   }
 
   private getEnds(src: Side): EndpointPair {

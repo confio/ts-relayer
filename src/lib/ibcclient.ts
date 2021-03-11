@@ -539,7 +539,7 @@ export class IbcClient {
     const { proof } = await this.query.ibc.proof.channel.packetCommitment(
       packet.sourcePort,
       packet.sourceChannel,
-      packet.sequence.toNumber(),
+      packet.sequence,
       queryHeight
     );
 
@@ -559,7 +559,6 @@ export class IbcClient {
       originalPacket.sequence.toNumber(),
       queryHeight
     );
-    console.log(res);
     const { proof } = res;
     return proof;
   }
