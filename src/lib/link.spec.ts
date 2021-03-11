@@ -433,6 +433,7 @@ test.serial(
     const packetsToSubmit = [packets[0], packets[1], packets[4], packets[5]];
     const txAcks = await link.relayPackets('A', packetsToSubmit);
     t.is(txAcks.length, 4);
+    await nodeA.waitOneBlock();
 
     // ensure only two marked pending (for tx1)
     const postPackets = await link.getPendingPackets('A');
@@ -451,6 +452,7 @@ test.serial(
     );
     t.not(acks[0].originalPacket.sequence, acks[3].originalPacket.sequence);
     await link.relayAcks('B', [acks[0], acks[3]]);
+    await nodeA.waitOneBlock();
 
     // ensure only two acks are still pending
     const postAcks = await link.getPendingAcks('B');

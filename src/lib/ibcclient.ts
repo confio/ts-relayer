@@ -336,9 +336,15 @@ export class IbcClient {
   }
 
   public async waitOneBlock(): Promise<void> {
+    // ensure this works
+    const start = await this.currentHeight();
+    let end: number;
+    do {
+      await sleep(500);
+      end = await this.currentHeight();
+    } while (end === start);
     // TODO: this works but only for websocket connections, is there some code that falls back to polling in cosmjs?
     // await firstEvent(this.tm.subscribeNewBlockHeader());
-    await sleep(500);
   }
 
   // we may have to wait a bit before a tx returns and making queries on the event log

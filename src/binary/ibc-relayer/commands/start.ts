@@ -163,12 +163,17 @@ async function relayerLoop(link: Link, options: LoopOptions, logger: Logger) {
 
   const done = false;
   while (!done) {
-    nextRelay = await link.checkAndRelayPacketsAndAcks(nextRelay);
+    try {
+      // TODO: make timeout windows more configurable
+      nextRelay = await link.checkAndRelayPacketsAndAcks(nextRelay, 2, 6);
 
-    // ensure the headers are up to date (only submits if old and we didn't just update them above)
-    logger.info('Ensuring clients are not stale');
-    await link.updateClientIfStale('A', options.maxAgeDest);
-    await link.updateClientIfStale('B', options.maxAgeSrc);
+      // ensure the headers are up to date (only submits if old and we didn't just update them above)
+      logger.info('Ensuring clients are not stale');
+      await link.updateClientIfStale('A', options.maxAgeDest);
+      await link.updateClientIfStale('B', options.maxAgeSrc);
+    } catch (e) {
+      logger.error(`Caught error: ${e}`);
+    }
 
     if (options.once) {
       logger.info('Quitting after one run (--once set)');

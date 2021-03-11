@@ -468,7 +468,9 @@ export class Link {
    * Returns the most recent heights it relay, which can be used as a start for the next round
    */
   public async checkAndRelayPacketsAndAcks(
-    relayFrom: RelayedHeights
+    relayFrom: RelayedHeights,
+    timedoutThresholdBlocks = 0,
+    timedoutThresholdSeconds = 0
   ): Promise<RelayedHeights> {
     // FIXME: is there a cleaner way to get the height we query at?
     const [
@@ -482,10 +484,6 @@ export class Link {
       this.getPendingPackets('A', { minHeight: relayFrom.packetHeightA }),
       this.getPendingPackets('B', { minHeight: relayFrom.packetHeightB }),
     ]);
-
-    // TODO: make configurable these value?
-    const timedoutThresholdBlocks = 4;
-    const timedoutThresholdSeconds = 10;
 
     const cutoffHeightA = await this.endB.client.timeoutHeight(
       timedoutThresholdBlocks
@@ -510,14 +508,17 @@ export class Link {
       packetsB
     );
 
-    // FIXME: use these acks first? Then query for others?
+    // FIXME: use the returned acks first? Then query for others?
     await Promise.all([
       this.relayPackets('A', submitA),
       this.relayPackets('B', submitB),
     ]);
 
-    // let's wait a bit to ensure our newly committed items are indexed
-    await this.endA.client.waitOneBlock();
+    // let's wait a bit to ensure our newly committed acks are indexed
+    await Promise.all([
+      this.endA.client.waitOneBlock(),
+      this.endB.client.waitOneBlock(),
+    ]);
 
     const [ackHeightA, ackHeightB, acksA, acksB] = await Promise.all([
       this.endA.client.currentHeight(),
