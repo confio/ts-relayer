@@ -23,6 +23,7 @@ import {
 } from '@cosmjs/stargate';
 import {
   CommitResponse,
+  ReadonlyDateWithNanoseconds,
   Header as RpcHeader,
   Tendermint34Client,
 } from '@cosmjs/tendermint-rpc';
@@ -191,16 +192,16 @@ export type IbcClientOptions = SigningStargateClientOptions & {
 
 const defaultGasPrice = GasPrice.fromString('0.025ucosm');
 const defaultGasLimits: GasLimits<IbcFeeTable> = {
-  initClient: 100000,
-  updateClient: 400000,
-  initConnection: 100000,
-  connectionHandshake: 200000,
-  initChannel: 100000,
-  channelHandshake: 200000,
-  receivePacket: 200000,
-  ackPacket: 200000,
-  timeoutPacket: 200000,
-  transfer: 120000,
+  initClient: 150000,
+  updateClient: 600000,
+  initConnection: 150000,
+  connectionHandshake: 300000,
+  initChannel: 150000,
+  channelHandshake: 300000,
+  receivePacket: 300000,
+  ackPacket: 300000,
+  timeoutPacket: 300000,
+  transfer: 180000,
 };
 
 export class IbcClient {
@@ -318,15 +319,32 @@ export class IbcClient {
     return block.block.header;
   }
 
+  public async currentTime(): Promise<ReadonlyDateWithNanoseconds> {
+    // const status = await this.tm.status();
+    // return status.syncInfo.latestBlockTime;
+    return (await this.latestHeader()).time;
+  }
+
   public async currentHeight(): Promise<number> {
     const status = await this.tm.status();
     return status.syncInfo.latestBlockHeight;
   }
 
+  public async currentRevision(): Promise<Height> {
+    const block = await this.currentHeight();
+    return this.revisionHeight(block);
+  }
+
   public async waitOneBlock(): Promise<void> {
+    // ensure this works
+    const start = await this.currentHeight();
+    let end: number;
+    do {
+      await sleep(500);
+      end = await this.currentHeight();
+    } while (end === start);
     // TODO: this works but only for websocket connections, is there some code that falls back to polling in cosmjs?
     // await firstEvent(this.tm.subscribeNewBlockHeader());
-    await sleep(500);
   }
 
   // we may have to wait a bit before a tx returns and making queries on the event log
@@ -527,7 +545,7 @@ export class IbcClient {
     const { proof } = await this.query.ibc.proof.channel.packetCommitment(
       packet.sourcePort,
       packet.sourceChannel,
-      packet.sequence.toNumber(),
+      packet.sequence,
       queryHeight
     );
 
@@ -541,13 +559,29 @@ export class IbcClient {
     const proofHeight = this.ensureRevisionHeight(headerHeight);
     const queryHeight = subtractBlock(proofHeight, 1);
 
-    const { proof } = await this.query.ibc.proof.channel.packetAcknowledgement(
+    const res = await this.query.ibc.proof.channel.packetAcknowledgement(
       originalPacket.destinationPort,
       originalPacket.destinationChannel,
       originalPacket.sequence.toNumber(),
       queryHeight
     );
+    const { proof } = res;
+    return proof;
+  }
 
+  public async getTimeoutProof(
+    { originalPacket }: Ack,
+    headerHeight: Height | number
+  ): Promise<Uint8Array> {
+    const proofHeight = this.ensureRevisionHeight(headerHeight);
+    const queryHeight = subtractBlock(proofHeight, 1);
+
+    const proof = await this.query.ibc.proof.channel.receiptProof(
+      originalPacket.destinationPort,
+      originalPacket.destinationChannel,
+      originalPacket.sequence.toNumber(),
+      queryHeight
+    );
     return proof;
   }
 
@@ -1195,29 +1229,58 @@ export class IbcClient {
     };
   }
 
-  public async timeoutPacket(
+  public timeoutPacket(
     packet: Packet,
     proofUnreceived: Uint8Array,
     nextSequenceRecv: Long,
-    proofHeight?: Height
+    proofHeight: Height
   ): Promise<MsgResult> {
-    this.logger.verbose(`Timeout packet ${packet.sequence}`);
+    return this.timeoutPackets(
+      [packet],
+      [proofUnreceived],
+      [nextSequenceRecv],
+      proofHeight
+    );
+  }
+
+  public async timeoutPackets(
+    packets: Packet[],
+    proofsUnreceived: Uint8Array[],
+    nextSequenceRecv: Long[],
+    proofHeight: Height
+  ): Promise<MsgResult> {
+    if (packets.length !== proofsUnreceived.length) {
+      throw new Error('Packets and proofs must be same length');
+    }
+    if (packets.length !== nextSequenceRecv.length) {
+      throw new Error('Packets and sequences must be same length');
+    }
+
+    this.logger.verbose(
+      `Timeout packets sequences: ${packets.map((s) => s.sequence)}`
+    );
     const senderAddress = this.senderAddress;
-    const msg = {
-      typeUrl: '/ibc.core.channel.v1.MsgTimeout',
-      value: MsgTimeout.fromPartial({
-        packet,
-        proofUnreceived,
-        nextSequenceRecv,
-        proofHeight,
-        signer: senderAddress,
-      }),
-    };
-    this.logger.debug('MsgTimeout', msg);
+
+    const msgs = [];
+    for (const i in packets) {
+      const msg = {
+        typeUrl: '/ibc.core.channel.v1.MsgTimeout',
+        value: MsgTimeout.fromPartial({
+          packet: packets[i],
+          proofUnreceived: proofsUnreceived[i],
+          nextSequenceRecv: nextSequenceRecv[i],
+          proofHeight,
+          signer: senderAddress,
+        }),
+      };
+      msgs.push(msg);
+    }
+
+    this.logger.debug('MsgTimeout', { msgs });
     const result = await this.sign.signAndBroadcast(
       senderAddress,
-      [msg],
-      this.fees.timeoutPacket
+      msgs,
+      multiplyFees(this.fees.timeoutPacket, msgs.length)
     );
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
@@ -1236,11 +1299,14 @@ export class IbcClient {
     token: Coin,
     receiver: string,
     timeoutHeight?: Height,
+    // timeout in seconds (we make nanoseconds below)
     timeoutTime?: number
   ): Promise<MsgResult> {
     this.logger.verbose(`Transfer tokens to ${receiver}`);
     const senderAddress = this.senderAddress;
-    const timeoutTimestamp = new Long(timeoutTime ?? 0);
+    const timeoutTimestamp = timeoutTime
+      ? Long.fromNumber(timeoutTime * 1_000_000_000)
+      : undefined;
     const msg = {
       typeUrl: '/ibc.applications.transfer.v1.MsgTransfer',
       value: MsgTransfer.fromPartial({

@@ -18,6 +18,8 @@ import {
 } from '../codec/ibc/lightclients/tendermint/v1/tendermint';
 import { PublicKey as ProtoPubKey } from '../codec/tendermint/crypto/keys';
 
+import { PacketWithMetadata } from './endpoint';
+
 export interface Ack {
   readonly acknowledgement: Uint8Array;
   readonly originalPacket: Packet;
@@ -94,6 +96,12 @@ export function timestampFromDateNanos(
     seconds: new Long(date.getTime() / 1000),
     nanos,
   });
+}
+
+export function secondsFromDateNanos(
+  date: ReadonlyDateWithNanoseconds
+): number {
+  return date.getTime() / 1000;
 }
 
 export function buildConsensusState(
@@ -203,6 +211,7 @@ export function parsePacket({ type, attributes }: ParsedEvent): Packet {
     }),
     {}
   );
+
   const [timeoutRevisionNumber, timeoutRevisionHeight] =
     attributesObj.packet_timeout_height?.split('-') ?? [];
   return Packet.fromPartial({
@@ -302,4 +311,64 @@ export function multiplyFees({ gas, amount }: StdFee, mult: number): StdFee {
 export function multiplyCoin({ amount, denom }: Coin, mult: number): Coin {
   const multAmount = Number.parseInt(amount, 10) * mult;
   return { amount: multAmount.toString(), denom };
+}
+
+// return true if a > b, or a undefined
+function heightGreater(a: Height | undefined, b: Height): boolean {
+  if (a === undefined) {
+    return true;
+  }
+  // comparing longs made some weird issues (maybe signed/unsigned)?
+  // convert to numbers to compare safely
+  const [numA, heightA, numB, heightB] = [
+    a.revisionNumber.toNumber(),
+    a.revisionHeight.toNumber(),
+    b.revisionNumber.toNumber(),
+    b.revisionHeight.toNumber(),
+  ];
+  const valid = numA > numB || (numA == numB && heightA > heightB);
+  return valid;
+}
+
+// return true if a > b, or a 0
+// note a is nanoseconds, while b is seconds
+function timeGreater(a: Long | undefined, b: number): boolean {
+  if (a === undefined || a.isZero()) {
+    return true;
+  }
+  const valid = a.toNumber() > b * 1_000_000_000;
+  return valid;
+}
+
+// take height and time from receiving chain to see which packets have timed out
+// return [toSubmit, toTimeout].
+// you can advance height, time a block or two into the future if you wish a margin of error
+export function splitPendingPackets(
+  currentHeight: Height,
+  currentTime: number, // in seconds
+  packets: readonly PacketWithMetadata[]
+): {
+  readonly toSubmit: readonly PacketWithMetadata[];
+  readonly toTimeout: readonly PacketWithMetadata[];
+} {
+  return packets.reduce(
+    (acc, packet) => {
+      const validPacket =
+        heightGreater(packet.packet.timeoutHeight, currentHeight) &&
+        timeGreater(packet.packet.timeoutTimestamp, currentTime);
+      return validPacket
+        ? {
+            ...acc,
+            toSubmit: [...acc.toSubmit, packet],
+          }
+        : {
+            ...acc,
+            toTimeout: [...acc.toTimeout, packet],
+          };
+    },
+    {
+      toSubmit: [] as readonly PacketWithMetadata[],
+      toTimeout: [] as readonly PacketWithMetadata[],
+    }
+  );
 }

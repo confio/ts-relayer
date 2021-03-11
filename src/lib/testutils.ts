@@ -32,7 +32,7 @@ export class TestLogger implements Logger {
     this.warn = shouldLog ? createSpy(console.warn) : createFake();
     this.info = shouldLog ? createSpy(console.info) : createFake();
     this.verbose = shouldLog ? createSpy(console.log) : createFake();
-    this.debug = shouldLog ? createSpy(console.debug) : createFake();
+    this.debug = createFake();
   }
 }
 

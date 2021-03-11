@@ -103,7 +103,7 @@ export interface IbcExtension {
       readonly packetCommitment: (
         portId: string,
         channelId: string,
-        sequence: number
+        sequence: Long
       ) => Promise<QueryPacketCommitmentResponse>;
       readonly packetCommitments: (
         portId: string,
@@ -203,10 +203,16 @@ export interface IbcExtension {
           channelId: string,
           proofHeight: Height
         ) => Promise<QueryChannelResponse>;
-        readonly packetCommitment: (
+        readonly receiptProof: (
           portId: string,
           channelId: string,
           sequence: number,
+          proofHeight: Height
+        ) => Promise<Uint8Array>;
+        readonly packetCommitment: (
+          portId: string,
+          channelId: string,
+          sequence: Long,
           proofHeight: Height
         ) => Promise<QueryPacketCommitmentResponse>;
         readonly packetAcknowledgement: (
@@ -323,12 +329,12 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
         packetCommitment: async (
           portId: string,
           channelId: string,
-          sequence: number
+          sequence: Long
         ) =>
           channelQueryService.PacketCommitment({
             portId: portId,
             channelId: channelId,
-            sequence: Long.fromNumber(sequence, true),
+            sequence: sequence,
           }),
         packetCommitments: async (
           portId: string,
@@ -603,14 +609,33 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
               proofHeight,
             };
           },
-          packetCommitment: async (
+          // designed only for timeout, modify if we need actual value not just proof
+          // could not verify absence of key receipts/ports/transfer/channels/channel-5/sequences/2
+          receiptProof: async (
             portId: string,
             channelId: string,
             sequence: number,
             proofHeight: Height
           ) => {
             const key = toAscii(
-              `commitments/ports/${portId}/channels/${channelId}/sequences/${sequence}`
+              `receipts/ports/${portId}/channels/${channelId}/sequences/${sequence}`
+            );
+            const proven = await base.queryRawProof(
+              'ibc',
+              key,
+              proofHeight.revisionHeight.toNumber()
+            );
+            const proof = convertProofsToIcs23(proven.proof);
+            return proof;
+          },
+          packetCommitment: async (
+            portId: string,
+            channelId: string,
+            sequence: Long,
+            proofHeight: Height
+          ) => {
+            const key = toAscii(
+              `commitments/ports/${portId}/channels/${channelId}/sequences/${sequence.toNumber()}`
             );
             const proven = await base.queryRawProof(
               'ibc',

@@ -7,12 +7,14 @@ import { prepareChannelHandshake } from './ibcclient';
 import { Link, RelayedHeights } from './link';
 import {
   ics20,
+  randomAddress,
   setup,
   simapp,
   TestLogger,
   transferTokens,
   wasmd,
 } from './testutils';
+import { secondsFromDateNanos, splitPendingPackets } from './utils';
 
 test.serial('establish new client-connection', async (t) => {
   const logger = new TestLogger();
@@ -303,7 +305,7 @@ test.serial('submit multiple tx, get unreceived packets', async (t) => {
   t.assert(txHeights[1] > txHeights[0], txHeights.toString());
   t.assert(txHeights[2] > txHeights[1], txHeights.toString());
   // need to wait briefly for it to be indexed
-  await sleep(100);
+  await nodeA.waitOneBlock();
 
   // now query for all packets
   const packets = await link.getPendingPackets('A');
@@ -329,6 +331,8 @@ test.serial('submit multiple tx, get unreceived packets', async (t) => {
   const submit = [packets[0], packets[2]];
   const txAcks = await link.relayPackets('A', submit);
   t.is(txAcks.length, 2);
+  // need to wait briefly for it to be indexed
+  await nodeA.waitOneBlock();
 
   // ensure only one marked pending (for tx1)
   const postPackets = await link.getPendingPackets('A');
@@ -431,6 +435,7 @@ test.serial(
     const packetsToSubmit = [packets[0], packets[1], packets[4], packets[5]];
     const txAcks = await link.relayPackets('A', packetsToSubmit);
     t.is(txAcks.length, 4);
+    await nodeA.waitOneBlock();
 
     // ensure only two marked pending (for tx1)
     const postPackets = await link.getPendingPackets('A');
@@ -449,6 +454,7 @@ test.serial(
     );
     t.not(acks[0].originalPacket.sequence, acks[3].originalPacket.sequence);
     await link.relayAcks('B', [acks[0], acks[3]]);
+    await nodeA.waitOneBlock();
 
     // ensure only two acks are still pending
     const postAcks = await link.getPendingAcks('B');
@@ -493,9 +499,10 @@ test.serial(
 test.serial(
   'checkAndRelayPacketsAndAcks relays packets properly',
   async (t) => {
-    // setup a channel
-    const [nodeA, nodeB] = await setup();
-    const link = await Link.createWithNewConnections(nodeA, nodeB);
+    const logger = new TestLogger();
+    const [nodeA, nodeB] = await setup(logger);
+
+    const link = await Link.createWithNewConnections(nodeA, nodeB, logger);
     const channels = await link.createChannel(
       'A',
       ics20.srcPortId,
@@ -535,7 +542,8 @@ test.serial(
       nodeB,
       wasmd.prefix,
       channels.src,
-      amountsA
+      amountsA,
+      5000 // never time out
     );
     // send 2 from B -> A
     const amountsB = [76543, 12345];
@@ -545,8 +553,10 @@ test.serial(
       nodeA,
       simapp.prefix,
       channels.dest,
-      amountsB
+      amountsB,
+      5000 // never time out
     );
+    await nodeA.waitOneBlock();
 
     // ensure these packets are present in query
     await checkPending(3, 2, 0, 0);
@@ -585,3 +595,104 @@ test.serial(
     await checkPending(0, 0, 0, 0);
   }
 );
+
+test.serial('timeout expired packets', async (t) => {
+  const logger = new TestLogger();
+  const [nodeA, nodeB] = await setup(logger);
+
+  const link = await Link.createWithNewConnections(nodeA, nodeB, logger);
+  const channels = await link.createChannel(
+    'A',
+    ics20.srcPortId,
+    ics20.destPortId,
+    ics20.ordering,
+    ics20.version
+  );
+
+  // no packets here
+  const noPackets = await link.endA.querySentPackets();
+  t.is(noPackets.length, 0);
+
+  // some basic setup for the transfers
+  const recipient = randomAddress(wasmd.prefix);
+  const timeoutDestHeight = await nodeB.timeoutHeight(2);
+  const submitDestHeight = await nodeB.timeoutHeight(500);
+  const amounts = [1000, 2222, 3456];
+  const timeoutHeights = [
+    submitDestHeight,
+    timeoutDestHeight,
+    submitDestHeight,
+    // we need the timeout height of the *receiving* chain
+  ];
+  const timedOut = secondsFromDateNanos(await nodeB.currentTime()) + 1;
+  const plentyTime = timedOut + 3000;
+  const timeoutTimes = [timedOut, plentyTime, plentyTime];
+  // Note: 1st times out with time, 2nd with height, 3rd is valid
+
+  // let's make 3 transfer tx at different heights
+  const txHeights = [];
+  for (let i = 0; i < amounts.length; ++i) {
+    const token = { amount: amounts[i].toString(), denom: simapp.denomFee };
+    const { height } = await nodeA.transferTokens(
+      channels.src.portId,
+      channels.src.channelId,
+      token,
+      recipient,
+      timeoutHeights[i],
+      timeoutTimes[i]
+    );
+    txHeights.push(height);
+  }
+  // ensure these are different
+  t.assert(txHeights[1] > txHeights[0], txHeights.toString());
+  t.assert(txHeights[2] > txHeights[1], txHeights.toString());
+  // need to wait briefly for it to be indexed
+  await sleep(100);
+
+  // now query for all packets
+  const packets = await link.getPendingPackets('A');
+  t.is(packets.length, 3);
+  t.deepEqual(
+    packets.map(({ height }) => height),
+    txHeights
+  );
+
+  // ensure no acks yet
+  const preAcks = await link.getPendingAcks('B');
+  t.is(preAcks.length, 0);
+
+  // wait to trigger timeout
+  await nodeA.waitOneBlock();
+  await nodeA.waitOneBlock();
+  await nodeA.waitOneBlock();
+  // get the new state on dest (and give a little lee-way - 2 blocks / 1 second)
+  const currentHeight = await link.endB.client.timeoutHeight(2);
+  const currentTime =
+    secondsFromDateNanos(await link.endB.client.currentTime()) + 1;
+
+  const { toSubmit, toTimeout } = splitPendingPackets(
+    currentHeight,
+    currentTime,
+    packets
+  );
+  t.is(toSubmit.length, 1);
+  t.is(toTimeout.length, 2);
+
+  // submit the ones which didn't timeout
+  const txAcks = await link.relayPackets('A', toSubmit);
+  t.is(txAcks.length, 1);
+
+  // one completed after relay
+  const afterRelay = await link.getPendingPackets('A');
+  t.is(afterRelay.length, 2);
+
+  // try to submit the one which did timeout
+  await t.throwsAsync(() => link.relayPackets('A', toTimeout));
+
+  // timeout remaining packet
+  await link.timeoutPackets('A', toTimeout);
+
+  // nothing left after timeout
+  const afterTimeout = await link.getPendingPackets('A');
+  t.is(afterTimeout.length, 0);
+});
