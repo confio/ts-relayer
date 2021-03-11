@@ -35,6 +35,7 @@ export function loadAndValidateRegistry(filepath: string): Registry {
               gas_price: { type: 'string' },
               faucet: { type: 'string', nullable: true },
               hd_path: { type: 'string', nullable: true },
+              ics20_port: { type: 'string', nullable: true },
               rpc: { type: 'array', items: { type: 'string' }, minItems: 1 },
             },
           },

@@ -11,6 +11,8 @@ chains:
     hd_path: m/44'/108'/0'/1'
     # if you include an optional faucet, it will load the relayer with tokens in `ibc-setup init`
     faucet: https://faucet.musselnet.cosmwasm.com
+    # you can optionally define a default ics20_port that will be used instead of transfer if no flags set
+    ics20_port: 'transfer'
     # you can include multiple RPC endpoints and it will rotate through them if
     # one is down (TODO)
     rpc:
@@ -27,5 +29,6 @@ chains:
     prefix: cosmos
     gas_price: 0.025umuon
     hd_path: m/44'/108'/0'/3'
+    ics20_port: 'custom'
     rpc:
       - http://localhost:26658

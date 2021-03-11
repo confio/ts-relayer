@@ -6,6 +6,7 @@ export type Chain = {
   gas_price: string;
   faucet?: string;
   hd_path?: string;
+  ics20_port?: string;
   rpc: string[];
 };
 
