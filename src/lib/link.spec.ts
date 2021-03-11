@@ -607,7 +607,7 @@ test.serial.only('timeout expired packets', async (t) => {
 
   // some basic setup for the transfers
   const recipient = randomAddress(wasmd.prefix);
-  const latestHeight = (await nodeB.latestHeader()).height;
+  const latestHeight = await nodeB.currentHeight();
   const timeoutDestHeight = latestHeight + 2;
   const submitDestHeight = latestHeight + 500; // valid for 500 blocks
   const amounts = [1000, 2222, 3456];
@@ -649,11 +649,12 @@ test.serial.only('timeout expired packets', async (t) => {
   const preAcks = await link.getPendingAcks('B');
   t.is(preAcks.length, 0);
 
-  // wait for timeout and pre-update client
+  // wait to trigger timeout
   await nodeA.waitOneBlock();
   await nodeA.waitOneBlock();
   await nodeA.waitOneBlock();
-  const currentHeight = await link.updateClient('A');
+  // get the new state on dest
+  const currentHeight = await link.endB.client.currentRevision();
 
   const { toSubmit, toTimeout } = splitPendingPackets(currentHeight, packets);
   t.is(toSubmit.length, 2);

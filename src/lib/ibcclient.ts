@@ -323,6 +323,11 @@ export class IbcClient {
     return status.syncInfo.latestBlockHeight;
   }
 
+  public async currentRevision(): Promise<Height> {
+    const block = await this.currentHeight();
+    return this.revisionHeight(block);
+  }
+
   public async waitOneBlock(): Promise<void> {
     // TODO: this works but only for websocket connections, is there some code that falls back to polling in cosmjs?
     // await firstEvent(this.tm.subscribeNewBlockHeader());
