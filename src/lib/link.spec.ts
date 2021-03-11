@@ -617,7 +617,7 @@ test.serial.only('timeout expired packets', async (t) => {
     // we need the timeout height of the *receiving* chain
   ];
   const timedOut = secondsFromDateNanos(await nodeB.currentTime()) + 1;
-  const plentyTime = timedOut + 300;
+  const plentyTime = timedOut + 3000;
   const timeoutTimes = [timedOut, plentyTime, plentyTime];
   // Note: 1st times out with time, 2nd with height, 3rd is valid
 
@@ -657,20 +657,34 @@ test.serial.only('timeout expired packets', async (t) => {
   await nodeA.waitOneBlock();
   await nodeA.waitOneBlock();
   await nodeA.waitOneBlock();
-  // get the new state on dest
-  const currentHeight = await link.endB.client.currentRevision();
+  // get the new state on dest (and give a little lee-way - 2 blocks / 1 second)
+  const currentHeight = await link.endB.client.timeoutHeight(2);
+  const currentTime =
+    secondsFromDateNanos(await link.endB.client.currentTime()) + 1;
 
-  const { toSubmit, toTimeout } = splitPendingPackets(currentHeight, packets);
-  t.is(toSubmit.length, 2);
-  t.is(toTimeout.length, 1);
+  const { toSubmit, toTimeout } = splitPendingPackets(
+    currentHeight,
+    currentTime,
+    packets
+  );
+  t.is(toSubmit.length, 1);
+  t.is(toTimeout.length, 2);
 
   // submit the ones which didn't timeout
   const txAcks = await link.relayPackets('A', toSubmit);
-  t.is(txAcks.length, 2);
+  t.is(txAcks.length, 1);
+
+  // one completed after relay
+  const afterRelay = await link.getPendingPackets('A');
+  t.is(afterRelay.length, 2);
 
   // try to submit the one which did timeout
   await t.throwsAsync(() => link.relayPackets('A', toTimeout));
 
   // timeout remaining packet
   await link.timeoutPackets('A', toTimeout);
+
+  // TODO: nothing left after timeout
+  // const afterTimeout = await link.getPendingPackets('A');
+  // t.is(afterTimeout.length, 0);
 });

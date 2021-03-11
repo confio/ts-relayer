@@ -312,8 +312,34 @@ export function multiplyCoin({ amount, denom }: Coin, mult: number): Coin {
   return { amount: multAmount.toString(), denom };
 }
 
+// return true if a > b, or a undefined
+function heightGreater(a: Height | undefined, b: Height): boolean {
+  if (a === undefined) {
+    return true;
+  }
+  let valid = a.revisionNumber > b.revisionNumber;
+  if (a.revisionNumber.toNumber() === b.revisionNumber.toNumber()) {
+    valid = a.revisionHeight > b.revisionHeight;
+  }
+  return valid;
+}
+
+// return true if a > b, or a 0
+// note a is nanoseconds, while b is seconds
+function timeGreater(a: Long | undefined, b: number): boolean {
+  if (a === undefined || a.isZero()) {
+    console.log('time undefined!');
+    return true;
+  }
+  return a.toNumber() > b * 1_000_000_000;
+}
+
+// take height and time from receiving chain to see which packets have timed out
+// return [toSubmit, toTimeout].
+// you can advance height, time a block or two into the future if you wish a margin of error
 export function splitPendingPackets(
   currentHeight: Height,
+  currentTime: number, // in seconds
   packets: readonly PacketWithMetadata[]
 ): {
   readonly toSubmit: readonly PacketWithMetadata[];
@@ -321,19 +347,17 @@ export function splitPendingPackets(
 } {
   return packets.reduce(
     (acc, packet) => {
-      const timeoutHeight = packet.packet.timeoutHeight;
-      const shouldTimeout =
-        timeoutHeight &&
-        timeoutHeight.revisionHeight.toNumber() <=
-          currentHeight.revisionHeight.toNumber();
-      return shouldTimeout
+      const validPacket =
+        heightGreater(packet.packet.timeoutHeight, currentHeight) &&
+        timeGreater(packet.packet.timeoutTimestamp, currentTime);
+      return validPacket
         ? {
             ...acc,
-            toTimeout: [...acc.toTimeout, packet],
+            toSubmit: [...acc.toSubmit, packet],
           }
         : {
             ...acc,
-            toSubmit: [...acc.toSubmit, packet],
+            toTimeout: [...acc.toTimeout, packet],
           };
     },
     {
