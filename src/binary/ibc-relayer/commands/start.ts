@@ -17,6 +17,17 @@ import { resolveKeyFileOption } from '../../utils/options/shared/resolve-key-fil
 import { resolveMnemonicOption } from '../../utils/options/shared/resolve-mnemonic-option';
 import { signingClient } from '../../utils/signing-client';
 
+type LoopOptions = {
+  // how many seconds we sleep between relaying batches
+  poll: number;
+  // number of seconds old the client on chain A can be
+  maxAgeSrc: number;
+  // number of seconds old the client on chain B can be
+  maxAgeDest: number;
+  // if set to 'true' quit after one pass
+  once?: boolean;
+};
+
 type Flags = {
   interactive: boolean;
   home?: string;
@@ -26,19 +37,8 @@ type Flags = {
   mnemonic?: string;
   srcConnection?: string;
   destConnection?: string;
-  poll?: number;
-  maxAgeSrc?: number;
-  maxAgeDest?: number;
-} & LoggerFlags;
-
-type LoopOptions = {
-  // how many seconds we sleep between relaying batches
-  poll: number;
-  // number of seconds old the client on chain A can be
-  maxAgeSrc: number;
-  // number of seconds old the client on chain B can be
-  maxAgeDest: number;
-};
+} & LoggerFlags &
+  Partial<LoopOptions>;
 
 type Options = {
   home: string;
@@ -112,6 +112,8 @@ export async function start(flags: Flags) {
     flags.maxAgeDest,
     defaultOptions.maxAgeDest
   );
+  // FIXME: any env variable for this?
+  const once = flags.once;
 
   const options: Options = {
     src,
@@ -120,11 +122,10 @@ export async function start(flags: Flags) {
     mnemonic,
     srcConnection,
     destConnection,
-    // TODO: make configurable
     poll,
-    // once per day: 86400s
     maxAgeSrc,
     maxAgeDest,
+    once,
   };
 
   logger.verbose('Starting relayer with options', options);
@@ -164,7 +165,6 @@ async function relayerLoop(link: Link, options: LoopOptions, logger: Logger) {
 
   const done = false;
   while (!done) {
-    logger.info('... waking up and checking for packets!');
     nextRelay = await link.checkAndRelayPacketsAndAcks(nextRelay);
 
     // ensure the headers are up to date (only submits if old and we didn't just update them above)
@@ -172,8 +172,14 @@ async function relayerLoop(link: Link, options: LoopOptions, logger: Logger) {
     await link.updateClientIfStale('A', options.maxAgeDest);
     await link.updateClientIfStale('B', options.maxAgeSrc);
 
+    if (options.once) {
+      logger.info('Quitting after one run (--once set)');
+      return;
+    }
+
     // sleep until the next step
     logger.info(`Sleeping ${options.poll} seconds...`);
     await sleep(options.poll * 1000);
+    logger.info('... waking up and checking for packets!');
   }
 }

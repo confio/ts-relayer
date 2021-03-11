@@ -52,6 +52,8 @@ program
     'how old can the client on dest chain be, before we update it',
     parseNumber
   )
+  // note: once is designed for debugging and unit tests
+  .option('--once', 'just relay pending packets and quit, no polling')
   .addOption(
     new Option('--log-level <level>').choices([
       'debug',
