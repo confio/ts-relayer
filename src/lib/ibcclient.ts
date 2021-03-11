@@ -77,6 +77,7 @@ import {
   mapRpcPubKeyToProto,
   multiplyFees,
   parseRevisionNumber,
+  presentPacketData,
   subtractBlock,
   timestampFromDateNanos,
   toIntHeight,
@@ -1146,10 +1147,17 @@ export class IbcClient {
     const senderAddress = this.senderAddress;
     const msgs = [];
     for (const i in packets) {
+      const packet = packets[i];
+      this.logger.verbose(
+        `Sending packet #${packet.sequence.toNumber()} from ${this.chainId}:${
+          packet.sourceChannel
+        }`,
+        presentPacketData(packet.data)
+      );
       const msg = {
         typeUrl: '/ibc.core.channel.v1.MsgRecvPacket',
         value: MsgRecvPacket.fromPartial({
-          packet: packets[i],
+          packet,
           proofCommitment: proofCommitments[i],
           proofHeight,
           signer: senderAddress,
@@ -1200,11 +1208,23 @@ export class IbcClient {
     const senderAddress = this.senderAddress;
     const msgs = [];
     for (const i in acks) {
+      const packet = acks[i].originalPacket;
+      const acknowledgement = acks[i].acknowledgement;
+
+      this.logger.verbose(
+        `Ack packet #${packet.sequence.toNumber()} from ${this.chainId}:${
+          packet.sourceChannel
+        }`,
+        {
+          packet: presentPacketData(packet.data),
+          ack: presentPacketData(acknowledgement),
+        }
+      );
       const msg = {
         typeUrl: '/ibc.core.channel.v1.MsgAcknowledgement',
         value: MsgAcknowledgement.fromPartial({
-          packet: acks[i].originalPacket,
-          acknowledgement: acks[i].acknowledgement,
+          packet,
+          acknowledgement,
           proofAcked: proofAckeds[i],
           proofHeight,
           signer: senderAddress,
@@ -1263,10 +1283,18 @@ export class IbcClient {
 
     const msgs = [];
     for (const i in packets) {
+      const packet = packets[i];
+      this.logger.verbose(
+        `Timeout packet #${packet.sequence.toNumber()} from ${this.chainId}:${
+          packet.sourceChannel
+        }`,
+        presentPacketData(packet.data)
+      );
+
       const msg = {
         typeUrl: '/ibc.core.channel.v1.MsgTimeout',
         value: MsgTimeout.fromPartial({
-          packet: packets[i],
+          packet,
           proofUnreceived: proofsUnreceived[i],
           nextSequenceRecv: nextSequenceRecv[i],
           proofHeight,

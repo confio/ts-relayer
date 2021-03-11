@@ -37,6 +37,7 @@ When you are done, you can run the following in any console:
 Build the project.
 
 ```bash
+yarn install
 yarn build
 ```
 
