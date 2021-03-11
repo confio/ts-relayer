@@ -128,8 +128,6 @@ export async function start(flags: Flags) {
     once,
   };
 
-  logger.verbose('Starting relayer with options', options);
-
   await run(options, logger);
 }
 

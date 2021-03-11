@@ -70,6 +70,7 @@ export class Endpoint {
     const search = await this.client.tm.txSearchAll({ query });
     const resultsNested = search.txs.map(({ height, result }) => {
       const parsedLogs = parseRawLog(result.log);
+      this.client.logger.verbose('SentPacket events', { logs: parsedLogs });
       const sender = logs.findAttribute(parsedLogs, 'message', 'sender').value;
       return parsePacketsFromLogs(parsedLogs).map((packet) => ({
         packet,
