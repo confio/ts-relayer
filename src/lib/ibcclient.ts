@@ -1217,29 +1217,56 @@ export class IbcClient {
     };
   }
 
-  public async timeoutPacket(
+  public timeoutPacket(
     packet: Packet,
     proofUnreceived: Uint8Array,
     nextSequenceRecv: Long,
     proofHeight: Height
   ): Promise<MsgResult> {
-    this.logger.verbose(`Timeout packet ${packet.sequence}`);
+    return this.timeoutPackets(
+      [packet],
+      [proofUnreceived],
+      [nextSequenceRecv],
+      proofHeight
+    );
+  }
+
+  public async timeoutPackets(
+    packets: Packet[],
+    proofsUnreceived: Uint8Array[],
+    nextSequenceRecv: Long[],
+    proofHeight: Height
+  ): Promise<MsgResult> {
+    if (packets.length !== proofsUnreceived.length) {
+      throw new Error('Packets and proofs must be same length');
+    }
+    if (packets.length !== nextSequenceRecv.length) {
+      throw new Error('Packets and sequences must be same length');
+    }
+
+    this.logger.verbose(`Timeout packets ${packets.map((s) => s.sequence)}`);
     const senderAddress = this.senderAddress;
-    const msg = {
-      typeUrl: '/ibc.core.channel.v1.MsgTimeout',
-      value: MsgTimeout.fromPartial({
-        packet,
-        proofUnreceived,
-        nextSequenceRecv,
-        proofHeight,
-        signer: senderAddress,
-      }),
-    };
-    this.logger.debug('MsgTimeout', msg);
+
+    const msgs = [];
+    for (const i in packets) {
+      const msg = {
+        typeUrl: '/ibc.core.channel.v1.MsgTimeout',
+        value: MsgTimeout.fromPartial({
+          packet: packets[i],
+          proofUnreceived: proofsUnreceived[i],
+          nextSequenceRecv: nextSequenceRecv[i],
+          proofHeight,
+          signer: senderAddress,
+        }),
+      };
+      msgs.push(msg);
+    }
+
+    this.logger.debug('MsgTimeout', { msgs });
     const result = await this.sign.signAndBroadcast(
       senderAddress,
-      [msg],
-      this.fees.timeoutPacket
+      msgs,
+      multiplyFees(this.fees.timeoutPacket, msgs.length)
     );
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));

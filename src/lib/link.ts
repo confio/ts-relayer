@@ -726,28 +726,33 @@ export class Link {
     await dest.client.waitOneBlock();
     const headerHeight = await this.updateClient(destSide);
 
-    for (const { packet } of packets) {
-      const fakeAck = {
-        originalPacket: packet,
-        acknowledgement: new Uint8Array(),
-      };
-      const proof = await dest.client.getTimeoutProof(fakeAck, headerHeight);
-      const {
-        nextSequenceReceive,
-      } = await dest.client.query.ibc.channel.nextSequenceReceive(
-        packet.destinationPort,
-        packet.destinationChannel
-      );
-      console.log(nextSequenceReceive);
-      // TODO: handle multiple packets in one Tx inside ibcclient
-      const timeoutResponse = await src.client.timeoutPacket(
-        packet,
-        proof,
-        nextSequenceReceive,
-        headerHeight
-      );
-      console.log(timeoutResponse);
-    }
+    const rawPackets = packets.map(({ packet }) => packet);
+    const proofAndSeqs = await Promise.all(
+      rawPackets.map(async (packet) => {
+        const fakeAck = {
+          originalPacket: packet,
+          acknowledgement: new Uint8Array(),
+        };
+        const {
+          nextSequenceReceive: sequence,
+        } = await dest.client.query.ibc.channel.nextSequenceReceive(
+          packet.destinationPort,
+          packet.destinationChannel
+        );
+        const proof = await dest.client.getTimeoutProof(fakeAck, headerHeight);
+        return { proof, sequence };
+      })
+    );
+    const proofs = proofAndSeqs.map(({ proof }) => proof);
+    const seqs = proofAndSeqs.map(({ sequence }) => sequence);
+
+    const timeoutResponse = await src.client.timeoutPackets(
+      rawPackets,
+      proofs,
+      seqs,
+      headerHeight
+    );
+    console.log(JSON.stringify(timeoutResponse, undefined, 2));
   }
 
   private getEnds(src: Side): EndpointPair {
