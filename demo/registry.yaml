@@ -9,10 +9,12 @@ chains:
     gas_price: 0.025umayo
     # the path we use to derive the private key from the mnemonic
     hd_path: m/44'/108'/0'/1'
+    # if you include an optional faucet, it will load the relayer with tokens in `ibc-setup init`
+    faucet: https://faucet.musselnet.cosmwasm.com
     # you can include multiple RPC endpoints and it will rotate through them if
-    # one is down
+    # one is down (TODO)
     rpc:
-      - https://rpc.musselnet.cosmwasm.com:443
+      - https://rpc.musselnet.cosmwasm.com
   local_wasm:
     chain_id: testing
     prefix: wasm

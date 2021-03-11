@@ -7,7 +7,7 @@ import yaml from 'js-yaml';
 import { registryFile } from '../constants';
 import { Registry } from '../types';
 
-export function loadAndValidateRegistry(filepath: string) {
+export function loadAndValidateRegistry(filepath: string): Registry {
   const registry = yaml.load(fs.readFileSync(filepath, 'utf-8'));
 
   const ajv = new Ajv({ allErrors: true });
@@ -33,6 +33,7 @@ export function loadAndValidateRegistry(filepath: string) {
               chain_id: { type: 'string' },
               prefix: { type: 'string' },
               gas_price: { type: 'string' },
+              faucet: { type: 'string', nullable: true },
               hd_path: { type: 'string', nullable: true },
               rpc: { type: 'array', items: { type: 'string' }, minItems: 1 },
             },

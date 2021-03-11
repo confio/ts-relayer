@@ -1,10 +1,12 @@
 import fs from 'fs';
 import path from 'path';
 
+import { FaucetClient } from '@cosmjs/faucet-client';
 import axios from 'axios';
 import yaml from 'js-yaml';
 
 import { appFile, registryFile } from '../../constants';
+import { feeDenom } from '../../types';
 import { deriveAddress } from '../../utils/derive-address';
 import { generateMnemonic } from '../../utils/generate-mnemonic';
 import { getDefaultHomePath } from '../../utils/get-default-home-path';
@@ -97,4 +99,16 @@ export async function run(options: Options) {
   ]);
   console.log(`Source address: ${addressSrc}`);
   console.log(`Destination address: ${addressDest}`);
+
+  // if there are faucets, ask for tokens
+  if (chainSrc.faucet) {
+    const srcDenom = feeDenom(chainSrc);
+    console.log(`Requesting ${srcDenom} for ${chainSrc.chain_id}...`);
+    await new FaucetClient(chainSrc.faucet).credit(addressSrc, srcDenom);
+  }
+  if (chainDest.faucet) {
+    const destDenom = feeDenom(chainDest);
+    console.log(`Requesting ${destDenom} for ${chainDest.chain_id}...`);
+    await new FaucetClient(chainDest.faucet).credit(addressDest, destDenom);
+  }
 }

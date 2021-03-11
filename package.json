@@ -45,6 +45,7 @@
   "dependencies": {
     "@cosmjs/crypto": "^0.24.0-alpha.26",
     "@cosmjs/encoding": "^0.24.0-alpha.26",
+    "@cosmjs/faucet-client": "^0.24.0-alpha.26",
     "@cosmjs/math": "^0.24.0-alpha.26",
     "@cosmjs/proto-signing": "^0.24.0-alpha.26",
     "@cosmjs/stargate": "^0.24.0-alpha.26",
