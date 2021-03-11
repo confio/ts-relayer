@@ -71,7 +71,6 @@ export class Endpoint {
     const search = await this.client.tm.txSearchAll({ query });
     const resultsNested = search.txs.map(({ hash, height, result }) => {
       const parsedLogs = parseRawLog(result.log);
-      this.client.logger.verbose('SentPacket events', { logs: parsedLogs });
       // we accept message.sender (cosmos-sdk) and message.signer (x/wasm)
       let sender = '';
       try {

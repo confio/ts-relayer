@@ -496,11 +496,12 @@ export class Link {
       cutoffTimeA,
       packetsA
     );
-    const cutoffHeightB = await this.endB.client.timeoutHeight(
+
+    const cutoffHeightB = await this.endA.client.timeoutHeight(
       timedoutThresholdBlocks
     );
     const cutoffTimeB =
-      secondsFromDateNanos(await this.endB.client.currentTime()) +
+      secondsFromDateNanos(await this.endA.client.currentTime()) +
       timedoutThresholdSeconds;
     const { toSubmit: submitB, toTimeout: timeoutB } = splitPendingPackets(
       cutoffHeightB,

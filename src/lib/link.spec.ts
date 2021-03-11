@@ -494,12 +494,13 @@ test.serial(
   }
 );
 
-test.serial(
+test.serial.only(
   'checkAndRelayPacketsAndAcks relays packets properly',
   async (t) => {
-    // setup a channel
-    const [nodeA, nodeB] = await setup();
-    const link = await Link.createWithNewConnections(nodeA, nodeB);
+    const logger = new TestLogger();
+    const [nodeA, nodeB] = await setup(logger);
+
+    const link = await Link.createWithNewConnections(nodeA, nodeB, logger);
     const channels = await link.createChannel(
       'A',
       ics20.srcPortId,
@@ -539,7 +540,8 @@ test.serial(
       nodeB,
       wasmd.prefix,
       channels.src,
-      amountsA
+      amountsA,
+      5000 // never time out
     );
     // send 2 from B -> A
     const amountsB = [76543, 12345];
@@ -549,7 +551,8 @@ test.serial(
       nodeA,
       simapp.prefix,
       channels.dest,
-      amountsB
+      amountsB,
+      5000 // never time out
     );
 
     // ensure these packets are present in query

@@ -211,6 +211,10 @@ export function parsePacket({ type, attributes }: ParsedEvent): Packet {
     }),
     {}
   );
+
+  console.log(
+    `Parse timeouts: ${attributesObj.packet_timeout_height} / ${attributesObj.packet_timeout_timestamp}`
+  );
   const [timeoutRevisionNumber, timeoutRevisionHeight] =
     attributesObj.packet_timeout_height?.split('-') ?? [];
   return Packet.fromPartial({
