@@ -314,7 +314,6 @@ export class IbcClient {
   }
 
   public async latestHeader(): Promise<RpcHeader> {
-    this.logger.verbose('Get latest header');
     // TODO: expose header method on tmClient and use that
     const block = await this.tm.block();
     return block.block.header;
@@ -1134,7 +1133,7 @@ export class IbcClient {
     proofCommitments: readonly Uint8Array[],
     proofHeight?: Height
   ): Promise<MsgResult> {
-    this.logger.verbose(`Receive packets (${packets.length})`);
+    this.logger.verbose(`Receive ${packets.length} packets..`);
     if (packets.length !== proofCommitments.length) {
       throw new Error(
         `Have ${packets.length} packets, but ${proofCommitments.length} proofs`
@@ -1195,7 +1194,7 @@ export class IbcClient {
     proofAckeds: readonly Uint8Array[],
     proofHeight?: Height
   ): Promise<MsgResult> {
-    this.logger.verbose(`Acknowledge packets (${acks.length})`);
+    this.logger.verbose(`Acknowledge ${acks.length} packets...`);
     if (acks.length !== proofAckeds.length) {
       throw new Error(
         `Have ${acks.length} acks, but ${proofAckeds.length} proofs`
@@ -1276,9 +1275,7 @@ export class IbcClient {
       throw new Error('Packets and sequences must be same length');
     }
 
-    this.logger.verbose(
-      `Timeout packets sequences: ${packets.map((s) => s.sequence)}`
-    );
+    this.logger.verbose(`Timeout ${packets.length} packets...`);
     const senderAddress = this.senderAddress;
 
     const msgs = [];
