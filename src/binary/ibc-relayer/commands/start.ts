@@ -5,11 +5,10 @@ import { Logger } from 'winston';
 
 import { Link } from '../../../lib/link';
 import { registryFile } from '../../constants';
-import { createLogger, Level } from '../../create-logger';
+import { createLogger } from '../../create-logger';
 import { LoggerFlags } from '../../types';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
-import { resolveOption } from '../../utils/options/resolve-option';
 import { resolveRequiredNumericOption } from '../../utils/options/resolve-required-numeric-option';
 import { resolveRequiredOption } from '../../utils/options/resolve-required-option';
 import { resolveHomeOption } from '../../utils/options/shared/resolve-home-option';
@@ -59,13 +58,7 @@ const defaultOptions: LoopOptions = {
 };
 
 export async function start(flags: Flags) {
-  const logLevel = resolveOption(
-    flags.logLevel,
-    process.env.RELAYER_LOG_LEVEL,
-    'info'
-  );
-
-  const logger = createLogger(logLevel as Level);
+  const logger = createLogger(flags);
 
   const home = resolveHomeOption({ homeFlag: flags.home });
   const app = loadAndValidateApp(home);
