@@ -7,8 +7,7 @@ import yaml from 'js-yaml';
 import { Logger } from 'winston';
 
 import { appFile, registryFile } from '../../constants';
-import { createLogger } from '../../create-logger';
-import { feeDenom, LoggerFlags } from '../../types';
+import { feeDenom } from '../../types';
 import { deriveAddress } from '../../utils/derive-address';
 import { generateMnemonic } from '../../utils/generate-mnemonic';
 import { getDefaultHomePath } from '../../utils/get-default-home-path';
@@ -23,9 +22,7 @@ type Flags = {
 
 export type Options = Required<Flags>;
 
-export function init(flags: Flags & LoggerFlags) {
-  const logger = createLogger(flags);
-
+export async function init(flags: Flags, logger: Logger) {
   const options = {
     src: resolveRequiredOption('src')(flags.src, process.env.RELAYER_SRC),
     dest: resolveRequiredOption('dest')(flags.dest, process.env.RELAYER_DEST),
@@ -36,7 +33,7 @@ export function init(flags: Flags & LoggerFlags) {
     ),
   };
 
-  run(options, logger);
+  await run(options, logger);
 }
 
 export async function run(options: Options, logger: Logger) {
