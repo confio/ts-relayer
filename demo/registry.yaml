@@ -43,7 +43,7 @@ chains:
       - http://168.119.254.205:26657
   relayer_test_2:
     chain_id: network-2
-    prefix: wasmd
+    prefix: wasm
     gas_price: 0.01umuon
     hd_path: m/44'/108'/0'/5'
     ics20_port: 'transfer'
