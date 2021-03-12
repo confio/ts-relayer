@@ -2,10 +2,11 @@ import fs from 'fs';
 
 import test from 'ava';
 import sinon from 'sinon';
+import { Logger } from 'winston';
+
+import { TestLogger } from '../../../lib/testutils';
 
 import { Options, run } from './keys-generate';
-import { TestLogger } from '../../../lib/testutils';
-import { Logger } from 'winston';
 
 const fsWriteFileSync = sinon.stub(fs, 'writeFileSync');
 

@@ -4,14 +4,14 @@ import path from 'path';
 import { assert } from '@cosmjs/utils';
 import test from 'ava';
 import sinon from 'sinon';
+import { Logger } from 'winston';
 
+import { TestLogger } from '../../../lib/testutils';
 import { appFile } from '../../constants';
 import { signingClient } from '../../utils/signing-client';
 
 import { simappChain, wasmdChain } from './chains';
 import { Options, run } from './connect';
-import { TestLogger } from '../../../lib/testutils';
-import { Logger } from 'winston';
 
 const fsWriteFileSync = sinon.stub(fs, 'writeFileSync');
 const fsReadFileSync = sinon.stub(fs, 'readFileSync');

@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 import yaml from 'js-yaml';
+import { Logger } from 'winston';
 
 import { Link } from '../../../lib/link';
 import { appFile, registryFile } from '../../constants';
@@ -13,7 +14,6 @@ import { resolveHomeOption } from '../../utils/options/shared/resolve-home-optio
 import { resolveKeyFileOption } from '../../utils/options/shared/resolve-key-file-option';
 import { resolveMnemonicOption } from '../../utils/options/shared/resolve-mnemonic-option';
 import { signingClient } from '../../utils/signing-client';
-import { Logger } from 'winston';
 
 export type Flags = {
   readonly interactive: boolean;

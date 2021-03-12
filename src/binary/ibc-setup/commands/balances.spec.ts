@@ -3,13 +3,13 @@ import os from 'os';
 
 import test from 'ava';
 import sinon from 'sinon';
+import { Logger } from 'winston';
 
 import { IbcClient } from '../../../lib/ibcclient';
+import { TestLogger } from '../../../lib/testutils';
 
 import { run } from './balances';
 import { Options } from './keys-list';
-import { TestLogger } from '../../../lib/testutils';
-import { Logger } from 'winston';
 
 const fsReadFileSync = sinon.stub(fs, 'readFileSync');
 const mnemonic =
