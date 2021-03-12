@@ -77,6 +77,7 @@ import {
   mapRpcPubKeyToProto,
   multiplyFees,
   parseRevisionNumber,
+  presentPacketData,
   subtractBlock,
   timestampFromDateNanos,
   toIntHeight,
@@ -313,7 +314,6 @@ export class IbcClient {
   }
 
   public async latestHeader(): Promise<RpcHeader> {
-    this.logger.verbose('Get latest header');
     // TODO: expose header method on tmClient and use that
     const block = await this.tm.block();
     return block.block.header;
@@ -1133,7 +1133,7 @@ export class IbcClient {
     proofCommitments: readonly Uint8Array[],
     proofHeight?: Height
   ): Promise<MsgResult> {
-    this.logger.verbose(`Receive packets (${packets.length})`);
+    this.logger.verbose(`Receive ${packets.length} packets..`);
     if (packets.length !== proofCommitments.length) {
       throw new Error(
         `Have ${packets.length} packets, but ${proofCommitments.length} proofs`
@@ -1146,10 +1146,17 @@ export class IbcClient {
     const senderAddress = this.senderAddress;
     const msgs = [];
     for (const i in packets) {
+      const packet = packets[i];
+      this.logger.verbose(
+        `Sending packet #${packet.sequence.toNumber()} from ${this.chainId}:${
+          packet.sourceChannel
+        }`,
+        presentPacketData(packet.data)
+      );
       const msg = {
         typeUrl: '/ibc.core.channel.v1.MsgRecvPacket',
         value: MsgRecvPacket.fromPartial({
-          packet: packets[i],
+          packet,
           proofCommitment: proofCommitments[i],
           proofHeight,
           signer: senderAddress,
@@ -1187,7 +1194,7 @@ export class IbcClient {
     proofAckeds: readonly Uint8Array[],
     proofHeight?: Height
   ): Promise<MsgResult> {
-    this.logger.verbose(`Acknowledge packets (${acks.length})`);
+    this.logger.verbose(`Acknowledge ${acks.length} packets...`);
     if (acks.length !== proofAckeds.length) {
       throw new Error(
         `Have ${acks.length} acks, but ${proofAckeds.length} proofs`
@@ -1200,11 +1207,23 @@ export class IbcClient {
     const senderAddress = this.senderAddress;
     const msgs = [];
     for (const i in acks) {
+      const packet = acks[i].originalPacket;
+      const acknowledgement = acks[i].acknowledgement;
+
+      this.logger.verbose(
+        `Ack packet #${packet.sequence.toNumber()} from ${this.chainId}:${
+          packet.sourceChannel
+        }`,
+        {
+          packet: presentPacketData(packet.data),
+          ack: presentPacketData(acknowledgement),
+        }
+      );
       const msg = {
         typeUrl: '/ibc.core.channel.v1.MsgAcknowledgement',
         value: MsgAcknowledgement.fromPartial({
-          packet: acks[i].originalPacket,
-          acknowledgement: acks[i].acknowledgement,
+          packet,
+          acknowledgement,
           proofAcked: proofAckeds[i],
           proofHeight,
           signer: senderAddress,
@@ -1256,17 +1275,23 @@ export class IbcClient {
       throw new Error('Packets and sequences must be same length');
     }
 
-    this.logger.verbose(
-      `Timeout packets sequences: ${packets.map((s) => s.sequence)}`
-    );
+    this.logger.verbose(`Timeout ${packets.length} packets...`);
     const senderAddress = this.senderAddress;
 
     const msgs = [];
     for (const i in packets) {
+      const packet = packets[i];
+      this.logger.verbose(
+        `Timeout packet #${packet.sequence.toNumber()} from ${this.chainId}:${
+          packet.sourceChannel
+        }`,
+        presentPacketData(packet.data)
+      );
+
       const msg = {
         typeUrl: '/ibc.core.channel.v1.MsgTimeout',
         value: MsgTimeout.fromPartial({
-          packet: packets[i],
+          packet,
           proofUnreceived: proofsUnreceived[i],
           nextSequenceRecv: nextSequenceRecv[i],
           proofHeight,

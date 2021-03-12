@@ -1,4 +1,4 @@
-import { toUtf8 } from '@cosmjs/encoding';
+import { fromUtf8, toHex, toUtf8 } from '@cosmjs/encoding';
 import { Coin, logs, StdFee } from '@cosmjs/launchpad';
 import { BroadcastTxFailure } from '@cosmjs/stargate';
 import {
@@ -371,4 +371,12 @@ export function splitPendingPackets(
       toTimeout: [] as readonly PacketWithMetadata[],
     }
   );
+}
+
+export function presentPacketData(data: Uint8Array): Record<string, unknown> {
+  try {
+    return JSON.parse(fromUtf8(data));
+  } catch {
+    return { hex: toHex(data) };
+  }
 }
