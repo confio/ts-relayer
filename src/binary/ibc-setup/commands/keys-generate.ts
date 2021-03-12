@@ -1,5 +1,7 @@
 import fs from 'fs';
 
+import { Logger } from 'winston';
+
 import { generateMnemonic } from '../../utils/generate-mnemonic';
 import { resolveOption } from '../../utils/options/resolve-option';
 
@@ -11,22 +13,22 @@ export type Options = {
   readonly keyFile: string | null;
 };
 
-export function keysGenerate(flags: Flags) {
+export async function keysGenerate(flags: Flags, logger: Logger) {
   const options = {
     keyFile: resolveOption(flags.keyFile, process.env.RELAYER_KEY_FILE),
   };
 
-  run(options);
+  await run(options, logger);
 }
 
-export function run(options: Options) {
+export function run(options: Options, logger: Logger) {
   const mnemonic = generateMnemonic();
 
   if (options.keyFile) {
     fs.writeFileSync(options.keyFile, mnemonic, 'utf-8');
-    console.log(`Saved mnemonic to ${options.keyFile}`);
+    logger.info(`Saved mnemonic to ${options.keyFile}`);
     return;
   }
 
-  console.log(mnemonic);
+  logger.info(mnemonic);
 }
