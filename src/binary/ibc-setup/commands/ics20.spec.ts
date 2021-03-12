@@ -4,8 +4,10 @@ import path from 'path';
 import { assert } from '@cosmjs/utils';
 import test from 'ava';
 import sinon from 'sinon';
+import { Logger } from 'winston';
 
 import { Link } from '../../../lib/link';
+import { TestLogger } from '../../../lib/testutils';
 import { appFile } from '../../constants';
 import { signingClient } from '../../utils/signing-client';
 
@@ -14,7 +16,6 @@ import { Options, run } from './ics20';
 
 const fsWriteFileSync = sinon.stub(fs, 'writeFileSync');
 const fsReadFileSync = sinon.stub(fs, 'readFileSync');
-const consoleLog = sinon.stub(console, 'log');
 
 const mnemonic =
   'enlist hip relief stomach skate base shallow young switch frequent cry park';
@@ -46,6 +47,8 @@ test.beforeEach(() => {
 });
 
 test.serial('ics20 create channels with new connection', async (t) => {
+  const logger = new TestLogger();
+
   const ibcClientSimapp = await signingClient(simappChain, mnemonic);
   const ibcClientWasm = await signingClient(wasmdChain, mnemonic);
 
@@ -65,7 +68,7 @@ test.serial('ics20 create channels with new connection', async (t) => {
   fsReadFileSync.returns(registryYaml);
   fsWriteFileSync.returns();
 
-  await run(options, app);
+  await run(options, app, (logger as unknown) as Logger);
 
   const args = fsWriteFileSync.getCall(0).args as [string, string];
   const contentsRegexp = new RegExp(
@@ -78,9 +81,13 @@ destConnection: .+
   t.assert(fsWriteFileSync.calledOnce);
   t.is(args[0], path.join(options.home, appFile));
   t.regex(args[1], contentsRegexp);
-  t.assert(consoleLog.calledTwice);
-  t.assert(consoleLog.calledWithMatch(/Created connections/));
-  t.assert(consoleLog.calledWithMatch(/Created channels/));
+  t.is(logger.info.callCount, 6);
+  t.assert(logger.info.calledWithMatch(/Connection open/));
+  t.assert(logger.info.calledWithMatch(/Connection open/));
+  t.assert(logger.info.calledWithMatch(/Connection open/));
+  t.assert(logger.info.calledWithMatch(/Connection open/));
+  t.assert(logger.info.calledWithMatch(/Created connections/));
+  t.assert(logger.info.calledWithMatch(/Created channels/));
 
   const nextAllConnectionsWasm = await ibcClientWasm.query.ibc.connection.allConnections();
   const srcConnectionIdMatch = /srcConnection: (?<connection>.+)/.exec(args[1]);
@@ -113,6 +120,8 @@ destConnection: .+
 });
 
 test.serial('ics20 create channels with existing connection', async (t) => {
+  const logger = new TestLogger();
+
   const ibcClientSimapp = await signingClient(simappChain, mnemonic);
   const ibcClientWasm = await signingClient(wasmdChain, mnemonic);
   const link = await Link.createWithNewConnections(
@@ -139,7 +148,7 @@ test.serial('ics20 create channels with existing connection', async (t) => {
   fsReadFileSync.returns(registryYaml);
   fsWriteFileSync.returns();
 
-  await run(options, app);
+  await run(options, app, (logger as unknown) as Logger);
 
   const args = fsWriteFileSync.getCall(0).args as [string, string];
   const contentsRegexp = new RegExp(
@@ -153,9 +162,10 @@ destConnection: ${link.endB.connectionID}
   t.assert(fsWriteFileSync.calledOnce);
   t.is(args[0], path.join(options.home, appFile));
   t.regex(args[1], contentsRegexp);
-  t.assert(consoleLog.calledTwice);
-  t.assert(consoleLog.calledWithMatch(/Used existing connections/));
-  t.assert(consoleLog.calledWithMatch(/Created channels/));
+  t.assert(logger.info.calledThrice);
+  t.assert(logger.info.calledWithMatch(/Used existing connections/));
+  t.assert(logger.info.calledWithMatch(/Create channel/));
+  t.assert(logger.info.calledWithMatch(/Created channels/));
 
   const nextAllConnectionsWasm = await ibcClientWasm.query.ibc.connection.allConnections();
   const nextAllConnectionsSimapp = await ibcClientSimapp.query.ibc.connection.allConnections();

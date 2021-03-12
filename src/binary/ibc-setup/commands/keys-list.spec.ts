@@ -2,12 +2,13 @@ import fs from 'fs';
 
 import test from 'ava';
 import sinon from 'sinon';
+import { Logger } from 'winston';
 
+import { TestLogger } from '../../../lib/testutils';
 import { generateMnemonic } from '../../utils/generate-mnemonic';
 
 import { Options, run } from './keys-list';
 
-const consoleLog = sinon.stub(console, 'log');
 const fsReadFileSync = sinon.stub(fs, 'readFileSync');
 
 test.beforeEach(() => {
@@ -34,6 +35,8 @@ chains:
       - http://localhost:26658`;
 
 test('lists addresses for every chain in the registry', async (t) => {
+  const logger = new TestLogger();
+
   const options: Options = {
     home: '/home/user',
     mnemonic: generateMnemonic(),
@@ -41,11 +44,13 @@ test('lists addresses for every chain in the registry', async (t) => {
 
   fsReadFileSync.returns(registryYaml);
 
-  await run(options);
+  await run(options, (logger as unknown) as Logger);
 
   t.assert(fsReadFileSync.calledOnce);
-  t.assert(consoleLog.calledOnce);
+  t.assert(logger.info.calledOnce);
   t.assert(
-    consoleLog.calledWithMatch(/local_wasm: [a-z0-9]+\nlocal_simapp: [a-z0-9]+/)
+    logger.info.calledWithMatch(
+      /local_wasm: [a-z0-9]+\nlocal_simapp: [a-z0-9]+/
+    )
   );
 });

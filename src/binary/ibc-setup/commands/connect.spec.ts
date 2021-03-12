@@ -4,7 +4,9 @@ import path from 'path';
 import { assert } from '@cosmjs/utils';
 import test from 'ava';
 import sinon from 'sinon';
+import { Logger } from 'winston';
 
+import { TestLogger } from '../../../lib/testutils';
 import { appFile } from '../../constants';
 import { signingClient } from '../../utils/signing-client';
 
@@ -13,7 +15,6 @@ import { Options, run } from './connect';
 
 const fsWriteFileSync = sinon.stub(fs, 'writeFileSync');
 const fsReadFileSync = sinon.stub(fs, 'readFileSync');
-const consoleLog = sinon.stub(console, 'log');
 
 const mnemonic =
   'enlist hip relief stomach skate base shallow young switch frequent cry park';
@@ -45,6 +46,8 @@ test.beforeEach(() => {
 });
 
 test.serial('connects two chains', async (t) => {
+  const logger = new TestLogger();
+
   const ibcClientSimapp = await signingClient(simappChain, mnemonic);
   const ibcClientWasm = await signingClient(wasmdChain, mnemonic);
 
@@ -61,7 +64,7 @@ test.serial('connects two chains', async (t) => {
   fsReadFileSync.returns(registryYaml);
   fsWriteFileSync.returns();
 
-  await run(options, app);
+  await run(options, app, (logger as unknown) as Logger);
 
   const args = fsWriteFileSync.getCall(0).args as [string, string];
   const contentsRegexp = new RegExp(
@@ -74,8 +77,8 @@ destConnection: .+
   t.assert(fsWriteFileSync.calledOnce);
   t.is(args[0], path.join(options.home, appFile));
   t.regex(args[1], contentsRegexp);
-  t.assert(consoleLog.calledOnce);
-  t.assert(consoleLog.calledWithMatch(/Created connections/));
+  t.assert(logger.info.calledOnce);
+  t.assert(logger.info.calledWithMatch(/Created connections/));
 
   const nextAllConnectionsWasm = await ibcClientWasm.query.ibc.connection.allConnections();
   const destConnectionIdMatch = /destConnection: (?<connection>.+)/.exec(

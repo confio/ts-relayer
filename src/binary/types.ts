@@ -26,6 +26,7 @@ export type AppConfig = {
 
 export type LoggerFlags = {
   logLevel?: string;
+  logFile?: string;
   verbose: boolean;
   quiet: boolean;
 };

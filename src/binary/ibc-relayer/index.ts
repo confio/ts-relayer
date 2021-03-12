@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
-import { Command, InvalidOptionArgumentError, Option } from 'commander';
+import { Command, InvalidOptionArgumentError } from 'commander';
 
 import {
+  addLoggerOptionsTo,
   destOption,
   homeOption,
   interactiveOption,
@@ -10,7 +11,7 @@ import {
   mnemonicOption,
   srcOption,
 } from '../commander-options';
-import { rootBoundary } from '../utils/error-boundary';
+import { loggerWithErrorBoundary } from '../utils/logger-with-error-boundary';
 
 import { start } from './commands/start';
 
@@ -26,7 +27,7 @@ const program = new Command();
 
 program.description('ibc-relayer program description');
 
-program
+const startCommand = program
   .command('start')
   .description('start command description')
   .addOption(homeOption)
@@ -54,17 +55,8 @@ program
   )
   // note: once is designed for debugging and unit tests
   .option('--once', 'just relay pending packets and quit, no polling')
-  .addOption(
-    new Option('--log-level <level>').choices([
-      'debug',
-      'verbose',
-      'info',
-      'warn',
-      'error',
-    ])
-  )
-  .option('-v, --verbose')
-  .option('-q, --quiet')
-  .action(rootBoundary(start));
+  .action(loggerWithErrorBoundary(start));
+
+addLoggerOptionsTo(startCommand);
 
 program.parse(process.argv);

@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 import yaml from 'js-yaml';
+import { Logger } from 'winston';
 
 import { Link } from '../../../lib/link';
 import { appFile, registryFile } from '../../constants';
@@ -30,7 +31,7 @@ export type Options = {
   readonly dest: string;
 };
 
-export async function connect(flags: Flags) {
+export async function connect(flags: Flags, logger: Logger) {
   const home = resolveHomeOption({ homeFlag: flags.home });
   const app = loadAndValidateApp(home);
   if (!app) {
@@ -62,10 +63,10 @@ export async function connect(flags: Flags) {
     dest,
   };
 
-  await run(options, app);
+  await run(options, app, logger);
 }
 
-export async function run(options: Options, app: AppConfig) {
+export async function run(options: Options, app: AppConfig, logger: Logger) {
   const registryFilePath = path.join(options.home, registryFile);
   const registry = loadAndValidateRegistry(registryFilePath);
   const srcChain = registry.chains[options.src];
@@ -96,7 +97,7 @@ export async function run(options: Options, app: AppConfig) {
     encoding: 'utf-8',
   });
 
-  console.log(
+  logger.info(
     `Created connections ${link.endA.connectionID} (${link.endA.clientID}) <=> ${link.endB.connectionID} (${link.endB.clientID})`
   );
 }

@@ -4,6 +4,7 @@ import path from 'path';
 import { stringToPath } from '@cosmjs/crypto';
 import { GasPrice } from '@cosmjs/launchpad';
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
+import { Logger } from 'winston';
 
 import { Coin } from '../../../codec/cosmos/base/v1beta1/coin';
 import { IbcClient } from '../../../lib/ibcclient';
@@ -16,7 +17,7 @@ import { resolveMnemonicOption } from '../../utils/options/shared/resolve-mnemon
 
 import { Flags, getAddresses, Options } from './keys-list';
 
-export async function balances(flags: Flags) {
+export async function balances(flags: Flags, logger: Logger) {
   const home = resolveHomeOption({ homeFlag: flags.home });
   const app = loadAndValidateApp(home);
   const keyFile = resolveKeyFileOption({ keyFileFlag: flags.keyFile, app });
@@ -32,10 +33,10 @@ export async function balances(flags: Flags) {
     mnemonic,
   };
 
-  await run(options);
+  await run(options, logger);
 }
 
-export async function run(options: Options) {
+export async function run(options: Options, logger: Logger) {
   const registryFilePath = path.join(options.home, registryFile);
   const registry = loadAndValidateRegistry(registryFilePath);
 
@@ -76,9 +77,9 @@ export async function run(options: Options) {
     .join(os.EOL);
 
   if (!balances) {
-    console.log('No funds found for default denomination on any chain.');
+    logger.info('No funds found for default denomination on any chain.');
     return;
   }
 
-  console.log(balances);
+  logger.info(balances);
 }

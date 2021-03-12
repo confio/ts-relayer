@@ -3,6 +3,7 @@
 import { Command } from 'commander';
 
 import {
+  addLoggerOptionsTo,
   destOption,
   homeOption,
   interactiveOption,
@@ -10,6 +11,7 @@ import {
   mnemonicOption,
   srcOption,
 } from '../commander-options';
+import { loggerWithErrorBoundary } from '../utils/logger-with-error-boundary';
 
 import { balances } from './commands/balances';
 import { channels } from './commands/channels';
@@ -24,15 +26,16 @@ export const program = new Command();
 // TODO: fill options and commands descriptions
 program.description('ibc-setup program description');
 
-program
+const initCommand = program
   .command('init')
   .description('init command description')
   .addOption(homeOption)
   .addOption(srcOption)
   .addOption(destOption)
-  .action(init);
+  .action(loggerWithErrorBoundary(init));
+addLoggerOptionsTo(initCommand);
 
-program
+const ics20Command = program
   .command('ics20')
   .description('ics20 command description')
   .addOption(srcOption)
@@ -40,35 +43,39 @@ program
   .addOption(mnemonicOption)
   .option('--src-port <port>')
   .option('--dest-port <port>')
-  .action(ics20);
+  .action(loggerWithErrorBoundary(ics20));
+addLoggerOptionsTo(ics20Command);
 
 const keys = program.command('keys');
 
-keys
+const keysGenerateCommand = keys
   .command('generate')
   .description('keys generate command description')
   .addOption(keyFileOption)
-  .action(keysGenerate);
+  .action(loggerWithErrorBoundary(keysGenerate));
+addLoggerOptionsTo(keysGenerateCommand);
 
-keys
+const keysListCommand = keys
   .command('list')
   .description('keys list command description')
   .addOption(homeOption)
   .addOption(mnemonicOption)
   .addOption(keyFileOption)
   .addOption(interactiveOption)
-  .action(keysList);
+  .action(loggerWithErrorBoundary(keysList));
+addLoggerOptionsTo(keysListCommand);
 
-program
+const balancesCommand = program
   .command('balances')
   .description('balances command description')
   .addOption(homeOption)
   .addOption(mnemonicOption)
   .addOption(keyFileOption)
   .addOption(interactiveOption)
-  .action(balances);
+  .action(loggerWithErrorBoundary(balances));
+addLoggerOptionsTo(balancesCommand);
 
-program
+const connectCommand = program
   .command('connect')
   .description('connect command description')
   .addOption(srcOption)
@@ -77,9 +84,10 @@ program
   .addOption(mnemonicOption)
   .addOption(keyFileOption)
   .addOption(interactiveOption)
-  .action(connect);
+  .action(loggerWithErrorBoundary(connect));
+addLoggerOptionsTo(connectCommand);
 
-program
+const channelsCommand = program
   .command('channels')
   .description('channels command description')
   .addOption(homeOption)
@@ -87,6 +95,7 @@ program
   .addOption(interactiveOption)
   .option('--chain <chain>')
   .option('--port <port>')
-  .action(channels);
+  .action(loggerWithErrorBoundary(channels));
+addLoggerOptionsTo(channelsCommand);
 
 program.parse(process.argv);
