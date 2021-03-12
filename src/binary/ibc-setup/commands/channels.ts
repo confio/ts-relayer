@@ -108,7 +108,7 @@ export async function run(options: Options, logger: Logger) {
 
   const mnemonic = assureMnemonic(options.mnemonic);
 
-  const client = await signingClient(chain, mnemonic);
+  const client = await signingClient(chain, mnemonic, logger);
 
   const {
     channels: allChannels,
