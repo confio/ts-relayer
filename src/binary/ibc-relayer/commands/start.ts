@@ -5,7 +5,6 @@ import { Logger } from 'winston';
 
 import { Link } from '../../../lib/link';
 import { registryFile } from '../../constants';
-import { createLogger } from '../../create-logger';
 import { LoggerFlags } from '../../types';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
@@ -57,9 +56,7 @@ const defaultOptions: LoopOptions = {
   maxAgeDest: 86400,
 };
 
-export async function start(flags: Flags) {
-  const logger = createLogger(flags);
-
+export async function start(flags: Flags, logger: Logger) {
   const home = resolveHomeOption({ homeFlag: flags.home });
   const app = loadAndValidateApp(home);
   const keyFile = resolveKeyFileOption({ keyFileFlag: flags.keyFile, app });
