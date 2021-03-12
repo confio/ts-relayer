@@ -11,10 +11,11 @@ import { signingClient } from '../../utils/signing-client';
 
 import { simappChain, wasmdChain } from './chains';
 import { Options, run } from './ics20';
+import { TestLogger } from '../../../lib/testutils';
+import { Logger } from 'winston';
 
 const fsWriteFileSync = sinon.stub(fs, 'writeFileSync');
 const fsReadFileSync = sinon.stub(fs, 'readFileSync');
-const consoleLog = sinon.stub(console, 'log');
 
 const mnemonic =
   'enlist hip relief stomach skate base shallow young switch frequent cry park';
@@ -46,6 +47,8 @@ test.beforeEach(() => {
 });
 
 test.serial('ics20 create channels with new connection', async (t) => {
+  const logger = new TestLogger();
+
   const ibcClientSimapp = await signingClient(simappChain, mnemonic);
   const ibcClientWasm = await signingClient(wasmdChain, mnemonic);
 
@@ -65,7 +68,7 @@ test.serial('ics20 create channels with new connection', async (t) => {
   fsReadFileSync.returns(registryYaml);
   fsWriteFileSync.returns();
 
-  await run(options, app);
+  await run(options, app, (logger as unknown) as Logger);
 
   const args = fsWriteFileSync.getCall(0).args as [string, string];
   const contentsRegexp = new RegExp(
@@ -78,9 +81,9 @@ destConnection: .+
   t.assert(fsWriteFileSync.calledOnce);
   t.is(args[0], path.join(options.home, appFile));
   t.regex(args[1], contentsRegexp);
-  t.assert(consoleLog.calledTwice);
-  t.assert(consoleLog.calledWithMatch(/Created connections/));
-  t.assert(consoleLog.calledWithMatch(/Created channels/));
+  t.assert(logger.info.calledTwice);
+  t.assert(logger.info.calledWithMatch(/Created connections/));
+  t.assert(logger.info.calledWithMatch(/Created channels/));
 
   const nextAllConnectionsWasm = await ibcClientWasm.query.ibc.connection.allConnections();
   const srcConnectionIdMatch = /srcConnection: (?<connection>.+)/.exec(args[1]);
@@ -113,6 +116,8 @@ destConnection: .+
 });
 
 test.serial('ics20 create channels with existing connection', async (t) => {
+  const logger = new TestLogger();
+
   const ibcClientSimapp = await signingClient(simappChain, mnemonic);
   const ibcClientWasm = await signingClient(wasmdChain, mnemonic);
   const link = await Link.createWithNewConnections(
@@ -139,7 +144,7 @@ test.serial('ics20 create channels with existing connection', async (t) => {
   fsReadFileSync.returns(registryYaml);
   fsWriteFileSync.returns();
 
-  await run(options, app);
+  await run(options, app, (logger as unknown) as Logger);
 
   const args = fsWriteFileSync.getCall(0).args as [string, string];
   const contentsRegexp = new RegExp(
@@ -153,9 +158,9 @@ destConnection: ${link.endB.connectionID}
   t.assert(fsWriteFileSync.calledOnce);
   t.is(args[0], path.join(options.home, appFile));
   t.regex(args[1], contentsRegexp);
-  t.assert(consoleLog.calledTwice);
-  t.assert(consoleLog.calledWithMatch(/Used existing connections/));
-  t.assert(consoleLog.calledWithMatch(/Created channels/));
+  t.assert(logger.info.calledTwice);
+  t.assert(logger.info.calledWithMatch(/Used existing connections/));
+  t.assert(logger.info.calledWithMatch(/Created channels/));
 
   const nextAllConnectionsWasm = await ibcClientWasm.query.ibc.connection.allConnections();
   const nextAllConnectionsSimapp = await ibcClientSimapp.query.ibc.connection.allConnections();

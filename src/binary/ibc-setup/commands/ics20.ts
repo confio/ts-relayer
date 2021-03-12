@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 import yaml from 'js-yaml';
+import { Logger } from 'winston';
 
 import { Order } from '../../../codec/ibc/core/channel/v1/channel';
 import { IbcClient } from '../../../lib/ibcclient';
@@ -71,7 +72,7 @@ function resolveConnections({
   return null;
 }
 
-export async function ics20(flags: Flags): Promise<void> {
+export async function ics20(flags: Flags, logger: Logger): Promise<void> {
   const home = resolveHomeOption({ homeFlag: flags.home });
   const app = loadAndValidateApp(home);
 
@@ -111,36 +112,43 @@ export async function ics20(flags: Flags): Promise<void> {
       destPort,
       connections,
     },
-    app
+    app,
+    logger
   );
 }
 
 async function resolveLink(
   nodeA: IbcClient,
   nodeB: IbcClient,
-  connections: Connections
+  connections: Connections,
+  logger: Logger
 ) {
   if (connections) {
     const link = await Link.createWithExistingConnections(
       nodeA,
       nodeB,
       connections.src,
-      connections.dest
+      connections.dest,
+      logger
     );
-    console.log(
+    logger.info(
       `Used existing connections ${link.endA.connectionID} (${link.endA.clientID}) <=> ${link.endB.connectionID} (${link.endB.clientID})`
     );
     return link;
   }
 
   const link = await Link.createWithNewConnections(nodeA, nodeB);
-  console.log(
+  logger.info(
     `Created connections ${link.endA.connectionID} (${link.endA.clientID}) <=> ${link.endB.connectionID} (${link.endB.clientID})`
   );
   return link;
 }
 
-export async function run(options: Options, app: AppConfig): Promise<void> {
+export async function run(
+  options: Options,
+  app: AppConfig,
+  logger: Logger
+): Promise<void> {
   const registryFilePath = path.join(options.home, registryFile);
   const { chains } = loadAndValidateRegistry(registryFilePath);
   const srcChain = chains[options.src];
@@ -154,9 +162,9 @@ export async function run(options: Options, app: AppConfig): Promise<void> {
   const ordering = Order.ORDER_UNORDERED;
   const version = 'ics20-1';
 
-  const nodeA = await signingClient(srcChain, options.mnemonic);
-  const nodeB = await signingClient(destChain, options.mnemonic);
-  const link = await resolveLink(nodeA, nodeB, options.connections);
+  const nodeA = await signingClient(srcChain, options.mnemonic, logger);
+  const nodeB = await signingClient(destChain, options.mnemonic, logger);
+  const link = await resolveLink(nodeA, nodeB, options.connections, logger);
 
   const srcConnection = link.endA.connectionID;
   const destConnection = link.endB.connectionID;
@@ -194,7 +202,7 @@ export async function run(options: Options, app: AppConfig): Promise<void> {
     version
   );
 
-  console.log(
+  logger.info(
     `Created channels for connections ${link.endA.connectionID} <=> ${link.endB.connectionID}: ${channels.src.channelId} (${channels.src.portId}) => ${channels.dest.channelId} (${channels.dest.portId})`
   );
 }
