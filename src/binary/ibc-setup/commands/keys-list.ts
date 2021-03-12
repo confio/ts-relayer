@@ -1,6 +1,8 @@
 import os from 'os';
 import path from 'path';
 
+import { Logger } from 'winston';
+
 import { registryFile } from '../../constants';
 import { Chain } from '../../types';
 import { deriveAddress } from '../../utils/derive-address';
@@ -22,7 +24,7 @@ export type Options = {
   readonly mnemonic: string;
 };
 
-export async function keysList(flags: Flags) {
+export async function keysList(flags: Flags, logger: Logger) {
   const home = resolveHomeOption({ homeFlag: flags.home });
   const app = loadAndValidateApp(home);
   const keyFile = resolveKeyFileOption({ keyFileFlag: flags.keyFile, app });
@@ -38,7 +40,7 @@ export async function keysList(flags: Flags) {
     mnemonic,
   };
 
-  await run(options);
+  await run(options, logger);
 }
 
 export async function getAddresses(
@@ -56,7 +58,7 @@ export async function getAddresses(
   ).map((address, index) => [chains[index][0], chains[index][1], address]);
 }
 
-export async function run(options: Options) {
+export async function run(options: Options, logger: Logger) {
   const registryFilePath = path.join(options.home, registryFile);
   const registry = loadAndValidateRegistry(registryFilePath);
 
@@ -64,5 +66,5 @@ export async function run(options: Options) {
     .map(([chain, , address]) => `${chain}: ${address}`)
     .join(os.EOL);
 
-  console.log(addresses);
+  logger.info(addresses);
 }
