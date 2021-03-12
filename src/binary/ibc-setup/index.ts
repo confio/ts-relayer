@@ -11,6 +11,7 @@ import {
   mnemonicOption,
   srcOption,
 } from '../commander-options';
+import { loggerWithErrorBoundary } from '../utils/logger-with-error-boundary';
 
 import { balances } from './commands/balances';
 import { channels } from './commands/channels';
@@ -31,7 +32,7 @@ const initCommand = program
   .addOption(homeOption)
   .addOption(srcOption)
   .addOption(destOption)
-  .action(init);
+  .action(loggerWithErrorBoundary(init));
 addLoggerOptionsTo(initCommand);
 
 const ics20Command = program
@@ -42,7 +43,7 @@ const ics20Command = program
   .addOption(mnemonicOption)
   .option('--src-port <port>')
   .option('--dest-port <port>')
-  .action(ics20);
+  .action(loggerWithErrorBoundary(ics20));
 addLoggerOptionsTo(ics20Command);
 
 const keys = program.command('keys');
@@ -51,7 +52,7 @@ const keysGenerateCommand = keys
   .command('generate')
   .description('keys generate command description')
   .addOption(keyFileOption)
-  .action(keysGenerate);
+  .action(loggerWithErrorBoundary(keysGenerate));
 addLoggerOptionsTo(keysGenerateCommand);
 
 const keysListCommand = keys
@@ -61,7 +62,7 @@ const keysListCommand = keys
   .addOption(mnemonicOption)
   .addOption(keyFileOption)
   .addOption(interactiveOption)
-  .action(keysList);
+  .action(loggerWithErrorBoundary(keysList));
 addLoggerOptionsTo(keysListCommand);
 
 const balancesCommand = program
@@ -71,7 +72,7 @@ const balancesCommand = program
   .addOption(mnemonicOption)
   .addOption(keyFileOption)
   .addOption(interactiveOption)
-  .action(balances);
+  .action(loggerWithErrorBoundary(balances));
 addLoggerOptionsTo(balancesCommand);
 
 const connectCommand = program
@@ -83,7 +84,7 @@ const connectCommand = program
   .addOption(mnemonicOption)
   .addOption(keyFileOption)
   .addOption(interactiveOption)
-  .action(connect);
+  .action(loggerWithErrorBoundary(connect));
 addLoggerOptionsTo(connectCommand);
 
 const channelsCommand = program
@@ -94,7 +95,7 @@ const channelsCommand = program
   .addOption(interactiveOption)
   .option('--chain <chain>')
   .option('--port <port>')
-  .action(channels);
+  .action(loggerWithErrorBoundary(channels));
 addLoggerOptionsTo(channelsCommand);
 
 program.parse(process.argv);

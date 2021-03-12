@@ -11,7 +11,7 @@ import {
   mnemonicOption,
   srcOption,
 } from '../commander-options';
-// import { rootBoundary } from '../utils/error-boundary';
+import { loggerWithErrorBoundary } from '../utils/logger-with-error-boundary';
 
 import { start } from './commands/start';
 
@@ -55,7 +55,7 @@ const startCommand = program
   )
   // note: once is designed for debugging and unit tests
   .option('--once', 'just relay pending packets and quit, no polling')
-  .action(start);
+  .action(loggerWithErrorBoundary(start));
 
 addLoggerOptionsTo(startCommand);
 
