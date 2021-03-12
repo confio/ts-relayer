@@ -1,6 +1,8 @@
 import os from 'os';
 import path from 'path';
 
+import { Logger } from 'winston';
+
 import { State } from '../../../codec/ibc/core/channel/v1/channel';
 import { registryFile } from '../../constants';
 import { generateMnemonic } from '../../utils/generate-mnemonic';
@@ -29,7 +31,7 @@ export type Options = {
   readonly port: string | null;
 };
 
-export async function channels(flags: Flags) {
+export async function channels(flags: Flags, logger: Logger) {
   const home = resolveHomeOption({ homeFlag: flags.home });
   const app = loadAndValidateApp(home);
   const keyFile = resolveKeyFileOption({ keyFileFlag: flags.keyFile, app });
@@ -56,7 +58,7 @@ export async function channels(flags: Flags) {
     port,
   };
 
-  await run(options);
+  await run(options, logger);
 }
 
 function assureMnemonic(mnemonic: string | null) {
@@ -95,7 +97,7 @@ function appendSpaces(value: string) {
   return `${value}${spaces}`;
 }
 
-export async function run(options: Options) {
+export async function run(options: Options, logger: Logger) {
   const registryFilePath = path.join(options.home, registryFile);
   const registry = loadAndValidateRegistry(registryFilePath);
 
@@ -126,7 +128,7 @@ export async function run(options: Options) {
     const conditionalPortInfo = options.port
       ? ` on port "${options.port}".`
       : '.';
-    console.log(
+    logger.info(
       `Found no channels for chain "${options.chain}"${conditionalPortInfo}`
     );
 
@@ -138,5 +140,5 @@ export async function run(options: Options) {
     ...channels,
   ].join(os.EOL);
 
-  console.log(output);
+  logger.info(output);
 }
