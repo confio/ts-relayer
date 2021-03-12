@@ -164,7 +164,7 @@ destConnection: ${link.endB.connectionID}
   t.regex(args[1], contentsRegexp);
   t.assert(logger.info.calledThrice);
   t.assert(logger.info.calledWithMatch(/Used existing connections/));
-  t.assert(logger.info.calledWithMatch(/Create channels/));
+  t.assert(logger.info.calledWithMatch(/Create channel/));
   t.assert(logger.info.calledWithMatch(/Created channels/));
 
   const nextAllConnectionsWasm = await ibcClientWasm.query.ibc.connection.allConnections();
