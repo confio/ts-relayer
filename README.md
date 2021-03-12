@@ -52,15 +52,23 @@ ibc-setup # should be available
 
 ### CLI quick start
 
-This is just mean for manual testing with the local CI chains. First get some keys:
+This is just mean for manual testing with the local CI chains defined in [demo/registry.yaml](./demo/registry.yaml).
+First get some keys:
 
 ```bash
-ibc-setup init --src local_wasm --dest local_simapp
+ibc-setup init --src local_wasm --dest local_simapp # initializes home directory at: ~/.ibc-setup
 ibc-setup keys list
 ```
 
 Then edit [manual/consts.ts](./src/lib/manual/consts.ts) and place your keys in those address variables.
+* `exports.simappAddress = 'cosmos1y6m4llfs0ruxr0p67cs748vrv40ryh9r0gaqvd';`
+* `exports.wasmdAddress = 'wasm1q6cggcxghka0yj88927zqs6d2pdq58wnkptx52';`
 
+```bash
+vi src/lib/manual/consts.ts
+```
+
+Send some coins to the relayer accounts to get started:
 ```bash
 yarn build && yarn test:unit ./src/lib/manual/fund-relayer.spec.ts
 ```
@@ -68,10 +76,15 @@ yarn build && yarn test:unit ./src/lib/manual/fund-relayer.spec.ts
 Now you should see an updated balance, and can make an ics20 channel:
 
 ```bash
-ibc-setup balances
-ibc-setup ics20
+ibc-setup balances # show relayer account balances
+ibc-setup ics20 # creates clients, connections and channels
 ```
-
+For example:
+```
+Created channels for connections connection-0 <=> connection-0: channel-21 (transfer) => channel-10 (custom)
+                                                                ^^^^^^^^^^               ^^^^^^^^^^
+                                                                   dest                     src
+````
 Now we have a channel, let's send some packets. Go back to [manual/consts.ts](./src/lib/manual/consts.ts)
 place the proper channel ids from in the channels object. Make sure to place the channel that was listed
 next to (custom) on the top part. Then run a task to generate packets:
