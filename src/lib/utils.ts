@@ -301,11 +301,12 @@ export function parseAck({ type, attributes }: ParsedEvent): Ack {
 
 export function multiplyFees({ gas, amount }: StdFee, mult: number): StdFee {
   const multGas = Number.parseInt(gas, 10) * mult;
-  const multAmount = amount.map(multiplyCoin, mult);
-  return {
+  const multAmount = amount.map((c) => multiplyCoin(c, mult));
+  const result = {
     gas: multGas.toString(),
     amount: multAmount,
   };
+  return result;
 }
 
 export function multiplyCoin({ amount, denom }: Coin, mult: number): Coin {

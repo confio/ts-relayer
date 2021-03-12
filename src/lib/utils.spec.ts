@@ -1,6 +1,6 @@
 import test from 'ava';
 
-import { parseRevisionNumber } from './utils';
+import { multiplyCoin, multiplyFees, parseRevisionNumber } from './utils';
 
 test('can parse revision numbers', (t) => {
   const musselnet = parseRevisionNumber('musselnet-4');
@@ -31,4 +31,29 @@ test('can parse strange revision numbers', (t) => {
     const rev = parseRevisionNumber(strange);
     t.is(rev.toNumber(), 0, strange);
   }
+});
+
+test('properly multiplies coin', (t) => {
+  const input = { amount: '1212', denom: 'foo' };
+  const output = multiplyCoin(input, 3);
+  t.deepEqual(output, { amount: '3636', denom: 'foo' });
+
+  const input2 = { amount: '654321', denom: 'umuon' };
+  const output2 = multiplyCoin(input2, 2);
+  t.deepEqual(output2, { amount: '1308642', denom: 'umuon' });
+});
+
+test('properly multiplies fees', (t) => {
+  const input = {
+    gas: '12345',
+    amount: [
+      {
+        amount: '654321',
+        denom: 'umuon',
+      },
+    ],
+  };
+  const out = multiplyFees(input, 2);
+  t.deepEqual(out.gas, '24690');
+  t.deepEqual(out.amount, [{ amount: '1308642', denom: 'umuon' }]);
 });
