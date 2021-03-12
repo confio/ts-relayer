@@ -8,8 +8,9 @@ import { IbcClient } from '../../../lib/ibcclient';
 
 import { run } from './balances';
 import { Options } from './keys-list';
+import { TestLogger } from '../../../lib/testutils';
+import { Logger } from 'winston';
 
-const consoleLog = sinon.stub(console, 'log');
 const fsReadFileSync = sinon.stub(fs, 'readFileSync');
 const mnemonic =
   'accident harvest weasel surge source return tag supreme sorry isolate wave mammal';
@@ -70,6 +71,8 @@ chains:
       - http://localhost:26658`;
 
 test('lists chains with non-zero balance', async (t) => {
+  const logger = new TestLogger();
+
   const options: Options = {
     home: '/home/user',
     mnemonic,
@@ -84,12 +87,12 @@ test('lists chains with non-zero balance', async (t) => {
     .withArgs(...localSimappArgs)
     .returns(createFakeIbcClient('3', 'simappdenom'));
 
-  await run(options);
+  await run(options, (logger as unknown) as Logger);
 
   t.assert(fsReadFileSync.calledOnce);
-  t.assert(consoleLog.calledOnce);
+  t.assert(logger.info.calledOnce);
   t.assert(
-    consoleLog.calledWithExactly(
+    logger.info.calledWithExactly(
       [
         'musselnet: 1musselnetdenom',
         'local_wasm: 2wasmdenom',
@@ -100,6 +103,8 @@ test('lists chains with non-zero balance', async (t) => {
 });
 
 test('omits chains with zero balance', async (t) => {
+  const logger = new TestLogger();
+
   const options: Options = {
     home: '/home/user',
     mnemonic,
@@ -114,18 +119,20 @@ test('omits chains with zero balance', async (t) => {
     .withArgs(...localSimappArgs)
     .returns(createFakeIbcClient('3', 'simappdenom'));
 
-  await run(options);
+  await run(options, (logger as unknown) as Logger);
 
   t.assert(fsReadFileSync.calledOnce);
-  t.assert(consoleLog.calledOnce);
+  t.assert(logger.info.calledOnce);
   t.assert(
-    consoleLog.calledWithExactly(
+    logger.info.calledWithExactly(
       ['musselnet: 1musselnetdenom', 'local_simapp: 3simappdenom'].join(os.EOL)
     )
   );
 });
 
 test('informs when there are no funds on any balance', async (t) => {
+  const logger = new TestLogger();
+
   const options: Options = {
     home: '/home/user',
     mnemonic,
@@ -140,9 +147,9 @@ test('informs when there are no funds on any balance', async (t) => {
     .withArgs(...localSimappArgs)
     .returns(createFakeIbcClient('0', 'simappdenom'));
 
-  await run(options);
+  await run(options, (logger as unknown) as Logger);
 
   t.assert(fsReadFileSync.calledOnce);
-  t.assert(consoleLog.calledOnce);
-  t.assert(consoleLog.calledWithMatch(/No funds/));
+  t.assert(logger.info.calledOnce);
+  t.assert(logger.info.calledWithMatch(/No funds/));
 });
