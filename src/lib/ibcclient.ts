@@ -352,12 +352,15 @@ export class IbcClient {
     await sleep(50);
   }
 
-  public getCommit(height?: number): Promise<CommitResponse> {
-    this.logger.verbose(
-      height === undefined
-        ? 'Get latest commit'
-        : `Get commit for height ${height}`
-    );
+  public async getCommit(height?: number): Promise<CommitResponse> {
+    if (height === undefined) {
+      this.logger.verbose('Get latest commit');
+      const latestHeader = await this.latestHeader();
+      await this.waitOneBlock();
+      return this.tm.commit(latestHeader.height);
+    }
+
+    this.logger.verbose(`Get commit for height ${height}`);
     return this.tm.commit(height);
   }
 
