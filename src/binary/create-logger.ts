@@ -52,10 +52,7 @@ export function createLogger(flags: LoggerFlags) {
         new winston.transports.File({
           handleExceptions: true,
           filename: flags.logFile,
-          format: winston.format.combine(
-            winston.format.timestamp(),
-            winston.format.json()
-          ),
+          format: winston.format.combine(winston.format.timestamp()),
         }),
       ]
     : [];
@@ -63,6 +60,10 @@ export function createLogger(flags: LoggerFlags) {
   const logger = winston.createLogger({
     level,
     levels,
+    format: winston.format.combine(
+      winston.format.errors({ stack: true }),
+      winston.format.json()
+    ),
     transports: [
       new winston.transports.Console({
         handleExceptions: true,
@@ -71,6 +72,7 @@ export function createLogger(flags: LoggerFlags) {
           winston.format.simple()
         ),
       }),
+
       ...fileTransport,
     ],
   });
