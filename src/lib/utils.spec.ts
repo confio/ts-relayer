@@ -3,8 +3,10 @@ import {
   ReadonlyDateWithNanoseconds,
 } from '@cosmjs/tendermint-rpc';
 import test from 'ava';
+import Long from 'long';
 
 import {
+  heightGreater,
   multiplyCoin,
   multiplyFees,
   parseRevisionNumber,
@@ -75,6 +77,28 @@ test('time-based timeouts properly', (t) => {
     secondsFromDateNanos(time3)
   );
   t.is(greaterThanSelf, false);
+});
+
+test('height based timeouts properly', (t) => {
+  const height1a = {
+    revisionHeight: Long.fromNumber(12345),
+    revisionNumber: Long.fromNumber(1),
+  };
+  const height1b = {
+    revisionHeight: Long.fromNumber(14000),
+    revisionNumber: Long.fromNumber(1),
+  };
+  const height2a = {
+    revisionHeight: Long.fromNumber(600),
+    revisionNumber: Long.fromNumber(2),
+  };
+
+  t.assert(heightGreater(height1b, height1a));
+  t.assert(heightGreater(height2a, height1b));
+  t.assert(heightGreater(undefined, height2a));
+
+  t.false(heightGreater(height1b, height1b));
+  t.false(heightGreater(height1a, height1b));
 });
 
 test('properly multiplies coin', (t) => {
