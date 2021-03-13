@@ -101,7 +101,7 @@ export function timestampFromDateNanos(
 export function secondsFromDateNanos(
   date: ReadonlyDateWithNanoseconds
 ): number {
-  return date.getTime() / 1000;
+  return Math.floor(date.getTime() / 1000);
 }
 
 export function buildConsensusState(
@@ -315,7 +315,7 @@ export function multiplyCoin({ amount, denom }: Coin, mult: number): Coin {
 }
 
 // return true if a > b, or a undefined
-function heightGreater(a: Height | undefined, b: Height): boolean {
+export function heightGreater(a: Height | undefined, b: Height): boolean {
   if (a === undefined) {
     return true;
   }
@@ -333,7 +333,7 @@ function heightGreater(a: Height | undefined, b: Height): boolean {
 
 // return true if a > b, or a 0
 // note a is nanoseconds, while b is seconds
-function timeGreater(a: Long | undefined, b: number): boolean {
+export function timeGreater(a: Long | undefined, b: number): boolean {
   if (a === undefined || a.isZero()) {
     return true;
   }

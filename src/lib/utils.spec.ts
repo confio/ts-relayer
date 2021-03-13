@@ -1,6 +1,17 @@
+import {
+  fromRfc3339WithNanoseconds,
+  ReadonlyDateWithNanoseconds,
+} from '@cosmjs/tendermint-rpc';
 import test from 'ava';
 
-import { multiplyCoin, multiplyFees, parseRevisionNumber } from './utils';
+import {
+  multiplyCoin,
+  multiplyFees,
+  parseRevisionNumber,
+  secondsFromDateNanos,
+  timeGreater,
+  timestampFromDateNanos,
+} from './utils';
 
 test('can parse revision numbers', (t) => {
   const musselnet = parseRevisionNumber('musselnet-4');
@@ -31,6 +42,39 @@ test('can parse strange revision numbers', (t) => {
     const rev = parseRevisionNumber(strange);
     t.is(rev.toNumber(), 0, strange);
   }
+});
+
+function nanosFromDateTime(time: ReadonlyDateWithNanoseconds): Long {
+  const stamp = timestampFromDateNanos(time);
+  return stamp.seconds.multiply(1_000_000_000).add(stamp.nanos);
+}
+
+test('time-based timeouts properly', (t) => {
+  const time1 = fromRfc3339WithNanoseconds('2021-03-12T12:34:56.123456789Z');
+  const time2 = fromRfc3339WithNanoseconds('2021-03-12T12:36:56.543543543Z');
+  const time3 = fromRfc3339WithNanoseconds('2021-03-12T12:36:13Z');
+
+  const sec1 = secondsFromDateNanos(time1);
+  const nanos1 = nanosFromDateTime(time1);
+  const sec2 = secondsFromDateNanos(time2);
+  const nanos2 = nanosFromDateTime(time2);
+
+  const greaterThanNull = timeGreater(undefined, secondsFromDateNanos(time1));
+  t.is(greaterThanNull, true);
+
+  const greaterThanPast = timeGreater(nanos2, sec1);
+  t.is(greaterThanPast, true);
+  const greaterThanFuture = timeGreater(nanos1, sec2);
+  t.is(greaterThanFuture, false);
+
+  // nanos seconds beat seconds if present
+  const greaterThanSelfWithNanos = timeGreater(nanos1, sec1);
+  t.is(greaterThanSelfWithNanos, true);
+  const greaterThanSelf = timeGreater(
+    nanosFromDateTime(time3),
+    secondsFromDateNanos(time3)
+  );
+  t.is(greaterThanSelf, false);
 });
 
 test('properly multiplies coin', (t) => {
