@@ -162,7 +162,7 @@ async function relayerLoop(link: Link, options: LoopOptions, logger: Logger) {
       await link.updateClientIfStale('A', options.maxAgeDest);
       await link.updateClientIfStale('B', options.maxAgeSrc);
     } catch (e) {
-      logger.error(`Caught error: ${e}`);
+      logger.error(`Caught error: `, e);
     }
 
     if (options.once) {
