@@ -138,6 +138,12 @@ test('Properly determines height-based timeouts', (t) => {
     revisionHeight: new Long(3456),
   });
 
+  // handles revision number 0 properly (this is allowed)
+  t.deepEqual(parseHeightAttribute('0-1724'), {
+    revisionNumber: new Long(0),
+    revisionHeight: new Long(1724),
+  });
+
   // missing heights
   t.is(parseHeightAttribute(''), undefined);
   t.is(parseHeightAttribute(), undefined);

@@ -208,7 +208,8 @@ export function parseHeightAttribute(attribute?: string): Height | undefined {
   }
   const revisionNumber = Long.fromString(timeoutRevisionNumber);
   const revisionHeight = Long.fromString(timeoutRevisionHeight);
-  if (revisionHeight.isZero() || revisionNumber.isZero()) {
+  // note: 0 revisionNumber is allowed. If there is bad data, '' or '0-0', we will get 0 for the height
+  if (revisionHeight.isZero()) {
     return undefined;
   }
   return { revisionHeight, revisionNumber };
