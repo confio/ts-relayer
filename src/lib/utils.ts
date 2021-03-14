@@ -200,6 +200,20 @@ export function parsePacketsFromLogs(logs: readonly logs.Log[]): Packet[] {
   return flatEvents.map(parsePacket);
 }
 
+export function parseHeightAttribute(attribute?: string): Height | undefined {
+  const [timeoutRevisionNumber, timeoutRevisionHeight] =
+    attribute?.split('-') ?? [];
+  if (!timeoutRevisionHeight || !timeoutRevisionNumber) {
+    return undefined;
+  }
+  const revisionNumber = Long.fromString(timeoutRevisionNumber);
+  const revisionHeight = Long.fromString(timeoutRevisionHeight);
+  if (revisionHeight.isZero() || revisionNumber.isZero()) {
+    return undefined;
+  }
+  return { revisionHeight, revisionNumber };
+}
+
 export function parsePacket({ type, attributes }: ParsedEvent): Packet {
   if (type !== 'send_packet') {
     throw new Error(`Cannot parse event of type ${type}`);
@@ -212,8 +226,6 @@ export function parsePacket({ type, attributes }: ParsedEvent): Packet {
     {}
   );
 
-  const [timeoutRevisionNumber, timeoutRevisionHeight] =
-    attributesObj.packet_timeout_height?.split('-') ?? [];
   return Packet.fromPartial({
     sequence: may(Long.fromString, attributesObj.packet_sequence),
     /** identifies the port on the sending chain. */
@@ -229,13 +241,7 @@ export function parsePacket({ type, attributes }: ParsedEvent): Packet {
       ? toUtf8(attributesObj.packet_data)
       : undefined,
     /** block height after which the packet times out */
-    timeoutHeight:
-      timeoutRevisionNumber && timeoutRevisionHeight
-        ? Height.fromPartial({
-            revisionNumber: Long.fromString(timeoutRevisionNumber),
-            revisionHeight: Long.fromString(timeoutRevisionHeight),
-          })
-        : undefined,
+    timeoutHeight: parseHeightAttribute(attributesObj.packet_timeout_height),
     /** block timestamp (in nanoseconds) after which the packet times out */
     timeoutTimestamp: may(
       Long.fromString,
@@ -264,8 +270,6 @@ export function parseAck({ type, attributes }: ParsedEvent): Ack {
     }),
     {}
   );
-  const [timeoutRevisionNumber, timeoutRevisionHeight] =
-    attributesObj.packet_timeout_height?.split('-') ?? [];
   const originalPacket = Packet.fromPartial({
     sequence: may(Long.fromString, attributesObj.packet_sequence),
     /** identifies the port on the sending chain. */
@@ -279,13 +283,7 @@ export function parseAck({ type, attributes }: ParsedEvent): Ack {
     /** actual opaque bytes transferred directly to the application module */
     data: toUtf8(attributesObj.packet_data ?? ''),
     /** block height after which the packet times out */
-    timeoutHeight:
-      timeoutRevisionNumber && timeoutRevisionHeight
-        ? Height.fromPartial({
-            revisionNumber: Long.fromString(timeoutRevisionNumber),
-            revisionHeight: Long.fromString(timeoutRevisionHeight),
-          })
-        : undefined,
+    timeoutHeight: parseHeightAttribute(attributesObj.packet_timeout_height),
     /** block timestamp (in nanoseconds) after which the packet times out */
     timeoutTimestamp: may(
       Long.fromString,

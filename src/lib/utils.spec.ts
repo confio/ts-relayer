@@ -9,6 +9,7 @@ import {
   heightGreater,
   multiplyCoin,
   multiplyFees,
+  parseHeightAttribute,
   parseRevisionNumber,
   secondsFromDateNanos,
   timeGreater,
@@ -124,4 +125,26 @@ test('properly multiplies fees', (t) => {
   const out = multiplyFees(input, 2);
   t.deepEqual(out.gas, '24690');
   t.deepEqual(out.amount, [{ amount: '1308642', denom: 'umuon' }]);
+});
+
+test('Properly determines height-based timeouts', (t) => {
+  // proper heights
+  t.deepEqual(parseHeightAttribute('1-34'), {
+    revisionNumber: new Long(1),
+    revisionHeight: new Long(34),
+  });
+  t.deepEqual(parseHeightAttribute('17-3456'), {
+    revisionNumber: new Long(17),
+    revisionHeight: new Long(3456),
+  });
+
+  // missing heights
+  t.is(parseHeightAttribute(''), undefined);
+  t.is(parseHeightAttribute(), undefined);
+
+  // bad format
+  t.is(parseHeightAttribute('some-random-string'), undefined);
+
+  // zero value is defined as missing
+  t.is(parseHeightAttribute('0-0'), undefined);
 });
