@@ -158,11 +158,14 @@ export async function signingClient(
   return client;
 }
 
-export async function setup(logger?: Logger): Promise<IbcClient[]> {
+export async function setup(
+  logger?: Logger,
+  mnemonic?: string
+): Promise<IbcClient[]> {
   // create apps and fund an account
-  const mnemonic = generateMnemonic();
-  const src = await signingClient(simapp, mnemonic, logger);
-  const dest = await signingClient(wasmd, mnemonic, logger);
+  const myMnemonic = mnemonic ?? generateMnemonic();
+  const src = await signingClient(simapp, myMnemonic, logger);
+  const dest = await signingClient(wasmd, myMnemonic, logger);
   await setupMutex.runExclusive(async () => {
     await fundAccount(wasmd, dest.senderAddress, '4000000');
     await fundAccount(simapp, src.senderAddress, '4000000');

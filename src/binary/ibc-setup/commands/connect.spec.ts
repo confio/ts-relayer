@@ -6,18 +6,14 @@ import test from 'ava';
 import sinon from 'sinon';
 import { Logger } from 'winston';
 
-import { TestLogger } from '../../../lib/testutils';
+import { setup, TestLogger } from '../../../lib/testutils';
 import { appFile } from '../../constants';
-import { signingClient } from '../../utils/signing-client';
+import { generateMnemonic } from '../../utils/generate-mnemonic';
 
-import { simappChain, wasmdChain } from './chains';
 import { Options, run } from './connect';
 
 const fsWriteFileSync = sinon.stub(fs, 'writeFileSync');
 const fsReadFileSync = sinon.stub(fs, 'readFileSync');
-
-const mnemonic =
-  'enlist hip relief stomach skate base shallow young switch frequent cry park';
 
 const registryYaml = `
 version: 1
@@ -45,12 +41,13 @@ test.beforeEach(() => {
   sinon.reset();
 });
 
-test.serial('connects two chains', async (t) => {
+test('connects two chains', async (t) => {
   const logger = new TestLogger();
 
-  const ibcClientSimapp = await signingClient(simappChain, mnemonic);
-  const ibcClientWasm = await signingClient(wasmdChain, mnemonic);
+  const mnemonic = generateMnemonic();
+  const [ibcClientSimapp, ibcClientWasm] = await setup(logger, mnemonic);
 
+  // all connections are pretty meaningless when run in parallel, but we can assert they go up
   const allConnectionsWasm = await ibcClientWasm.query.ibc.connection.allConnections();
   const allConnectionsSimapp = await ibcClientSimapp.query.ibc.connection.allConnections();
 
@@ -98,13 +95,13 @@ destConnection: .+
     srcConnectionId
   );
 
-  t.is(
-    nextAllConnectionsWasm.connections.length,
-    allConnectionsWasm.connections.length + 1
+  t.assert(
+    nextAllConnectionsWasm.connections.length >
+      allConnectionsWasm.connections.length
   );
-  t.is(
-    nextAllConnectionsSimapp.connections.length,
-    allConnectionsSimapp.connections.length + 1
+  t.assert(
+    nextAllConnectionsSimapp.connections.length >
+      allConnectionsSimapp.connections.length
   );
   t.assert(nextConnectionWasm.connection);
   t.assert(nextConnectionSimapp.connection);
