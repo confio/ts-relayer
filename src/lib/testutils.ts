@@ -4,12 +4,15 @@ import { Bech32 } from '@cosmjs/encoding';
 import { Decimal } from '@cosmjs/math';
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 import { StargateClient } from '@cosmjs/stargate';
+import { Mutex } from 'async-mutex';
 import sinon, { SinonSpy } from 'sinon';
 
 import { Order } from '../codec/ibc/core/channel/v1/channel';
 
 import { ChannelInfo, IbcClient, IbcClientOptions } from './ibcclient';
 import { Logger, LogMethod } from './logger';
+
+const setupMutex = new Mutex();
 
 export class TestLogger implements Logger {
   public readonly error: SinonSpy & LogMethod;
@@ -160,8 +163,10 @@ export async function setup(logger?: Logger): Promise<IbcClient[]> {
   const mnemonic = generateMnemonic();
   const src = await signingClient(simapp, mnemonic, logger);
   const dest = await signingClient(wasmd, mnemonic, logger);
-  await fundAccount(wasmd, dest.senderAddress, '4000000');
-  await fundAccount(simapp, src.senderAddress, '4000000');
+  await setupMutex.runExclusive(async () => {
+    await fundAccount(wasmd, dest.senderAddress, '4000000');
+    await fundAccount(simapp, src.senderAddress, '4000000');
+  });
   return [src, dest];
 }
 
