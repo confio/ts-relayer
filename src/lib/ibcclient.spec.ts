@@ -20,31 +20,7 @@ import {
   parsePacketsFromLogs,
 } from './utils';
 
-test.serial('create simapp client on wasmd', async (t) => {
-  const logger = new TestLogger();
-  const [src, dest] = await setup(logger);
-
-  const preClients = await dest.query.ibc.client.allStates();
-  const preLen = preClients.clientStates.length;
-
-  const header = await src.latestHeader();
-
-  const conState = buildConsensusState(header);
-  const cliState = buildClientState(
-    await src.getChainId(),
-    1000,
-    500,
-    src.revisionHeight(header.height)
-  );
-  const res = await dest.createTendermintClient(cliState, conState);
-  t.assert(res.clientId.startsWith('07-tendermint-'));
-
-  await dest.waitOneBlock();
-  const postClients = await dest.query.ibc.client.allStates();
-  t.is(postClients.clientStates.length, preLen + 1);
-});
-
-test.serial('create and update wasmd client on simapp', async (t) => {
+test('create and update wasmd client on simapp', async (t) => {
   const [src, dest] = await setup();
 
   const header = await src.latestHeader();
@@ -92,7 +68,7 @@ function sameLong(a?: Long, b?: Long) {
 const genesisUnbondingTime = 1814400;
 
 // make 2 clients, and try to establish a connection
-test.serial('perform connection handshake', async (t) => {
+test('perform connection handshake', async (t) => {
   const [src, dest] = await setup();
 
   // client on dest -> src
@@ -154,7 +130,7 @@ test.serial('perform connection handshake', async (t) => {
   await dest.connOpenConfirm(destConnId, proofConfirm);
 });
 
-test.serial('transfer message and send packets', async (t) => {
+test('transfer message and send packets', async (t) => {
   const logger = new TestLogger();
   // set up ics20 channel
   const [nodeA, nodeB] = await setup();
@@ -216,7 +192,7 @@ test.serial('transfer message and send packets', async (t) => {
   // Do we need to check the result? or just see the tx succeeded?
 });
 
-test.serial('tests parsing with multi-message', async (t) => {
+test('tests parsing with multi-message', async (t) => {
   const logger = new TestLogger();
   // set up ics20 channel
   const [nodeA, nodeB] = await setup(logger);
