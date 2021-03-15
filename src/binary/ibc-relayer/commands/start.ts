@@ -60,7 +60,9 @@ function resolveHeights(
     );
     return heights;
   } catch {
-    // log?
+    logger.info(
+      'Scanning the entire history for packets... This may take some time.'
+    );
   }
 
   return null;
