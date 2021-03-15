@@ -42,6 +42,8 @@ const startCommand = program
     '--max-age-dest <seconds>',
     'how old can the client on dest chain be, before we update it'
   )
+  .option('--scan-from-src <height>')
+  .option('--scan-from-dest <height>')
   // note: once is designed for debugging and unit tests
   .option('--once', 'just relay pending packets and quit, no polling')
   .action(loggerWithErrorBoundary(start));

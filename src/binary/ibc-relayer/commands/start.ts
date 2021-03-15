@@ -15,6 +15,55 @@ import { resolveHomeOption } from '../../utils/options/shared/resolve-home-optio
 import { resolveKeyFileOption } from '../../utils/options/shared/resolve-key-file-option';
 import { resolveMnemonicOption } from '../../utils/options/shared/resolve-mnemonic-option';
 import { signingClient } from '../../utils/signing-client';
+import { InvalidOptionError } from '../../exceptions/InvalidOptionError';
+
+function resolveHeights(
+  {
+    scanFromSrc,
+    scanFromDest,
+    home,
+  }: {
+    scanFromSrc: number | null;
+    scanFromDest: number | null;
+    home: string;
+  },
+  logger: Logger
+): RelayedHeights | null {
+  if (!scanFromSrc && scanFromDest) {
+    throw new InvalidOptionError(
+      `You have defined "scanFromDest" but no "scanFromSrc". Both or none "scanFromSrc" and "scanFromDest" must be present.`
+    );
+  }
+
+  if (scanFromSrc && !scanFromDest) {
+    throw new InvalidOptionError(
+      `You have defined "scanFromSrc" but no "scanFromDest". Both or none "scanFromSrc" and "scanFromDest" must be present.`
+    );
+  }
+
+  if (scanFromSrc && scanFromDest) {
+    return {
+      packetHeightA: scanFromSrc,
+      ackHeightA: scanFromSrc,
+      packetHeightB: scanFromDest,
+      ackHeightB: scanFromDest,
+    };
+  }
+
+  const lastQueriedHeightsFilePath = path.join(home, lastQueriedHeightsFile);
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const heights = require(lastQueriedHeightsFilePath);
+    logger.info(
+      `Use last queried heights from ${lastQueriedHeightsFilePath} file.`
+    );
+    return heights;
+  } catch {
+    //
+  }
+
+  return null;
+}
 
 type LoopFlags = {
   poll?: string;
@@ -42,6 +91,8 @@ type Flags = {
   mnemonic?: string;
   srcConnection?: string;
   destConnection?: string;
+  scanFromSrc?: string;
+  scanFromDest?: string;
 } & LoggerFlags &
   LoopFlags;
 
@@ -52,6 +103,7 @@ type Options = {
   mnemonic: string;
   srcConnection: string;
   destConnection: string;
+  heights: RelayedHeights | null;
 } & LoopOptions;
 
 // some defaults for looping
@@ -112,6 +164,17 @@ export async function start(flags: Flags, logger: Logger) {
     integer: true,
   })(flags.maxAgeDest, defaultOptions.maxAgeDest);
 
+  const scanFromSrc = resolveOption('scanFromSrc', { integer: true })(
+    flags.scanFromSrc,
+    process.env.RELAYER_SCAN_FROM_SRC
+  );
+  const scanFromDest = resolveOption('scanFromDest', { integer: true })(
+    flags.scanFromDest,
+    process.env.RELAYER_SCAN_FROM_DEST
+  );
+
+  const heights = resolveHeights({ scanFromSrc, scanFromDest, home }, logger);
+
   // FIXME: any env variable for this?
   const once = flags.once;
 
@@ -126,6 +189,7 @@ export async function start(flags: Flags, logger: Logger) {
     maxAgeSrc,
     maxAgeDest,
     once,
+    heights,
   };
 
   await run(options, logger);
@@ -159,21 +223,11 @@ async function run(options: Options, logger: Logger) {
 async function relayerLoop(link: Link, options: Options, logger: Logger) {
   // TODO: fill this in with real data on init
   // (how far back do we start querying... where do we store state?)
-
-  let nextRelay: RelayedHeights = {};
-
+  let nextRelay = options.heights ?? {};
   const lastQueriedHeightsFilePath = path.join(
     options.home,
     lastQueriedHeightsFile
   );
-
-  try {
-    // Should we validate the last-queried-height.json file in some way?
-    nextRelay = require(lastQueriedHeightsFilePath);
-    logger.info(`Use last queried heights from ${lastQueriedHeightsFilePath}`);
-  } catch {
-    logger.info(``); // TODO
-  }
 
   const done = false;
   while (!done) {
