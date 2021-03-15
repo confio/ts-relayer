@@ -12,6 +12,14 @@ export function loggerWithErrorBoundary<T>(
     try {
       await command(flags, logger);
     } catch (error) {
+      /*
+       * TODO: polish error handling
+       *
+       * if (error instanceOf InvalidOptionErorr) {
+       *  // do something else?
+       * }
+       */
+
       logger.error(error);
     }
   };

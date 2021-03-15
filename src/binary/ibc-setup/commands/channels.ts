@@ -9,7 +9,6 @@ import { generateMnemonic } from '../../utils/generate-mnemonic';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
 import { resolveOption } from '../../utils/options/resolve-option';
-import { resolveRequiredOption } from '../../utils/options/resolve-required-option';
 import { resolveHomeOption } from '../../utils/options/shared/resolve-home-option';
 import { resolveKeyFileOption } from '../../utils/options/shared/resolve-key-file-option';
 import { resolveMnemonicOption } from '../../utils/options/shared/resolve-mnemonic-option';
@@ -35,11 +34,11 @@ export async function channels(flags: Flags, logger: Logger) {
   const home = resolveHomeOption({ homeFlag: flags.home });
   const app = loadAndValidateApp(home);
   const keyFile = resolveKeyFileOption({ keyFileFlag: flags.keyFile, app });
-  const chain = resolveRequiredOption('chain')(
+  const chain = resolveOption('chain', { required: true })(
     flags.chain,
     process.env.RELAYER_CHAIN
   );
-  const port = resolveOption(flags.port, process.env.RELAYER_PORT);
+  const port = resolveOption('port')(flags.port, process.env.RELAYER_PORT);
 
   const mnemonic = await resolveMnemonicOption(
     {
@@ -48,7 +47,7 @@ export async function channels(flags: Flags, logger: Logger) {
       keyFile,
       app,
     },
-    true // mnemonic is optional
+    false
   );
 
   const options: Options = {

@@ -8,13 +8,18 @@ import { registryFile } from '../../constants';
 import { LoggerFlags } from '../../types';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
-import { resolveRequiredNumericOption } from '../../utils/options/resolve-required-numeric-option';
-import { resolveRequiredOption } from '../../utils/options/resolve-required-option';
+import { resolveOption } from '../../utils/options/resolve-option';
 import { resolveHomeOption } from '../../utils/options/shared/resolve-home-option';
 import { resolveKeyFileOption } from '../../utils/options/shared/resolve-key-file-option';
 import { resolveMnemonicOption } from '../../utils/options/shared/resolve-mnemonic-option';
 import { signingClient } from '../../utils/signing-client';
 
+type LoopFlags = {
+  poll?: string;
+  maxAgeSrc?: string;
+  maxAgeDest?: string;
+  once: boolean;
+};
 type LoopOptions = {
   // how many seconds we sleep between relaying batches
   poll: number;
@@ -23,7 +28,7 @@ type LoopOptions = {
   // number of seconds old the client on chain B can be
   maxAgeDest: number;
   // if set to 'true' quit after one pass
-  once?: boolean;
+  once: boolean;
 };
 
 type Flags = {
@@ -36,7 +41,7 @@ type Flags = {
   srcConnection?: string;
   destConnection?: string;
 } & LoggerFlags &
-  Partial<LoopOptions>;
+  LoopFlags;
 
 type Options = {
   home: string;
@@ -54,6 +59,8 @@ const defaultOptions: LoopOptions = {
   // once per day: 86400s
   maxAgeSrc: 86400,
   maxAgeDest: 86400,
+
+  once: false,
 };
 
 export async function start(flags: Flags, logger: Logger) {
@@ -66,42 +73,43 @@ export async function start(flags: Flags, logger: Logger) {
     app,
   });
 
-  const src = resolveRequiredOption('src')(
+  const src = resolveOption('src', { required: true })(
     flags.src,
     app?.src,
     process.env.RELAYER_SRC
   );
-  const dest = resolveRequiredOption('dest')(
+  const dest = resolveOption('dest', { required: true })(
     flags.dest,
     app?.dest,
     process.env.RELAYER_DEST
   );
 
-  const srcConnection = resolveRequiredOption('srcConnection')(
+  const srcConnection = resolveOption('srcConnection', { required: true })(
     flags.srcConnection,
     app?.srcConnection,
     process.env.RELAYER_SRC_CONNECTION
   );
 
-  const destConnection = resolveRequiredOption('destConnection')(
+  const destConnection = resolveOption('destConnection', { required: true })(
     flags.destConnection,
     app?.destConnection,
     process.env.RELAYER_DEST_CONNECTION
   );
 
   // TODO: add this in app.yaml, process.env
-  const poll = resolveRequiredNumericOption('poll')(
+  const poll = resolveOption('poll', { required: true, integer: true })(
     flags.poll,
     defaultOptions.poll
   );
-  const maxAgeSrc = resolveRequiredNumericOption('max-age-a')(
-    flags.maxAgeSrc,
-    defaultOptions.maxAgeSrc
-  );
-  const maxAgeDest = resolveRequiredNumericOption('max-age-b')(
-    flags.maxAgeDest,
-    defaultOptions.maxAgeDest
-  );
+  const maxAgeSrc = resolveOption('maxAgeSrc', {
+    required: true,
+    integer: true,
+  })(flags.maxAgeSrc, defaultOptions.maxAgeSrc);
+  const maxAgeDest = resolveOption('maxAgeB', {
+    required: true,
+    integer: true,
+  })(flags.maxAgeDest, defaultOptions.maxAgeDest);
+
   // FIXME: any env variable for this?
   const once = flags.once;
 

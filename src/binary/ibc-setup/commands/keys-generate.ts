@@ -15,7 +15,10 @@ export type Options = {
 
 export async function keysGenerate(flags: Flags, logger: Logger) {
   const options = {
-    keyFile: resolveOption(flags.keyFile, process.env.RELAYER_KEY_FILE),
+    keyFile: resolveOption('keyFile')(
+      flags.keyFile,
+      process.env.RELAYER_KEY_FILE
+    ),
   };
 
   await run(options, logger);
