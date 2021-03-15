@@ -7,6 +7,7 @@ import { Logger } from 'winston';
 import { Link } from '../../../lib/link';
 import { RelayedHeights } from '../../../lib/link';
 import { lastQueriedHeightsFile, registryFile } from '../../constants';
+import { InvalidOptionError } from '../../exceptions/InvalidOptionError';
 import { LoggerFlags } from '../../types';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
@@ -15,7 +16,6 @@ import { resolveHomeOption } from '../../utils/options/shared/resolve-home-optio
 import { resolveKeyFileOption } from '../../utils/options/shared/resolve-key-file-option';
 import { resolveMnemonicOption } from '../../utils/options/shared/resolve-mnemonic-option';
 import { signingClient } from '../../utils/signing-client';
-import { InvalidOptionError } from '../../exceptions/InvalidOptionError';
 
 function resolveHeights(
   {
