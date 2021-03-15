@@ -12,7 +12,6 @@ import { AppConfig } from '../../types';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
 import { resolveOption } from '../../utils/options/resolve-option';
-import { resolveRequiredOption } from '../../utils/options/resolve-required-option';
 import { resolveHomeOption } from '../../utils/options/shared/resolve-home-option';
 import { resolveKeyFileOption } from '../../utils/options/shared/resolve-key-file-option';
 import { resolveMnemonicOption } from '../../utils/options/shared/resolve-mnemonic-option';
@@ -87,19 +86,25 @@ export async function ics20(flags: Flags, logger: Logger): Promise<void> {
     keyFile,
     app,
   });
-  const src = resolveRequiredOption('src')(
+  const src = resolveOption('src', { required: true })(
     flags.src,
     app.src,
     process.env.RELAYER_SRC
   );
-  const dest = resolveRequiredOption('dest')(
+  const dest = resolveOption('dest', { required: true })(
     flags.dest,
     app.dest,
     process.env.RELAYER_DEST
   );
   // we apply default ports later, once we have the registry
-  const srcPort = resolveOption(flags.srcPort, process.env.RELAYER_SRC_PORT);
-  const destPort = resolveOption(flags.destPort, process.env.RELAYER_DEST_PORT);
+  const srcPort = resolveOption('srcPort')(
+    flags.srcPort,
+    process.env.RELAYER_SRC_PORT
+  );
+  const destPort = resolveOption('destPort')(
+    flags.destPort,
+    process.env.RELAYER_DEST_PORT
+  );
   const connections = resolveConnections(app);
 
   run(
@@ -183,12 +188,12 @@ export async function run(
   fs.writeFileSync(appFilePath, appYaml, { encoding: 'utf-8' });
 
   // provide default port, either from registry or global default
-  const srcPort = resolveRequiredOption('src-port')(
+  const srcPort = resolveOption('src-port', { required: true })(
     options.srcPort,
     srcChain.ics20_port,
     defaultPort
   );
-  const destPort = resolveRequiredOption('dest-port')(
+  const destPort = resolveOption('dest-port', { required: true })(
     options.destPort,
     destChain.ics20_port,
     defaultPort

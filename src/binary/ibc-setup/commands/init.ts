@@ -12,7 +12,7 @@ import { deriveAddress } from '../../utils/derive-address';
 import { generateMnemonic } from '../../utils/generate-mnemonic';
 import { getDefaultHomePath } from '../../utils/get-default-home-path';
 import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
-import { resolveRequiredOption } from '../../utils/options/resolve-required-option';
+import { resolveOption } from '../../utils/options/resolve-option';
 
 type Flags = {
   readonly home?: string;
@@ -24,9 +24,13 @@ export type Options = Required<Flags>;
 
 export async function init(flags: Flags, logger: Logger) {
   const options = {
-    src: resolveRequiredOption('src')(flags.src, process.env.RELAYER_SRC),
-    dest: resolveRequiredOption('dest')(flags.dest, process.env.RELAYER_DEST),
-    home: resolveRequiredOption('home')(
+    src: resolveOption('src', {
+      required: true,
+    })(flags.src, process.env.RELAYER_SRC),
+    dest: resolveOption('dest', {
+      required: true,
+    })(flags.dest, process.env.RELAYER_DEST),
+    home: resolveOption('home', { required: true })(
       flags.home,
       process.env.RELAYER_HOME,
       getDefaultHomePath

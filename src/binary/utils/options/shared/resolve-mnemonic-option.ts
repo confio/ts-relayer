@@ -3,7 +3,6 @@ import readline from 'readline';
 
 import { AppConfig } from '../../../types';
 import { resolveOption } from '../resolve-option';
-import { resolveRequiredOption } from '../resolve-required-option';
 
 async function readMnemonicFromStdin(interactive: boolean) {
   if (!interactive) {
@@ -51,6 +50,7 @@ export async function resolveMnemonicOption(
   params: Params,
   optional: true
 ): Promise<string | null>;
+
 export async function resolveMnemonicOption(
   params: Params,
   optional?: false
@@ -68,9 +68,9 @@ export async function resolveMnemonicOption(
     readMnemonicFromFile(keyFile),
   ];
 
-  if (optional) {
-    return resolveOption(...args);
+  if (!optional) {
+    return resolveOption('mnemonic', { required: true })(...args);
   }
 
-  return resolveRequiredOption('mnemonic')(...args);
+  return resolveOption('mnemonic')(...args);
 }

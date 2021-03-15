@@ -21,7 +21,10 @@ function validateLevel(level: string | null): level is Level {
 export function resolveLevel(
   flags: LoggerFlags
 ): [level: Level, invalidInputLevel: string | null] {
-  const level = resolveOption(flags.logLevel, process.env.RELAYER_LOG_LEVEL);
+  const level = resolveOption('logLevel')(
+    flags.logLevel,
+    process.env.RELAYER_LOG_LEVEL
+  );
 
   if (level !== null && !validateLevel(level)) {
     return [defaultLevel, level];

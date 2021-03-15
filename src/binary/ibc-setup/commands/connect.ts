@@ -9,7 +9,7 @@ import { appFile, registryFile } from '../../constants';
 import { AppConfig } from '../../types';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
-import { resolveRequiredOption } from '../../utils/options/resolve-required-option';
+import { resolveOption } from '../../utils/options/resolve-option';
 import { resolveHomeOption } from '../../utils/options/shared/resolve-home-option';
 import { resolveKeyFileOption } from '../../utils/options/shared/resolve-key-file-option';
 import { resolveMnemonicOption } from '../../utils/options/shared/resolve-mnemonic-option';
@@ -45,12 +45,12 @@ export async function connect(flags: Flags, logger: Logger) {
     keyFile: keyFile,
     app,
   });
-  const src = resolveRequiredOption('src')(
+  const src = resolveOption('src', { required: true })(
     flags.src,
     app?.src,
     process.env.RELAYER_SRC
   );
-  const dest = resolveRequiredOption('dest')(
+  const dest = resolveOption('dest', { required: true })(
     flags.dest,
     app?.dest,
     process.env.RELAYER_DEST

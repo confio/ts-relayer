@@ -7,5 +7,9 @@ type Params = {
 };
 
 export function resolveKeyFileOption({ keyFileFlag, app }: Params) {
-  return resolveOption(keyFileFlag, process.env.KEY_FILE, app?.keyFile);
+  return resolveOption('keyFile')(
+    keyFileFlag,
+    process.env.KEY_FILE,
+    app?.keyFile
+  );
 }
