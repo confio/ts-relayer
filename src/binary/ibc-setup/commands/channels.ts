@@ -47,7 +47,7 @@ export async function channels(flags: Flags, logger: Logger) {
       keyFile,
       app,
     },
-    false
+    true // mnemonic is optional
   );
 
   const options: Options = {
