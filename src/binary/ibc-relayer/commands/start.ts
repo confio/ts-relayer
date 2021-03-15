@@ -1,10 +1,12 @@
+import fs from 'fs';
 import path from 'path';
 
 import { sleep } from '@cosmjs/utils';
 import { Logger } from 'winston';
 
 import { Link } from '../../../lib/link';
-import { registryFile } from '../../constants';
+import { RelayedHeights } from '../../../lib/link';
+import { lastQueriedHeightsFile, registryFile } from '../../constants';
 import { LoggerFlags } from '../../types';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
@@ -154,16 +156,35 @@ async function run(options: Options, logger: Logger) {
   await relayerLoop(link, options, logger);
 }
 
-async function relayerLoop(link: Link, options: LoopOptions, logger: Logger) {
+async function relayerLoop(link: Link, options: Options, logger: Logger) {
   // TODO: fill this in with real data on init
   // (how far back do we start querying... where do we store state?)
-  let nextRelay = {};
+
+  let nextRelay: RelayedHeights = {};
+
+  const lastQueriedHeightsFilePath = path.join(
+    options.home,
+    lastQueriedHeightsFile
+  );
+
+  try {
+    // Should we validate the last-queried-height.json file in some way?
+    nextRelay = require(lastQueriedHeightsFilePath);
+    logger.info(`Use last queried heights from ${lastQueriedHeightsFilePath}`);
+  } catch {
+    logger.info(``); // TODO
+  }
 
   const done = false;
   while (!done) {
     try {
       // TODO: make timeout windows more configurable
       nextRelay = await link.checkAndRelayPacketsAndAcks(nextRelay, 2, 6);
+
+      fs.writeFileSync(
+        lastQueriedHeightsFilePath,
+        JSON.stringify(nextRelay, null, 2)
+      );
 
       // ensure the headers are up to date (only submits if old and we didn't just update them above)
       logger.info('Ensuring clients are not stale');
