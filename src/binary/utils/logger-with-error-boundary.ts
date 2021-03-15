@@ -15,7 +15,7 @@ export function loggerWithErrorBoundary<T>(
       /*
        * TODO: polish error handling
        *
-       * if (error instanceOf InvalidOptionErorr) {
+       * if (error instanceOf InvalidOptionError) {
        *  // do something else?
        * }
        */
