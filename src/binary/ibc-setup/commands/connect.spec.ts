@@ -41,7 +41,7 @@ test.beforeEach(() => {
   sinon.reset();
 });
 
-test('connects two chains', async (t) => {
+test.serial('connects two chains', async (t) => {
   const logger = new TestLogger();
 
   const mnemonic = generateMnemonic();

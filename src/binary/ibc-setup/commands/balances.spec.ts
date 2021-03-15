@@ -7,13 +7,12 @@ import { Logger } from 'winston';
 
 import { IbcClient } from '../../../lib/ibcclient';
 import { TestLogger } from '../../../lib/testutils';
+import { generateMnemonic } from '../../utils/generate-mnemonic';
 
 import { run } from './balances';
 import { Options } from './keys-list';
 
 const fsReadFileSync = sinon.stub(fs, 'readFileSync');
-const mnemonic =
-  'accident harvest weasel surge source return tag supreme sorry isolate wave mammal';
 
 function buildIbcArgs(rpc: string) {
   return [rpc, sinon.match.any, sinon.match.any, sinon.match.any] as const;
@@ -75,7 +74,7 @@ test.serial('lists chains with non-zero balance', async (t) => {
 
   const options: Options = {
     home: '/home/user',
-    mnemonic,
+    mnemonic: generateMnemonic(),
   };
 
   fsReadFileSync.returns(registryYaml);
@@ -108,7 +107,7 @@ test.serial('omits chains with zero balance', async (t) => {
 
   const options: Options = {
     home: '/home/user',
-    mnemonic,
+    mnemonic: generateMnemonic(),
   };
 
   fsReadFileSync.returns(registryYaml);
@@ -137,7 +136,7 @@ test.serial('informs when there are no funds on any balance', async (t) => {
 
   const options: Options = {
     home: '/home/user',
-    mnemonic,
+    mnemonic: generateMnemonic(),
   };
 
   fsReadFileSync.returns(registryYaml);

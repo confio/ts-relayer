@@ -18,7 +18,7 @@
     "test": "run-s build test:*",
     "test:lint": "eslint src --ext .ts",
     "test:prettier": "prettier \"src/**/*.ts\" --list-different",
-    "test:unit": "nyc --silent ava",
+    "test:unit": "nyc --silent ava --concurrency 1",
     "focused-test": "run-s build && yarn test:unit ./src/lib/link.spec.ts",
     "check-cli": "run-s test diff-integration-tests check-integration-tests",
     "check-integration-tests": "run-s check-integration-test:*",
