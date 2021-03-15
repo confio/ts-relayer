@@ -224,8 +224,6 @@ async function run(options: Options, logger: Logger) {
 }
 
 async function relayerLoop(link: Link, options: Options, logger: Logger) {
-  // TODO: fill this in with real data on init
-  // (how far back do we start querying... where do we store state?)
   let nextRelay = options.heights ?? {};
   const lastQueriedHeightsFilePath = path.join(
     options.home,
