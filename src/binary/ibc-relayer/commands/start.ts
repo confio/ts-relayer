@@ -42,6 +42,7 @@ function resolveHeights(
   }
 
   if (scanFromSrc && scanFromDest) {
+    logger.info('Use heights from the command line arguments.');
     return {
       packetHeightA: scanFromSrc,
       ackHeightA: scanFromSrc,
@@ -59,7 +60,7 @@ function resolveHeights(
     );
     return heights;
   } catch {
-    //
+    // log?
   }
 
   return null;
