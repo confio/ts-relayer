@@ -23,29 +23,29 @@ export function resolveOption(
 // if required and not integer then it's a string
 export function resolveOption(
   identifier: string,
-  options?: { required: true; integer?: false }
+  options: { required: true; integer?: false }
 ): (...args: Args) => string;
 
 export function resolveOption(
   identifier: string,
-  options?: { required?: boolean; integer?: boolean }
+  optionsParam?: { required?: boolean; integer?: boolean }
 ) {
   return (...args: Args) => {
-    const opts = {
-      required: options?.required ?? false,
-      integer: options?.integer ?? false,
+    const options = {
+      required: optionsParam?.required ?? false,
+      integer: optionsParam?.integer ?? false,
     };
 
     const value = findValue(...args);
 
     if (value === null) {
-      if (opts.required) {
+      if (options.required) {
         throw new InvalidOptionError(`"${identifier}" option is required.`);
       }
       return null;
     }
 
-    if (opts.integer) {
+    if (options.integer) {
       const parsedValue = parseInt(value, 10);
 
       if (isNaN(parsedValue)) {
