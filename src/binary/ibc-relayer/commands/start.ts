@@ -17,16 +17,14 @@ import { resolveKeyFileOption } from '../../utils/options/shared/resolve-key-fil
 import { resolveMnemonicOption } from '../../utils/options/shared/resolve-mnemonic-option';
 import { signingClient } from '../../utils/signing-client';
 
+type ResolveHeightsParams = {
+  scanFromSrc: number | null;
+  scanFromDest: number | null;
+  home: string;
+};
+
 function resolveHeights(
-  {
-    scanFromSrc,
-    scanFromDest,
-    home,
-  }: {
-    scanFromSrc: number | null;
-    scanFromDest: number | null;
-    home: string;
-  },
+  { scanFromSrc, scanFromDest, home }: ResolveHeightsParams,
   logger: Logger
 ): RelayedHeights | null {
   if (!scanFromSrc && scanFromDest) {
