@@ -1,7 +1,7 @@
 // This file outputs some basic test functionality, and includes tests that they work
 import { Bip39, Random } from '@cosmjs/crypto';
 import { Bech32 } from '@cosmjs/encoding';
-import { Decimal } from '@cosmjs/math';
+import { GasPrice } from '@cosmjs/launchpad';
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 import { StargateClient } from '@cosmjs/stargate';
 import sinon, { SinonSpy } from 'sinon';
@@ -43,6 +43,7 @@ export const simapp = {
   prefix: 'cosmos',
   denomStaking: 'umoo',
   denomFee: 'umuon',
+  minFee: '0.025umuon',
   blockTime: 250, // ms
   faucet: {
     mnemonic:
@@ -74,6 +75,7 @@ export const wasmd = {
   prefix: 'wasm',
   denomStaking: 'ustake',
   denomFee: 'ucosm',
+  minFee: '0.025ucosm',
   blockTime: 250, // ms
   faucet: {
     mnemonic:
@@ -111,6 +113,7 @@ export interface SigningOpts {
   readonly tendermintUrlHttp: string;
   readonly prefix: string;
   readonly denomFee: string;
+  readonly minFee: string;
 }
 
 interface QueryOpts {
@@ -140,10 +143,7 @@ export async function signingClient(
   const { address } = (await signer.getAccounts())[0];
   const options: IbcClientOptions = {
     prefix: opts.prefix,
-    gasPrice: {
-      amount: Decimal.fromAtomics('5', 2), // 0.05
-      denom: opts.denomFee,
-    },
+    gasPrice: GasPrice.fromString(opts.minFee),
     logger,
   };
   const client = await IbcClient.connectWithSigner(
@@ -173,7 +173,7 @@ export async function fundAccount(
   const client = await signingClient(opts, opts.faucet.mnemonic);
   const feeTokens = {
     amount,
-    denom: opts.denomFee,
+    denom: GasPrice.fromString(opts.minFee).denom,
   };
   await client.sendTokens(rcpt, [feeTokens]);
 }
