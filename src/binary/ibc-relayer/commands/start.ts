@@ -1,10 +1,13 @@
+import fs from 'fs';
 import path from 'path';
 
 import { sleep } from '@cosmjs/utils';
 import { Logger } from 'winston';
 
 import { Link } from '../../../lib/link';
-import { registryFile } from '../../constants';
+import { RelayedHeights } from '../../../lib/link';
+import { lastQueriedHeightsFile, registryFile } from '../../constants';
+import { InvalidOptionError } from '../../exceptions/InvalidOptionError';
 import { LoggerFlags } from '../../types';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
@@ -13,6 +16,55 @@ import { resolveHomeOption } from '../../utils/options/shared/resolve-home-optio
 import { resolveKeyFileOption } from '../../utils/options/shared/resolve-key-file-option';
 import { resolveMnemonicOption } from '../../utils/options/shared/resolve-mnemonic-option';
 import { signingClient } from '../../utils/signing-client';
+
+type ResolveHeightsParams = {
+  scanFromSrc: number | null;
+  scanFromDest: number | null;
+  home: string;
+};
+
+function resolveHeights(
+  { scanFromSrc, scanFromDest, home }: ResolveHeightsParams,
+  logger: Logger
+): RelayedHeights | null {
+  if (!scanFromSrc && scanFromDest) {
+    throw new InvalidOptionError(
+      `You have defined "scanFromDest" but no "scanFromSrc". Both or none "scanFromSrc" and "scanFromDest" must be present.`
+    );
+  }
+
+  if (scanFromSrc && !scanFromDest) {
+    throw new InvalidOptionError(
+      `You have defined "scanFromSrc" but no "scanFromDest". Both or none "scanFromSrc" and "scanFromDest" must be present.`
+    );
+  }
+
+  if (scanFromSrc && scanFromDest) {
+    logger.info('Use heights from the command line arguments.');
+    return {
+      packetHeightA: scanFromSrc,
+      ackHeightA: scanFromSrc,
+      packetHeightB: scanFromDest,
+      ackHeightB: scanFromDest,
+    };
+  }
+
+  const lastQueriedHeightsFilePath = path.join(home, lastQueriedHeightsFile);
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const heights = require(lastQueriedHeightsFilePath);
+    logger.info(
+      `Use last queried heights from ${lastQueriedHeightsFilePath} file.`
+    );
+    return heights;
+  } catch {
+    logger.info(
+      'Scanning the entire history for packets... This may take some time.'
+    );
+  }
+
+  return null;
+}
 
 type LoopFlags = {
   poll?: string;
@@ -40,6 +92,8 @@ type Flags = {
   mnemonic?: string;
   srcConnection?: string;
   destConnection?: string;
+  scanFromSrc?: string;
+  scanFromDest?: string;
 } & LoggerFlags &
   LoopFlags;
 
@@ -50,6 +104,7 @@ type Options = {
   mnemonic: string;
   srcConnection: string;
   destConnection: string;
+  heights: RelayedHeights | null;
 } & LoopOptions;
 
 // some defaults for looping
@@ -110,6 +165,17 @@ export async function start(flags: Flags, logger: Logger) {
     integer: true,
   })(flags.maxAgeDest, defaultOptions.maxAgeDest);
 
+  const scanFromSrc = resolveOption('scanFromSrc', { integer: true })(
+    flags.scanFromSrc,
+    process.env.RELAYER_SCAN_FROM_SRC
+  );
+  const scanFromDest = resolveOption('scanFromDest', { integer: true })(
+    flags.scanFromDest,
+    process.env.RELAYER_SCAN_FROM_DEST
+  );
+
+  const heights = resolveHeights({ scanFromSrc, scanFromDest, home }, logger);
+
   // FIXME: any env variable for this?
   const once = flags.once;
 
@@ -124,6 +190,7 @@ export async function start(flags: Flags, logger: Logger) {
     maxAgeSrc,
     maxAgeDest,
     once,
+    heights,
   };
 
   await run(options, logger);
@@ -154,16 +221,23 @@ async function run(options: Options, logger: Logger) {
   await relayerLoop(link, options, logger);
 }
 
-async function relayerLoop(link: Link, options: LoopOptions, logger: Logger) {
-  // TODO: fill this in with real data on init
-  // (how far back do we start querying... where do we store state?)
-  let nextRelay = {};
+async function relayerLoop(link: Link, options: Options, logger: Logger) {
+  let nextRelay = options.heights ?? {};
+  const lastQueriedHeightsFilePath = path.join(
+    options.home,
+    lastQueriedHeightsFile
+  );
 
   const done = false;
   while (!done) {
     try {
       // TODO: make timeout windows more configurable
       nextRelay = await link.checkAndRelayPacketsAndAcks(nextRelay, 2, 6);
+
+      fs.writeFileSync(
+        lastQueriedHeightsFilePath,
+        JSON.stringify(nextRelay, null, 2)
+      );
 
       // ensure the headers are up to date (only submits if old and we didn't just update them above)
       logger.info('Ensuring clients are not stale');
