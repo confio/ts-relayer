@@ -101,7 +101,7 @@ export function timestampFromDateNanos(
 export function secondsFromDateNanos(
   date: ReadonlyDateWithNanoseconds
 ): number {
-  return date.getTime() / 1000;
+  return Math.floor(date.getTime() / 1000);
 }
 
 export function buildConsensusState(
@@ -200,6 +200,21 @@ export function parsePacketsFromLogs(logs: readonly logs.Log[]): Packet[] {
   return flatEvents.map(parsePacket);
 }
 
+export function parseHeightAttribute(attribute?: string): Height | undefined {
+  const [timeoutRevisionNumber, timeoutRevisionHeight] =
+    attribute?.split('-') ?? [];
+  if (!timeoutRevisionHeight || !timeoutRevisionNumber) {
+    return undefined;
+  }
+  const revisionNumber = Long.fromString(timeoutRevisionNumber);
+  const revisionHeight = Long.fromString(timeoutRevisionHeight);
+  // note: 0 revisionNumber is allowed. If there is bad data, '' or '0-0', we will get 0 for the height
+  if (revisionHeight.isZero()) {
+    return undefined;
+  }
+  return { revisionHeight, revisionNumber };
+}
+
 export function parsePacket({ type, attributes }: ParsedEvent): Packet {
   if (type !== 'send_packet') {
     throw new Error(`Cannot parse event of type ${type}`);
@@ -212,8 +227,6 @@ export function parsePacket({ type, attributes }: ParsedEvent): Packet {
     {}
   );
 
-  const [timeoutRevisionNumber, timeoutRevisionHeight] =
-    attributesObj.packet_timeout_height?.split('-') ?? [];
   return Packet.fromPartial({
     sequence: may(Long.fromString, attributesObj.packet_sequence),
     /** identifies the port on the sending chain. */
@@ -229,13 +242,7 @@ export function parsePacket({ type, attributes }: ParsedEvent): Packet {
       ? toUtf8(attributesObj.packet_data)
       : undefined,
     /** block height after which the packet times out */
-    timeoutHeight:
-      timeoutRevisionNumber && timeoutRevisionHeight
-        ? Height.fromPartial({
-            revisionNumber: Long.fromString(timeoutRevisionNumber),
-            revisionHeight: Long.fromString(timeoutRevisionHeight),
-          })
-        : undefined,
+    timeoutHeight: parseHeightAttribute(attributesObj.packet_timeout_height),
     /** block timestamp (in nanoseconds) after which the packet times out */
     timeoutTimestamp: may(
       Long.fromString,
@@ -264,8 +271,6 @@ export function parseAck({ type, attributes }: ParsedEvent): Ack {
     }),
     {}
   );
-  const [timeoutRevisionNumber, timeoutRevisionHeight] =
-    attributesObj.packet_timeout_height?.split('-') ?? [];
   const originalPacket = Packet.fromPartial({
     sequence: may(Long.fromString, attributesObj.packet_sequence),
     /** identifies the port on the sending chain. */
@@ -279,13 +284,7 @@ export function parseAck({ type, attributes }: ParsedEvent): Ack {
     /** actual opaque bytes transferred directly to the application module */
     data: toUtf8(attributesObj.packet_data ?? ''),
     /** block height after which the packet times out */
-    timeoutHeight:
-      timeoutRevisionNumber && timeoutRevisionHeight
-        ? Height.fromPartial({
-            revisionNumber: Long.fromString(timeoutRevisionNumber),
-            revisionHeight: Long.fromString(timeoutRevisionHeight),
-          })
-        : undefined,
+    timeoutHeight: parseHeightAttribute(attributesObj.packet_timeout_height),
     /** block timestamp (in nanoseconds) after which the packet times out */
     timeoutTimestamp: may(
       Long.fromString,
@@ -315,7 +314,7 @@ export function multiplyCoin({ amount, denom }: Coin, mult: number): Coin {
 }
 
 // return true if a > b, or a undefined
-function heightGreater(a: Height | undefined, b: Height): boolean {
+export function heightGreater(a: Height | undefined, b: Height): boolean {
   if (a === undefined) {
     return true;
   }
@@ -333,7 +332,7 @@ function heightGreater(a: Height | undefined, b: Height): boolean {
 
 // return true if a > b, or a 0
 // note a is nanoseconds, while b is seconds
-function timeGreater(a: Long | undefined, b: number): boolean {
+export function timeGreater(a: Long | undefined, b: number): boolean {
   if (a === undefined || a.isZero()) {
     return true;
   }
