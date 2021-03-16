@@ -7,13 +7,12 @@ import { Logger } from 'winston';
 
 import { IbcClient } from '../../../lib/ibcclient';
 import { TestLogger } from '../../../lib/testutils';
+import { generateMnemonic } from '../../utils/generate-mnemonic';
 
 import { run } from './balances';
 import { Options } from './keys-list';
 
 const fsReadFileSync = sinon.stub(fs, 'readFileSync');
-const mnemonic =
-  'accident harvest weasel surge source return tag supreme sorry isolate wave mammal';
 
 function buildIbcArgs(rpc: string) {
   return [rpc, sinon.match.any, sinon.match.any, sinon.match.any] as const;
@@ -70,12 +69,12 @@ chains:
     rpc:
       - http://localhost:26658`;
 
-test('lists chains with non-zero balance', async (t) => {
+test.serial('lists chains with non-zero balance', async (t) => {
   const logger = new TestLogger();
 
   const options: Options = {
     home: '/home/user',
-    mnemonic,
+    mnemonic: generateMnemonic(),
   };
 
   fsReadFileSync.returns(registryYaml);
@@ -89,6 +88,7 @@ test('lists chains with non-zero balance', async (t) => {
 
   await run(options, (logger as unknown) as Logger);
 
+  // TODO: how to assert this when called in parallel?
   t.assert(fsReadFileSync.calledOnce);
   t.assert(logger.info.calledOnce);
   t.assert(
@@ -102,12 +102,12 @@ test('lists chains with non-zero balance', async (t) => {
   );
 });
 
-test('omits chains with zero balance', async (t) => {
+test.serial('omits chains with zero balance', async (t) => {
   const logger = new TestLogger();
 
   const options: Options = {
     home: '/home/user',
-    mnemonic,
+    mnemonic: generateMnemonic(),
   };
 
   fsReadFileSync.returns(registryYaml);
@@ -121,6 +121,7 @@ test('omits chains with zero balance', async (t) => {
 
   await run(options, (logger as unknown) as Logger);
 
+  // TODO: how to assert this when called in parallel?
   t.assert(fsReadFileSync.calledOnce);
   t.assert(logger.info.calledOnce);
   t.assert(
@@ -130,12 +131,12 @@ test('omits chains with zero balance', async (t) => {
   );
 });
 
-test('informs when there are no funds on any balance', async (t) => {
+test.serial('informs when there are no funds on any balance', async (t) => {
   const logger = new TestLogger();
 
   const options: Options = {
     home: '/home/user',
-    mnemonic,
+    mnemonic: generateMnemonic(),
   };
 
   fsReadFileSync.returns(registryYaml);
@@ -149,6 +150,7 @@ test('informs when there are no funds on any balance', async (t) => {
 
   await run(options, (logger as unknown) as Logger);
 
+  // TODO: how to assert this when called in parallel?
   t.assert(fsReadFileSync.calledOnce);
   t.assert(logger.info.calledOnce);
   t.assert(logger.info.calledWithMatch(/No funds/));

@@ -16,7 +16,7 @@ import {
 } from './testutils';
 import { secondsFromDateNanos, splitPendingPackets } from './utils';
 
-test.serial('establish new client-connection', async (t) => {
+test('establish new client-connection', async (t) => {
   const logger = new TestLogger();
   const [src, dest] = await setup();
 
@@ -34,7 +34,7 @@ test.serial('establish new client-connection', async (t) => {
   t.assert(logger.info.calledTwice, logger.info.callCount.toString());
 });
 
-test.serial('initialized connection and start channel handshake', async (t) => {
+test('initialized connection and start channel handshake', async (t) => {
   const [src, dest] = await setup();
   const link = await Link.createWithNewConnections(src, dest);
 
@@ -75,50 +75,47 @@ test.serial('initialized connection and start channel handshake', async (t) => {
   t.assert(channelIdSrc.startsWith('channel-'), channelIdSrc);
 });
 
-test.serial(
-  'automated channel handshake on initialized connection',
-  async (t) => {
-    const [nodeA, nodeB] = await setup();
-    const link = await Link.createWithNewConnections(nodeA, nodeB);
+test('automated channel handshake on initialized connection', async (t) => {
+  const [nodeA, nodeB] = await setup();
+  const link = await Link.createWithNewConnections(nodeA, nodeB);
 
-    // increment the channel sequence on src, to guarantee unique ids
-    await nodeA.channelOpenInit(
-      ics20.srcPortId,
-      ics20.destPortId,
-      ics20.ordering,
-      link.endA.connectionID,
-      ics20.version
-    );
+  // increment the channel sequence on src, to guarantee unique ids
+  await nodeA.channelOpenInit(
+    ics20.srcPortId,
+    ics20.destPortId,
+    ics20.ordering,
+    link.endA.connectionID,
+    ics20.version
+  );
 
-    // open a channel
-    const channels = await link.createChannel(
-      'A',
-      ics20.srcPortId,
-      ics20.destPortId,
-      ics20.ordering,
-      ics20.version
-    );
+  // open a channel
+  const channels = await link.createChannel(
+    'A',
+    ics20.srcPortId,
+    ics20.destPortId,
+    ics20.ordering,
+    ics20.version
+  );
 
-    // ensure we bound expected ports
-    t.is(channels.src.portId, ics20.srcPortId);
-    t.is(channels.dest.portId, ics20.destPortId);
-    // and have different channel ids (this depends on the increment above)
-    t.not(channels.src.channelId, channels.dest.channelId);
+  // ensure we bound expected ports
+  t.is(channels.src.portId, ics20.srcPortId);
+  t.is(channels.dest.portId, ics20.destPortId);
+  // and have different channel ids (this depends on the increment above)
+  t.not(channels.src.channelId, channels.dest.channelId);
 
-    // query data
-    const { channel } = await link.endB.client.query.ibc.channel.channel(
-      ics20.destPortId,
-      channels.dest.channelId
-    );
-    t.is(channel?.state, State.STATE_OPEN);
-    t.is(channel?.ordering, ics20.ordering);
-    t.is(channel?.counterparty?.channelId, channels.src.channelId);
-  }
-);
+  // query data
+  const { channel } = await link.endB.client.query.ibc.channel.channel(
+    ics20.destPortId,
+    channels.dest.channelId
+  );
+  t.is(channel?.state, State.STATE_OPEN);
+  t.is(channel?.ordering, ics20.ordering);
+  t.is(channel?.counterparty?.channelId, channels.src.channelId);
+});
 
 // createWithExistingConnections
 
-test.serial('reuse existing connections', async (t) => {
+test('reuse existing connections', async (t) => {
   const [src, dest] = await setup();
 
   const oldLink = await Link.createWithNewConnections(src, dest);
@@ -167,78 +164,75 @@ test.serial('reuse existing connections', async (t) => {
   t.notDeepEqual(newChannels.dest, oldChannels.src);
 });
 
-test.serial(
-  'reuse existing connections with partially open channel',
-  async (t) => {
-    const [src, dest] = await setup();
+test('reuse existing connections with partially open channel', async (t) => {
+  const [src, dest] = await setup();
 
-    const oldLink = await Link.createWithNewConnections(src, dest);
-    const connA = oldLink.endA.connectionID;
-    const connB = oldLink.endB.connectionID;
+  const oldLink = await Link.createWithNewConnections(src, dest);
+  const connA = oldLink.endA.connectionID;
+  const connB = oldLink.endB.connectionID;
 
-    const { channelId: srcChannelId } = await src.channelOpenInit(
-      ics20.srcPortId,
-      ics20.destPortId,
-      ics20.ordering,
-      connA,
-      ics20.version
-    );
-    const proof = await prepareChannelHandshake(
-      src,
-      dest,
-      oldLink.endB.clientID,
-      ics20.srcPortId,
-      srcChannelId
-    );
-    const { channelId: destChannelId } = await dest.channelOpenTry(
-      ics20.destPortId,
-      { portId: ics20.srcPortId, channelId: srcChannelId },
-      ics20.ordering,
-      connB,
-      ics20.version,
-      ics20.version,
-      proof
-    );
+  const { channelId: srcChannelId } = await src.channelOpenInit(
+    ics20.srcPortId,
+    ics20.destPortId,
+    ics20.ordering,
+    connA,
+    ics20.version
+  );
+  const proof = await prepareChannelHandshake(
+    src,
+    dest,
+    oldLink.endB.clientID,
+    ics20.srcPortId,
+    srcChannelId
+  );
+  const { channelId: destChannelId } = await dest.channelOpenTry(
+    ics20.destPortId,
+    { portId: ics20.srcPortId, channelId: srcChannelId },
+    ics20.ordering,
+    connB,
+    ics20.version,
+    ics20.version,
+    proof
+  );
 
-    const newLink = await Link.createWithExistingConnections(
-      src,
-      dest,
-      connA,
-      connB
-    );
-    const channelSrc = await newLink.endA.client.query.ibc.channel.channel(
-      ics20.srcPortId,
-      srcChannelId
-    );
-    t.is(channelSrc.channel?.state, State.STATE_INIT);
-    t.is(channelSrc.channel?.ordering, ics20.ordering);
-    // Counterparty channel ID not yet known
-    t.is(channelSrc.channel?.counterparty?.channelId, '');
-    const channelDest = await newLink.endB.client.query.ibc.channel.channel(
-      ics20.destPortId,
-      destChannelId
-    );
-    t.is(channelDest.channel?.state, State.STATE_TRYOPEN);
-    t.is(channelDest.channel?.ordering, ics20.ordering);
-    t.is(channelDest.channel?.counterparty?.channelId, srcChannelId);
+  const newLink = await Link.createWithExistingConnections(
+    src,
+    dest,
+    connA,
+    connB
+  );
+  const channelSrc = await newLink.endA.client.query.ibc.channel.channel(
+    ics20.srcPortId,
+    srcChannelId
+  );
+  t.is(channelSrc.channel?.state, State.STATE_INIT);
+  t.is(channelSrc.channel?.ordering, ics20.ordering);
+  // Counterparty channel ID not yet known
+  t.is(channelSrc.channel?.counterparty?.channelId, '');
+  const channelDest = await newLink.endB.client.query.ibc.channel.channel(
+    ics20.destPortId,
+    destChannelId
+  );
+  t.is(channelDest.channel?.state, State.STATE_TRYOPEN);
+  t.is(channelDest.channel?.ordering, ics20.ordering);
+  t.is(channelDest.channel?.counterparty?.channelId, srcChannelId);
 
-    // Check everything is fine by creating a new channel
-    // switch src and dest just to test another path
-    const newChannels = await newLink.createChannel(
-      'B',
-      ics20.destPortId,
-      ics20.srcPortId,
-      ics20.ordering,
-      ics20.version
-    );
-    t.notDeepEqual(newChannels.dest, {
-      portId: ics20.srcPortId,
-      channelId: srcChannelId,
-    });
-  }
-);
+  // Check everything is fine by creating a new channel
+  // switch src and dest just to test another path
+  const newChannels = await newLink.createChannel(
+    'B',
+    ics20.destPortId,
+    ics20.srcPortId,
+    ics20.ordering,
+    ics20.version
+  );
+  t.notDeepEqual(newChannels.dest, {
+    portId: ics20.srcPortId,
+    channelId: srcChannelId,
+  });
+});
 
-test.serial('errors when reusing an invalid connection', async (t) => {
+test('errors when reusing an invalid connection', async (t) => {
   const [src, dest] = await setup();
 
   // Make sure valid connections do exist
@@ -251,7 +245,7 @@ test.serial('errors when reusing an invalid connection', async (t) => {
   );
 });
 
-test.serial(`errors when reusing connections on the same node`, async (t) => {
+test(`errors when reusing connections on the same node`, async (t) => {
   const [src, dest] = await setup();
 
   const oldLink = await Link.createWithNewConnections(src, dest);
@@ -262,7 +256,7 @@ test.serial(`errors when reusing connections on the same node`, async (t) => {
   );
 });
 
-test.serial(`errors when reusing connections which don’t match`, async (t) => {
+test(`errors when reusing connections which don’t match`, async (t) => {
   const [src, dest] = await setup();
 
   const oldLink1 = await Link.createWithNewConnections(src, dest);
@@ -275,7 +269,7 @@ test.serial(`errors when reusing connections which don’t match`, async (t) => 
   );
 });
 
-test.serial('submit multiple tx, get unreceived packets', async (t) => {
+test('submit multiple tx, get unreceived packets', async (t) => {
   // setup a channel
   const [nodeA, nodeB] = await setup();
   const link = await Link.createWithNewConnections(nodeA, nodeB);
@@ -353,250 +347,241 @@ test.serial('submit multiple tx, get unreceived packets', async (t) => {
   t.deepEqual(postAcks[0], acks[1]);
 });
 
-test.serial(
-  'submit multiple tx on multiple channels, get unreceived packets',
-  async (t) => {
-    const logger = new TestLogger();
-    // setup a channel
-    const [nodeA, nodeB] = await setup(logger);
-    const link = await Link.createWithNewConnections(nodeA, nodeB, logger);
-    const channels1 = await link.createChannel(
-      'A',
-      ics20.srcPortId,
-      ics20.destPortId,
-      ics20.ordering,
-      ics20.version
-    );
-    const channels2 = await link.createChannel(
-      'A',
-      ics20.srcPortId,
-      ics20.destPortId,
-      ics20.ordering,
-      ics20.version
-    );
-    t.not(channels1.src.channelId, channels2.src.channelId);
+test('submit multiple tx on multiple channels, get unreceived packets', async (t) => {
+  const logger = new TestLogger();
+  // setup a channel
+  const [nodeA, nodeB] = await setup(logger);
+  const link = await Link.createWithNewConnections(nodeA, nodeB, logger);
+  const channels1 = await link.createChannel(
+    'A',
+    ics20.srcPortId,
+    ics20.destPortId,
+    ics20.ordering,
+    ics20.version
+  );
+  const channels2 = await link.createChannel(
+    'A',
+    ics20.srcPortId,
+    ics20.destPortId,
+    ics20.ordering,
+    ics20.version
+  );
+  t.not(channels1.src.channelId, channels2.src.channelId);
 
-    // no packets here
-    const noPackets = await link.endA.querySentPackets();
-    t.is(noPackets.length, 0);
+  // no packets here
+  const noPackets = await link.endA.querySentPackets();
+  t.is(noPackets.length, 0);
 
-    // let's make 3 transfer tx at different heights on each channel pair
-    const amounts = [1000, 2222, 3456];
-    const tx1 = await transferTokens(
-      nodeA,
-      simapp.denomFee,
-      nodeB,
-      wasmd.prefix,
-      channels1.src,
-      amounts
-    );
-    const tx2 = await transferTokens(
-      nodeA,
-      simapp.denomFee,
-      nodeB,
-      wasmd.prefix,
-      channels2.src,
-      amounts
-    );
-    const txHeights = {
-      channels1: tx1.map((height) => ({
-        height,
-        channelId: channels1.src.channelId,
-      })),
-      channels2: tx2.map((height) => ({
-        height,
-        channelId: channels2.src.channelId,
-      })),
-    };
-    // need to wait briefly for it to be indexed
-    await sleep(100);
+  // let's make 3 transfer tx at different heights on each channel pair
+  const amounts = [1000, 2222, 3456];
+  const tx1 = await transferTokens(
+    nodeA,
+    simapp.denomFee,
+    nodeB,
+    wasmd.prefix,
+    channels1.src,
+    amounts
+  );
+  const tx2 = await transferTokens(
+    nodeA,
+    simapp.denomFee,
+    nodeB,
+    wasmd.prefix,
+    channels2.src,
+    amounts
+  );
+  const txHeights = {
+    channels1: tx1.map((height) => ({
+      height,
+      channelId: channels1.src.channelId,
+    })),
+    channels2: tx2.map((height) => ({
+      height,
+      channelId: channels2.src.channelId,
+    })),
+  };
+  // need to wait briefly for it to be indexed
+  await sleep(100);
 
-    // now query for all packets, ensuring we mapped the channels properly
-    const packets = await link.getPendingPackets('A');
-    t.is(packets.length, 6);
-    t.deepEqual(
-      packets.map(({ height, packet }) => ({
-        height,
-        channelId: packet.sourceChannel,
-      })),
-      [...txHeights.channels1, ...txHeights.channels2]
-    );
+  // now query for all packets, ensuring we mapped the channels properly
+  const packets = await link.getPendingPackets('A');
+  t.is(packets.length, 6);
+  t.deepEqual(
+    packets.map(({ height, packet }) => ({
+      height,
+      channelId: packet.sourceChannel,
+    })),
+    [...txHeights.channels1, ...txHeights.channels2]
+  );
 
-    // ensure the sender is set properly
-    for (const packet of packets) {
-      t.is(packet.sender, nodeA.senderAddress);
-    }
-
-    // ensure no acks yet
-    const preAcks = await link.getPendingAcks('B');
-    t.is(preAcks.length, 0);
-
-    // submit 4 of them (out of order) - make sure not to use same sequences on both sides
-    const packetsToSubmit = [packets[0], packets[1], packets[4], packets[5]];
-    const txAcks = await link.relayPackets('A', packetsToSubmit);
-    t.is(txAcks.length, 4);
-    await nodeA.waitOneBlock();
-
-    // ensure only two marked pending (for tx1)
-    const postPackets = await link.getPendingPackets('A');
-    t.is(postPackets.length, 2);
-    t.is(postPackets[0].height, txHeights.channels1[2].height);
-    t.is(postPackets[1].height, txHeights.channels2[0].height);
-
-    // ensure acks can be queried
-    const acks = await link.getPendingAcks('B');
-    t.is(acks.length, 4);
-
-    // make sure we ack on different channels (and different sequences)
-    t.not(
-      acks[0].originalPacket.sourceChannel,
-      acks[3].originalPacket.sourceChannel
-    );
-    t.not(acks[0].originalPacket.sequence, acks[3].originalPacket.sequence);
-    await link.relayAcks('B', [acks[0], acks[3]]);
-    await nodeA.waitOneBlock();
-
-    // ensure only two acks are still pending
-    const postAcks = await link.getPendingAcks('B');
-    t.is(postAcks.length, 2);
-    // and it matches the ones we did not send
-    t.deepEqual(postAcks[0], acks[1]);
-    t.deepEqual(postAcks[1], acks[2]);
+  // ensure the sender is set properly
+  for (const packet of packets) {
+    t.is(packet.sender, nodeA.senderAddress);
   }
-);
 
-test.serial(
-  'updateClientIfStale only runs if it is too long since an update',
-  async (t) => {
-    // setup
-    const logger = new TestLogger();
-    const [nodeA, nodeB] = await setup(logger);
-    const link = await Link.createWithNewConnections(nodeA, nodeB, logger);
+  // ensure no acks yet
+  const preAcks = await link.getPendingAcks('B');
+  t.is(preAcks.length, 0);
 
-    // height before waiting
-    const heightA = (await nodeA.latestHeader()).height;
-    const heightB = (await nodeB.latestHeader()).height;
+  // submit 4 of them (out of order) - make sure not to use same sequences on both sides
+  const packetsToSubmit = [packets[0], packets[1], packets[4], packets[5]];
+  const txAcks = await link.relayPackets('A', packetsToSubmit);
+  t.is(txAcks.length, 4);
+  await nodeA.waitOneBlock();
 
-    // wait a few seconds so we can get stale ones
-    await sleep(3000);
+  // ensure only two marked pending (for tx1)
+  const postPackets = await link.getPendingPackets('A');
+  t.is(postPackets.length, 2);
+  t.is(postPackets[0].height, txHeights.channels1[2].height);
+  t.is(postPackets[1].height, txHeights.channels2[0].height);
 
-    // we definitely have updated within the last 1000 seconds, this should do nothing
-    const noUpdateA = await link.updateClientIfStale('A', 1000);
-    t.is(noUpdateA, null);
-    const noUpdateB = await link.updateClientIfStale('B', 1000);
-    t.is(noUpdateB, null);
+  // ensure acks can be queried
+  const acks = await link.getPendingAcks('B');
+  t.is(acks.length, 4);
 
-    // we haven't updated in the last 2 seconds, this should trigger the update
-    const updateA = await link.updateClientIfStale('A', 2);
-    assert(updateA);
-    t.assert(updateA.revisionHeight.toNumber() > heightA);
-    const updateB = await link.updateClientIfStale('B', 2);
-    assert(updateB);
-    t.assert(updateB.revisionHeight.toNumber() > heightB);
-  }
-);
+  // make sure we ack on different channels (and different sequences)
+  t.not(
+    acks[0].originalPacket.sourceChannel,
+    acks[3].originalPacket.sourceChannel
+  );
+  t.not(acks[0].originalPacket.sequence, acks[3].originalPacket.sequence);
+  await link.relayAcks('B', [acks[0], acks[3]]);
+  await nodeA.waitOneBlock();
 
-test.serial(
-  'checkAndRelayPacketsAndAcks relays packets properly',
-  async (t) => {
-    const logger = new TestLogger();
-    const [nodeA, nodeB] = await setup(logger);
+  // ensure only two acks are still pending
+  const postAcks = await link.getPendingAcks('B');
+  t.is(postAcks.length, 2);
+  // and it matches the ones we did not send
+  t.deepEqual(postAcks[0], acks[1]);
+  t.deepEqual(postAcks[1], acks[2]);
+});
 
-    const link = await Link.createWithNewConnections(nodeA, nodeB, logger);
-    const channels = await link.createChannel(
-      'A',
-      ics20.srcPortId,
-      ics20.destPortId,
-      ics20.ordering,
-      ics20.version
-    );
+test('updateClientIfStale only runs if it is too long since an update', async (t) => {
+  // setup
+  const logger = new TestLogger();
+  const [nodeA, nodeB] = await setup(logger);
+  const link = await Link.createWithNewConnections(nodeA, nodeB, logger);
 
-    const checkPending = async (
-      packA: number,
-      packB: number,
-      ackA: number,
-      ackB: number
-    ) => {
-      const packetsA = await link.getPendingPackets('A');
-      t.is(packetsA.length, packA);
-      const packetsB = await link.getPendingPackets('B');
-      t.is(packetsB.length, packB);
+  // height before waiting
+  const heightA = (await nodeA.latestHeader()).height;
+  const heightB = (await nodeB.latestHeader()).height;
 
-      const acksA = await link.getPendingAcks('A');
-      t.is(acksA.length, ackA);
-      const acksB = await link.getPendingAcks('B');
-      t.is(acksB.length, ackB);
-    };
+  // wait a few seconds so we can get stale ones
+  await sleep(3000);
 
-    // no packets here
-    await checkPending(0, 0, 0, 0);
+  // we definitely have updated within the last 1000 seconds, this should do nothing
+  const noUpdateA = await link.updateClientIfStale('A', 1000);
+  t.is(noUpdateA, null);
+  const noUpdateB = await link.updateClientIfStale('B', 1000);
+  t.is(noUpdateB, null);
 
-    // ensure no problems running relayer with no packets
-    await link.checkAndRelayPacketsAndAcks({});
+  // we haven't updated in the last 2 seconds, this should trigger the update
+  const updateA = await link.updateClientIfStale('A', 2);
+  assert(updateA);
+  t.assert(updateA.revisionHeight.toNumber() > heightA);
+  const updateB = await link.updateClientIfStale('B', 2);
+  assert(updateB);
+  t.assert(updateB.revisionHeight.toNumber() > heightB);
+});
 
-    // send 3 from A -> B
-    const amountsA = [1000, 2222, 3456];
-    const txHeightsA = await transferTokens(
-      nodeA,
-      simapp.denomFee,
-      nodeB,
-      wasmd.prefix,
-      channels.src,
-      amountsA,
-      5000 // never time out
-    );
-    // send 2 from B -> A
-    const amountsB = [76543, 12345];
-    const txHeightsB = await transferTokens(
-      nodeB,
-      wasmd.denomFee,
-      nodeA,
-      simapp.prefix,
-      channels.dest,
-      amountsB,
-      5000 // never time out
-    );
-    await nodeA.waitOneBlock();
+test('checkAndRelayPacketsAndAcks relays packets properly', async (t) => {
+  const logger = new TestLogger();
+  const [nodeA, nodeB] = await setup(logger);
 
-    // ensure these packets are present in query
-    await checkPending(3, 2, 0, 0);
+  const link = await Link.createWithNewConnections(nodeA, nodeB, logger);
+  const channels = await link.createChannel(
+    'A',
+    ics20.srcPortId,
+    ics20.destPortId,
+    ics20.ordering,
+    ics20.version
+  );
 
-    // let's one on each side (should filter only the last == minHeight)
-    const relayFrom: RelayedHeights = {
-      packetHeightA: txHeightsA[2],
-      packetHeightB: txHeightsB[1],
-    };
-    // check the result here and ensure it is after the latest height
-    const nextRelay = await link.checkAndRelayPacketsAndAcks(relayFrom);
+  const checkPending = async (
+    packA: number,
+    packB: number,
+    ackA: number,
+    ackB: number
+  ) => {
+    const packetsA = await link.getPendingPackets('A');
+    t.is(packetsA.length, packA);
+    const packetsB = await link.getPendingPackets('B');
+    t.is(packetsB.length, packB);
 
-    // next acket is more recent than the transactions
-    assert(nextRelay.packetHeightA);
-    t.assert(nextRelay.packetHeightA > txHeightsA[2]);
-    assert(nextRelay.packetHeightB);
-    // since we don't wait a block after this transfer, it may be the same
-    t.assert(nextRelay.packetHeightB >= txHeightsB[1]);
-    // next ack queries is more recent than the packet queries
-    assert(nextRelay.ackHeightA);
-    t.assert(nextRelay.ackHeightA > nextRelay.packetHeightA);
-    assert(nextRelay.ackHeightB);
-    t.assert(nextRelay.ackHeightB > nextRelay.packetHeightB);
+    const acksA = await link.getPendingAcks('A');
+    t.is(acksA.length, ackA);
+    const acksB = await link.getPendingAcks('B');
+    t.is(acksB.length, ackB);
+  };
 
-    // ensure those packets were sent, and their acks as well
-    await checkPending(2, 1, 0, 0);
+  // no packets here
+  await checkPending(0, 0, 0, 0);
 
-    // if we send again with the return of this last relay, we don't get anything new
-    await link.checkAndRelayPacketsAndAcks(nextRelay);
-    await checkPending(2, 1, 0, 0);
+  // ensure no problems running relayer with no packets
+  await link.checkAndRelayPacketsAndAcks({});
 
-    // sent the remaining packets (no minimum)
-    await link.checkAndRelayPacketsAndAcks({});
+  // send 3 from A -> B
+  const amountsA = [1000, 2222, 3456];
+  const txHeightsA = await transferTokens(
+    nodeA,
+    simapp.denomFee,
+    nodeB,
+    wasmd.prefix,
+    channels.src,
+    amountsA,
+    5000 // never time out
+  );
+  // send 2 from B -> A
+  const amountsB = [76543, 12345];
+  const txHeightsB = await transferTokens(
+    nodeB,
+    wasmd.denomFee,
+    nodeA,
+    simapp.prefix,
+    channels.dest,
+    amountsB,
+    5000 // never time out
+  );
+  await nodeA.waitOneBlock();
 
-    // ensure those packets were sent, and their acks as well
-    await checkPending(0, 0, 0, 0);
-  }
-);
+  // ensure these packets are present in query
+  await checkPending(3, 2, 0, 0);
 
-test.serial('timeout expired packets', async (t) => {
+  // let's one on each side (should filter only the last == minHeight)
+  const relayFrom: RelayedHeights = {
+    packetHeightA: txHeightsA[2],
+    packetHeightB: txHeightsB[1],
+  };
+  // check the result here and ensure it is after the latest height
+  const nextRelay = await link.checkAndRelayPacketsAndAcks(relayFrom);
+
+  // next acket is more recent than the transactions
+  assert(nextRelay.packetHeightA);
+  t.assert(nextRelay.packetHeightA > txHeightsA[2]);
+  assert(nextRelay.packetHeightB);
+  // since we don't wait a block after this transfer, it may be the same
+  t.assert(nextRelay.packetHeightB >= txHeightsB[1]);
+  // next ack queries is more recent than the packet queries
+  assert(nextRelay.ackHeightA);
+  t.assert(nextRelay.ackHeightA > nextRelay.packetHeightA);
+  assert(nextRelay.ackHeightB);
+  t.assert(nextRelay.ackHeightB > nextRelay.packetHeightB);
+
+  // ensure those packets were sent, and their acks as well
+  await checkPending(2, 1, 0, 0);
+
+  // if we send again with the return of this last relay, we don't get anything new
+  await link.checkAndRelayPacketsAndAcks(nextRelay);
+  await checkPending(2, 1, 0, 0);
+
+  // sent the remaining packets (no minimum)
+  await link.checkAndRelayPacketsAndAcks({});
+
+  // ensure those packets were sent, and their acks as well
+  await checkPending(0, 0, 0, 0);
+});
+
+test('timeout expired packets', async (t) => {
   const logger = new TestLogger();
   const [nodeA, nodeB] = await setup(logger);
 
