@@ -1,6 +1,5 @@
 import { toAscii } from '@cosmjs/encoding';
 import { createPagination, createRpc, QueryClient } from '@cosmjs/stargate';
-import { QueryChannelClientStateResponse } from '@cosmjs/stargate/build/codec/ibc/core/channel/v1/query';
 import Long from 'long';
 
 import { CommitmentProof } from '../../codec/confio/proofs';
@@ -8,6 +7,7 @@ import { Any } from '../../codec/google/protobuf/any';
 import { Channel } from '../../codec/ibc/core/channel/v1/channel';
 import {
   QueryClientImpl as ChannelQuery,
+  QueryChannelClientStateResponse,
   QueryChannelConsensusStateResponse,
   QueryChannelResponse,
   QueryChannelsResponse,
