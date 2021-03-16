@@ -91,6 +91,7 @@
     "!**/*.spec.*",
     "!**/*.json",
     "LICENSE",
+    "CHANGELOG.md",
     "README.md"
   ],
   "ava": {
