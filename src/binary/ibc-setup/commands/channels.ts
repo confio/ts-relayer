@@ -2,7 +2,7 @@ import path from 'path';
 
 import { Logger } from 'winston';
 
-import { State } from '../../../codec/ibc/core/channel/v1/channel';
+import { State as ChannelState } from '../../../codec/ibc/core/channel/v1/channel';
 import { registryFile } from '../../constants';
 import { borderLessTable } from '../../utils/border-less-table';
 import { generateMnemonic } from '../../utils/generate-mnemonic';
@@ -60,32 +60,24 @@ export async function channels(flags: Flags, logger: Logger) {
   await run(options, logger);
 }
 
-function assureMnemonic(mnemonic: string | null) {
-  if (!mnemonic) {
-    return generateMnemonic();
-  }
-
-  return mnemonic;
-}
-
-function stateAsText(state: State) {
+function channelStateAsText(state: ChannelState) {
   switch (state) {
-    case State.STATE_CLOSED:
+    case ChannelState.STATE_CLOSED:
       return 'Closed';
 
-    case State.STATE_INIT:
+    case ChannelState.STATE_INIT:
       return 'Init';
 
-    case State.STATE_OPEN:
+    case ChannelState.STATE_OPEN:
       return 'Open';
 
-    case State.STATE_TRYOPEN:
+    case ChannelState.STATE_TRYOPEN:
       return 'Tryopen';
 
-    case State.STATE_UNINITIALIZED_UNSPECIFIED:
+    case ChannelState.STATE_UNINITIALIZED_UNSPECIFIED:
       return 'UninitializedUnspecified';
 
-    case State.UNRECOGNIZED:
+    case ChannelState.UNRECOGNIZED:
     default:
       return 'Unrecognized';
   }
@@ -100,7 +92,7 @@ export async function run(options: Options, logger: Logger) {
     throw new Error(`Chain ${options.chain} not found in ${registryFilePath}.`);
   }
 
-  const mnemonic = assureMnemonic(options.mnemonic);
+  const mnemonic = options.mnemonic ?? generateMnemonic();
 
   const client = await signingClient(chain, mnemonic, logger);
 
@@ -115,7 +107,7 @@ export async function run(options: Options, logger: Logger) {
     .map((channel) => [
       channel.channelId,
       channel.portId,
-      stateAsText(channel.state),
+      channelStateAsText(channel.state),
     ]);
 
   if (!channels.length) {

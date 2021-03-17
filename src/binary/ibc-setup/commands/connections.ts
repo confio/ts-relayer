@@ -2,7 +2,7 @@ import path from 'path';
 
 import { Logger } from 'winston';
 
-import { State } from '../../../codec/ibc/core/channel/v1/channel';
+import { State as ConnectionState } from '../../../codec/ibc/core/connection/v1/connection';
 import { IdentifiedConnection } from '../../../codec/ibc/core/connection/v1/connection';
 import { registryFile } from '../../constants';
 import { borderLessTable } from '../../utils/border-less-table';
@@ -61,32 +61,21 @@ export async function connections(flags: Flags, logger: Logger) {
   await run(options, logger);
 }
 
-function assureMnemonic(mnemonic: string | null) {
-  if (!mnemonic) {
-    return generateMnemonic();
-  }
-
-  return mnemonic;
-}
-
-function stateAsText(state: State) {
+function connectionStateAsText(state: ConnectionState) {
   switch (state) {
-    case State.STATE_CLOSED:
-      return 'Closed';
-
-    case State.STATE_INIT:
+    case ConnectionState.STATE_INIT:
       return 'Init';
 
-    case State.STATE_OPEN:
+    case ConnectionState.STATE_OPEN:
       return 'Open';
 
-    case State.STATE_TRYOPEN:
+    case ConnectionState.STATE_TRYOPEN:
       return 'Tryopen';
 
-    case State.STATE_UNINITIALIZED_UNSPECIFIED:
+    case ConnectionState.STATE_UNINITIALIZED_UNSPECIFIED:
       return 'UninitializedUnspecified';
 
-    case State.UNRECOGNIZED:
+    case ConnectionState.UNRECOGNIZED:
     default:
       return 'Unrecognized';
   }
@@ -101,7 +90,7 @@ export async function run(options: Options, logger: Logger) {
     throw new Error(`Chain ${options.chain} not found in ${registryFilePath}.`);
   }
 
-  const mnemonic = assureMnemonic(options.mnemonic);
+  const mnemonic = options.mnemonic ?? generateMnemonic();
 
   const client = await signingClient(chain, mnemonic, logger);
 
@@ -111,7 +100,7 @@ export async function run(options: Options, logger: Logger) {
 
   const connections = allConnections.map((connection: IdentifiedConnection) => [
     connection.id,
-    stateAsText(connection.state),
+    connectionStateAsText(connection.state),
   ]);
 
   if (!connections.length) {
