@@ -1,10 +1,10 @@
-import os from 'os';
 import path from 'path';
 
 import { Logger } from 'winston';
 
 import { State } from '../../../codec/ibc/core/channel/v1/channel';
 import { registryFile } from '../../constants';
+import { borderLessTable } from '../../utils/border-less-table';
 import { generateMnemonic } from '../../utils/generate-mnemonic';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
@@ -91,11 +91,6 @@ function stateAsText(state: State) {
   }
 }
 
-function appendSpaces(value: string) {
-  const spaces = new Array(24 - value.length).fill(' ').join('');
-  return `${value}${spaces}`;
-}
-
 export async function run(options: Options, logger: Logger) {
   const registryFilePath = path.join(options.home, registryFile);
   const registry = loadAndValidateRegistry(registryFilePath);
@@ -117,27 +112,27 @@ export async function run(options: Options, logger: Logger) {
     .filter(
       (channel) => (options.port ? channel.portId === options.port : true) // don't filter if port is not specified
     )
-    .map((channel) =>
-      [channel.channelId, channel.portId, stateAsText(channel.state)]
-        .map(appendSpaces)
-        .join('')
-    );
+    .map((channel) => [
+      channel.channelId,
+      channel.portId,
+      stateAsText(channel.state),
+    ]);
 
   if (!channels.length) {
     const conditionalPortInfo = options.port
       ? ` on port "${options.port}".`
       : '.';
     logger.info(
-      `Found no channels for chain "${options.chain}"${conditionalPortInfo}`
+      `No channels found for chain "${options.chain}"${conditionalPortInfo}`
     );
 
     return;
   }
 
-  const output = [
-    ['CHANNEL_ID', 'PORT', 'STATE'].map(appendSpaces).join(''),
+  const output = borderLessTable([
+    ['CHANNEL_ID', 'PORT', 'STATE'],
     ...channels,
-  ].join(os.EOL);
+  ]);
 
-  logger.info(output);
+  console.log(output);
 }

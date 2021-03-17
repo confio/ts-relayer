@@ -1,6 +1,6 @@
 import { getBorderCharacters, table } from 'table';
 
-export function borderLessTable(data: unknown[]) {
+export function borderLessTable(data: (string | number)[][]) {
   return table(data, {
     border: getBorderCharacters(`void`),
     columnDefault: {
