@@ -17,7 +17,6 @@ import { signingClient } from '../../utils/signing-client';
 
 export type Flags = {
   readonly home?: string;
-  readonly port?: string;
   readonly chain?: string;
   readonly mnemonic?: string;
   readonly keyFile?: string;
@@ -28,7 +27,6 @@ export type Options = {
   readonly home: string;
   readonly chain: string;
   readonly mnemonic: string | null;
-  readonly port: string | null;
 };
 
 export async function connections(flags: Flags, logger: Logger) {
@@ -39,7 +37,6 @@ export async function connections(flags: Flags, logger: Logger) {
     flags.chain,
     process.env.RELAYER_CHAIN
   );
-  const port = resolveOption('port')(flags.port, process.env.RELAYER_PORT);
 
   const mnemonic = await resolveMnemonicOption(
     {
@@ -55,7 +52,6 @@ export async function connections(flags: Flags, logger: Logger) {
     home,
     chain,
     mnemonic,
-    port,
   };
 
   await run(options, logger);
