@@ -4,6 +4,7 @@ import { Command } from 'commander';
 
 import {
   addLoggerOptionsTo,
+  chainOption,
   destOption,
   homeOption,
   interactiveOption,
@@ -94,7 +95,7 @@ const channelsCommand = program
   .addOption(homeOption)
   .addOption(mnemonicOption)
   .addOption(interactiveOption)
-  .option('--chain <chain>')
+  .addOption(chainOption)
   .option('--port <port>')
   .action(loggerWithErrorBoundary(channels));
 addLoggerOptionsTo(channelsCommand);
@@ -105,8 +106,7 @@ const connectionsCommand = program
   .addOption(homeOption)
   .addOption(mnemonicOption)
   .addOption(interactiveOption)
-  .option('--chain <chain>')
-  .option('--port <port>')
+  .addOption(chainOption)
   .action(loggerWithErrorBoundary(connections));
 addLoggerOptionsTo(connectionsCommand);
 

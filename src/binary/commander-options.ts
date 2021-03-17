@@ -11,6 +11,7 @@ export const mnemonicOption = new Option('--mnemonic <mnemonic>');
 export const interactiveOption = new Option('-i, --interactive');
 export const srcOption = new Option('--src <chain>');
 export const destOption = new Option('--dest <chain>');
+export const chainOption = new Option('--chain <chain>');
 
 export const addLoggerOptionsTo = (command: commander.Command) => {
   return command
