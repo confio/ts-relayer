@@ -1,4 +1,3 @@
-import os from 'os';
 import path from 'path';
 
 import { Logger } from 'winston';
@@ -6,6 +5,7 @@ import { Logger } from 'winston';
 import { State } from '../../../codec/ibc/core/channel/v1/channel';
 import { IdentifiedConnection } from '../../../codec/ibc/core/connection/v1/connection';
 import { registryFile } from '../../constants';
+import { borderLessTable } from '../../utils/border-less-table';
 import { generateMnemonic } from '../../utils/generate-mnemonic';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
@@ -92,11 +92,6 @@ function stateAsText(state: State) {
   }
 }
 
-function appendSpaces(value: string) {
-  const spaces = new Array(24 - value.length).fill(' ').join('');
-  return `${value}${spaces}`;
-}
-
 export async function run(options: Options, logger: Logger) {
   const registryFilePath = path.join(options.home, registryFile);
   const registry = loadAndValidateRegistry(registryFilePath);
@@ -114,9 +109,10 @@ export async function run(options: Options, logger: Logger) {
     connections: allConnections,
   } = await client.query.ibc.connection.allConnections();
 
-  const connections = allConnections.map((connection: IdentifiedConnection) =>
-    [connection.id, stateAsText(connection.state)].map(appendSpaces).join('')
-  );
+  const connections = allConnections.map((connection: IdentifiedConnection) => [
+    connection.id,
+    stateAsText(connection.state),
+  ]);
 
   if (!connections.length) {
     logger.info(`No connections found for chain "${options.chain}".`);
@@ -124,10 +120,7 @@ export async function run(options: Options, logger: Logger) {
     return;
   }
 
-  const output = [
-    ['CONNECTION_ID', 'STATE'].map(appendSpaces).join(''),
-    ...connections,
-  ].join(os.EOL);
+  const output = borderLessTable([['CONNECTION_ID', 'STATE'], ...connections]);
 
-  logger.info(output);
+  console.log(output);
 }
