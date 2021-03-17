@@ -63,6 +63,7 @@
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
     "@types/js-yaml": "^4.0.0",
     "@types/sinon": "^9.0.10",
+    "@types/table": "^6.0.0",
     "@typescript-eslint/eslint-plugin": "^4.0.1",
     "@typescript-eslint/parser": "^4.0.1",
     "ava": "^3.12.1",
