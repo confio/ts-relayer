@@ -55,6 +55,7 @@
     "commander": "^7.1.0",
     "js-yaml": "^4.0.0",
     "protobufjs": "~6.10.2",
+    "table": "^6.0.7",
     "winston": "^3.3.3"
   },
   "devDependencies": {
