@@ -63,6 +63,7 @@ test.serial('lists connections', async (t) => {
   t.assert(consoleLog.getCall(-1).calledWithMatch(match));
 });
 
+// TODO: #130
 // test.serial('logs a message when no connections are found', async (t) => {
 //   //
 // });
