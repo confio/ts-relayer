@@ -59,7 +59,8 @@ test.serial('lists connections', async (t) => {
 
   await run(options, (logger as unknown) as Logger);
 
-  const match = new RegExp(`${link.endA.connectionID}\\s+Open`);
+  const tableRow = [link.endA.connectionID, link.endA.clientID, 0, 'Open'];
+  const match = new RegExp(tableRow.join('\\s+'));
   t.assert(consoleLog.getCall(-1).calledWithMatch(match));
 });
 

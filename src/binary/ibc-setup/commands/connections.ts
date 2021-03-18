@@ -96,6 +96,8 @@ export async function run(options: Options, logger: Logger) {
 
   const connections = allConnections.map((connection: IdentifiedConnection) => [
     connection.id,
+    connection.clientId,
+    connection.delayPeriod.toString(10),
     connectionStateAsText(connection.state),
   ]);
 
@@ -105,7 +107,10 @@ export async function run(options: Options, logger: Logger) {
     return;
   }
 
-  const output = borderLessTable([['CONNECTION_ID', 'STATE'], ...connections]);
+  const output = borderLessTable([
+    ['CONNECTION_ID', 'CLIENT_ID', 'DELAY', 'STATE'],
+    ...connections,
+  ]);
 
   console.log(output);
 }
