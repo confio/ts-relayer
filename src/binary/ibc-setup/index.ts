@@ -4,6 +4,7 @@ import { Command } from 'commander';
 
 import {
   addLoggerOptionsTo,
+  chainOption,
   destOption,
   homeOption,
   interactiveOption,
@@ -16,6 +17,7 @@ import { loggerWithErrorBoundary } from '../utils/logger-with-error-boundary';
 import { balances } from './commands/balances';
 import { channels } from './commands/channels';
 import { connect } from './commands/connect';
+import { connections } from './commands/connections';
 import { ics20 } from './commands/ics20';
 import { init } from './commands/init';
 import { keysGenerate } from './commands/keys-generate';
@@ -93,9 +95,19 @@ const channelsCommand = program
   .addOption(homeOption)
   .addOption(mnemonicOption)
   .addOption(interactiveOption)
-  .option('--chain <chain>')
+  .addOption(chainOption)
   .option('--port <port>')
   .action(loggerWithErrorBoundary(channels));
 addLoggerOptionsTo(channelsCommand);
+
+const connectionsCommand = program
+  .command('connections')
+  .description('connections command description')
+  .addOption(homeOption)
+  .addOption(mnemonicOption)
+  .addOption(interactiveOption)
+  .addOption(chainOption)
+  .action(loggerWithErrorBoundary(connections));
+addLoggerOptionsTo(connectionsCommand);
 
 program.parse(process.argv);

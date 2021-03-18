@@ -2,7 +2,8 @@ import path from 'path';
 
 import { Logger } from 'winston';
 
-import { State as ChannelState } from '../../../codec/ibc/core/channel/v1/channel';
+import { State as ConnectionState } from '../../../codec/ibc/core/connection/v1/connection';
+import { IdentifiedConnection } from '../../../codec/ibc/core/connection/v1/connection';
 import { registryFile } from '../../constants';
 import { borderLessTable } from '../../utils/border-less-table';
 import { generateMnemonic } from '../../utils/generate-mnemonic';
@@ -16,7 +17,6 @@ import { signingClient } from '../../utils/signing-client';
 
 export type Flags = {
   readonly home?: string;
-  readonly port?: string;
   readonly chain?: string;
   readonly mnemonic?: string;
   readonly keyFile?: string;
@@ -27,10 +27,9 @@ export type Options = {
   readonly home: string;
   readonly chain: string;
   readonly mnemonic: string | null;
-  readonly port: string | null;
 };
 
-export async function channels(flags: Flags, logger: Logger) {
+export async function connections(flags: Flags, logger: Logger) {
   const home = resolveHomeOption({ homeFlag: flags.home });
   const app = loadAndValidateApp(home);
   const keyFile = resolveKeyFileOption({ keyFileFlag: flags.keyFile, app });
@@ -38,7 +37,6 @@ export async function channels(flags: Flags, logger: Logger) {
     flags.chain,
     process.env.RELAYER_CHAIN
   );
-  const port = resolveOption('port')(flags.port, process.env.RELAYER_PORT);
 
   const mnemonic = await resolveMnemonicOption(
     {
@@ -54,30 +52,26 @@ export async function channels(flags: Flags, logger: Logger) {
     home,
     chain,
     mnemonic,
-    port,
   };
 
   await run(options, logger);
 }
 
-function channelStateAsText(state: ChannelState) {
+function connectionStateAsText(state: ConnectionState) {
   switch (state) {
-    case ChannelState.STATE_CLOSED:
-      return 'Closed';
-
-    case ChannelState.STATE_INIT:
+    case ConnectionState.STATE_INIT:
       return 'Init';
 
-    case ChannelState.STATE_OPEN:
+    case ConnectionState.STATE_OPEN:
       return 'Open';
 
-    case ChannelState.STATE_TRYOPEN:
+    case ConnectionState.STATE_TRYOPEN:
       return 'Tryopen';
 
-    case ChannelState.STATE_UNINITIALIZED_UNSPECIFIED:
+    case ConnectionState.STATE_UNINITIALIZED_UNSPECIFIED:
       return 'UninitializedUnspecified';
 
-    case ChannelState.UNRECOGNIZED:
+    case ConnectionState.UNRECOGNIZED:
     default:
       return 'Unrecognized';
   }
@@ -97,33 +91,25 @@ export async function run(options: Options, logger: Logger) {
   const client = await signingClient(chain, mnemonic, logger);
 
   const {
-    channels: allChannels,
-  } = await client.query.ibc.channel.allChannels();
+    connections: allConnections,
+  } = await client.query.ibc.connection.allConnections();
 
-  const channels = allChannels
-    .filter(
-      (channel) => (options.port ? channel.portId === options.port : true) // don't filter if port is not specified
-    )
-    .map((channel) => [
-      channel.channelId,
-      channel.portId,
-      channelStateAsText(channel.state),
-    ]);
+  const connections = allConnections.map((connection: IdentifiedConnection) => [
+    connection.id,
+    connection.clientId,
+    connection.delayPeriod.toString(10),
+    connectionStateAsText(connection.state),
+  ]);
 
-  if (!channels.length) {
-    const conditionalPortInfo = options.port
-      ? ` on port "${options.port}".`
-      : '.';
-    logger.info(
-      `No channels found for chain "${options.chain}"${conditionalPortInfo}`
-    );
+  if (!connections.length) {
+    logger.info(`No connections found for chain "${options.chain}".`);
 
     return;
   }
 
   const output = borderLessTable([
-    ['CHANNEL_ID', 'PORT', 'STATE'],
-    ...channels,
+    ['CONNECTION_ID', 'CLIENT_ID', 'DELAY', 'STATE'],
+    ...connections,
   ]);
 
   console.log(output);
