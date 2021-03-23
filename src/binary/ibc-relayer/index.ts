@@ -4,11 +4,13 @@ import { Command } from 'commander';
 
 import {
   addLoggerOptionsTo,
+  destConnection,
   destOption,
   homeOption,
   interactiveOption,
   keyFileOption,
   mnemonicOption,
+  srcConnection,
   srcOption,
 } from '../commander-options';
 import { loggerWithErrorBoundary } from '../utils/logger-with-error-boundary';
@@ -28,8 +30,8 @@ const startCommand = program
   .addOption(interactiveOption)
   .addOption(keyFileOption)
   .addOption(mnemonicOption)
-  .option('--src-connection <connection>')
-  .option('--dest-connection <connection>')
+  .addOption(srcConnection)
+  .addOption(destConnection)
   .option(
     '--poll <frequency>',
     'how many second we sleep between checking for packets'

@@ -14,6 +14,10 @@ export const destOption = new Option('--dest <chain>');
 export const chainOption = new Option('--chain <chain>');
 export const srcTrust = new Option('--src-trust <seconds>');
 export const destTrust = new Option('--dest-trust <seconds>');
+export const srcConnection = new Option('--src-connection <connection>');
+export const destConnection = new Option('--dest-connection <connection>');
+export const srcPort = new Option('--src-port <port>');
+export const destPort = new Option('--dest-port <port>');
 
 export const addLoggerOptionsTo = (command: commander.Command) => {
   return command
