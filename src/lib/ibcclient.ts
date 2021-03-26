@@ -402,7 +402,7 @@ export class IbcClient {
     this.logger.verbose(`Get validator set for height ${height}`);
     // we need to query the header to find out who the proposer was, and pull them out
     const { proposerAddress } = await this.header(height);
-    const validators = await this.tm.validators({ height });
+    const validators = await this.tm.validatorsAll(height);
     const mappedValidators = validators.validators.map((val) => ({
       address: val.address,
       pubKey: mapRpcPubKeyToProto(val.pubkey),
