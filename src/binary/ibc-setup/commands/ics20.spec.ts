@@ -83,13 +83,7 @@ destConnection: .+
   t.assert(fsWriteFileSync.calledOnce);
   t.is(args[0], path.join(options.home, appFile));
   t.regex(args[1], contentsRegexp);
-  t.is(logger.info.callCount, 6);
-  t.assert(logger.info.calledWithMatch(/Connection open/));
-  t.assert(logger.info.calledWithMatch(/Connection open/));
-  t.assert(logger.info.calledWithMatch(/Connection open/));
-  t.assert(logger.info.calledWithMatch(/Connection open/));
-  t.assert(logger.info.calledWithMatch(/Created connections/));
-  t.assert(logger.info.calledWithMatch(/Created channels/));
+  t.assert(logger.info.getCall(-1).calledWithMatch(/Created channels/));
 
   const nextAllConnectionsWasm = await ibcClientWasm.query.ibc.connection.allConnections();
   const srcConnectionIdMatch = /srcConnection: (?<connection>.+)/.exec(args[1]);
