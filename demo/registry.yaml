@@ -46,7 +46,7 @@ chains:
   cosmoshub-4:
     chain_id: cosmoshub-4
     prefix: cosmos
-    gas_price: 0.01uatom
+    gas_price: 0.026uatom
     hd_path: m/44'/108'/0'/6'
     ics20_port: 'transfer'
     rpc:
