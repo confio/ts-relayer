@@ -150,7 +150,7 @@ async function resolveLink(
       connections.dest,
       logger
     );
-    logger.info(
+    console.log(
       `Used existing connections ${link.endA.connectionID} (${link.endA.clientID}) <=> ${link.endB.connectionID} (${link.endB.clientID})`
     );
     return link;
@@ -163,7 +163,7 @@ async function resolveLink(
     srcTrust,
     destTrust
   );
-  logger.info(
+  console.log(
     `Created connections ${link.endA.connectionID} (${link.endA.clientID}) <=> ${link.endB.connectionID} (${link.endB.clientID})`
   );
   return link;
@@ -227,7 +227,7 @@ export async function run(
     version
   );
 
-  logger.info(
+  console.log(
     `Created channels for connections ${link.endA.connectionID} <=> ${link.endB.connectionID}: ${channels.src.channelId} (${channels.src.portId}) => ${channels.dest.channelId} (${channels.dest.portId})`
   );
 }
