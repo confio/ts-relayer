@@ -4,9 +4,6 @@ import test from 'ava';
 import axios from 'axios';
 import sinon from 'sinon';
 
-import { TestLogger } from '../../../lib/testutils';
-import { Logger } from '../../create-logger';
-
 import { Options, run } from './init';
 
 const fsExistSync = sinon.stub(fs, 'existsSync');
@@ -14,6 +11,7 @@ const fsMkdirSync = sinon.stub(fs, 'mkdirSync');
 const axiosGet = sinon.stub(axios, 'get');
 const fsReadFileSync = sinon.stub(fs, 'readFileSync');
 const fsWriteFileSync = sinon.stub(fs, 'writeFileSync');
+const consoleLog = sinon.stub(console, 'log');
 
 sinon.replace(
   fs,
@@ -48,8 +46,6 @@ test.beforeEach(() => {
 });
 
 test('create app.yaml', async (t) => {
-  const logger = new TestLogger();
-
   const options: Options = {
     home: '/home/user',
     src: 'local_wasm',
@@ -71,7 +67,7 @@ test('create app.yaml', async (t) => {
   fsReadFileSync.returns(registryYaml);
   fsWriteFileSync.returns();
 
-  await run(options, (logger as unknown) as Logger);
+  await run(options);
 
   t.assert(fsMkdirSync.notCalled);
   t.assert(axiosGet.notCalled);
@@ -85,15 +81,13 @@ test('create app.yaml', async (t) => {
   t.is(path, appPath);
   t.regex(contents as string, appYamlRegexp);
 
-  t.assert(logger.info.getCall(-2).calledWithMatch(/Source address: [\w ]+/));
+  t.assert(consoleLog.getCall(-2).calledWithMatch(/Source address: [\w ]+/));
   t.assert(
-    logger.info.getCall(-1).calledWithMatch(/Destination address: [\w ]+/)
+    consoleLog.getCall(-1).calledWithMatch(/Destination address: [\w ]+/)
   );
 });
 
 test('initialize home directory, pull registry.yaml and create app.yaml', async (t) => {
-  const logger = new TestLogger();
-
   const options: Options = {
     home: '/home/user',
     src: 'local_wasm',
@@ -116,13 +110,13 @@ test('initialize home directory, pull registry.yaml and create app.yaml', async 
   fsReadFileSync.returns(registryYaml);
   fsWriteFileSync.returns();
 
-  await run(options, (logger as unknown) as Logger);
+  await run(options);
 
   t.assert(fsMkdirSync.calledOnceWith(options.home));
   t.assert(axiosGet.calledOnce);
   t.assert(fsReadFileSync.calledOnceWith(registryPath));
   t.assert(fsWriteFileSync.calledWithExactly(registryPath, registryYaml));
-  t.assert(logger.info.calledWithMatch(new RegExp(`at ${options.home}`)));
+  t.assert(consoleLog.calledWithMatch(new RegExp(`at ${options.home}`)));
 
   const [path, contents] = fsWriteFileSync.getCall(1).args;
   const appYamlRegexp = new RegExp(
@@ -132,15 +126,13 @@ test('initialize home directory, pull registry.yaml and create app.yaml', async 
   t.is(path, appPath);
   t.regex(contents as string, appYamlRegexp);
 
-  t.assert(logger.info.getCall(-2).calledWithMatch(/Source address: [\w ]+/));
+  t.assert(consoleLog.getCall(-2).calledWithMatch(/Source address: [\w ]+/));
   t.assert(
-    logger.info.getCall(-1).calledWithMatch(/Destination address: [\w ]+/)
+    consoleLog.getCall(-1).calledWithMatch(/Destination address: [\w ]+/)
   );
 });
 
 test('throws when cannot fetch registry.yaml from remote', async (t) => {
-  const logger = new TestLogger();
-
   const options: Options = {
     home: '/home/user',
     src: 'local_wasm',
@@ -153,21 +145,16 @@ test('throws when cannot fetch registry.yaml from remote', async (t) => {
   fsReadFileSync.returns('');
   fsWriteFileSync.returns();
 
-  await t.throwsAsync(
-    async () => await run(options, (logger as unknown) as Logger),
-    {
-      instanceOf: Error,
-      message: /Cannot fetch registry.yaml/,
-    }
-  );
+  await t.throwsAsync(async () => await run(options), {
+    instanceOf: Error,
+    message: /Cannot fetch registry.yaml/,
+  });
 
   t.assert(fsMkdirSync.calledOnceWith(options.home));
   t.assert(axiosGet.calledOnce);
 });
 
 test('returns early if app.yaml exists', async (t) => {
-  const logger = new TestLogger();
-
   const options: Options = {
     home: '/home/user',
     src: 'local_wasm',
@@ -176,16 +163,14 @@ test('returns early if app.yaml exists', async (t) => {
 
   fsExistSync.onCall(0).returns(true);
 
-  await run(options, (logger as unknown) as Logger);
+  await run(options);
 
   t.assert(fsExistSync.calledOnce);
-  t.assert(logger.info.calledWithMatch(/app.yaml is already initialized/));
-  t.assert(logger.info.calledOnce);
+  t.assert(consoleLog.calledWithMatch(/app.yaml is already initialized/));
+  t.assert(consoleLog.calledOnce);
 });
 
 test('throws if provided chain does not exist in the registry', async (t) => {
-  const logger = new TestLogger();
-
   const options: Options = {
     home: '/home/user',
     src: 'chain_that_does_not_exist',
@@ -205,13 +190,10 @@ test('throws if provided chain does not exist in the registry', async (t) => {
   });
   fsReadFileSync.returns(registryYaml);
 
-  await t.throwsAsync(
-    async () => await run(options, (logger as unknown) as Logger),
-    {
-      instanceOf: Error,
-      message: new RegExp(`${options.src} is missing in the registry`),
-    }
-  );
+  await t.throwsAsync(async () => await run(options), {
+    instanceOf: Error,
+    message: new RegExp(`${options.src} is missing in the registry`),
+  });
 
   t.assert(fsMkdirSync.notCalled);
   t.assert(axiosGet.notCalled);
