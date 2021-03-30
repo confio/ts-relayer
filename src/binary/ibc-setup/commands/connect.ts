@@ -22,6 +22,8 @@ export type Flags = {
   readonly mnemonic?: string;
   readonly src?: string;
   readonly dest?: string;
+  readonly srcTrust?: string;
+  readonly destTrust?: string;
 };
 
 export type Options = {
@@ -29,6 +31,8 @@ export type Options = {
   readonly mnemonic: string;
   readonly src: string;
   readonly dest: string;
+  readonly srcTrust: number | null;
+  readonly destTrust: number | null;
 };
 
 export async function connect(flags: Flags, logger: Logger) {
@@ -55,12 +59,22 @@ export async function connect(flags: Flags, logger: Logger) {
     app?.dest,
     process.env.RELAYER_DEST
   );
+  const srcTrust = resolveOption('srcTrust', { integer: true })(
+    flags.srcTrust,
+    process.env.RELAYER_SRC_TRUST
+  );
+  const destTrust = resolveOption('destTrust', { integer: true })(
+    flags.destTrust,
+    process.env.RELAYER_DEST_TRUST
+  );
 
   const options: Options = {
     home,
     mnemonic,
     src,
     dest,
+    srcTrust,
+    destTrust,
   };
 
   await run(options, app, logger);
@@ -80,7 +94,13 @@ export async function run(options: Options, app: AppConfig, logger: Logger) {
 
   const nodeA = await signingClient(srcChain, options.mnemonic);
   const nodeB = await signingClient(destChain, options.mnemonic);
-  const link = await Link.createWithNewConnections(nodeA, nodeB);
+  const link = await Link.createWithNewConnections(
+    nodeA,
+    nodeB,
+    logger,
+    options.srcTrust ?? undefined,
+    options.destTrust ?? undefined
+  );
 
   const appYaml = yaml.dump(
     {

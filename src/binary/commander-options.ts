@@ -12,6 +12,8 @@ export const interactiveOption = new Option('-i, --interactive');
 export const srcOption = new Option('--src <chain>');
 export const destOption = new Option('--dest <chain>');
 export const chainOption = new Option('--chain <chain>');
+export const srcTrust = new Option('--src-trust <seconds>');
+export const destTrust = new Option('--dest-trust <seconds>');
 
 export const addLoggerOptionsTo = (command: commander.Command) => {
   return command

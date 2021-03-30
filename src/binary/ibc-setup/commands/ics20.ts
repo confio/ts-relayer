@@ -31,6 +31,8 @@ export type Flags = {
   readonly dest?: string;
   readonly srcPort?: string;
   readonly destPort?: string;
+  readonly srcTrust?: string;
+  readonly destTrust?: string;
 };
 
 export type Options = {
@@ -40,6 +42,8 @@ export type Options = {
   readonly dest: string;
   readonly srcPort: string | null;
   readonly destPort: string | null;
+  readonly srcTrust: number | null;
+  readonly destTrust: number | null;
   readonly connections: Connections;
 };
 
@@ -105,6 +109,14 @@ export async function ics20(flags: Flags, logger: Logger): Promise<void> {
     flags.destPort,
     process.env.RELAYER_DEST_PORT
   );
+  const srcTrust = resolveOption('srcTrust', { integer: true })(
+    flags.srcTrust,
+    process.env.RELAYER_SRC_TRUST
+  );
+  const destTrust = resolveOption('destTrust', { integer: true })(
+    flags.destTrust,
+    process.env.RELAYER_DEST_TRUST
+  );
   const connections = resolveConnections(app);
 
   run(
@@ -116,6 +128,8 @@ export async function ics20(flags: Flags, logger: Logger): Promise<void> {
       srcPort,
       destPort,
       connections,
+      srcTrust,
+      destTrust,
     },
     app,
     logger
@@ -125,7 +139,7 @@ export async function ics20(flags: Flags, logger: Logger): Promise<void> {
 async function resolveLink(
   nodeA: IbcClient,
   nodeB: IbcClient,
-  connections: Connections,
+  { connections, srcTrust, destTrust }: Options,
   logger: Logger
 ) {
   if (connections) {
@@ -142,7 +156,13 @@ async function resolveLink(
     return link;
   }
 
-  const link = await Link.createWithNewConnections(nodeA, nodeB);
+  const link = await Link.createWithNewConnections(
+    nodeA,
+    nodeB,
+    logger,
+    srcTrust ?? undefined,
+    destTrust ?? undefined
+  );
   logger.info(
     `Created connections ${link.endA.connectionID} (${link.endA.clientID}) <=> ${link.endB.connectionID} (${link.endB.clientID})`
   );
@@ -169,7 +189,7 @@ export async function run(
 
   const nodeA = await signingClient(srcChain, options.mnemonic, logger);
   const nodeB = await signingClient(destChain, options.mnemonic, logger);
-  const link = await resolveLink(nodeA, nodeB, options.connections, logger);
+  const link = await resolveLink(nodeA, nodeB, options, logger);
 
   const srcConnection = link.endA.connectionID;
   const destConnection = link.endB.connectionID;
