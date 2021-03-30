@@ -60,6 +60,7 @@ export async function run(options: Options, logger: Logger) {
           {
             prefix: data.prefix,
             gasPrice,
+            logger,
           }
         );
 
@@ -77,9 +78,9 @@ export async function run(options: Options, logger: Logger) {
     .join(os.EOL);
 
   if (!balances) {
-    logger.info('No funds found for default denomination on any chain.');
+    console.log('No funds found for default denomination on any chain.');
     return;
   }
 
-  logger.info(balances);
+  console.log(balances);
 }
