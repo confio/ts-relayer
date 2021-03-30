@@ -113,7 +113,7 @@ export async function run(options: Options, logger: Logger) {
     const conditionalPortInfo = options.port
       ? ` on port "${options.port}".`
       : '.';
-    logger.info(
+    console.log(
       `No channels found for chain "${options.chain}"${conditionalPortInfo}`
     );
 
