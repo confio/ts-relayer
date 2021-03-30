@@ -1,6 +1,4 @@
 import jsonStringify from 'fast-safe-stringify';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import { MESSAGE } from 'triple-beam';
 import winston from 'winston';
 
