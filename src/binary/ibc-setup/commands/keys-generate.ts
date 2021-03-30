@@ -12,7 +12,7 @@ export type Options = {
   readonly keyFile: string | null;
 };
 
-export async function keysGenerate(flags: Flags, logger: Logger) {
+export async function keysGenerate(flags: Flags, _logger: Logger) {
   const options = {
     keyFile: resolveOption('keyFile')(
       flags.keyFile,
@@ -20,17 +20,17 @@ export async function keysGenerate(flags: Flags, logger: Logger) {
     ),
   };
 
-  await run(options, logger);
+  await run(options);
 }
 
-export function run(options: Options, logger: Logger) {
+export function run(options: Options) {
   const mnemonic = generateMnemonic();
 
   if (options.keyFile) {
     fs.writeFileSync(options.keyFile, mnemonic, 'utf-8');
-    logger.info(`Saved mnemonic to ${options.keyFile}`);
+    console.log(`Saved mnemonic to ${options.keyFile}`);
     return;
   }
 
-  logger.info(mnemonic);
+  console.log(mnemonic);
 }
