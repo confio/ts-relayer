@@ -101,7 +101,7 @@ export async function run(options: Options, logger: Logger) {
   ]);
 
   if (!connections.length) {
-    logger.info(`No connections found for chain "${options.chain}".`);
+    console.log(`No connections found for chain "${options.chain}".`);
 
     return;
   }
