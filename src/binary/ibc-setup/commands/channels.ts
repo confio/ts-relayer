@@ -1,8 +1,8 @@
 import path from 'path';
 
 import { State as ChannelState } from '../../../codec/ibc/core/channel/v1/channel';
-import { Logger } from '../../create-logger';
 import { registryFile } from '../../constants';
+import { Logger } from '../../create-logger';
 import { borderLessTable } from '../../utils/border-less-table';
 import { generateMnemonic } from '../../utils/generate-mnemonic';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';

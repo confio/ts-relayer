@@ -5,8 +5,8 @@ import { sleep } from '@cosmjs/utils';
 
 import { Link } from '../../../lib/link';
 import { RelayedHeights } from '../../../lib/link';
-import { Logger } from '../../create-logger';
 import { lastQueriedHeightsFile, registryFile } from '../../constants';
+import { Logger } from '../../create-logger';
 import { InvalidOptionError } from '../../exceptions/InvalidOptionError';
 import { LoggerFlags } from '../../types';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';

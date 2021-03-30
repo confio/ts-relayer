@@ -1,8 +1,8 @@
 import os from 'os';
 import path from 'path';
 
-import { Logger } from '../../create-logger';
 import { registryFile } from '../../constants';
+import { Logger } from '../../create-logger';
 import { Chain } from '../../types';
 import { deriveAddress } from '../../utils/derive-address';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';

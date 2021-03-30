@@ -6,8 +6,8 @@ import test from 'ava';
 import sinon from 'sinon';
 
 import { TestLogger } from '../../../lib/testutils';
-import { Logger } from '../../create-logger';
 import { appFile } from '../../constants';
+import { Logger } from '../../create-logger';
 import { signingClient } from '../../utils/signing-client';
 
 import { simappChain, wasmdChain } from './chains';

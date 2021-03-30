@@ -7,8 +7,8 @@ import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 
 import { Coin } from '../../../codec/cosmos/base/v1beta1/coin';
 import { IbcClient } from '../../../lib/ibcclient';
-import { Logger } from '../../create-logger';
 import { registryFile } from '../../constants';
+import { Logger } from '../../create-logger';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
 import { resolveHomeOption } from '../../utils/options/shared/resolve-home-option';

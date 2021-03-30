@@ -2,8 +2,8 @@ import path from 'path';
 
 import { State as ConnectionState } from '../../../codec/ibc/core/connection/v1/connection';
 import { IdentifiedConnection } from '../../../codec/ibc/core/connection/v1/connection';
-import { Logger } from '../../create-logger';
 import { registryFile } from '../../constants';
+import { Logger } from '../../create-logger';
 import { borderLessTable } from '../../utils/border-less-table';
 import { generateMnemonic } from '../../utils/generate-mnemonic';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';

@@ -4,8 +4,8 @@ import path from 'path';
 import yaml from 'js-yaml';
 
 import { Link } from '../../../lib/link';
-import { Logger } from '../../create-logger';
 import { appFile, registryFile } from '../../constants';
+import { Logger } from '../../create-logger';
 import { AppConfig } from '../../types';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
