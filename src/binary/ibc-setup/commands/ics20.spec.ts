@@ -63,6 +63,8 @@ test.serial('ics20 create channels with new connection', async (t) => {
     srcPort: 'transfer',
     destPort: 'custom',
     connections: null,
+    srcTrust: null,
+    destTrust: null,
   };
 
   fsReadFileSync.returns(registryYaml);
@@ -143,6 +145,8 @@ test.serial('ics20 create channels with existing connection', async (t) => {
       src: link.endA.connectionID,
       dest: link.endB.connectionID,
     },
+    srcTrust: null,
+    destTrust: null,
   };
 
   fsReadFileSync.returns(registryYaml);
