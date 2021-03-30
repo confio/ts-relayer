@@ -367,11 +367,12 @@ export class IbcClient {
   /// Returns the unbonding period in seconds
   public async getUnbondingPeriod(): Promise<number> {
     const params = await this.query.staking.params();
-    const secs = params?.unbondingTime?.seconds?.toNumber();
-    if (!secs) {
-      throw new Error(`No unbonding period found`);
+    const seconds = params?.unbondingTime?.seconds?.toNumber();
+    if (!seconds) {
+      throw new Error('No unbonding period found');
     }
-    return secs;
+    this.logger.verbose('Queried unbonding period', { seconds });
+    return seconds;
   }
 
   public async getSignedHeader(height?: number): Promise<SignedHeader> {
