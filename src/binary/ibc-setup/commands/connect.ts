@@ -2,9 +2,9 @@ import fs from 'fs';
 import path from 'path';
 
 import yaml from 'js-yaml';
-import { Logger } from 'winston';
 
 import { Link } from '../../../lib/link';
+import { Logger } from '../../create-logger';
 import { appFile, registryFile } from '../../constants';
 import { AppConfig } from '../../types';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';

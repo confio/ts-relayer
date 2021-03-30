@@ -1,8 +1,7 @@
 import path from 'path';
 
-import { Logger } from 'winston';
-
 import { State as ChannelState } from '../../../codec/ibc/core/channel/v1/channel';
+import { Logger } from '../../create-logger';
 import { registryFile } from '../../constants';
 import { borderLessTable } from '../../utils/border-less-table';
 import { generateMnemonic } from '../../utils/generate-mnemonic';

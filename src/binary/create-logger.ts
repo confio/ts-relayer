@@ -5,6 +5,11 @@ import winston from 'winston';
 import { LoggerFlags } from './types';
 import { resolveOption } from './utils/options/resolve-option';
 
+// Re-export Logger interface with type-safe child method.
+export interface Logger extends Omit<winston.Logger, 'child'> {
+  child(options: { label: string }): Logger;
+}
+
 export const levels = {
   error: 0,
   warn: 1,
@@ -49,7 +54,7 @@ export function resolveLevel(
   return [defaultLevel, null];
 }
 
-export function createLogger(flags: LoggerFlags) {
+export function createLogger(flags: LoggerFlags): Logger {
   const [level, invalidInputLevel] = resolveLevel(flags);
 
   const fileTransport = flags.logFile
@@ -108,6 +113,8 @@ function simpleFormat() {
 
     const label = info.label ? ` [${info.label}]` : '';
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore: indexing with symbols: https://github.com/microsoft/TypeScript/issues/1863
     info[MESSAGE] = `${info.level}:${label} ${info.message}${stringifiedRest}`;
 
     return info;

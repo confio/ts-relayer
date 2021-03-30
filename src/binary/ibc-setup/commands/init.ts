@@ -4,8 +4,8 @@ import path from 'path';
 import { FaucetClient } from '@cosmjs/faucet-client';
 import axios from 'axios';
 import yaml from 'js-yaml';
-import { Logger } from 'winston';
 
+import { Logger } from '../../create-logger';
 import { appFile, registryFile } from '../../constants';
 import { feeDenom } from '../../types';
 import { deriveAddress } from '../../utils/derive-address';

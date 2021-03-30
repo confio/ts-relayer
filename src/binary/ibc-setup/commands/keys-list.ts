@@ -1,8 +1,7 @@
 import os from 'os';
 import path from 'path';
 
-import { Logger } from 'winston';
-
+import { Logger } from '../../create-logger';
 import { registryFile } from '../../constants';
 import { Chain } from '../../types';
 import { deriveAddress } from '../../utils/derive-address';

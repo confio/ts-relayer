@@ -1,7 +1,6 @@
 import fs from 'fs';
 
-import { Logger } from 'winston';
-
+import { Logger } from '../../create-logger';
 import { generateMnemonic } from '../../utils/generate-mnemonic';
 import { resolveOption } from '../../utils/options/resolve-option';
 

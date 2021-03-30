@@ -3,9 +3,9 @@ import fs from 'fs';
 import test from 'ava';
 import axios from 'axios';
 import sinon from 'sinon';
-import { Logger } from 'winston';
 
 import { TestLogger } from '../../../lib/testutils';
+import { Logger } from '../../create-logger';
 
 import { Options, run } from './init';
 

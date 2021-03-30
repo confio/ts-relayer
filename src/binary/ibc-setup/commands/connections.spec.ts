@@ -2,10 +2,10 @@ import fs from 'fs';
 
 import test from 'ava';
 import sinon from 'sinon';
-import { Logger } from 'winston';
 
 import { Link } from '../../../lib/link';
 import { TestLogger } from '../../../lib/testutils';
+import { Logger } from '../../create-logger';
 import { signingClient } from '../../utils/signing-client';
 
 import { simappChain, wasmdChain } from './chains';

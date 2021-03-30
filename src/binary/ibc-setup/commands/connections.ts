@@ -1,9 +1,8 @@
 import path from 'path';
 
-import { Logger } from 'winston';
-
 import { State as ConnectionState } from '../../../codec/ibc/core/connection/v1/connection';
 import { IdentifiedConnection } from '../../../codec/ibc/core/connection/v1/connection';
+import { Logger } from '../../create-logger';
 import { registryFile } from '../../constants';
 import { borderLessTable } from '../../utils/border-less-table';
 import { generateMnemonic } from '../../utils/generate-mnemonic';
