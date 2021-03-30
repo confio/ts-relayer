@@ -364,6 +364,16 @@ export class IbcClient {
     return this.tm.commit(height);
   }
 
+  /// Returns the unbonding period in seconds
+  public async getUnbondingPeriod(): Promise<number> {
+    const params = await this.query.staking.params();
+    const secs = params?.unbondingTime?.seconds?.toNumber();
+    if (!secs) {
+      throw new Error(`No unbonding period found`);
+    }
+    return secs;
+  }
+
   public async getSignedHeader(height?: number): Promise<SignedHeader> {
     const { header: rpcHeader, commit: rpcCommit } = await this.getCommit(
       height
@@ -1371,13 +1381,18 @@ export interface CreateClientArgs {
   consensusState: TendermintConsensusState;
 }
 
+// this will query for the unbonding period.
+// if the trusting period is not set, it will use 2/3 of the unbonding period
 export async function buildCreateClientArgs(
   src: IbcClient,
-  unbondingPeriodSec: number,
-  trustPeriodSec: number
+  trustPeriodSec?: number
 ): Promise<CreateClientArgs> {
   const header = await src.latestHeader();
   const consensusState = buildConsensusState(header);
+  const unbondingPeriodSec = await src.getUnbondingPeriod();
+  if (!trustPeriodSec) {
+    trustPeriodSec = Math.floor((unbondingPeriodSec * 2) / 3);
+  }
   const clientState = buildClientState(
     src.chainId,
     unbondingPeriodSec,

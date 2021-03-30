@@ -48,11 +48,6 @@ export interface RelayedHeights {
   ackHeightB?: number;
 }
 
-// measured in seconds
-// Note: client parameter is checked against the actual keeper - must use real values from genesis.json
-// TODO: make this more adaptable for chains (query from staking?)
-const genesisUnbondingTime = 1814400;
-
 /**
  * Link represents a Connection between a pair of blockchains (Nodes).
  * An initialized Link requires a both sides to have a Client for the remote side
@@ -825,9 +820,6 @@ export interface ChannelPair {
   readonly dest: ChannelInfo;
 }
 
-// 2 weeks of trust
-const defaultTrustPeriod = 14 * 86400;
-
 async function createClients(
   nodeA: IbcClient,
   nodeB: IbcClient,
@@ -837,22 +829,14 @@ async function createClients(
   trustPeriodB?: number
 ): Promise<string[]> {
   // client on B pointing to A
-  const args = await buildCreateClientArgs(
-    nodeA,
-    genesisUnbondingTime,
-    trustPeriodA ?? defaultTrustPeriod
-  );
+  const args = await buildCreateClientArgs(nodeA, trustPeriodA);
   const { clientId: clientIdB } = await nodeB.createTendermintClient(
     args.clientState,
     args.consensusState
   );
 
   // client on A pointing to B
-  const args2 = await buildCreateClientArgs(
-    nodeB,
-    genesisUnbondingTime,
-    trustPeriodB ?? defaultTrustPeriod
-  );
+  const args2 = await buildCreateClientArgs(nodeB, trustPeriodB);
   const { clientId: clientIdA } = await nodeA.createTendermintClient(
     args2.clientState,
     args2.consensusState
