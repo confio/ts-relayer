@@ -1,3 +1,7 @@
+import jsonStringify from 'fast-safe-stringify';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import { MESSAGE } from 'triple-beam';
 import winston from 'winston';
 
 import { LoggerFlags } from './types';
@@ -72,7 +76,7 @@ export function createLogger(flags: LoggerFlags) {
         handleExceptions: true,
         format: winston.format.combine(
           winston.format.colorize(),
-          winston.format.simple()
+          simpleFormat()
         ),
       }),
 
@@ -91,4 +95,23 @@ export function createLogger(flags: LoggerFlags) {
   }
 
   return logger;
+}
+
+// Heavily based on https://github.com/winstonjs/logform/blob/master/simple.js
+function simpleFormat() {
+  return winston.format((info: winston.Logform.TransformableInfo) => {
+    let stringifiedRest = jsonStringify({
+      ...info,
+      level: undefined,
+      message: undefined,
+      label: undefined,
+    });
+    stringifiedRest = stringifiedRest !== '{}' ? ` ${stringifiedRest}` : '';
+
+    const label = info.label ? ` [${info.label}]` : '';
+
+    info[MESSAGE] = `${info.level}:${label} ${info.message}${stringifiedRest}`;
+
+    return info;
+  })();
 }
