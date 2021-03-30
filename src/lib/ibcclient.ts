@@ -1391,7 +1391,7 @@ export async function buildCreateClientArgs(
   const header = await src.latestHeader();
   const consensusState = buildConsensusState(header);
   const unbondingPeriodSec = await src.getUnbondingPeriod();
-  if (!trustPeriodSec) {
+  if (trustPeriodSec === undefined) {
     trustPeriodSec = Math.floor((unbondingPeriodSec * 2) / 3);
   }
   const clientState = buildClientState(
