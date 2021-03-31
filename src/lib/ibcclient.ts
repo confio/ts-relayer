@@ -18,8 +18,10 @@ import {
   QueryClient,
   setupAuthExtension,
   setupBankExtension,
+  setupStakingExtension,
   SigningStargateClient,
   SigningStargateClientOptions,
+  StakingExtension,
 } from '@cosmjs/stargate';
 import {
   CommitResponse,
@@ -211,7 +213,8 @@ export class IbcClient {
   public readonly query: QueryClient &
     AuthExtension &
     BankExtension &
-    IbcExtension;
+    IbcExtension &
+    StakingExtension;
   public readonly tm: Tendermint34Client;
   public readonly senderAddress: string;
   public readonly logger: Logger;
@@ -259,7 +262,8 @@ export class IbcClient {
       tmClient,
       setupAuthExtension,
       setupBankExtension,
-      setupIbcExtension
+      setupIbcExtension,
+      setupStakingExtension
     );
     this.senderAddress = senderAddress;
     this.chainId = chainId;
@@ -361,9 +365,9 @@ export class IbcClient {
     return this.tm.commit(height);
   }
 
-  /// Returns the unbonding period in seconds
+  /** Returns the unbonding period in seconds */
   public async getUnbondingPeriod(): Promise<number> {
-    const params = await this.query.staking.params();
+    const { params } = await this.query.staking.unverified.params();
     const seconds = params?.unbondingTime?.seconds?.toNumber();
     if (!seconds) {
       throw new Error('No unbonding period found');
