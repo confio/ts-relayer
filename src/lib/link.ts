@@ -226,9 +226,9 @@ export class Link {
     nodeB: IbcClient,
     logger?: Logger,
     // number of seconds the client (on B pointing to A) is valid without update
-    trustPeriodA?: number,
+    trustPeriodA?: number | null,
     // number of seconds the client (on A pointing to B) is valid without update
-    trustPeriodB?: number
+    trustPeriodB?: number | null
   ): Promise<Link> {
     const [clientIdA, clientIdB] = await createClients(
       nodeA,
@@ -824,9 +824,9 @@ async function createClients(
   nodeA: IbcClient,
   nodeB: IbcClient,
   // number of seconds the client (on B pointing to A) is valid without update
-  trustPeriodA?: number,
+  trustPeriodA?: number | null,
   // number of seconds the client (on A pointing to B) is valid without update
-  trustPeriodB?: number
+  trustPeriodB?: number | null
 ): Promise<string[]> {
   // client on B pointing to A
   const args = await buildCreateClientArgs(nodeA, trustPeriodA);

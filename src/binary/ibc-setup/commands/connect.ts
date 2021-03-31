@@ -98,8 +98,8 @@ export async function run(options: Options, app: AppConfig, logger: Logger) {
     nodeA,
     nodeB,
     logger,
-    options.srcTrust ?? undefined,
-    options.destTrust ?? undefined
+    options.srcTrust,
+    options.destTrust
   );
 
   const appYaml = yaml.dump(

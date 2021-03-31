@@ -160,8 +160,8 @@ async function resolveLink(
     nodeA,
     nodeB,
     logger,
-    srcTrust ?? undefined,
-    destTrust ?? undefined
+    srcTrust,
+    destTrust
   );
   logger.info(
     `Created connections ${link.endA.connectionID} (${link.endA.clientID}) <=> ${link.endB.connectionID} (${link.endB.clientID})`
