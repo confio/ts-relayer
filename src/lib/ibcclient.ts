@@ -69,7 +69,6 @@ import { ValidatorSet } from '../codec/tendermint/types/validator';
 
 import { Logger, NoopLogger } from './logger';
 import { IbcExtension, setupIbcExtension } from './queries/ibc';
-import { setupStakingExtension, StakingExtension } from './queries/staking';
 import {
   Ack,
   buildClientState,
@@ -212,8 +211,7 @@ export class IbcClient {
   public readonly query: QueryClient &
     AuthExtension &
     BankExtension &
-    IbcExtension &
-    StakingExtension;
+    IbcExtension;
   public readonly tm: Tendermint34Client;
   public readonly senderAddress: string;
   public readonly logger: Logger;
@@ -261,8 +259,7 @@ export class IbcClient {
       tmClient,
       setupAuthExtension,
       setupBankExtension,
-      setupIbcExtension,
-      setupStakingExtension
+      setupIbcExtension
     );
     this.senderAddress = senderAddress;
     this.chainId = chainId;
