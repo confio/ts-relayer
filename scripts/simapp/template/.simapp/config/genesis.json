@@ -529,10 +529,7 @@
         "create_localhost": false,
         "next_client_sequence": "0",
         "params": {
-          "allowed_clients": [
-            "06-solomachine",
-            "07-tendermint"
-          ]
+          "allowed_clients": ["06-solomachine", "07-tendermint"]
         }
       },
       "connection_genesis": {
@@ -577,7 +574,7 @@
         "historical_entries": 10000,
         "max_entries": 7,
         "max_validators": 100,
-        "unbonding_time": "1814400s"
+        "unbonding_time": "604800s"
       },
       "redelegations": [],
       "unbonding_delegations": [],
@@ -607,9 +604,7 @@
       "max_bytes": "1048576"
     },
     "validator": {
-      "pub_key_types": [
-        "ed25519"
-      ]
+      "pub_key_types": ["ed25519"]
     },
     "version": {}
   },

@@ -20,6 +20,9 @@ sed -i "s/\"stake\"/\"$STAKE\"/" "$HOME"/.simapp/config/genesis.json # staking/g
 sed -i "s/\"port_id\": *\"transfer\"/\"port_id\": \"$TRANSFER_PORT\"/" "$HOME"/.simapp/config/genesis.json # allow custom ibc transfer port
 # this is essential for sub-1s block times (or header times go crazy)
 sed -i 's/"time_iota_ms": "1000"/"time_iota_ms": "10"/' "$HOME"/.simapp/config/genesis.json
+# do this for non-standard unbonding period
+sed -i 's/"unbonding_time": ".*s"/"unbonding_time": "604800s"/' "$HOME"/.simapp/config/genesis.json
+
 
 echo "Setting up validator ..."
 if ! simd keys show validator 2>/dev/null; then

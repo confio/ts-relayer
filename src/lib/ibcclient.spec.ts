@@ -87,16 +87,12 @@ function sameLong(a?: Long, b?: Long) {
   return a.equals(b);
 }
 
-// measured in seconds
-// Note: client parameter is checked against the actual keeper - must use real values from genesis.json
-const genesisUnbondingTime = 1814400;
-
 // make 2 clients, and try to establish a connection
 test.serial('perform connection handshake', async (t) => {
   const [src, dest] = await setup();
 
   // client on dest -> src
-  const args = await buildCreateClientArgs(src, genesisUnbondingTime, 5000);
+  const args = await buildCreateClientArgs(src, 5000);
   const { clientId: destClientId } = await dest.createTendermintClient(
     args.clientState,
     args.consensusState
@@ -104,7 +100,7 @@ test.serial('perform connection handshake', async (t) => {
   t.assert(destClientId.startsWith('07-tendermint-'));
 
   // client on src -> dest
-  const args2 = await buildCreateClientArgs(dest, genesisUnbondingTime, 5000);
+  const args2 = await buildCreateClientArgs(dest, 5000);
   const { clientId: srcClientId } = await src.createTendermintClient(
     args2.clientState,
     args2.consensusState

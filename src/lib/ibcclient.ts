@@ -18,8 +18,10 @@ import {
   QueryClient,
   setupAuthExtension,
   setupBankExtension,
+  setupStakingExtension,
   SigningStargateClient,
   SigningStargateClientOptions,
+  StakingExtension,
 } from '@cosmjs/stargate';
 import {
   CommitResponse,
@@ -211,7 +213,8 @@ export class IbcClient {
   public readonly query: QueryClient &
     AuthExtension &
     BankExtension &
-    IbcExtension;
+    IbcExtension &
+    StakingExtension;
   public readonly tm: Tendermint34Client;
   public readonly senderAddress: string;
   public readonly logger: Logger;
@@ -259,7 +262,8 @@ export class IbcClient {
       tmClient,
       setupAuthExtension,
       setupBankExtension,
-      setupIbcExtension
+      setupIbcExtension,
+      setupStakingExtension
     );
     this.senderAddress = senderAddress;
     this.chainId = chainId;
@@ -359,6 +363,17 @@ export class IbcClient {
         : `Get commit for height ${height}`
     );
     return this.tm.commit(height);
+  }
+
+  /** Returns the unbonding period in seconds */
+  public async getUnbondingPeriod(): Promise<number> {
+    const { params } = await this.query.staking.unverified.params();
+    const seconds = params?.unbondingTime?.seconds?.toNumber();
+    if (!seconds) {
+      throw new Error('No unbonding period found');
+    }
+    this.logger.verbose('Queried unbonding period', { seconds });
+    return seconds;
   }
 
   public async getSignedHeader(height?: number): Promise<SignedHeader> {
@@ -1368,13 +1383,18 @@ export interface CreateClientArgs {
   consensusState: TendermintConsensusState;
 }
 
+// this will query for the unbonding period.
+// if the trusting period is not set, it will use 2/3 of the unbonding period
 export async function buildCreateClientArgs(
   src: IbcClient,
-  unbondingPeriodSec: number,
-  trustPeriodSec: number
+  trustPeriodSec?: number
 ): Promise<CreateClientArgs> {
   const header = await src.latestHeader();
   const consensusState = buildConsensusState(header);
+  const unbondingPeriodSec = await src.getUnbondingPeriod();
+  if (trustPeriodSec === undefined) {
+    trustPeriodSec = Math.floor((unbondingPeriodSec * 2) / 3);
+  }
   const clientState = buildClientState(
     src.chainId,
     unbondingPeriodSec,
