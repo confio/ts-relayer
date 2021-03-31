@@ -50,3 +50,11 @@ chains:
     faucet: http://49.12.73.189:8002
     rpc:
       - http://188.34.162.78:26657
+  cosmoshub-4:
+    chain_id: cosmoshub-4
+    prefix: cosmos
+    gas_price: 0.026uatom
+    hd_path: m/44'/108'/0'/6'
+    ics20_port: 'transfer'
+    rpc:
+      - https://rpc.cosmos.network:443
