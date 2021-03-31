@@ -59,6 +59,8 @@ test.serial('connects two chains', async (t) => {
     mnemonic,
     src: 'local_simapp',
     dest: 'local_wasm',
+    srcTrust: null,
+    destTrust: null,
   };
 
   fsReadFileSync.returns(registryYaml);

@@ -1387,12 +1387,12 @@ export interface CreateClientArgs {
 // if the trusting period is not set, it will use 2/3 of the unbonding period
 export async function buildCreateClientArgs(
   src: IbcClient,
-  trustPeriodSec?: number
+  trustPeriodSec?: number | null
 ): Promise<CreateClientArgs> {
   const header = await src.latestHeader();
   const consensusState = buildConsensusState(header);
   const unbondingPeriodSec = await src.getUnbondingPeriod();
-  if (trustPeriodSec === undefined) {
+  if (trustPeriodSec === undefined || trustPeriodSec === null) {
     trustPeriodSec = Math.floor((unbondingPeriodSec * 2) / 3);
   }
   const clientState = buildClientState(

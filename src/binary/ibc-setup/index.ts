@@ -6,11 +6,13 @@ import {
   addLoggerOptionsTo,
   chainOption,
   destOption,
+  destTrust,
   homeOption,
   interactiveOption,
   keyFileOption,
   mnemonicOption,
   srcOption,
+  srcTrust,
 } from '../commander-options';
 import { loggerWithErrorBoundary } from '../utils/logger-with-error-boundary';
 
@@ -42,6 +44,8 @@ const ics20Command = program
   .description('ics20 command description')
   .addOption(srcOption)
   .addOption(destOption)
+  .addOption(srcTrust)
+  .addOption(destTrust)
   .addOption(mnemonicOption)
   .option('--src-port <port>')
   .option('--dest-port <port>')
@@ -86,6 +90,8 @@ const connectCommand = program
   .addOption(mnemonicOption)
   .addOption(keyFileOption)
   .addOption(interactiveOption)
+  .addOption(srcTrust)
+  .addOption(destTrust)
   .action(loggerWithErrorBoundary(connect));
 addLoggerOptionsTo(connectCommand);
 

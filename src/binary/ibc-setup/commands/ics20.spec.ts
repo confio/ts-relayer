@@ -63,6 +63,8 @@ test.serial('ics20 create channels with new connection', async (t) => {
     srcPort: 'transfer',
     destPort: 'custom',
     connections: null,
+    srcTrust: null,
+    destTrust: null,
   };
 
   fsReadFileSync.returns(registryYaml);
@@ -81,13 +83,7 @@ destConnection: .+
   t.assert(fsWriteFileSync.calledOnce);
   t.is(args[0], path.join(options.home, appFile));
   t.regex(args[1], contentsRegexp);
-  t.is(logger.info.callCount, 6);
-  t.assert(logger.info.calledWithMatch(/Connection open/));
-  t.assert(logger.info.calledWithMatch(/Connection open/));
-  t.assert(logger.info.calledWithMatch(/Connection open/));
-  t.assert(logger.info.calledWithMatch(/Connection open/));
-  t.assert(logger.info.calledWithMatch(/Created connections/));
-  t.assert(logger.info.calledWithMatch(/Created channels/));
+  t.assert(logger.info.getCall(-1).calledWithMatch(/Created channels/));
 
   const nextAllConnectionsWasm = await ibcClientWasm.query.ibc.connection.allConnections();
   const srcConnectionIdMatch = /srcConnection: (?<connection>.+)/.exec(args[1]);
@@ -143,6 +139,8 @@ test.serial('ics20 create channels with existing connection', async (t) => {
       src: link.endA.connectionID,
       dest: link.endB.connectionID,
     },
+    srcTrust: null,
+    destTrust: null,
   };
 
   fsReadFileSync.returns(registryYaml);
