@@ -2,11 +2,11 @@ import fs from 'fs';
 import path from 'path';
 
 import { sleep } from '@cosmjs/utils';
-import { Logger } from 'winston';
 
 import { Link } from '../../../lib/link';
 import { RelayedHeights } from '../../../lib/link';
 import { lastQueriedHeightsFile, registryFile } from '../../constants';
+import { Logger } from '../../create-logger';
 import { InvalidOptionError } from '../../exceptions/InvalidOptionError';
 import { LoggerFlags } from '../../types';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';
@@ -208,8 +208,16 @@ async function run(options: Options, logger: Logger) {
     throw new Error('dest chain not found in registry');
   }
 
-  const nodeA = await signingClient(srcChain, options.mnemonic, logger);
-  const nodeB = await signingClient(destChain, options.mnemonic, logger);
+  const nodeA = await signingClient(
+    srcChain,
+    options.mnemonic,
+    logger.child({ label: srcChain.chain_id })
+  );
+  const nodeB = await signingClient(
+    destChain,
+    options.mnemonic,
+    logger.child({ label: destChain.chain_id })
+  );
   const link = await Link.createWithExistingConnections(
     nodeA,
     nodeB,

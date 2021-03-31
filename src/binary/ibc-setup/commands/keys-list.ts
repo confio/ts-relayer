@@ -1,9 +1,8 @@
 import os from 'os';
 import path from 'path';
 
-import { Logger } from 'winston';
-
 import { registryFile } from '../../constants';
+import { Logger } from '../../create-logger';
 import { Chain } from '../../types';
 import { deriveAddress } from '../../utils/derive-address';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';
@@ -24,7 +23,7 @@ export type Options = {
   readonly mnemonic: string;
 };
 
-export async function keysList(flags: Flags, logger: Logger) {
+export async function keysList(flags: Flags, _logger: Logger) {
   const home = resolveHomeOption({ homeFlag: flags.home });
   const app = loadAndValidateApp(home);
   const keyFile = resolveKeyFileOption({ keyFileFlag: flags.keyFile, app });
@@ -40,7 +39,7 @@ export async function keysList(flags: Flags, logger: Logger) {
     mnemonic,
   };
 
-  await run(options, logger);
+  await run(options);
 }
 
 export async function getAddresses(
@@ -58,7 +57,7 @@ export async function getAddresses(
   ).map((address, index) => [chains[index][0], chains[index][1], address]);
 }
 
-export async function run(options: Options, logger: Logger) {
+export async function run(options: Options) {
   const registryFilePath = path.join(options.home, registryFile);
   const registry = loadAndValidateRegistry(registryFilePath);
 
@@ -66,5 +65,5 @@ export async function run(options: Options, logger: Logger) {
     .map(([chain, , address]) => `${chain}: ${address}`)
     .join(os.EOL);
 
-  logger.info(addresses);
+  console.log(addresses);
 }

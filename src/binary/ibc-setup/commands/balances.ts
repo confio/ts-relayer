@@ -4,11 +4,11 @@ import path from 'path';
 import { stringToPath } from '@cosmjs/crypto';
 import { GasPrice } from '@cosmjs/launchpad';
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
-import { Logger } from 'winston';
 
 import { Coin } from '../../../codec/cosmos/base/v1beta1/coin';
 import { IbcClient } from '../../../lib/ibcclient';
 import { registryFile } from '../../constants';
+import { Logger } from '../../create-logger';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
 import { resolveHomeOption } from '../../utils/options/shared/resolve-home-option';
@@ -60,6 +60,7 @@ export async function run(options: Options, logger: Logger) {
           {
             prefix: data.prefix,
             gasPrice,
+            logger,
           }
         );
 
@@ -77,9 +78,9 @@ export async function run(options: Options, logger: Logger) {
     .join(os.EOL);
 
   if (!balances) {
-    logger.info('No funds found for default denomination on any chain.');
+    console.log('No funds found for default denomination on any chain.');
     return;
   }
 
-  logger.info(balances);
+  console.log(balances);
 }

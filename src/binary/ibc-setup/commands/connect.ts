@@ -2,10 +2,10 @@ import fs from 'fs';
 import path from 'path';
 
 import yaml from 'js-yaml';
-import { Logger } from 'winston';
 
 import { Link } from '../../../lib/link';
 import { appFile, registryFile } from '../../constants';
+import { Logger } from '../../create-logger';
 import { AppConfig } from '../../types';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
@@ -92,8 +92,8 @@ export async function run(options: Options, app: AppConfig, logger: Logger) {
     throw new Error(`dest channel  "${options.dest}" not found in registry`);
   }
 
-  const nodeA = await signingClient(srcChain, options.mnemonic);
-  const nodeB = await signingClient(destChain, options.mnemonic);
+  const nodeA = await signingClient(srcChain, options.mnemonic, logger);
+  const nodeB = await signingClient(destChain, options.mnemonic, logger);
   const link = await Link.createWithNewConnections(
     nodeA,
     nodeB,
@@ -117,7 +117,7 @@ export async function run(options: Options, app: AppConfig, logger: Logger) {
     encoding: 'utf-8',
   });
 
-  logger.info(
+  console.log(
     `Created connections ${link.endA.connectionID} (${link.endA.clientID}) <=> ${link.endB.connectionID} (${link.endB.clientID})`
   );
 }

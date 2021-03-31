@@ -1,10 +1,9 @@
 import path from 'path';
 
-import { Logger } from 'winston';
-
 import { State as ConnectionState } from '../../../codec/ibc/core/connection/v1/connection';
 import { IdentifiedConnection } from '../../../codec/ibc/core/connection/v1/connection';
 import { registryFile } from '../../constants';
+import { Logger } from '../../create-logger';
 import { borderLessTable } from '../../utils/border-less-table';
 import { generateMnemonic } from '../../utils/generate-mnemonic';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';
@@ -102,7 +101,7 @@ export async function run(options: Options, logger: Logger) {
   ]);
 
   if (!connections.length) {
-    logger.info(`No connections found for chain "${options.chain}".`);
+    console.log(`No connections found for chain "${options.chain}".`);
 
     return;
   }

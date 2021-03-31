@@ -2,12 +2,12 @@ import fs from 'fs';
 import path from 'path';
 
 import yaml from 'js-yaml';
-import { Logger } from 'winston';
 
 import { Order } from '../../../codec/ibc/core/channel/v1/channel';
 import { IbcClient } from '../../../lib/ibcclient';
 import { Link } from '../../../lib/link';
 import { appFile, registryFile } from '../../constants';
+import { Logger } from '../../create-logger';
 import { AppConfig } from '../../types';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
@@ -150,8 +150,12 @@ async function resolveLink(
       connections.dest,
       logger
     );
-    logger.info(
-      `Used existing connections ${link.endA.connectionID} (${link.endA.clientID}) <=> ${link.endB.connectionID} (${link.endB.clientID})`
+    console.log(
+      `Used existing connections [${link.endA.chainId()}, ${
+        link.endA.connectionID
+      }, ${link.endA.clientID}] <=> [${link.endB.chainId()}, ${
+        link.endB.connectionID
+      }, ${link.endB.clientID}]`
     );
     return link;
   }
@@ -163,8 +167,12 @@ async function resolveLink(
     srcTrust,
     destTrust
   );
-  logger.info(
-    `Created connections ${link.endA.connectionID} (${link.endA.clientID}) <=> ${link.endB.connectionID} (${link.endB.clientID})`
+  console.log(
+    `Created connections [${link.endA.chainId()}, ${link.endA.connectionID}, ${
+      link.endA.clientID
+    }] <=> [${link.endB.chainId()}, ${link.endB.connectionID}, ${
+      link.endB.clientID
+    }]`
   );
   return link;
 }
@@ -227,7 +235,13 @@ export async function run(
     version
   );
 
-  logger.info(
-    `Created channels for connections ${link.endA.connectionID} <=> ${link.endB.connectionID}: ${channels.src.channelId} (${channels.src.portId}) => ${channels.dest.channelId} (${channels.dest.portId})`
+  console.log(
+    `Created channels for connections [${link.endA.chainId()}, ${
+      link.endA.connectionID
+    }] <=> [${link.endA.chainId()}, ${link.endA.connectionID}]: ${
+      channels.src.channelId
+    } (${channels.src.portId}) => ${channels.dest.channelId} (${
+      channels.dest.portId
+    })`
   );
 }

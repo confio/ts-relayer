@@ -1,6 +1,4 @@
-import { Logger } from 'winston';
-
-import { createLogger } from '../create-logger';
+import { createLogger, Logger } from '../create-logger';
 import { LoggerFlags } from '../types';
 
 export function loggerWithErrorBoundary<T>(

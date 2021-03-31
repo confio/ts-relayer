@@ -3,15 +3,16 @@ import os from 'os';
 
 import test from 'ava';
 import sinon from 'sinon';
-import { Logger } from 'winston';
 
 import { IbcClient } from '../../../lib/ibcclient';
 import { TestLogger } from '../../../lib/testutils';
+import { Logger } from '../../create-logger';
 
 import { run } from './balances';
 import { Options } from './keys-list';
 
 const fsReadFileSync = sinon.stub(fs, 'readFileSync');
+const consoleLog = sinon.stub(console, 'log');
 const mnemonic =
   'accident harvest weasel surge source return tag supreme sorry isolate wave mammal';
 
@@ -90,9 +91,9 @@ test('lists chains with non-zero balance', async (t) => {
   await run(options, (logger as unknown) as Logger);
 
   t.assert(fsReadFileSync.calledOnce);
-  t.assert(logger.info.calledOnce);
+  t.assert(consoleLog.calledOnce);
   t.assert(
-    logger.info.calledWithExactly(
+    consoleLog.calledWithExactly(
       [
         'musselnet: 1musselnetdenom',
         'local_wasm: 2wasmdenom',
@@ -122,9 +123,9 @@ test('omits chains with zero balance', async (t) => {
   await run(options, (logger as unknown) as Logger);
 
   t.assert(fsReadFileSync.calledOnce);
-  t.assert(logger.info.calledOnce);
+  t.assert(consoleLog.calledOnce);
   t.assert(
-    logger.info.calledWithExactly(
+    consoleLog.calledWithExactly(
       ['musselnet: 1musselnetdenom', 'local_simapp: 3simappdenom'].join(os.EOL)
     )
   );
@@ -150,6 +151,6 @@ test('informs when there are no funds on any balance', async (t) => {
   await run(options, (logger as unknown) as Logger);
 
   t.assert(fsReadFileSync.calledOnce);
-  t.assert(logger.info.calledOnce);
-  t.assert(logger.info.calledWithMatch(/No funds/));
+  t.assert(consoleLog.calledOnce);
+  t.assert(consoleLog.calledWithMatch(/No funds/));
 });
