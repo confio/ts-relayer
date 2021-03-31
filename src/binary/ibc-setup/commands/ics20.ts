@@ -151,13 +151,11 @@ async function resolveLink(
       logger
     );
     console.log(
-      `Used existing connections [chain_id: ${link.endA.chainId()}, connection_id: ${
+      `Used existing connections [${link.endA.chainId()}, ${
         link.endA.connectionID
-      }, client_id: ${
-        link.endA.clientID
-      }] <=> [chain_id: ${link.endB.chainId()}, connection_id: ${
+      }, ${link.endA.clientID}] <=> [${link.endB.chainId()}, ${
         link.endB.connectionID
-      }, client_id: ${link.endB.clientID}]`
+      }, ${link.endB.clientID}]`
     );
     return link;
   }
@@ -170,13 +168,11 @@ async function resolveLink(
     destTrust
   );
   console.log(
-    `Created connections [chain_id: ${link.endA.chainId()}, connection_id: ${
-      link.endA.connectionID
-    }, client_id: ${
+    `Created connections [${link.endA.chainId()}, ${link.endA.connectionID}, ${
       link.endA.clientID
-    }] <=> [chain_id: ${link.endB.chainId()}, connection_id: ${
-      link.endB.connectionID
-    }, client_id: ${link.endB.clientID}]`
+    }] <=> [${link.endB.chainId()}, ${link.endB.connectionID}, ${
+      link.endB.clientID
+    }]`
   );
   return link;
 }
@@ -240,12 +236,12 @@ export async function run(
   );
 
   console.log(
-    `Created channels for connections [chain_id: ${link.endA.chainId()}, connection_id: ${
+    `Created channels for connections [${link.endA.chainId()}, ${
       link.endA.connectionID
-    }] <=> [chain_id: ${link.endA.chainId()}, connection_id: ${
-      link.endA.connectionID
-    }]: ${channels.src.channelId} (${channels.src.portId}) => ${
-      channels.dest.channelId
-    } (${channels.dest.portId})`
+    }] <=> [${link.endA.chainId()}, ${link.endA.connectionID}]: ${
+      channels.src.channelId
+    } (${channels.src.portId}) => ${channels.dest.channelId} (${
+      channels.dest.portId
+    })`
   );
 }
