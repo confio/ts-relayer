@@ -114,4 +114,4 @@ workflows:
             - build
           filters:
             branches:
-              only: feature/143 # TODO: change to main
+              only: main
