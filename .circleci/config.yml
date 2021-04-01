@@ -33,6 +33,9 @@ jobs:
       - run:
           name: Set version
           command: yarn version --no-git-tag-version --new-version 0.0.0-main-$(echo $CIRCLE_SHA1 | cut -c -7)
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
       - run: npm publish --tag main
 
   test:
