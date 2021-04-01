@@ -33,7 +33,7 @@ jobs:
       - run:
           name: Set version
           command: yarn version --no-git-tag-version --new-version 0.0.0-main-$(echo $CIRCLE_SHA1 | cut -c -7)
-      - run: npm publish --tag main --dry-run # TODO: remove --dry-run
+      - run: npm publish --tag main
 
   test:
     machine:
