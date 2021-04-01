@@ -31,7 +31,6 @@
     "doc:html": "typedoc src/ --exclude **/*.spec.ts --target ES6 --mode file --out build/docs",
     "doc:json": "typedoc src/ --exclude **/*.spec.ts --target ES6 --mode file --json build/docs/typedoc.json",
     "doc:publish": "gh-pages -m \"[ci skip] Updates\" -d build/docs",
-    "version": "standard-version",
     "reset-hard": "git clean -dfx && git reset --hard && yarn",
     "prepare-release": "run-s reset-hard test cov:check doc:html version doc:publish",
     "proto": "./scripts/proto/get-proto.sh && ./scripts/proto/define-proto.sh && yarn fix"
@@ -84,7 +83,6 @@
     "open-cli": "^6.0.1",
     "prettier": "^2.1.1",
     "sinon": "^9.2.4",
-    "standard-version": "^9.0.0",
     "ts-node": "^9.0.0",
     "ts-proto": "^1.67.0",
     "typedoc": "^0.20.30",

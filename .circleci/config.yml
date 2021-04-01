@@ -19,6 +19,25 @@ jobs:
       - run: yarn test:lint
       - run: yarn test:prettier
 
+  publish_main_tag:
+    docker:
+      - image: circleci/node:12
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "yarn.lock" }}
+      - run:
+          name: Build
+          command: yarn build
+      - run:
+          name: Set version
+          command: yarn version --no-git-tag-version --new-version 0.0.0-main-$(echo $CIRCLE_SHA1 | cut -c -7)
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
+      - run: npm publish --tag main
+
   test:
     machine:
       # We can't use a containerized environment since it requires remote docker to start custom containers.
@@ -93,3 +112,9 @@ workflows:
     jobs:
       - build
       - test
+      - publish_main_tag:
+          requires:
+            - build
+          filters:
+            branches:
+              only: main

@@ -3,12 +3,26 @@
 IBC Relayer in TypeScript
 
 ## Installation
+
+### Latest stable release
+https://github.com/confio/ts-relayer/releases/latest
 ```bash
 npm i -g @confio/relayer
 
 # with yarn
 yarn global add @confio/relayer
 ```
+
+
+### From `main` branch
+Always tied with code on the `main` branch.
+```bash
+npm i -g @confio/relayer@main
+
+# with yarn
+yarn global add @confio/relayer@main
+```
+
 ## Functionality
 
 This will be both a isomorphic library (running in browsers and Node.js), as well as a simple binary
