@@ -16,10 +16,6 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "yarn.lock" }}
       - run: yarn build
-      - save_cache:
-          paths:
-            - build
-          key: v1-build-{{ .Environment.CIRCLE_SHA1 }}
       - run: yarn test:lint
       - run: yarn test:prettier
 
@@ -30,10 +26,13 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v1-build-{{ .Environment.CIRCLE_SHA1 }}
+            - v1-dependencies-{{ checksum "yarn.lock" }}
+      - run:
+          name: Build
+          command: yarn build
       - run:
           name: Set version
-          command: cat <<< $(jq --arg v 0.0.0-main-$(echo $CIRCLE_SHA1 | cut -c -7) -r '.version |= $v' package.json) > package.json
+          command: yarn version --new-version 0.0.0-main-$(echo $CIRCLE_SHA1 | cut -c -7)
       - run: npm publish --tag main --dry-run # TODO: remove --dry-run
 
   test:
