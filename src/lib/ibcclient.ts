@@ -1345,7 +1345,7 @@ export class IbcClient {
     this.logger.verbose(`Transfer tokens to ${receiver}`);
     const senderAddress = this.senderAddress;
     const timeoutTimestamp = timeoutTime
-      ? Long.fromNumber(timeoutTime * 1_000_000_000)
+      ? Long.fromNumber(timeoutTime).multiply(1_000_000_000)
       : undefined;
     const msg = {
       typeUrl: '/ibc.applications.transfer.v1.MsgTransfer',
