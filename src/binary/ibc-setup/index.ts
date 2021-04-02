@@ -21,6 +21,7 @@ import {
 import { loggerWithErrorBoundary } from '../utils/logger-with-error-boundary';
 
 import { balances } from './commands/balances';
+import { channel } from './commands/channel';
 import { channels } from './commands/channels';
 import { connect } from './commands/connect';
 import { connections } from './commands/connections';
@@ -111,12 +112,12 @@ const channelsCommand = program
 addLoggerOptionsTo(channelsCommand);
 
 const channelCommand = program
-  .command('channels')
-  .description('channels command description')
+  .command('channel')
+  .description('channel command description')
   .addOption(homeOption)
   .addOption(mnemonicOption)
   .addOption(interactiveOption)
-
+  .addOption(keyFileOption)
   .addOption(srcOption)
   .addOption(destOption)
   .addOption(srcConnection)
@@ -125,7 +126,6 @@ const channelCommand = program
   .addOption(destPort)
   .option('--ordered')
   .option('--version <version>')
-
   .action(loggerWithErrorBoundary(channel));
 addLoggerOptionsTo(channelCommand);
 
