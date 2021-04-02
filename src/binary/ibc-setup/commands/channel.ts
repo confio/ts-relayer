@@ -1,7 +1,6 @@
 import path from 'path';
 
 import { Order } from '../../../codec/ibc/core/channel/v1/channel';
-import { prepareChannelHandshake } from '../../../lib/ibcclient';
 import { Link } from '../../../lib/link';
 import { registryFile } from '../../constants';
 import { Logger } from '../../create-logger';
