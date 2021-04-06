@@ -40,6 +40,10 @@ export type Options = {
   readonly ordered: boolean;
 };
 
+export const defaults = {
+  version: 'ics20-1',
+};
+
 export async function channel(flags: Flags, logger: Logger) {
   const home = resolveHomeOption({ homeFlag: flags.home });
   const app = loadAndValidateApp(home);
@@ -81,7 +85,7 @@ export async function channel(flags: Flags, logger: Logger) {
   );
   const version =
     resolveOption('version')(flags.version, process.env.RELAYER_VERSION) ??
-    'ics20-1';
+    defaults.version;
 
   const options: Options = {
     home,
