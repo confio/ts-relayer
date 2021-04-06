@@ -86,7 +86,7 @@ destConnection: .+
   t.regex(args[1], contentsRegexp);
   t.is(consoleLog.callCount, 2);
   t.assert(consoleLog.calledWithMatch(/Created connections/));
-  t.assert(consoleLog.calledWithMatch(/Created channels/));
+  t.assert(consoleLog.calledWithMatch(/Created channel/));
 
   const nextAllConnectionsWasm = await ibcClientWasm.query.ibc.connection.allConnections();
   const srcConnectionIdMatch = /srcConnection: (?<connection>.+)/.exec(args[1]);
@@ -165,7 +165,7 @@ destConnection: ${link.endB.connectionID}
   t.regex(args[1], contentsRegexp);
   t.assert(consoleLog.calledTwice);
   t.assert(consoleLog.calledWithMatch(/Used existing connections/));
-  t.assert(consoleLog.calledWithMatch(/Created channels/));
+  t.assert(consoleLog.calledWithMatch(/Created channel/));
 
   const nextAllConnectionsWasm = await ibcClientWasm.query.ibc.connection.allConnections();
   const nextAllConnectionsSimapp = await ibcClientSimapp.query.ibc.connection.allConnections();

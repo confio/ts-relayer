@@ -24,7 +24,7 @@ export async function balances(flags: Flags, logger: Logger) {
   const mnemonic = await resolveMnemonicOption({
     interactiveFlag: flags.interactive,
     mnemonicFlag: flags.mnemonic,
-    keyFile: keyFile,
+    keyFile,
     app,
   });
 

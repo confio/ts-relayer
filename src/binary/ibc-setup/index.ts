@@ -5,18 +5,23 @@ import { Command } from 'commander';
 import {
   addLoggerOptionsTo,
   chainOption,
+  destConnection,
   destOption,
+  destPort,
   destTrust,
   homeOption,
   interactiveOption,
   keyFileOption,
   mnemonicOption,
+  srcConnection,
   srcOption,
+  srcPort,
   srcTrust,
 } from '../commander-options';
 import { loggerWithErrorBoundary } from '../utils/logger-with-error-boundary';
 
 import { balances } from './commands/balances';
+import { channel, defaults as channelDefaults } from './commands/channel';
 import { channels } from './commands/channels';
 import { connect } from './commands/connect';
 import { connections } from './commands/connections';
@@ -47,8 +52,8 @@ const ics20Command = program
   .addOption(srcTrust)
   .addOption(destTrust)
   .addOption(mnemonicOption)
-  .option('--src-port <port>')
-  .option('--dest-port <port>')
+  .addOption(srcPort)
+  .addOption(destPort)
   .action(loggerWithErrorBoundary(ics20));
 addLoggerOptionsTo(ics20Command);
 
@@ -105,6 +110,24 @@ const channelsCommand = program
   .option('--port <port>')
   .action(loggerWithErrorBoundary(channels));
 addLoggerOptionsTo(channelsCommand);
+
+const channelCommand = program
+  .command('channel')
+  .description('channel command description')
+  .addOption(homeOption)
+  .addOption(mnemonicOption)
+  .addOption(interactiveOption)
+  .addOption(keyFileOption)
+  .addOption(srcOption)
+  .addOption(destOption)
+  .addOption(srcConnection)
+  .addOption(destConnection)
+  .addOption(srcPort)
+  .addOption(destPort)
+  .option('--ordered')
+  .option('--version <version>', `(default: ${channelDefaults.version})`)
+  .action(loggerWithErrorBoundary(channel));
+addLoggerOptionsTo(channelCommand);
 
 const connectionsCommand = program
   .command('connections')

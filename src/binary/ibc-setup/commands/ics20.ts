@@ -1,4 +1,5 @@
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 
 import yaml from 'js-yaml';
@@ -9,6 +10,7 @@ import { Link } from '../../../lib/link';
 import { appFile, registryFile } from '../../constants';
 import { Logger } from '../../create-logger';
 import { AppConfig } from '../../types';
+import { indent } from '../../utils/indent';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
 import { resolveOption } from '../../utils/options/resolve-option';
@@ -227,7 +229,7 @@ export async function run(
     defaultPort
   );
 
-  const channels = await link.createChannel(
+  const channel = await link.createChannel(
     'A',
     srcPort,
     destPort,
@@ -235,13 +237,13 @@ export async function run(
     version
   );
 
-  console.log(
-    `Created channels for connections [${link.endA.chainId()}, ${
-      link.endA.connectionID
-    }] <=> [${link.endA.chainId()}, ${link.endA.connectionID}]: ${
-      channels.src.channelId
-    } (${channels.src.portId}) => ${channels.dest.channelId} (${
-      channels.dest.portId
-    })`
-  );
+  const output = [
+    'Created channel:',
+    ...indent([
+      `${srcChain.chain_id}: ${channel.src.portId}/${channel.src.channelId} (${link.endA.connectionID})`,
+      `${destChain.chain_id}: ${channel.dest.portId}/${channel.dest.channelId} (${link.endB.connectionID})`,
+    ]),
+  ].join(os.EOL);
+
+  console.log(output);
 }

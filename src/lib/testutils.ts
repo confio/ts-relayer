@@ -17,6 +17,7 @@ export class TestLogger implements Logger {
   public readonly info: SinonSpy & LogMethod;
   public readonly verbose: SinonSpy & LogMethod;
   public readonly debug: SinonSpy & LogMethod;
+  public readonly child: () => TestLogger;
 
   constructor(shouldLog = false) {
     const createSpy = (logFn: (message: string, meta?: string) => unknown) =>
@@ -33,6 +34,7 @@ export class TestLogger implements Logger {
     this.info = shouldLog ? createSpy(console.info) : createFake();
     this.verbose = shouldLog ? createSpy(console.log) : createFake();
     this.debug = createFake();
+    this.child = () => this;
   }
 }
 

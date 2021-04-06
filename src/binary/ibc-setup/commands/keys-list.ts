@@ -30,7 +30,7 @@ export async function keysList(flags: Flags, _logger: Logger) {
   const mnemonic = await resolveMnemonicOption({
     interactiveFlag: flags.interactive,
     mnemonicFlag: flags.mnemonic,
-    keyFile: keyFile,
+    keyFile,
     app,
   });
 
