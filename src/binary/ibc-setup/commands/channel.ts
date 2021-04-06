@@ -48,7 +48,7 @@ export async function channel(flags: Flags, logger: Logger) {
   const mnemonic = await resolveMnemonicOption({
     interactiveFlag: flags.interactive,
     mnemonicFlag: flags.mnemonic,
-    keyFile: keyFile,
+    keyFile,
     app,
   });
   const src = resolveOption('src', { required: true })(

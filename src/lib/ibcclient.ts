@@ -819,8 +819,8 @@ export class IbcClient {
       value: MsgConnectionOpenTry.fromPartial({
         clientId: myClientId,
         counterparty: {
-          clientId: clientId,
-          connectionId: connectionId,
+          clientId,
+          connectionId,
           prefix: defaultMerklePrefix,
         },
         delayPeriod: defaultDelayPeriod,

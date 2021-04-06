@@ -261,8 +261,8 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
       channel: {
         channel: async (portId: string, channelId: string) =>
           channelQueryService.Channel({
-            portId: portId,
-            channelId: channelId,
+            portId,
+            channelId,
           }),
         channels: async (paginationKey?: Uint8Array) =>
           channelQueryService.Channels({
@@ -280,7 +280,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             key = response.pagination?.nextKey;
           } while (key);
           return {
-            channels: channels,
+            channels,
             height: response.height,
           };
         },
@@ -289,7 +289,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           paginationKey?: Uint8Array
         ) =>
           channelQueryService.ConnectionChannels({
-            connection: connection,
+            connection,
             pagination: createPagination(paginationKey),
           }),
         allConnectionChannels: async (connection: string) => {
@@ -298,21 +298,21 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           let key: Uint8Array | undefined;
           do {
             response = await channelQueryService.ConnectionChannels({
-              connection: connection,
+              connection,
               pagination: createPagination(key),
             });
             channels.push(...response.channels);
             key = response.pagination?.nextKey;
           } while (key);
           return {
-            channels: channels,
+            channels,
             height: response.height,
           };
         },
         clientState: async (portId: string, channelId: string) =>
           channelQueryService.ChannelClientState({
-            portId: portId,
-            channelId: channelId,
+            portId,
+            channelId,
           }),
         consensusState: async (
           portId: string,
@@ -321,8 +321,8 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           revisionHeight: number
         ) =>
           channelQueryService.ChannelConsensusState({
-            portId: portId,
-            channelId: channelId,
+            portId,
+            channelId,
             revisionNumber: Long.fromNumber(revisionNumber, true),
             revisionHeight: Long.fromNumber(revisionHeight, true),
           }),
@@ -332,9 +332,9 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           sequence: Long
         ) =>
           channelQueryService.PacketCommitment({
-            portId: portId,
-            channelId: channelId,
-            sequence: sequence,
+            portId,
+            channelId,
+            sequence,
           }),
         packetCommitments: async (
           portId: string,
@@ -342,8 +342,8 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           paginationKey?: Uint8Array
         ) =>
           channelQueryService.PacketCommitments({
-            channelId: channelId,
-            portId: portId,
+            channelId,
+            portId,
             pagination: createPagination(paginationKey),
           }),
         allPacketCommitments: async (portId: string, channelId: string) => {
@@ -352,15 +352,15 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           let key: Uint8Array | undefined;
           do {
             response = await channelQueryService.PacketCommitments({
-              channelId: channelId,
-              portId: portId,
+              channelId,
+              portId,
               pagination: createPagination(key),
             });
             commitments.push(...response.commitments);
             key = response.pagination?.nextKey;
           } while (key);
           return {
-            commitments: commitments,
+            commitments,
             height: response.height,
           };
         },
@@ -370,8 +370,8 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           sequence: number
         ) =>
           channelQueryService.PacketReceipt({
-            portId: portId,
-            channelId: channelId,
+            portId,
+            channelId,
             sequence: Long.fromNumber(sequence, true),
           }),
         packetAcknowledgement: async (
@@ -380,8 +380,8 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           sequence: number
         ) =>
           channelQueryService.PacketAcknowledgement({
-            portId: portId,
-            channelId: channelId,
+            portId,
+            channelId,
             sequence: Long.fromNumber(sequence, true),
           }),
         packetAcknowledgements: async (
@@ -390,8 +390,8 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           paginationKey?: Uint8Array
         ) =>
           channelQueryService.PacketAcknowledgements({
-            portId: portId,
-            channelId: channelId,
+            portId,
+            channelId,
             pagination: createPagination(paginationKey),
           }),
         allPacketAcknowledgements: async (
@@ -403,15 +403,15 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           let key: Uint8Array | undefined;
           do {
             response = await channelQueryService.PacketAcknowledgements({
-              channelId: channelId,
-              portId: portId,
+              channelId,
+              portId,
               pagination: createPagination(key),
             });
             acknowledgements.push(...response.acknowledgements);
             key = response.pagination?.nextKey;
           } while (key);
           return {
-            acknowledgements: acknowledgements,
+            acknowledgements,
             height: response.height,
           };
         },
@@ -421,8 +421,8 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           packetCommitmentSequences: readonly number[]
         ) =>
           channelQueryService.UnreceivedPackets({
-            portId: portId,
-            channelId: channelId,
+            portId,
+            channelId,
             packetCommitmentSequences: packetCommitmentSequences.map((s) =>
               Long.fromNumber(s, true)
             ),
@@ -433,16 +433,16 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           packetAckSequences: readonly number[]
         ) =>
           channelQueryService.UnreceivedAcks({
-            portId: portId,
-            channelId: channelId,
+            portId,
+            channelId,
             packetAckSequences: packetAckSequences.map((s) =>
               Long.fromNumber(s, true)
             ),
           }),
         nextSequenceReceive: async (portId: string, channelId: string) =>
           channelQueryService.NextSequenceReceive({
-            portId: portId,
-            channelId: channelId,
+            portId,
+            channelId,
           }),
       },
       client: {
@@ -464,13 +464,13 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             key = response.pagination?.nextKey;
           } while (key);
           return {
-            clientStates: clientStates,
+            clientStates,
           };
         },
         consensusState: (clientId: string, consensusHeight?: number) =>
           clientQueryService.ConsensusState(
             QueryConsensusStateRequest.fromPartial({
-              clientId: clientId,
+              clientId,
               revisionHeight:
                 consensusHeight !== undefined
                   ? Long.fromNumber(consensusHeight, true)
@@ -480,7 +480,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           ),
         consensusStates: (clientId: string, paginationKey?: Uint8Array) =>
           clientQueryService.ConsensusStates({
-            clientId: clientId,
+            clientId,
             pagination: createPagination(paginationKey),
           }),
         allConsensusStates: async (clientId: string) => {
@@ -489,14 +489,14 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           let key: Uint8Array | undefined;
           do {
             response = await clientQueryService.ConsensusStates({
-              clientId: clientId,
+              clientId,
               pagination: createPagination(key),
             });
             consensusStates.push(...response.consensusStates);
             key = response.pagination?.nextKey;
           } while (key);
           return {
-            consensusStates: consensusStates,
+            consensusStates,
           };
         },
         params: () => clientQueryService.ClientParams({}),
@@ -533,7 +533,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
         ) => {
           const response = await clientQueryService.ConsensusState(
             QueryConsensusStateRequest.fromPartial({
-              clientId: clientId,
+              clientId,
               revisionHeight: consensusHeight?.revisionHeight,
               revisionNumber: consensusHeight?.revisionNumber,
               latestHeight: consensusHeight === undefined,
@@ -545,7 +545,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
       connection: {
         connection: async (connectionId: string) =>
           connectionQueryService.Connection({
-            connectionId: connectionId,
+            connectionId,
           }),
         connections: async (paginationKey?: Uint8Array) =>
           connectionQueryService.Connections({
@@ -563,22 +563,22 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             key = response.pagination?.nextKey;
           } while (key);
           return {
-            connections: connections,
+            connections,
             height: response.height,
           };
         },
         clientConnections: async (clientId: string) =>
           connectionQueryService.ClientConnections({
-            clientId: clientId,
+            clientId,
           }),
         clientState: async (connectionId: string) =>
           connectionQueryService.ConnectionClientState({
-            connectionId: connectionId,
+            connectionId,
           }),
         consensusState: async (connectionId: string, revisionHeight: number) =>
           connectionQueryService.ConnectionConsensusState(
             QueryConnectionConsensusStateRequest.fromPartial({
-              connectionId: connectionId,
+              connectionId,
               revisionHeight: Long.fromNumber(revisionHeight, true),
             })
           ),
@@ -604,8 +604,8 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             const channel = Channel.decode(proven.value);
             const proof = convertProofsToIcs23(proven.proof);
             return {
-              channel: channel,
-              proof: proof,
+              channel,
+              proof,
               proofHeight,
             };
           },
@@ -645,9 +645,9 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             const commitment = proven.value;
             const proof = convertProofsToIcs23(proven.proof);
             return {
-              commitment: commitment,
-              proof: proof,
-              proofHeight: proofHeight,
+              commitment,
+              proof,
+              proofHeight,
             };
           },
           packetAcknowledgement: async (
@@ -667,9 +667,9 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             const acknowledgement = proven.value;
             const proof = convertProofsToIcs23(proven.proof);
             return {
-              acknowledgement: acknowledgement,
-              proof: proof,
-              proofHeight: proofHeight,
+              acknowledgement,
+              proof,
+              proofHeight,
             };
           },
           nextSequenceReceive: async (
@@ -688,9 +688,9 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             const nextSequenceReceive = Long.fromBytesBE([...proven.value]);
             const proof = convertProofsToIcs23(proven.proof);
             return {
-              nextSequenceReceive: nextSequenceReceive,
-              proof: proof,
-              proofHeight: proofHeight,
+              nextSequenceReceive,
+              proof,
+              proofHeight,
             };
           },
         },
