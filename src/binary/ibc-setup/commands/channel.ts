@@ -134,7 +134,7 @@ export async function run(options: Options, logger: Logger) {
     ? Order.ORDER_ORDERED
     : Order.ORDER_UNORDERED;
 
-  const channels = await link.createChannel(
+  const channel = await link.createChannel(
     'A',
     options.srcPort,
     options.destPort,
@@ -146,9 +146,9 @@ export async function run(options: Options, logger: Logger) {
     `Created channels for connections [${link.endA.chainId()}, ${
       link.endA.connectionID
     }] <=> [${link.endA.chainId()}, ${link.endA.connectionID}]: ${
-      channels.src.channelId
-    } (${channels.src.portId}) => ${channels.dest.channelId} (${
-      channels.dest.portId
+      channel.src.channelId
+    } (${channel.src.portId}) => ${channel.dest.channelId} (${
+      channel.dest.portId
     })`
   );
 }
