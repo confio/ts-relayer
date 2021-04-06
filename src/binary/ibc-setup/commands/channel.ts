@@ -1,9 +1,11 @@
+import os from 'os';
 import path from 'path';
 
 import { Order } from '../../../codec/ibc/core/channel/v1/channel';
 import { Link } from '../../../lib/link';
 import { registryFile } from '../../constants';
 import { Logger } from '../../create-logger';
+import { indent } from '../../utils/indent';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
 import { resolveOption } from '../../utils/options/resolve-option';
@@ -146,13 +148,13 @@ export async function run(options: Options, logger: Logger) {
     options.version
   );
 
-  console.log(
-    `Created channels for connections [${link.endA.chainId()}, ${
-      link.endA.connectionID
-    }] <=> [${link.endA.chainId()}, ${link.endA.connectionID}]: ${
-      channel.src.channelId
-    } (${channel.src.portId}) => ${channel.dest.channelId} (${
-      channel.dest.portId
-    })`
-  );
+  const output = [
+    'Created channel:',
+    ...indent([
+      `${srcChain.chain_id}: ${channel.src.portId}/${channel.src.channelId} (${link.endA.connectionID})`,
+      `${destChain.chain_id}: ${channel.dest.portId}/${channel.dest.channelId} (${link.endB.connectionID})`,
+    ]),
+  ].join(os.EOL);
+
+  console.log(output);
 }
