@@ -1,5 +1,9 @@
 import { toAscii } from '@cosmjs/encoding';
-import { createPagination, createRpc, QueryClient } from '@cosmjs/stargate';
+import {
+  createPagination,
+  createProtobufRpcClient,
+  QueryClient,
+} from '@cosmjs/stargate';
 import Long from 'long';
 
 import { CommitmentProof } from '../../codec/confio/proofs';
@@ -249,7 +253,7 @@ export interface IbcExtension {
 }
 
 export function setupIbcExtension(base: QueryClient): IbcExtension {
-  const rpc = createRpc(base);
+  const rpc = createProtobufRpcClient(base);
   // Use these services to get easy typed access to query methods
   // These cannot be used for proof verification
   const channelQueryService = new ChannelQuery(rpc);

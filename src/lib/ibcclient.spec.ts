@@ -166,7 +166,7 @@ test.serial('transfer message and send packets', async (t) => {
 
   // make an account on remote chain, and check it is empty
   const recipient = randomAddress(wasmd.prefix);
-  const preBalance = await nodeB.query.bank.unverified.allBalances(recipient);
+  const preBalance = await nodeB.query.bank.allBalances(recipient);
   t.is(preBalance.length, 0);
 
   // submit a transfer message
@@ -193,7 +193,7 @@ test.serial('transfer message and send packets', async (t) => {
   const relayResult = await nodeB.receivePacket(packet, proof, headerHeight);
 
   // query balance of recipient (should be "12345" or some odd hash...)
-  const postBalance = await nodeB.query.bank.unverified.allBalances(recipient);
+  const postBalance = await nodeB.query.bank.allBalances(recipient);
   t.is(postBalance.length, 1);
   const recvCoin = postBalance[0];
   t.is(recvCoin.amount, '12345');

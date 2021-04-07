@@ -1,6 +1,6 @@
 import { stringToPath } from '@cosmjs/crypto';
-import { GasPrice } from '@cosmjs/launchpad';
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
+import { GasPrice } from '@cosmjs/stargate';
 
 import { IbcClient, IbcClientOptions } from '../../lib/ibcclient';
 import { Logger } from '../../lib/logger';

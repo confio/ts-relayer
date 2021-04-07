@@ -1,6 +1,5 @@
 import { fromUtf8, toHex, toUtf8 } from '@cosmjs/encoding';
-import { Coin, logs, StdFee } from '@cosmjs/launchpad';
-import { BroadcastTxFailure } from '@cosmjs/stargate';
+import { BroadcastTxFailure, Coin, logs, StdFee } from '@cosmjs/stargate';
 import {
   ReadonlyDateWithNanoseconds,
   Header as RpcHeader,

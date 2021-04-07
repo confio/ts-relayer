@@ -1,20 +1,16 @@
 import { toAscii } from '@cosmjs/encoding';
-import {
-  buildFeeTable,
-  Coin,
-  FeeTable,
-  GasLimits,
-  GasPrice,
-  logs,
-  StdFee,
-} from '@cosmjs/launchpad';
 import { EncodeObject, OfflineSigner, Registry } from '@cosmjs/proto-signing';
 import {
   AuthExtension,
   BankExtension,
+  buildFeeTable,
+  Coin,
   defaultRegistryTypes,
+  FeeTable,
+  GasLimits,
+  GasPrice,
   isBroadcastTxFailure,
-  parseRawLog,
+  logs,
   QueryClient,
   setupAuthExtension,
   setupBankExtension,
@@ -22,6 +18,7 @@ import {
   SigningStargateClient,
   SigningStargateClientOptions,
   StakingExtension,
+  StdFee,
 } from '@cosmjs/stargate';
 import {
   CommitResponse,
@@ -367,7 +364,7 @@ export class IbcClient {
 
   /** Returns the unbonding period in seconds */
   public async getUnbondingPeriod(): Promise<number> {
-    const { params } = await this.query.staking.unverified.params();
+    const { params } = await this.query.staking.params();
     const seconds = params?.unbondingTime?.seconds?.toNumber();
     if (!seconds) {
       throw new Error('No unbonding period found');
@@ -641,7 +638,7 @@ export class IbcClient {
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
     }
-    const parsedLogs = parseRawLog(result.rawLog);
+    const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
@@ -664,7 +661,7 @@ export class IbcClient {
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
     }
-    const parsedLogs = parseRawLog(result.rawLog);
+    const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
@@ -702,7 +699,7 @@ export class IbcClient {
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
     }
-    const parsedLogs = parseRawLog(result.rawLog);
+    const parsedLogs = logs.parseRawLog(result.rawLog);
 
     const clientId = logs.findAttribute(
       parsedLogs,
@@ -744,7 +741,7 @@ export class IbcClient {
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
     }
-    const parsedLogs = parseRawLog(result.rawLog);
+    const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
@@ -781,7 +778,7 @@ export class IbcClient {
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
     }
-    const parsedLogs = parseRawLog(result.rawLog);
+    const parsedLogs = logs.parseRawLog(result.rawLog);
     const connectionId = logs.findAttribute(
       parsedLogs,
       'connection_open_init',
@@ -844,7 +841,7 @@ export class IbcClient {
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
     }
-    const parsedLogs = parseRawLog(result.rawLog);
+    const parsedLogs = logs.parseRawLog(result.rawLog);
     const myConnectionId = logs.findAttribute(
       parsedLogs,
       'connection_open_try',
@@ -903,7 +900,7 @@ export class IbcClient {
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
     }
-    const parsedLogs = parseRawLog(result.rawLog);
+    const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
@@ -937,7 +934,7 @@ export class IbcClient {
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
     }
-    const parsedLogs = parseRawLog(result.rawLog);
+    const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
@@ -982,7 +979,7 @@ export class IbcClient {
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
     }
-    const parsedLogs = parseRawLog(result.rawLog);
+    const parsedLogs = logs.parseRawLog(result.rawLog);
     const channelId = logs.findAttribute(
       parsedLogs,
       'channel_open_init',
@@ -1038,7 +1035,7 @@ export class IbcClient {
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
     }
-    const parsedLogs = parseRawLog(result.rawLog);
+    const parsedLogs = logs.parseRawLog(result.rawLog);
     const channelId = logs.findAttribute(
       parsedLogs,
       'channel_open_try',
@@ -1089,7 +1086,7 @@ export class IbcClient {
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
     }
-    const parsedLogs = parseRawLog(result.rawLog);
+    const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
@@ -1127,7 +1124,7 @@ export class IbcClient {
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
     }
-    const parsedLogs = parseRawLog(result.rawLog);
+    const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
@@ -1188,7 +1185,7 @@ export class IbcClient {
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
     }
-    const parsedLogs = parseRawLog(result.rawLog);
+    const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
@@ -1255,7 +1252,7 @@ export class IbcClient {
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
     }
-    const parsedLogs = parseRawLog(result.rawLog);
+    const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
@@ -1325,7 +1322,7 @@ export class IbcClient {
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
     }
-    const parsedLogs = parseRawLog(result.rawLog);
+    const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
@@ -1369,7 +1366,7 @@ export class IbcClient {
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
     }
-    const parsedLogs = parseRawLog(result.rawLog);
+    const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
       logs: parsedLogs,
       transactionHash: result.transactionHash,
