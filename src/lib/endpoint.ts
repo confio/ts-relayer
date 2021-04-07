@@ -1,6 +1,5 @@
 import { toHex } from '@cosmjs/encoding';
-import { logs } from '@cosmjs/launchpad';
-import { parseRawLog } from '@cosmjs/stargate';
+import { logs } from '@cosmjs/stargate';
 import { CommitResponse } from '@cosmjs/tendermint-rpc';
 
 import { Packet } from '../codec/ibc/core/channel/v1/channel';
@@ -70,7 +69,7 @@ export class Endpoint {
 
     const search = await this.client.tm.txSearchAll({ query });
     const resultsNested = search.txs.map(({ hash, height, result }) => {
-      const parsedLogs = parseRawLog(result.log);
+      const parsedLogs = logs.parseRawLog(result.log);
       // we accept message.sender (cosmos-sdk) and message.signer (x/wasm)
       let sender = '';
       try {
@@ -108,7 +107,7 @@ export class Endpoint {
 
     const search = await this.client.tm.txSearchAll({ query });
     const resultsNested = search.txs.map(({ height, result }) => {
-      const parsedLogs = parseRawLog(result.log);
+      const parsedLogs = logs.parseRawLog(result.log);
       // const sender = logs.findAttribute(parsedLogs, 'message', 'sender').value;
       return parseAcksFromLogs(parsedLogs).map((ack) => ({
         height,

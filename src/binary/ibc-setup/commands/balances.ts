@@ -2,8 +2,8 @@ import os from 'os';
 import path from 'path';
 
 import { stringToPath } from '@cosmjs/crypto';
-import { GasPrice } from '@cosmjs/launchpad';
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
+import { GasPrice } from '@cosmjs/stargate';
 
 import { Coin } from '../../../codec/cosmos/base/v1beta1/coin';
 import { IbcClient } from '../../../lib/ibcclient';
@@ -64,10 +64,7 @@ export async function run(options: Options, logger: Logger) {
           }
         );
 
-        const coin = await client.query.bank.unverified.balance(
-          address,
-          gasPrice.denom
-        );
+        const coin = await client.query.bank.balance(address, gasPrice.denom);
 
         return [chain, coin];
       })

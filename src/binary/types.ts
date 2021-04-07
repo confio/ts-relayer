@@ -1,4 +1,4 @@
-import { GasPrice } from '@cosmjs/launchpad';
+import { GasPrice } from '@cosmjs/stargate';
 
 export type Chain = {
   chain_id: string;

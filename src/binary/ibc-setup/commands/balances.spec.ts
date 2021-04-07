@@ -28,9 +28,7 @@ async function createFakeIbcClient(amount: string, denom: string) {
   return ({
     query: {
       bank: {
-        unverified: {
-          balance: sinon.fake.returns({ amount, denom }),
-        },
+        balance: sinon.fake.returns({ amount, denom }),
       },
     },
   } as unknown) as IbcClient;

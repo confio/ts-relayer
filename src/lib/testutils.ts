@@ -1,9 +1,8 @@
 // This file outputs some basic test functionality, and includes tests that they work
 import { Bip39, Random } from '@cosmjs/crypto';
 import { Bech32 } from '@cosmjs/encoding';
-import { GasPrice } from '@cosmjs/launchpad';
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
-import { StargateClient } from '@cosmjs/stargate';
+import { GasPrice, StargateClient } from '@cosmjs/stargate';
 import sinon, { SinonSpy } from 'sinon';
 
 import { Order } from '../codec/ibc/core/channel/v1/channel';
