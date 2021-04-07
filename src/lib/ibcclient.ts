@@ -1336,32 +1336,18 @@ export class IbcClient {
     token: Coin,
     receiver: string,
     timeoutHeight?: Height,
-    // timeout in seconds (we make nanoseconds below)
+    /** timeout in seconds (SigningStargateClient converts to nanoseconds) */
     timeoutTime?: number
   ): Promise<MsgResult> {
     this.logger.verbose(`Transfer tokens to ${receiver}`);
-    const senderAddress = this.senderAddress;
-    const timeoutTimestamp = timeoutTime
-      ? Long.fromNumber(timeoutTime).multiply(1_000_000_000)
-      : undefined;
-    const msg = {
-      typeUrl: '/ibc.applications.transfer.v1.MsgTransfer',
-      value: MsgTransfer.fromPartial({
-        sourcePort,
-        sourceChannel,
-        sender: senderAddress,
-        token,
-        receiver,
-        timeoutHeight,
-        timeoutTimestamp,
-      }),
-    };
-    this.logger.debug('MsgTransfer', msg);
-
-    const result = await this.sign.signAndBroadcast(
-      senderAddress,
-      [msg],
-      this.fees.transfer
+    const result = await this.sign.sendIbcTokens(
+      this.senderAddress,
+      receiver,
+      token,
+      sourcePort,
+      sourceChannel,
+      timeoutHeight,
+      timeoutTime
     );
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
