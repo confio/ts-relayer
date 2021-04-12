@@ -110,10 +110,11 @@ export async function run(options: Options, logger: Logger) {
     .filter(
       (channel) => (options.port ? channel.portId === options.port : true) // don't filter if port is not specified
     )
-    .filter((channel) =>
-      options.connection
-        ? channel.connectionHops.includes(options.connection)
-        : true
+    .filter(
+      (channel) =>
+        options.connection
+          ? channel.connectionHops.includes(options.connection)
+          : true // don't filter if connection is not specified
     )
     .map((channel) => [
       channel.channelId,
