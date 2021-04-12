@@ -114,6 +114,7 @@ const channelsCommand = program
   .addOption(mnemonicOption)
   .addOption(interactiveOption)
   .addOption(chainOption)
+  .option('--connection <connection-id>', 'Filter channels by connection id')
   .option('--port <port>')
   .action(loggerWithErrorBoundary(channels));
 addLoggerOptionsTo(channelsCommand);
