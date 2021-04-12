@@ -9,6 +9,7 @@ import {
   destOption,
   destPort,
   destTrust,
+  helpOptions,
   homeOption,
   interactiveOption,
   keyFileOption,
@@ -32,12 +33,16 @@ import { keysList } from './commands/keys-list';
 
 export const program = new Command();
 
-// TODO: fill options and commands descriptions
-program.description('ibc-setup program description');
+program.helpOption(...helpOptions);
+program.addHelpCommand(false);
+
+program.description('Collection of commands to quickly setup a relayer');
 
 const initCommand = program
   .command('init')
-  .description('init command description')
+  .description(
+    "Initialize relayer's home directory with registry.yaml and app.yaml configuration files"
+  )
   .addOption(homeOption)
   .addOption(srcOption)
   .addOption(destOption)
@@ -46,7 +51,9 @@ addLoggerOptionsTo(initCommand);
 
 const ics20Command = program
   .command('ics20')
-  .description('ics20 command description')
+  .description(
+    'Create new unordered channel (ics20-1) for given chains, ports, and connections'
+  )
   .addOption(srcOption)
   .addOption(destOption)
   .addOption(srcTrust)
@@ -57,43 +64,43 @@ const ics20Command = program
   .action(loggerWithErrorBoundary(ics20));
 addLoggerOptionsTo(ics20Command);
 
-const keys = program.command('keys');
+const keys = program.command('keys').description('Manage application keys');
 
 const keysGenerateCommand = keys
   .command('generate')
-  .description('keys generate command description')
-  .addOption(keyFileOption)
+  .description('Generate 12 words length mnemonic')
+  .addOption(keyFileOption('write'))
   .action(loggerWithErrorBoundary(keysGenerate));
 addLoggerOptionsTo(keysGenerateCommand);
 
 const keysListCommand = keys
   .command('list')
-  .description('keys list command description')
+  .description('Print addresses for registry chains')
   .addOption(homeOption)
   .addOption(mnemonicOption)
-  .addOption(keyFileOption)
+  .addOption(keyFileOption('read'))
   .addOption(interactiveOption)
   .action(loggerWithErrorBoundary(keysList));
 addLoggerOptionsTo(keysListCommand);
 
 const balancesCommand = program
   .command('balances')
-  .description('balances command description')
+  .description('Query balances for registry chains with non-zero amount')
   .addOption(homeOption)
   .addOption(mnemonicOption)
-  .addOption(keyFileOption)
+  .addOption(keyFileOption('read'))
   .addOption(interactiveOption)
   .action(loggerWithErrorBoundary(balances));
 addLoggerOptionsTo(balancesCommand);
 
 const connectCommand = program
   .command('connect')
-  .description('connect command description')
+  .description('Create and store new connections for given chains')
   .addOption(srcOption)
   .addOption(destOption)
   .addOption(homeOption)
   .addOption(mnemonicOption)
-  .addOption(keyFileOption)
+  .addOption(keyFileOption('read'))
   .addOption(interactiveOption)
   .addOption(srcTrust)
   .addOption(destTrust)
@@ -102,7 +109,7 @@ addLoggerOptionsTo(connectCommand);
 
 const channelsCommand = program
   .command('channels')
-  .description('channels command description')
+  .description('Query channels on given chain and optionally filter by port')
   .addOption(homeOption)
   .addOption(mnemonicOption)
   .addOption(interactiveOption)
@@ -113,11 +120,11 @@ addLoggerOptionsTo(channelsCommand);
 
 const channelCommand = program
   .command('channel')
-  .description('channel command description')
+  .description('Create new channel for given options')
   .addOption(homeOption)
   .addOption(mnemonicOption)
   .addOption(interactiveOption)
-  .addOption(keyFileOption)
+  .addOption(keyFileOption('read'))
   .addOption(srcOption)
   .addOption(destOption)
   .addOption(srcConnection)
@@ -131,7 +138,7 @@ addLoggerOptionsTo(channelCommand);
 
 const connectionsCommand = program
   .command('connections')
-  .description('connections command description')
+  .description('Query connections for given chain')
   .addOption(homeOption)
   .addOption(mnemonicOption)
   .addOption(interactiveOption)

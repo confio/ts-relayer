@@ -6,6 +6,7 @@ import {
   addLoggerOptionsTo,
   destConnection,
   destOption,
+  helpOptions,
   homeOption,
   interactiveOption,
   keyFileOption,
@@ -19,35 +20,40 @@ import { start } from './commands/start';
 
 const program = new Command();
 
-program.description('ibc-relayer program description');
+program.helpOption(...helpOptions);
+program.addHelpCommand(false);
+
+program.description('Typescript implementation of an IBC relayer');
 
 const startCommand = program
   .command('start')
-  .description('start command description')
+  .description(
+    'Relay all packets over all channels on pre-configured connection'
+  )
   .addOption(homeOption)
   .addOption(srcOption)
   .addOption(destOption)
   .addOption(interactiveOption)
-  .addOption(keyFileOption)
+  .addOption(keyFileOption('read'))
   .addOption(mnemonicOption)
   .addOption(srcConnection)
   .addOption(destConnection)
   .option(
     '--poll <frequency>',
-    'how many second we sleep between checking for packets'
+    'How many second we sleep between checking for packets'
   )
   .option(
     '--max-age-src <seconds>',
-    'how old can the client on src chain be, before we update it'
+    'How old can the client on src chain be, before we update it'
   )
   .option(
     '--max-age-dest <seconds>',
-    'how old can the client on dest chain be, before we update it'
+    'How old can the client on dest chain be, before we update it'
   )
   .option('--scan-from-src <height>')
   .option('--scan-from-dest <height>')
   // note: once is designed for debugging and unit tests
-  .option('--once', 'just relay pending packets and quit, no polling')
+  .option('--once', 'Relay pending packets and quit, no polling')
   .action(loggerWithErrorBoundary(start));
 
 addLoggerOptionsTo(startCommand);
