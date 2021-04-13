@@ -5,9 +5,9 @@ import test from 'ava';
 import sinon from 'sinon';
 
 import { State as ChannelState } from '../../../codec/ibc/core/channel/v1/channel';
-import { Order } from '../../../codec/ibc/core/channel/v1/channel';
 import { ChannelPair, Link } from '../../../lib/link';
 import { TestLogger } from '../../../lib/testutils';
+import { ics20 } from '../../../lib/testutils';
 import { Logger } from '../../create-logger';
 import { signingClient } from '../../utils/signing-client';
 
@@ -47,13 +47,13 @@ let link: Link;
 test.before(async () => {
   const ibcClientSimapp = await signingClient(simappChain, mnemonic);
   const ibcClientWasm = await signingClient(wasmdChain, mnemonic);
-  link = await Link.createWithNewConnections(ibcClientWasm, ibcClientSimapp);
+  link = await Link.createWithNewConnections(ibcClientSimapp, ibcClientWasm);
   channel = await link.createChannel(
     'A',
-    'transfer',
-    'custom',
-    Order.ORDER_UNORDERED,
-    'ics20-1'
+    ics20.srcPortId,
+    ics20.destPortId,
+    ics20.ordering,
+    ics20.version
   );
 });
 
@@ -61,7 +61,7 @@ test('lists channels for given chain (A)', async (t) => {
   const logger = new TestLogger();
 
   const options: Options = {
-    chain: 'local_wasm',
+    chain: 'local_simapp',
     port: null,
     connection: null,
     mnemonic: null,
@@ -93,7 +93,7 @@ test('lists channels for given chain (B)', async (t) => {
   const logger = new TestLogger();
 
   const options: Options = {
-    chain: 'local_simapp',
+    chain: 'local_wasm',
     port: null,
     connection: null,
     mnemonic: null,
@@ -125,7 +125,7 @@ test('filters channels by port', async (t) => {
   const logger = new TestLogger();
 
   const options: Options = {
-    chain: 'local_wasm',
+    chain: 'local_simapp',
     port: channel.src.portId,
     connection: null,
     mnemonic: null,
@@ -153,7 +153,7 @@ test('filters channels by port (non-existing port)', async (t) => {
   const logger = new TestLogger();
 
   const options: Options = {
-    chain: 'local_wasm',
+    chain: 'local_simapp',
     port: 'unknown_port',
     connection: null,
     mnemonic: null,
@@ -201,7 +201,7 @@ test('filters channels by connection (non-existing connection)', async (t) => {
   const logger = new TestLogger();
 
   const options: Options = {
-    chain: 'local_wasm',
+    chain: 'local_simapp',
     port: null,
     connection: 'unknown_connection',
     mnemonic: null,
@@ -219,7 +219,7 @@ test('filters channels by port and connection', async (t) => {
   const logger = new TestLogger();
 
   const options: Options = {
-    chain: 'local_wasm',
+    chain: 'local_simapp',
     port: channel.src.portId,
     connection: link.endA.connectionID,
     mnemonic: null,
@@ -249,7 +249,7 @@ test('filters channels by port and connection (non-existing connection)', async 
   const logger = new TestLogger();
 
   const options: Options = {
-    chain: 'local_wasm',
+    chain: 'local_simapp',
     port: channel.src.portId,
     connection: 'unknown_connection',
     mnemonic: null,
