@@ -16,6 +16,7 @@ import { signingClient } from '../../utils/signing-client';
 export type Flags = {
   readonly home?: string;
   readonly port?: string;
+  readonly connection?: string;
   readonly chain?: string;
   readonly mnemonic?: string;
   readonly keyFile?: string;
@@ -27,6 +28,7 @@ export type Options = {
   readonly chain: string;
   readonly mnemonic: string | null;
   readonly port: string | null;
+  readonly connection: string | null;
 };
 
 export async function channels(flags: Flags, logger: Logger) {
@@ -38,6 +40,10 @@ export async function channels(flags: Flags, logger: Logger) {
     process.env.RELAYER_CHAIN
   );
   const port = resolveOption('port')(flags.port, process.env.RELAYER_PORT);
+  const connection = resolveOption('connection')(
+    flags.connection,
+    process.env.RELAYER_CONNECTION
+  );
 
   const mnemonic = await resolveMnemonicOption(
     {
@@ -54,12 +60,13 @@ export async function channels(flags: Flags, logger: Logger) {
     chain,
     mnemonic,
     port,
+    connection,
   };
 
   await run(options, logger);
 }
 
-function channelStateAsText(state: ChannelState) {
+export function channelStateAsText(state: ChannelState) {
   switch (state) {
     case ChannelState.STATE_CLOSED:
       return 'Closed';
@@ -103,25 +110,36 @@ export async function run(options: Options, logger: Logger) {
     .filter(
       (channel) => (options.port ? channel.portId === options.port : true) // don't filter if port is not specified
     )
+    .filter(
+      (channel) =>
+        options.connection
+          ? channel.connectionHops.includes(options.connection)
+          : true // don't filter if connection is not specified
+    )
     .map((channel) => [
       channel.channelId,
       channel.portId,
+      channel.connectionHops.join(', '),
       channelStateAsText(channel.state),
     ]);
 
   if (!channels.length) {
     const conditionalPortInfo = options.port
-      ? ` on port "${options.port}".`
-      : '.';
+      ? ` on port "${options.port}"`
+      : '';
+    const conditionalConnectionInfo = options.connection
+      ? ` with connection "${options.connection}"`
+      : '';
+
     console.log(
-      `No channels found for chain "${options.chain}"${conditionalPortInfo}`
+      `No channels found for chain "${options.chain}"${conditionalPortInfo}${conditionalConnectionInfo}.`
     );
 
     return;
   }
 
   const output = borderLessTable([
-    ['CHANNEL_ID', 'PORT', 'STATE'],
+    ['CHANNEL_ID', 'PORT', 'CONNECTION(S)', 'STATE'],
     ...channels,
   ]);
 
