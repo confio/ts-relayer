@@ -138,19 +138,15 @@ test('filters channels by port', async (t) => {
 
   const output = consoleLog.getCall(-1).args[0] as string;
 
-  const channelWithDifferentPort = output
+  const everyChannelHasValidPort = output
     .split(os.EOL)
-    .slice(1) // remove table head
-    .find((value) =>
-      value.match(
-        new RegExp(
-          `[^\\s]+\\s+(?!${options.port})[^\\s]+\\s+[^\\s]+\\s+[^\\s]+`
-        )
-      )
+    .slice(1, -1) // remove table head and last empty line
+    .every((value) =>
+      new RegExp(`[^\\s]+\\s+${options.port}\\s+[^\\s]+\\s+[^\\s]+`).test(value)
     );
 
   t.notRegex(output, /No channels found/);
-  t.assert(channelWithDifferentPort === undefined);
+  t.assert(everyChannelHasValidPort);
 });
 
 test('filters channels by port (non-existing port)', async (t) => {
@@ -188,19 +184,17 @@ test('filters channels by connection', async (t) => {
 
   const output = consoleLog.getCall(-1).args[0] as string;
 
-  const channelWithDifferentConnection = output
+  const everyChannelHasValidConnection = output
     .split(os.EOL)
-    .slice(1) // remove table head
-    .find((value) =>
-      value.match(
-        new RegExp(
-          `[^\\s]+\\s+[^\\s]+\\s+(?!${options.connection})[^\\s]+\\s+[^\\s]+`
-        )
+    .slice(1, -1) // remove table head and last empty line
+    .every((value) =>
+      new RegExp(`[^\\s]+\\s+[^\\s]+\\s+${options.connection}\\s+[^\\s]+`).test(
+        value
       )
     );
 
   t.notRegex(output, /No channels found/);
-  t.assert(channelWithDifferentConnection === undefined);
+  t.assert(everyChannelHasValidConnection);
 });
 
 test('filters channels by connection (non-existing connection)', async (t) => {
@@ -238,25 +232,17 @@ test('filters channels by port and connection', async (t) => {
 
   const output = consoleLog.getCall(-1).args[0] as string;
 
-  const channelWithDifferentPortOrConnection = output
+  const everyChannelHasValidPortAndConnection = output
     .split(os.EOL)
-    .slice(1) // remove table head
-    .find(
-      (value) =>
-        value.match(
-          new RegExp(
-            `[^\\s]+\\s+(?!${options.port})[^\\s]+\\s+[^\\s]+\\s+[^\\s]+`
-          )
-        ) ||
-        value.match(
-          new RegExp(
-            `[^\\s]+\\s+[^\\s]+\\s+(?!${options.connection})[^\\s]+\\s+[^\\s]+`
-          )
-        )
+    .slice(1, -1) // remove table head and last empty line
+    .every((value) =>
+      new RegExp(
+        `[^\\s]+\\s+${options.port}\\s+${options.connection}\\s+[^\\s]+`
+      ).test(value)
     );
 
   t.notRegex(output, /No channels found/);
-  t.assert(channelWithDifferentPortOrConnection === undefined);
+  t.assert(everyChannelHasValidPortAndConnection);
 });
 
 test('filters channels by port and connection (non-existing connection)', async (t) => {
