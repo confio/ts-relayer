@@ -43,8 +43,8 @@ export async function run(options: Options, logger: Logger) {
   const addresses = await getAddresses(registry.chains, options.mnemonic);
 
   const balances = (
-    await Promise.all(
-      addresses.map<Promise<[string, Coin]>>(async ([chain, data, address]) => {
+    await Promise.allSettled(
+      addresses.map(async ([chain, data, address]) => {
         const signer = await DirectSecp256k1HdWallet.fromMnemonic(
           options.mnemonic,
           data.hd_path ? stringToPath(data.hd_path) : undefined,
@@ -70,6 +70,15 @@ export async function run(options: Options, logger: Logger) {
       })
     )
   )
+    .filter((result): result is PromiseFulfilledResult<[string, Coin]> => {
+      if (result.status === 'rejected') {
+        logger.error(result.reason);
+        return false;
+      }
+
+      return true;
+    })
+    .map((result) => result.value)
     .filter(([, coin]) => coin.amount !== '0')
     .map(([chain, coin]) => `${chain}: ${coin.amount}${coin.denom}`)
     .join(os.EOL);
