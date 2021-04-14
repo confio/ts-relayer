@@ -3,7 +3,7 @@ import path from 'path';
 import { State as ChannelState } from '../../../codec/ibc/core/channel/v1/channel';
 import { registryFile } from '../../constants';
 import { Logger } from '../../create-logger';
-import { borderLessTable } from '../../utils/border-less-table';
+import { borderlessTable } from '../../utils/borderless-table';
 import { generateMnemonic } from '../../utils/generate-mnemonic';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
@@ -138,7 +138,7 @@ export async function run(options: Options, logger: Logger) {
     return;
   }
 
-  const output = borderLessTable([
+  const output = borderlessTable([
     ['CHANNEL_ID', 'PORT', 'CONNECTION(S)', 'STATE'],
     ...channels,
   ]);

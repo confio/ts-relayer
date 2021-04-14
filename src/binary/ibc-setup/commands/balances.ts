@@ -1,4 +1,3 @@
-import os from 'os';
 import path from 'path';
 
 import { stringToPath } from '@cosmjs/crypto';
@@ -9,6 +8,7 @@ import { Coin } from '../../../codec/cosmos/base/v1beta1/coin';
 import { IbcClient } from '../../../lib/ibcclient';
 import { registryFile } from '../../constants';
 import { Logger } from '../../create-logger';
+import { borderlessTable } from '../../utils/borderless-table';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
 import { resolveHomeOption } from '../../utils/options/shared/resolve-home-option';
@@ -80,13 +80,12 @@ export async function run(options: Options, logger: Logger) {
     })
     .map((result) => result.value)
     .filter(([, coin]) => coin.amount !== '0')
-    .map(([chain, coin]) => `${chain}: ${coin.amount}${coin.denom}`)
-    .join(os.EOL);
+    .map(([chain, coin]) => [chain, `${coin.amount}${coin.denom}`]);
 
-  if (!balances) {
+  if (!balances.length) {
     console.log('No funds found for default denomination on any chain.');
     return;
   }
 
-  console.log(balances);
+  console.log(borderlessTable([['CHAIN', 'AMOUNT'], ...balances]));
 }

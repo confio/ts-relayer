@@ -91,12 +91,14 @@ test('lists chains with non-zero balance', async (t) => {
   t.assert(fsReadFileSync.calledOnce);
   t.assert(consoleLog.calledOnce);
   t.assert(
-    consoleLog.calledWithExactly(
-      [
-        'musselnet: 1musselnetdenom',
-        'local_wasm: 2wasmdenom',
-        'local_simapp: 3simappdenom',
-      ].join(os.EOL)
+    consoleLog.calledWithMatch(
+      new RegExp(
+        [
+          'musselnet\\s+1musselnetdenom\\s+',
+          'local_wasm\\s+2wasmdenom\\s+',
+          'local_simapp\\s+3simappdenom\\s+',
+        ].join(os.EOL)
+      )
     )
   );
 });
@@ -123,8 +125,13 @@ test('omits chains with zero balance', async (t) => {
   t.assert(fsReadFileSync.calledOnce);
   t.assert(consoleLog.calledOnce);
   t.assert(
-    consoleLog.calledWithExactly(
-      ['musselnet: 1musselnetdenom', 'local_simapp: 3simappdenom'].join(os.EOL)
+    consoleLog.calledWithMatch(
+      new RegExp(
+        [
+          'musselnet\\s+1musselnetdenom\\s+',
+          'local_simapp\\s+3simappdenom\\s+',
+        ].join(os.EOL)
+      )
     )
   );
 });
