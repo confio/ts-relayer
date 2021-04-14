@@ -106,7 +106,7 @@
     "singleQuote": true
   },
   "bin": {
-    "ibc-setup": "build/main/binary/ibc-setup/index.js",
-    "ibc-relayer": "build/main/binary/ibc-relayer/index.js"
+    "ibc-setup": "build/binary/ibc-setup/index.js",
+    "ibc-relayer": "build/binary/ibc-relayer/index.js"
   }
 }
