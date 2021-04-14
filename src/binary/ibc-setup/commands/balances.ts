@@ -8,7 +8,7 @@ import { Coin } from '../../../codec/cosmos/base/v1beta1/coin';
 import { IbcClient } from '../../../lib/ibcclient';
 import { registryFile } from '../../constants';
 import { Logger } from '../../create-logger';
-import { borderLessTable } from '../../utils/border-less-table';
+import { borderlessTable } from '../../utils/borderless-table';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';
 import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
 import { resolveHomeOption } from '../../utils/options/shared/resolve-home-option';
@@ -87,5 +87,5 @@ export async function run(options: Options, logger: Logger) {
     return;
   }
 
-  console.log(borderLessTable([['CHAIN', 'AMOUNT'], ...balances]));
+  console.log(borderlessTable([['CHAIN', 'AMOUNT'], ...balances]));
 }
