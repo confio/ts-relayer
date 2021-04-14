@@ -1,4 +1,3 @@
-import os from 'os';
 import path from 'path';
 
 import { stringToPath } from '@cosmjs/crypto';
@@ -16,6 +15,7 @@ import { resolveKeyFileOption } from '../../utils/options/shared/resolve-key-fil
 import { resolveMnemonicOption } from '../../utils/options/shared/resolve-mnemonic-option';
 
 import { Flags, getAddresses, Options } from './keys-list';
+import { borderLessTable } from '../../utils/border-less-table';
 
 export async function balances(flags: Flags, logger: Logger) {
   const home = resolveHomeOption({ homeFlag: flags.home });
@@ -80,13 +80,12 @@ export async function run(options: Options, logger: Logger) {
     })
     .map((result) => result.value)
     .filter(([, coin]) => coin.amount !== '0')
-    .map(([chain, coin]) => `${chain}: ${coin.amount}${coin.denom}`)
-    .join(os.EOL);
+    .map(([chain, coin]) => [chain, `${coin.amount}${coin.denom}`]);
 
-  if (!balances) {
+  if (!balances.length) {
     console.log('No funds found for default denomination on any chain.');
     return;
   }
 
-  console.log(balances);
+  console.log(borderLessTable([['CHAIN', 'AMOUNT'], ...balances]));
 }
