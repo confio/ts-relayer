@@ -1,4 +1,4 @@
-import { toAscii } from '@cosmjs/encoding';
+import { toAscii, toBase64 } from '@cosmjs/encoding';
 import { EncodeObject, OfflineSigner, Registry } from '@cosmjs/proto-signing';
 import {
   AuthExtension,
@@ -27,6 +27,7 @@ import {
   Tendermint34Client,
 } from '@cosmjs/tendermint-rpc';
 import { arrayContentEquals, assert, sleep } from '@cosmjs/utils';
+import cloneDeep from 'lodash/cloneDeep';
 import Long from 'long';
 
 import { Any } from '../codec/google/protobuf/any';
@@ -81,6 +82,20 @@ import {
   timestampFromDateNanos,
   toIntHeight,
 } from './utils';
+
+function formatMessage<T>(
+  message: T,
+  mutateFn: (
+    deepClonedMessage: T,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    encode: (data: Uint8Array) => any
+  ) => void
+) {
+  const deepClonedMessage = cloneDeep(message);
+  mutateFn(deepClonedMessage, toBase64);
+
+  return deepClonedMessage;
+}
 
 /**** These are needed to bootstrap the endpoints */
 /* Some of them are hardcoded various places, which should we make configurable? */
@@ -731,7 +746,15 @@ export class IbcClient {
         },
       }),
     };
-    this.logger.debug(`MsgUpdateClient`, updateMsg);
+
+    this.logger.debug(
+      `MsgUpdateClient`,
+      formatMessage(updateMsg, (mutableMsg, encode) => {
+        if (mutableMsg.value.header?.value) {
+          mutableMsg.value.header.value = encode(mutableMsg.value.header.value);
+        }
+      })
+    );
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
@@ -1176,7 +1199,18 @@ export class IbcClient {
       };
       msgs.push(msg);
     }
-    this.logger.debug('MsgRecvPacket(s)', { msgs });
+    this.logger.debug('MsgRecvPacket(s)', {
+      msgs: msgs.map((msg) =>
+        formatMessage(msg, (mutableMsg, encode) => {
+          mutableMsg.value.proofCommitment = encode(
+            mutableMsg.value.proofCommitment
+          );
+          if (mutableMsg.value.packet?.data) {
+            mutableMsg.value.packet.data = encode(mutableMsg.value.packet.data);
+          }
+        })
+      ),
+    });
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       msgs,
@@ -1243,7 +1277,19 @@ export class IbcClient {
       };
       msgs.push(msg);
     }
-    this.logger.debug('MsgAcknowledgement(s)', { msgs });
+    this.logger.debug('MsgAcknowledgement(s)', {
+      msgs: msgs.map((msg) =>
+        formatMessage(msg, (mutableMsg, encode) => {
+          mutableMsg.value.acknowledgement = encode(
+            mutableMsg.value.acknowledgement
+          );
+          mutableMsg.value.proofAcked = encode(mutableMsg.value.proofAcked);
+          if (mutableMsg.value.packet?.data) {
+            mutableMsg.value.packet.data = encode(mutableMsg.value.packet.data);
+          }
+        })
+      ),
+    });
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       msgs,
@@ -1313,7 +1359,15 @@ export class IbcClient {
       msgs.push(msg);
     }
 
-    this.logger.debug('MsgTimeout', { msgs });
+    this.logger.debug('MsgTimeout', {
+      msgs: msgs.map((msg) =>
+        formatMessage(msg, (mutableMsg, encode) => {
+          if (mutableMsg.value.packet?.data) {
+            mutableMsg.value.packet.data = encode(mutableMsg.value.packet.data);
+          }
+        })
+      ),
+    });
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       msgs,
