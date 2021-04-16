@@ -1417,6 +1417,9 @@ export class IbcClient {
               mutableMsg.value.packet.data
             );
           }
+          mutableMsg.value.proofUnreceived = toBase64AsAny(
+            mutableMsg.value.proofUnreceived
+          );
         })
       ),
     });
