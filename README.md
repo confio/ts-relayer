@@ -103,8 +103,15 @@ Reads the configuration and starts relaying packets.
 ### Send tokens between chains
 
 1. Make sure `wasmd` binary is installed on your system
-
-   - visit [https://github.com/CosmWasm/wasmd](https://github.com/CosmWasm/wasmd) and follow quick start instructions
+   - you must be running Linux or OSX on amd64 (not arm64/Mac M1)
+   - [install Go 1.15+](https://golang.org/doc/install) and ensure that `$PATH` includes Go binaries (you may need to restart your terminal session)
+   -  clone and install `wasmd`:
+      ```sh
+      git clone https://github.com/CosmWasm/wasmd.git
+      cd wasmd
+      git checkout v0.15.1
+      make install
+      ```
 
 2. Create a new account and fund it
 
