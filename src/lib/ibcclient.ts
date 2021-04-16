@@ -1,4 +1,4 @@
-import { toAscii } from '@cosmjs/encoding';
+import { toAscii, toBase64 } from '@cosmjs/encoding';
 import { EncodeObject, OfflineSigner, Registry } from '@cosmjs/proto-signing';
 import {
   AuthExtension,
@@ -27,6 +27,7 @@ import {
   Tendermint34Client,
 } from '@cosmjs/tendermint-rpc';
 import { arrayContentEquals, assert, sleep } from '@cosmjs/utils';
+import cloneDeep from 'lodash/cloneDeep';
 import Long from 'long';
 
 import { Any } from '../codec/google/protobuf/any';
@@ -81,6 +82,20 @@ import {
   timestampFromDateNanos,
   toIntHeight,
 } from './utils';
+
+function deepCloneAndMutate<T extends Record<string, unknown>>(
+  object: T,
+  mutateFn: (deepClonedObject: T) => void
+): Record<string, unknown> {
+  const deepClonedObject = cloneDeep(object);
+  mutateFn(deepClonedObject);
+
+  return deepClonedObject;
+}
+
+function toBase64AsAny(...input: Parameters<typeof toBase64>) {
+  return toBase64(...input) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+}
 
 /**** These are needed to bootstrap the endpoints */
 /* Some of them are hardcoded various places, which should we make configurable? */
@@ -731,7 +746,17 @@ export class IbcClient {
         },
       }),
     };
-    this.logger.debug(`MsgUpdateClient`, updateMsg);
+
+    this.logger.debug(
+      `MsgUpdateClient`,
+      deepCloneAndMutate(updateMsg, (mutableMsg) => {
+        if (mutableMsg.value.header?.value) {
+          mutableMsg.value.header.value = toBase64AsAny(
+            mutableMsg.value.header.value
+          );
+        }
+      })
+    );
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
@@ -831,7 +856,18 @@ export class IbcClient {
         consensusHeight,
       }),
     };
-    this.logger.debug('MsgConnectionOpenTry', msg);
+    this.logger.debug(
+      'MsgConnectionOpenTry',
+      deepCloneAndMutate(msg, (mutableMsg) => {
+        mutableMsg.value.proofClient = toBase64AsAny(
+          mutableMsg.value.proofClient
+        );
+        mutableMsg.value.proofConsensus = toBase64AsAny(
+          mutableMsg.value.proofConsensus
+        );
+        mutableMsg.value.proofInit = toBase64AsAny(mutableMsg.value.proofInit);
+      })
+    );
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
@@ -890,7 +926,18 @@ export class IbcClient {
         consensusHeight,
       }),
     };
-    this.logger.debug('MsgConnectionOpenAck', msg);
+    this.logger.debug(
+      'MsgConnectionOpenAck',
+      deepCloneAndMutate(msg, (mutableMsg) => {
+        mutableMsg.value.proofConsensus = toBase64AsAny(
+          mutableMsg.value.proofConsensus
+        );
+        mutableMsg.value.proofTry = toBase64AsAny(mutableMsg.value.proofTry);
+        mutableMsg.value.proofClient = toBase64AsAny(
+          mutableMsg.value.proofClient
+        );
+      })
+    );
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
@@ -924,7 +971,12 @@ export class IbcClient {
         proofAck,
       }),
     };
-    this.logger.debug('MsgConnectionOpenConfirm', msg);
+    this.logger.debug(
+      'MsgConnectionOpenConfirm',
+      deepCloneAndMutate(msg, (mutableMsg) => {
+        mutableMsg.value.proofAck = toBase64AsAny(mutableMsg.value.proofAck);
+      })
+    );
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
@@ -1025,7 +1077,12 @@ export class IbcClient {
         signer: senderAddress,
       }),
     };
-    this.logger.debug('MsgChannelOpenTry', msg);
+    this.logger.debug(
+      'MsgChannelOpenTry',
+      deepCloneAndMutate(msg, (mutableMsg) => {
+        mutableMsg.value.proofInit = toBase64AsAny(mutableMsg.value.proofInit);
+      })
+    );
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
@@ -1076,7 +1133,12 @@ export class IbcClient {
         signer: senderAddress,
       }),
     };
-    this.logger.debug('MsgChannelOpenAck', msg);
+    this.logger.debug(
+      'MsgChannelOpenAck',
+      deepCloneAndMutate(msg, (mutableMsg) => {
+        mutableMsg.value.proofTry = toBase64AsAny(mutableMsg.value.proofTry);
+      })
+    );
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
@@ -1114,7 +1176,12 @@ export class IbcClient {
         signer: senderAddress,
       }),
     };
-    this.logger.debug('MsgChannelOpenConfirm', msg);
+    this.logger.debug(
+      'MsgChannelOpenConfirm',
+      deepCloneAndMutate(msg, (mutableMsg) => {
+        mutableMsg.value.proofAck = toBase64AsAny(mutableMsg.value.proofAck);
+      })
+    );
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
@@ -1176,7 +1243,20 @@ export class IbcClient {
       };
       msgs.push(msg);
     }
-    this.logger.debug('MsgRecvPacket(s)', { msgs });
+    this.logger.debug('MsgRecvPacket(s)', {
+      msgs: msgs.map((msg) =>
+        deepCloneAndMutate(msg, (mutableMsg) => {
+          mutableMsg.value.proofCommitment = toBase64AsAny(
+            mutableMsg.value.proofCommitment
+          );
+          if (mutableMsg.value.packet?.data) {
+            mutableMsg.value.packet.data = toBase64AsAny(
+              mutableMsg.value.packet.data
+            );
+          }
+        })
+      ),
+    });
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       msgs,
@@ -1243,7 +1323,23 @@ export class IbcClient {
       };
       msgs.push(msg);
     }
-    this.logger.debug('MsgAcknowledgement(s)', { msgs });
+    this.logger.debug('MsgAcknowledgement(s)', {
+      msgs: msgs.map((msg) =>
+        deepCloneAndMutate(msg, (mutableMsg) => {
+          mutableMsg.value.acknowledgement = toBase64AsAny(
+            mutableMsg.value.acknowledgement
+          );
+          mutableMsg.value.proofAcked = toBase64AsAny(
+            mutableMsg.value.proofAcked
+          );
+          if (mutableMsg.value.packet?.data) {
+            mutableMsg.value.packet.data = toBase64AsAny(
+              mutableMsg.value.packet.data
+            );
+          }
+        })
+      ),
+    });
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       msgs,
@@ -1313,7 +1409,20 @@ export class IbcClient {
       msgs.push(msg);
     }
 
-    this.logger.debug('MsgTimeout', { msgs });
+    this.logger.debug('MsgTimeout', {
+      msgs: msgs.map((msg) =>
+        deepCloneAndMutate(msg, (mutableMsg) => {
+          if (mutableMsg.value.packet?.data) {
+            mutableMsg.value.packet.data = toBase64AsAny(
+              mutableMsg.value.packet.data
+            );
+          }
+          mutableMsg.value.proofUnreceived = toBase64AsAny(
+            mutableMsg.value.proofUnreceived
+          );
+        })
+      ),
+    });
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       msgs,
