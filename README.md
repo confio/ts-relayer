@@ -83,6 +83,8 @@ Reads the configuration and starts relaying packets.
      - [What is registry.yaml?]()
    - funds addresses on both sides so relayer can pay the fee while relaying packets
 
+   > **NOTE:** Test blockchains `relayer_test_1` and `relayer_test_2` are  running in the public. You do not need to start any blockchain locally to complete the quick start guide.
+
    > **NOTE:** Run `ibc-setup balances` to see the amount of tokens on each address.
 
 2. Create `ics20` channel
