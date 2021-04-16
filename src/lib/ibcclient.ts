@@ -83,18 +83,14 @@ import {
   toIntHeight,
 } from './utils';
 
-function formatMessage<T>(
-  message: T,
-  mutateFn: (
-    deepClonedMessage: T,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    encode: (data: Uint8Array) => any
-  ) => void
-) {
-  const deepClonedMessage = cloneDeep(message);
-  mutateFn(deepClonedMessage, toBase64);
+function deepCloneAndMutate<T extends Record<string, unknown>>(
+  object: T,
+  mutateFn: (deepClonedObject: T) => void
+): Record<string, unknown> {
+  const deepClonedObject = cloneDeep(object);
+  mutateFn(deepClonedObject);
 
-  return deepClonedMessage;
+  return deepClonedObject;
 }
 
 /**** These are needed to bootstrap the endpoints */
@@ -749,9 +745,11 @@ export class IbcClient {
 
     this.logger.debug(
       `MsgUpdateClient`,
-      formatMessage(updateMsg, (mutableMsg, encode) => {
+      deepCloneAndMutate(updateMsg, (mutableMsg) => {
         if (mutableMsg.value.header?.value) {
-          mutableMsg.value.header.value = encode(mutableMsg.value.header.value);
+          mutableMsg.value.header.value = toBase64(
+            mutableMsg.value.header.value
+          ) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
         }
       })
     );
@@ -856,12 +854,16 @@ export class IbcClient {
     };
     this.logger.debug(
       'MsgConnectionOpenTry',
-      formatMessage(msg, (mutableMsg, encode) => {
-        mutableMsg.value.proofClient = encode(mutableMsg.value.proofClient);
-        mutableMsg.value.proofConsensus = encode(
+      deepCloneAndMutate(msg, (mutableMsg) => {
+        mutableMsg.value.proofClient = toBase64(
+          mutableMsg.value.proofClient
+        ) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+        mutableMsg.value.proofConsensus = toBase64(
           mutableMsg.value.proofConsensus
-        );
-        mutableMsg.value.proofInit = encode(mutableMsg.value.proofInit);
+        ) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+        mutableMsg.value.proofInit = toBase64(
+          mutableMsg.value.proofInit
+        ) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
       })
     );
 
@@ -924,12 +926,14 @@ export class IbcClient {
     };
     this.logger.debug(
       'MsgConnectionOpenAck',
-      formatMessage(msg, (mutableMsg, encode) => {
-        mutableMsg.value.proofConsensus = encode(
+      deepCloneAndMutate(msg, (mutableMsg) => {
+        mutableMsg.value.proofConsensus = toBase64(
           mutableMsg.value.proofConsensus
-        );
-        mutableMsg.value.proofTry = encode(mutableMsg.value.proofTry);
-        mutableMsg.value.proofClient = encode(mutableMsg.value.proofClient);
+        ) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+        mutableMsg.value.proofTry = toBase64(mutableMsg.value.proofTry) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+        mutableMsg.value.proofClient = toBase64(
+          mutableMsg.value.proofClient
+        ) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
       })
     );
 
@@ -967,8 +971,8 @@ export class IbcClient {
     };
     this.logger.debug(
       'MsgConnectionOpenConfirm',
-      formatMessage(msg, (mutableMsg, encode) => {
-        mutableMsg.value.proofAck = encode(mutableMsg.value.proofAck);
+      deepCloneAndMutate(msg, (mutableMsg) => {
+        mutableMsg.value.proofAck = toBase64(mutableMsg.value.proofAck) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
       })
     );
 
@@ -1073,8 +1077,10 @@ export class IbcClient {
     };
     this.logger.debug(
       'MsgChannelOpenTry',
-      formatMessage(msg, (mutableMsg, encode) => {
-        mutableMsg.value.proofInit = encode(mutableMsg.value.proofInit);
+      deepCloneAndMutate(msg, (mutableMsg) => {
+        mutableMsg.value.proofInit = toBase64(
+          mutableMsg.value.proofInit
+        ) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
       })
     );
 
@@ -1129,8 +1135,8 @@ export class IbcClient {
     };
     this.logger.debug(
       'MsgChannelOpenAck',
-      formatMessage(msg, (mutableMsg, encode) => {
-        mutableMsg.value.proofTry = encode(mutableMsg.value.proofTry);
+      deepCloneAndMutate(msg, (mutableMsg) => {
+        mutableMsg.value.proofTry = toBase64(mutableMsg.value.proofTry) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
       })
     );
 
@@ -1172,9 +1178,8 @@ export class IbcClient {
     };
     this.logger.debug(
       'MsgChannelOpenConfirm',
-      formatMessage(msg, (mutableMsg, encode) => {
-        mutableMsg.value.proofAck = encode(mutableMsg.value.proofAck);
-        mutableMsg.value.proofAck = encode(mutableMsg.value.proofAck);
+      deepCloneAndMutate(msg, (mutableMsg) => {
+        mutableMsg.value.proofAck = toBase64(mutableMsg.value.proofAck) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
       })
     );
 
@@ -1240,12 +1245,14 @@ export class IbcClient {
     }
     this.logger.debug('MsgRecvPacket(s)', {
       msgs: msgs.map((msg) =>
-        formatMessage(msg, (mutableMsg, encode) => {
-          mutableMsg.value.proofCommitment = encode(
+        deepCloneAndMutate(msg, (mutableMsg) => {
+          mutableMsg.value.proofCommitment = toBase64(
             mutableMsg.value.proofCommitment
-          );
+          ) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
           if (mutableMsg.value.packet?.data) {
-            mutableMsg.value.packet.data = encode(mutableMsg.value.packet.data);
+            mutableMsg.value.packet.data = toBase64(
+              mutableMsg.value.packet.data
+            ) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
           }
         })
       ),
@@ -1318,13 +1325,17 @@ export class IbcClient {
     }
     this.logger.debug('MsgAcknowledgement(s)', {
       msgs: msgs.map((msg) =>
-        formatMessage(msg, (mutableMsg, encode) => {
-          mutableMsg.value.acknowledgement = encode(
+        deepCloneAndMutate(msg, (mutableMsg) => {
+          mutableMsg.value.acknowledgement = toBase64(
             mutableMsg.value.acknowledgement
-          );
-          mutableMsg.value.proofAcked = encode(mutableMsg.value.proofAcked);
+          ) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+          mutableMsg.value.proofAcked = toBase64(
+            mutableMsg.value.proofAcked
+          ) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
           if (mutableMsg.value.packet?.data) {
-            mutableMsg.value.packet.data = encode(mutableMsg.value.packet.data);
+            mutableMsg.value.packet.data = toBase64(
+              mutableMsg.value.packet.data
+            ) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
           }
         })
       ),
@@ -1400,9 +1411,11 @@ export class IbcClient {
 
     this.logger.debug('MsgTimeout', {
       msgs: msgs.map((msg) =>
-        formatMessage(msg, (mutableMsg, encode) => {
+        deepCloneAndMutate(msg, (mutableMsg) => {
           if (mutableMsg.value.packet?.data) {
-            mutableMsg.value.packet.data = encode(mutableMsg.value.packet.data);
+            mutableMsg.value.packet.data = toBase64(
+              mutableMsg.value.packet.data
+            ) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
           }
         })
       ),
