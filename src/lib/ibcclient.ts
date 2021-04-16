@@ -854,7 +854,16 @@ export class IbcClient {
         consensusHeight,
       }),
     };
-    this.logger.debug('MsgConnectionOpenTry', msg);
+    this.logger.debug(
+      'MsgConnectionOpenTry',
+      formatMessage(msg, (mutableMsg, encode) => {
+        mutableMsg.value.proofClient = encode(mutableMsg.value.proofClient);
+        mutableMsg.value.proofConsensus = encode(
+          mutableMsg.value.proofConsensus
+        );
+        mutableMsg.value.proofInit = encode(mutableMsg.value.proofInit);
+      })
+    );
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
@@ -913,7 +922,16 @@ export class IbcClient {
         consensusHeight,
       }),
     };
-    this.logger.debug('MsgConnectionOpenAck', msg);
+    this.logger.debug(
+      'MsgConnectionOpenAck',
+      formatMessage(msg, (mutableMsg, encode) => {
+        mutableMsg.value.proofConsensus = encode(
+          mutableMsg.value.proofConsensus
+        );
+        mutableMsg.value.proofTry = encode(mutableMsg.value.proofTry);
+        mutableMsg.value.proofClient = encode(mutableMsg.value.proofClient);
+      })
+    );
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
@@ -947,7 +965,12 @@ export class IbcClient {
         proofAck,
       }),
     };
-    this.logger.debug('MsgConnectionOpenConfirm', msg);
+    this.logger.debug(
+      'MsgConnectionOpenConfirm',
+      formatMessage(msg, (mutableMsg, encode) => {
+        mutableMsg.value.proofAck = encode(mutableMsg.value.proofAck);
+      })
+    );
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
@@ -1048,7 +1071,12 @@ export class IbcClient {
         signer: senderAddress,
       }),
     };
-    this.logger.debug('MsgChannelOpenTry', msg);
+    this.logger.debug(
+      'MsgChannelOpenTry',
+      formatMessage(msg, (mutableMsg, encode) => {
+        mutableMsg.value.proofInit = encode(mutableMsg.value.proofInit);
+      })
+    );
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
@@ -1099,7 +1127,12 @@ export class IbcClient {
         signer: senderAddress,
       }),
     };
-    this.logger.debug('MsgChannelOpenAck', msg);
+    this.logger.debug(
+      'MsgChannelOpenAck',
+      formatMessage(msg, (mutableMsg, encode) => {
+        mutableMsg.value.proofTry = encode(mutableMsg.value.proofTry);
+      })
+    );
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
@@ -1137,7 +1170,13 @@ export class IbcClient {
         signer: senderAddress,
       }),
     };
-    this.logger.debug('MsgChannelOpenConfirm', msg);
+    this.logger.debug(
+      'MsgChannelOpenConfirm',
+      formatMessage(msg, (mutableMsg, encode) => {
+        mutableMsg.value.proofAck = encode(mutableMsg.value.proofAck);
+        mutableMsg.value.proofAck = encode(mutableMsg.value.proofAck);
+      })
+    );
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
