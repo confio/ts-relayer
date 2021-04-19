@@ -29,7 +29,7 @@ addresses with funds.
 
 ### ics20
 
-This requires `registry.conf`, `app.conf` and funded accounts on both sides. If either account is not funded,
+This requires `registry.yaml`, `app.yaml` and funded accounts on both sides. If either account is not funded,
 it will print a clear error message on startup. It will accept two optional flags to specify the ports on
 each side, but default to `transfer` if those are not present.
 
