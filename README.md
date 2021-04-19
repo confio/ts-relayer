@@ -153,11 +153,14 @@ ibc-relayer start --home /home/user/relayer_custom_home
 There are 3 files that live in the relayer's home.
 
 - **registry.yaml** (required)
+  
    Contains a list of available chains with corresponding information. The chains from the registry can be referenced by `ibc-setup` binary or within the `app.yaml` file. [View an example of registry.yaml file.](demo/registry.yaml)
 
 - **app.yaml** (optional)
+  
    Holds the relayer-specific options such as source or destination chains. These options can be overridden with CLI flags or environment variables.
 - **last-queried-heights.json** (optional)
+  
   Stores last queried heights for better performance on relayer startup. It's constantly overwritten with new heights when relayer is running. Simply delete this file to scan the events since forever.
 
 [Learn more about configuration.](spec/config.md)
