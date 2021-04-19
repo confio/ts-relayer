@@ -2,7 +2,7 @@
 
 While most of the commands will be specified via command-line flags, it would be very
 tedious to pass in all configuration options every time. Thus, we allow 3 ways to configure
-most items - config file (yaml), environmental variables, and command line flags. With the
+most items - config file (`app.yaml`), environmental variables, and command line flags. With the
 later taking precedence over the former. Environmental variables will all begin with `RELAYER_`
 for both binaries.
 
@@ -34,6 +34,8 @@ chains:
       - gas_price: 0.1umayo
       # the path we use to derive the private key from the mnemonic
       - hd_path: 44'/108'/0'/1'
+      # if you include an optional faucet, it will load the relayer with tokens in `ibc-setup init`
+      faucet: https://faucet.musselnet.cosmwasm.com
       # you can include multiple RPC endpoints and it will rotate through them if
       # one is down
       - rpc:
@@ -48,7 +50,7 @@ It should contain all needed info to configure a relayer connection to that chai
 
 ## Other Configuration
 
-In addition to the required `registry.yaml`. there is an optional `app.yaml` file that is used as a fall back
+In addition to the required `registry.yaml`, there is an optional `app.yaml` file that is used as a fall back
 for any environmental variable. Unless otherwise specified, all command line flags can be defined either
 as environmental variables or in `app.yaml`. If they are not defined in any of these places, this will raise an error.
 
@@ -68,8 +70,5 @@ command, so it can look up all needed configuration.
 If creating a connection/channel, we init on the "src" side. If relaying packets, we may relay packets from
 one chain to another (some configurations will be bi-directional).
 
-As mentioned above, if a CLI flag is not found, we will check for an environmental variable, and ultimately `app.yaml`
+As mentioned above, if a CLI flag is not found, we will check for an environmental variable, and ultimately `app.yaml`.
 
-### Connection Selection
-
-Many commands require an already established
