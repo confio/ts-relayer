@@ -35,7 +35,7 @@ chains:
       # the path we use to derive the private key from the mnemonic
       - hd_path: 44'/108'/0'/1'
       # if you include an optional faucet, it will load the relayer with tokens in `ibc-setup init`
-      faucet: https://faucet.musselnet.cosmwasm.com
+      - faucet: https://faucet.musselnet.cosmwasm.com
       # you can include multiple RPC endpoints and it will rotate through them if
       # one is down
       - rpc:
