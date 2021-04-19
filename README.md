@@ -30,6 +30,8 @@ enormous amount of disk space. You can also trim it to 3 weeks of data with
 `--pruning=custom --pruning-keep-recent=362880 --pruning-keep-every=0 --pruning-interval=100`, which has been
 tested. It is likely you could reduce `pruning-keep-recent` to as low as, say, 3600, but that would need testing.
 
+## Specification
+[Refer to the specification page.](spec/index.md)
 ## Installation
 
 ### NPM
@@ -78,9 +80,7 @@ Reads the configuration and starts relaying packets.
 
    - creates relayer's home directory at `~/.ibc-setup`
    - creates `app.yaml` inside relayer's home with `src`, `dest` and newly generated `mnemonic`
-     - [What is app.yaml?]()
    - pulls default `registry.yaml` to relayer's home
-     - [What is registry.yaml?]()
    - funds addresses on both sides so relayer can pay the fee while relaying packets
 
    > **NOTE:** Test blockchains `relayer_test_1` and `relayer_test_2` are  running in the public. You do not need to start any blockchain locally to complete the quick start guide.
@@ -141,4 +141,27 @@ Reads the configuration and starts relaying packets.
 
 ## Configuration overview
 
-in progress
+The relayer configuration is stored under relayer's home directory. By default, it's located at `$HOME/.ibc-setup`, however, can be customized with `home` option, e.g.:
+```sh
+# initialize the configuration at /home/user/relayer_custom_home
+ibc-setup init --home /home/user/relayer_custom_home
+
+# read the configuration from /home/user/relayer_custom_home
+ibc-relayer start --home /home/user/relayer_custom_home
+```
+
+There are 3 files that live in the relayer's home.
+
+- **registry.yaml** (required)
+   Contains a list of available chains with corresponding information. The chains from the registry can be referenced by `ibc-setup` binary or within the `app.yaml` file. [View an example of registry.yaml file.](demo/registry.yaml)
+
+- **app.yaml** (optional)
+   Holds the relayer-specific options such as source or destination chains. These options can be overridden with CLI flags or environment variables.
+- **last-queried-heights.json** (optional)
+  Stores last queried heights for better performance on relayer startup. It's constantly overwritten with new heights when relayer is running. Simply delete this file to scan the events since forever.
+
+[Learn more about configuration.](spec/config.md)
+
+## Development
+[Refer to the development page.](DEVELOPMENT.md)
+
