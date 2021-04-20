@@ -5,6 +5,6 @@
 Run the following:
 
 ```
-cd scripts/simapp
+cd scripts/gaia
 ./start.sh
 ```
