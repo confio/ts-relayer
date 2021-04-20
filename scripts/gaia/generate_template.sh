@@ -27,6 +27,9 @@ docker run --rm \
   cosmos1cjsxept9rkggzxztslae9ndgpdyt2408lk850u \
   cosmos17d0jcz59jf68g52vq38tuuncmwwjk42u6mcxej
 
+sudo chmod -R g+rwx template/.gaia/
+sudo chmod -R a+rx template/.gaia/
+
 # The ./template folder is created by the docker daemon's user (root on Linux, current user
 # when using Docker Desktop on macOS), let's make it ours if needed
 if [ ! -x "$SCRIPT_DIR/template/.gaia/config/gentx" ]; then
@@ -39,6 +42,7 @@ fi
   # happening when redirecting stdout
   jq -S -M . < "template/.gaia/config/genesis.json" > genesis.tmp
   mv genesis.tmp "template/.gaia/config/genesis.json"
+  chmod a+rx template/.gaia/config/genesis.json
 
   # Custom settings in config.toml
   sed -i"" \

@@ -27,4 +27,4 @@ docker run --rm \
   --mount type=volume,source=gaia_data,target=/gaia \
   "$REPOSITORY:$VERSION" \
   /template/run_gaiad.sh \
-  2>&1 | grep 'Executed block'
+  2>&1 | grep 'executed block'
