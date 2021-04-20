@@ -46,6 +46,10 @@ const initCommand = program
   .addOption(homeOption)
   .addOption(srcOption)
   .addOption(destOption)
+  .option(
+    '--registry-from <path>',
+    'Copy existing relayer registry from given home directory'
+  )
   .action(loggerWithErrorBoundary(init));
 addLoggerOptionsTo(initCommand);
 
