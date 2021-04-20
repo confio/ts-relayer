@@ -1,0 +1,5 @@
+# Choose from https://hub.docker.com/r/confio/gaia/tags
+REPOSITORY="confio/gaia"
+# Handbuilt from https://github.com/cosmos/gaia Dockerfile with USER changes
+VERSION="4.2.1-root"
+CONTAINER_NAME="gaia"

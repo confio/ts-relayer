@@ -69,6 +69,37 @@ export const simapp = {
   },
 };
 
+export const gaia = {
+  tendermintUrlWs: 'ws://localhost:26655',
+  tendermintUrlHttp: 'http://localhost:26655',
+  chainId: 'gaia-test',
+  prefix: 'cosmos',
+  denomStaking: 'uatom',
+  denomFee: 'uatom',
+  minFee: '0.025uatom',
+  blockTime: 250, // ms
+  faucet: {
+    mnemonic:
+      'economy stock theory fatal elder harbor betray wasp final emotion task crumble siren bottom lizard educate guess current outdoor pair theory focus wife stone',
+    pubkey0: {
+      type: 'tendermint/PubKeySecp256k1',
+      value: 'A08EGB7ro1ORuFhjOnZcSgwYlpe0DSFjVNUIkNNQxwKQ',
+    },
+    address0: 'cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6',
+  },
+  /** Unused account */
+  unused: {
+    pubkey: {
+      type: 'tendermint/PubKeySecp256k1',
+      value: 'ArkCaFUJ/IH+vKBmNRCdUVl3mCAhbopk9jjW4Ko4OfRQ',
+    },
+    address: 'cosmos1cjsxept9rkggzxztslae9ndgpdyt2408lk850u',
+    accountNumber: 16,
+    sequence: 0,
+    balanceStaking: '1000000000', // 1000 ATOM
+  },
+};
+
 export const wasmd = {
   tendermintUrlWs: 'ws://localhost:26659',
   tendermintUrlHttp: 'http://localhost:26659',
@@ -156,6 +187,7 @@ export async function signingClient(
   return client;
 }
 
+// This is simapp -> wasm
 export async function setup(logger?: Logger): Promise<IbcClient[]> {
   // create apps and fund an account
   const mnemonic = generateMnemonic();
@@ -163,6 +195,16 @@ export async function setup(logger?: Logger): Promise<IbcClient[]> {
   const dest = await signingClient(wasmd, mnemonic, logger);
   await fundAccount(wasmd, dest.senderAddress, '4000000');
   await fundAccount(simapp, src.senderAddress, '4000000');
+  return [src, dest];
+}
+
+export async function setupGaiaWasm(logger?: Logger): Promise<IbcClient[]> {
+  // create apps and fund an account
+  const mnemonic = generateMnemonic();
+  const src = await signingClient(gaia, mnemonic, logger);
+  const dest = await signingClient(wasmd, mnemonic, logger);
+  await fundAccount(wasmd, dest.senderAddress, '4000000');
+  await fundAccount(gaia, src.senderAddress, '4000000');
   return [src, dest];
 }
 

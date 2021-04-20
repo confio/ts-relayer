@@ -58,6 +58,10 @@ jobs:
           name: Start simapp
           command: ./scripts/simapp/start.sh
           background: true
+      - run: # start early for less wait time below
+          name: Start gaiad
+          command: ./scripts/gaia/start.sh
+          background: true
       - run:
           # TODO: check if still needed with 20.04
           # The images ubuntu-1604 comes with preinstalled nvm, which does not work well with non-login shells
@@ -96,6 +100,8 @@ jobs:
             timeout 60 bash -c "until curl -s http://localhost:26659/status > /dev/null; do sleep 0.5; done"
             echo "Wait for simapp..."
             timeout 60 bash -c "until curl -s http://localhost:26658/status > /dev/null; do sleep 0.5; done"
+            echo "Wait for gaia..."
+            timeout 60 bash -c "until curl -s http://localhost:26655/status > /dev/null; do sleep 0.5; done"
             sleep 1
             echo "Chains up and running!"
       - run:
@@ -105,6 +111,7 @@ jobs:
           command: |
             ./scripts/simapp/stop.sh
             ./scripts/wasmd/stop.sh
+            ./scripts/gaia/stop.sh
 
 workflows:
   version: 2
