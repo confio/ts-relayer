@@ -69,6 +69,37 @@ export const simapp = {
   },
 };
 
+export const gaia = {
+  tendermintUrlWs: 'ws://localhost:26659',
+  tendermintUrlHttp: 'http://localhost:26659',
+  chainId: 'gaia-test',
+  prefix: 'cosmos',
+  denomStaking: 'uatom',
+  denomFee: 'uatom',
+  minFee: '0.025uatom',
+  blockTime: 250, // ms
+  faucet: {
+    mnemonic:
+      'economy stock theory fatal elder harbor betray wasp final emotion task crumble siren bottom lizard educate guess current outdoor pair theory focus wife stone',
+    pubkey0: {
+      type: 'tendermint/PubKeySecp256k1',
+      value: 'A08EGB7ro1ORuFhjOnZcSgwYlpe0DSFjVNUIkNNQxwKQ',
+    },
+    address0: 'cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6',
+  },
+  /** Unused account */
+  unused: {
+    pubkey: {
+      type: 'tendermint/PubKeySecp256k1',
+      value: 'ArkCaFUJ/IH+vKBmNRCdUVl3mCAhbopk9jjW4Ko4OfRQ',
+    },
+    address: 'cosmos1cjsxept9rkggzxztslae9ndgpdyt2408lk850u',
+    accountNumber: 16,
+    sequence: 0,
+    balanceStaking: '10000000', // 10 ATOM
+  },
+};
+
 export const wasmd = {
   tendermintUrlWs: 'ws://localhost:26659',
   tendermintUrlHttp: 'http://localhost:26659',
