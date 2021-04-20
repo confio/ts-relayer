@@ -26,5 +26,5 @@ docker run --rm \
   --mount type=bind,source="$SCRIPT_DIR/template",target=/template \
   --mount type=volume,source=gaia_data,target=/root \
   "$REPOSITORY:$VERSION" \
-  /template/run_gaiad.sh \
-  2>&1 | grep 'executed block'
+  /template/run_gaiad.sh
+  # 2>&1 | grep 'executed block'
