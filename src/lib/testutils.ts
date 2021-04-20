@@ -187,6 +187,7 @@ export async function signingClient(
   return client;
 }
 
+// This is simapp -> wasm
 export async function setup(logger?: Logger): Promise<IbcClient[]> {
   // create apps and fund an account
   const mnemonic = generateMnemonic();
@@ -194,6 +195,16 @@ export async function setup(logger?: Logger): Promise<IbcClient[]> {
   const dest = await signingClient(wasmd, mnemonic, logger);
   await fundAccount(wasmd, dest.senderAddress, '4000000');
   await fundAccount(simapp, src.senderAddress, '4000000');
+  return [src, dest];
+}
+
+export async function setupGaiaWasm(logger?: Logger): Promise<IbcClient[]> {
+  // create apps and fund an account
+  const mnemonic = generateMnemonic();
+  const src = await signingClient(gaia, mnemonic, logger);
+  const dest = await signingClient(wasmd, mnemonic, logger);
+  await fundAccount(wasmd, dest.senderAddress, '4000000');
+  await fundAccount(gaia, src.senderAddress, '4000000');
   return [src, dest];
 }
 
