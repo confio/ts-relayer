@@ -9,7 +9,7 @@ import {
   TestLogger,
 } from './testutils';
 
-test.serial('try to setup gaia', async (t) => {
+test.serial('funds account and checks balance', async (t) => {
   const logger = new TestLogger();
   // create apps and fund an account
   const mnemonic = generateMnemonic();
