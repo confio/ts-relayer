@@ -1,4 +1,4 @@
-# Local Simd development network
+# Local Gaiad development network
 
 ## Starting the blockchain
 
