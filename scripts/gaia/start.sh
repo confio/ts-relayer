@@ -4,9 +4,9 @@ command -v shellcheck >/dev/null && shellcheck "$0"
 
 # Please keep this in sync with the Ports overview in HACKING.md
 TENDERMINT_PORT_GUEST="26657"
-TENDERMINT_PORT_HOST="26659"
+TENDERMINT_PORT_HOST="26655"
 API_PORT_GUEST="1317"
-API_PORT_HOST="1319"
+API_PORT_HOST="1315"
 
 SCRIPT_DIR="$(realpath "$(dirname "$0")")"
 # shellcheck source=./env

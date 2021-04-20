@@ -70,8 +70,8 @@ export const simapp = {
 };
 
 export const gaia = {
-  tendermintUrlWs: 'ws://localhost:26659',
-  tendermintUrlHttp: 'http://localhost:26659',
+  tendermintUrlWs: 'ws://localhost:26655',
+  tendermintUrlHttp: 'http://localhost:26655',
   chainId: 'gaia-test',
   prefix: 'cosmos',
   denomStaking: 'uatom',
