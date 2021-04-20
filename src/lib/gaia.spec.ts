@@ -17,5 +17,8 @@ test.serial('try to setup gaia', async (t) => {
   await fundAccount(gaia, src.senderAddress, '600000');
 
   const balance = await src.query.bank.allBalances(src.senderAddress);
-  t.deepEqual(balance, []);
+  t.deepEqual(balance, [{ amount: '600000', denom: 'uatom' }]);
+
+  const unused = await src.query.bank.allBalances(gaia.unused.address);
+  t.deepEqual(unused, [{ amount: gaia.unused.balanceStaking, denom: 'uatom' }]);
 });
