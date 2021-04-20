@@ -18,7 +18,7 @@ chmod +x "$SCRIPT_DIR/template/run_gaiad.sh"
 docker run --rm \
   -e PASSWORD=my-secret-password \
   -e STAKE_TOKEN=uatom \
-  --mount type=bind,source="$SCRIPT_DIR/template",target=/root \
+  --mount type=bind,source="$SCRIPT_DIR/template",target=/gaia \
   "$REPOSITORY:$VERSION" \
   ./setup.sh \
   cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6 cosmos10dyr9899g6t0pelew4nvf4j5c3jcgv0r73qga5 cosmos1xy4yqngt0nlkdcenxymg8tenrghmek4nmqm28k cosmos142u9fgcjdlycfcez3lw8x6x5h7rfjlnfhpw2lx cosmos1hsm76p4ahyhl5yh3ve9ur49r5kemhp2r0dcjvx \
