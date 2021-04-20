@@ -6,7 +6,7 @@
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
           "account_number": "0",
-          "address": "cosmos122y4nd4hlz5pl2lpazf506pwh4ht8e07aameg7",
+          "address": "cosmos1cv9e83fnwh3vecv9p9t4q2cg4tmtusz2c786md",
           "pub_key": null,
           "sequence": "0"
         },
@@ -144,7 +144,7 @@
           "address": "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6",
           "coins": [
             {
-              "amount": "10000000",
+              "amount": "1000000000",
               "denom": "uatom"
             }
           ]
@@ -153,7 +153,7 @@
           "address": "cosmos1xy4yqngt0nlkdcenxymg8tenrghmek4nmqm28k",
           "coins": [
             {
-              "amount": "10000000",
+              "amount": "1000000000",
               "denom": "uatom"
             }
           ]
@@ -162,7 +162,7 @@
           "address": "cosmos1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5",
           "coins": [
             {
-              "amount": "10000000",
+              "amount": "1000000000",
               "denom": "uatom"
             }
           ]
@@ -171,16 +171,7 @@
           "address": "cosmos1f7j7ryulwjfe9ljplvhtcaxa6wqgula3etktce",
           "coins": [
             {
-              "amount": "10000000",
-              "denom": "uatom"
-            }
-          ]
-        },
-        {
-          "address": "cosmos122y4nd4hlz5pl2lpazf506pwh4ht8e07aameg7",
-          "coins": [
-            {
-              "amount": "10000000",
+              "amount": "1000000000",
               "denom": "uatom"
             }
           ]
@@ -189,7 +180,7 @@
           "address": "cosmos1vkv9sfwaak76weyamqx0flmng2vuquxqcuqukh",
           "coins": [
             {
-              "amount": "10000000",
+              "amount": "1000000000",
               "denom": "uatom"
             }
           ]
@@ -198,7 +189,7 @@
           "address": "cosmos10dyr9899g6t0pelew4nvf4j5c3jcgv0r73qga5",
           "coins": [
             {
-              "amount": "10000000",
+              "amount": "1000000000",
               "denom": "uatom"
             }
           ]
@@ -207,7 +198,7 @@
           "address": "cosmos106jwym4s9aujcmes26myzzwqsccw09sdm0v5au",
           "coins": [
             {
-              "amount": "10000000",
+              "amount": "1000000000",
               "denom": "uatom"
             }
           ]
@@ -216,7 +207,7 @@
           "address": "cosmos14qemq0vw6y3gc3u3e0aty2e764u4gs5le3hada",
           "coins": [
             {
-              "amount": "10000000",
+              "amount": "1000000000",
               "denom": "uatom"
             }
           ]
@@ -225,7 +216,7 @@
           "address": "cosmos142u9fgcjdlycfcez3lw8x6x5h7rfjlnfhpw2lx",
           "coins": [
             {
-              "amount": "10000000",
+              "amount": "1000000000",
               "denom": "uatom"
             }
           ]
@@ -234,7 +225,7 @@
           "address": "cosmos1hsm76p4ahyhl5yh3ve9ur49r5kemhp2r0dcjvx",
           "coins": [
             {
-              "amount": "10000000",
+              "amount": "1000000000",
               "denom": "uatom"
             }
           ]
@@ -243,7 +234,16 @@
           "address": "cosmos1hhg2rlu9jscacku2wwckws7932qqqu8x3gfgw0",
           "coins": [
             {
-              "amount": "10000000",
+              "amount": "1000000000",
+              "denom": "uatom"
+            }
+          ]
+        },
+        {
+          "address": "cosmos1cv9e83fnwh3vecv9p9t4q2cg4tmtusz2c786md",
+          "coins": [
+            {
+              "amount": "1000000000",
               "denom": "uatom"
             }
           ]
@@ -252,7 +252,7 @@
           "address": "cosmos1cjsxept9rkggzxztslae9ndgpdyt2408lk850u",
           "coins": [
             {
-              "amount": "10000000",
+              "amount": "1000000000",
               "denom": "uatom"
             }
           ]
@@ -261,7 +261,7 @@
           "address": "cosmos1c7wpeen2uv8thayf7g8q2rgpm29clj0dgrdtzw",
           "coins": [
             {
-              "amount": "10000000",
+              "amount": "1000000000",
               "denom": "uatom"
             }
           ]
@@ -270,7 +270,7 @@
           "address": "cosmos1mjxpv9ft30wer7ma7kwfxhm42l379xutplrdk6",
           "coins": [
             {
-              "amount": "10000000",
+              "amount": "1000000000",
               "denom": "uatom"
             }
           ]
@@ -279,7 +279,7 @@
           "address": "cosmos17yg9mssjenmc3jkqth6ulcwj9cxujrxxzezwta",
           "coins": [
             {
-              "amount": "10000000",
+              "amount": "1000000000",
               "denom": "uatom"
             }
           ]
@@ -288,7 +288,7 @@
           "address": "cosmos17d0jcz59jf68g52vq38tuuncmwwjk42u6mcxej",
           "coins": [
             {
-              "amount": "10000000",
+              "amount": "1000000000",
               "denom": "uatom"
             }
           ]
@@ -297,7 +297,7 @@
           "address": "cosmos1lvrwcvrqlc5ktzp2c4t22xgkx29q3y83lktgzl",
           "coins": [
             {
-              "amount": "10000000",
+              "amount": "1000000000",
               "denom": "uatom"
             }
           ]
@@ -310,7 +310,7 @@
       },
       "supply": [
         {
-          "amount": "180000000",
+          "amount": "18000000000",
           "denom": "uatom"
         }
       ]
@@ -366,7 +366,7 @@
                 },
                 "public_key": {
                   "@type": "/cosmos.crypto.secp256k1.PubKey",
-                  "key": "Axj85PeTogiocbHKYH+3/8iraRcJYKuWudkp0eh1lt3o"
+                  "key": "A56q8Pz6R/AOTlse013OXAvN1/rlF4mCI57Zu7EmTErg"
                 },
                 "sequence": "0"
               }
@@ -374,7 +374,7 @@
           },
           "body": {
             "extension_options": [],
-            "memo": "2f220f74b52c7bc9d998017f29239e36347253f2@172.17.0.2:26656",
+            "memo": "16a2e64895abd4b49329b91d05667da047bba91e@172.17.0.2:26656",
             "messages": [
               {
                 "@type": "/cosmos.staking.v1beta1.MsgCreateValidator",
@@ -383,7 +383,7 @@
                   "max_rate": "0.200000000000000000",
                   "rate": "0.100000000000000000"
                 },
-                "delegator_address": "cosmos122y4nd4hlz5pl2lpazf506pwh4ht8e07aameg7",
+                "delegator_address": "cosmos1cv9e83fnwh3vecv9p9t4q2cg4tmtusz2c786md",
                 "description": {
                   "details": "",
                   "identity": "",
@@ -394,9 +394,9 @@
                 "min_self_delegation": "1",
                 "pubkey": {
                   "@type": "/cosmos.crypto.ed25519.PubKey",
-                  "key": "dXJndEgtvwG2cJd69PW0BItErveVaYTmBqPrj9+DuS8="
+                  "key": "X2dEFmZQdtSTBscBLIJH4OQU4sfhW5GIeCz0jnL5pAM="
                 },
-                "validator_address": "cosmosvaloper122y4nd4hlz5pl2lpazf506pwh4ht8e07cf0vyd",
+                "validator_address": "cosmosvaloper1cv9e83fnwh3vecv9p9t4q2cg4tmtusz2a2n0h7",
                 "value": {
                   "amount": "3000000",
                   "denom": "uatom"
@@ -407,7 +407,7 @@
             "timeout_height": "0"
           },
           "signatures": [
-            "ii7FTaBKxn5k/oUx6x8EuTKJaen1+2o+n88bzgWEbKlRxXAP/afOo1rQMFgtQc1bzixFhkuIELPixKBKMuLrzA=="
+            "2cUhaLX9PX5zcTRucdJ7hnSVifNNCROPjZtJxchHdIsnTWVDJqOcdLvkkNEkNFDgXDPhZlZjicj9A5zP38LKAQ=="
           ]
         }
       ]
@@ -537,6 +537,6 @@
     },
     "version": {}
   },
-  "genesis_time": "2021-04-20T13:51:29.199191154Z",
+  "genesis_time": "2021-04-20T14:11:06.546531397Z",
   "initial_height": "1"
 }

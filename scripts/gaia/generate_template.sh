@@ -60,6 +60,6 @@ fi
   sed -i"" \
     -e 's/^enable =.*$/enable = true/' \
     -e 's/^enabled-unsafe-cors =.*$/enabled-unsafe-cors = true/' \
-    -e 's/^minimum-gas-prices = \".*\"/minimum-gas-prices = \"0.025umuon\"/' \
+    -e 's/^minimum-gas-prices = \".*\"/minimum-gas-prices = \"0.025uatom\"/' \
     "template/.gaia/config/app.toml"
 )

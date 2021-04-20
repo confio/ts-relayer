@@ -9,8 +9,8 @@ MONIKER=${MONIKER:-gaia-moniker}
 # The staking and the fee tokens. The supply of the staking token is low compared to the fee token (factor 100).
 STAKE=${STAKE_TOKEN:-uatom}
 
-# 10 STAKE and 1000 COSM
-START_BALANCE="10000000$STAKE"
+# 1000 ATOM
+START_BALANCE="1000000000$STAKE"
 
 echo "Creating genesis ..."
 gaiad init --chain-id "$CHAIN_ID" "$MONIKER"
