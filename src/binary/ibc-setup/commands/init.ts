@@ -33,7 +33,10 @@ export async function init(flags: Flags, _logger: Logger) {
     src: resolveOption('src')(flags.src, process.env.RELAYER_SRC),
     dest: resolveOption('dest')(flags.dest, process.env.RELAYER_DEST),
     home: resolveHomeOption({ homeFlag: flags.home }),
-    registryFrom: resolveOption('registryFrom')(flags.registryFrom),
+    registryFrom: resolveOption('registryFrom')(
+      flags.registryFrom,
+      process.env.RELAYER_REGISTRY_FROM
+    ),
   };
 
   await run(options);
