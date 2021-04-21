@@ -10,11 +10,17 @@ These are the high-level entry-points that call a series of other commands.
 
 ### init
 
-This is used once to setup a new key and configuration file:
+This is used to setup a new key and configuration file.
+
+`ibc-setup init` will:
+- initialize a home dir if it doesn't exist
+- check for `registry.yaml` in the home dir and if missing, will download it from a default location
+
 
 `ibc-setup init --src=XYZ --dest=ABC` will:
 
-- check for `registry.yaml` in the home dir and if missing, will download it from a default location.
+- initialize a home dir if it doesn't exist
+- check for `registry.yaml` in the home dir and if missing, will download it from a default location
 - generate a new mnemonic phrase
 - initialize `app.yaml` in the home dir (if missing) with:
 
@@ -24,8 +30,10 @@ dest: ABC
 mnemonic: 'your codes here...'
 ```
 
-It will then output the relayers addresses on each chain on standard out and request the admin to fill those
-addresses with funds.
+It will then output the relayers addresses on each chain on standard out and request the admin to fill those addresses with funds.
+
+The idea is that you can initialize a home dir with default registry file using `ibc-setup init`, make adjustments and then run the command again with `--src` and `--dest` flags to generate configuration file (`app.yaml`).
+
 
 ### ics20
 
