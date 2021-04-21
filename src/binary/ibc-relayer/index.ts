@@ -16,7 +16,7 @@ import {
 } from '../commander-options';
 import { loggerWithErrorBoundary } from '../utils/logger-with-error-boundary';
 
-import { defaults as startDefaults, start } from './commands/start';
+import { start, defaults as startDefaults } from './commands/start';
 
 const program = new Command();
 

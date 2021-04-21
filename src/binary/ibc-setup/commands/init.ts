@@ -10,7 +10,6 @@ import { Logger } from '../../create-logger';
 import { feeDenom } from '../../types';
 import { deriveAddress } from '../../utils/derive-address';
 import { generateMnemonic } from '../../utils/generate-mnemonic';
-import { getDefaultHomePath } from '../../utils/get-default-home-path';
 import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
 import { resolveOption } from '../../utils/options/resolve-option';
 import { resolveHomeOption } from '../../utils/options/shared/resolve-home-option';
