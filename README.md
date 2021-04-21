@@ -2,36 +2,19 @@
 
 Typescript implementation of an [IBC](https://ibcprotocol.org/) Relayer.
 
+To get a good overview of what it can do, please
+[check our feature matrix](./FEATURES.md)
+
+You can also read [our specification page](./spec/index.md), which explains how
+the relayer works, but the Quick Start probably gives a better intro.
+
 ## Requirements
 
 - [Node.js 14.16.1](https://nodejs.org/en/blog/release/v14.16.1/) or later
 - RPC addresses of 2 full nodes on compatible, IBC-enabled chains
+- See [Chain Requirements below](#Chain-Requirements) for details of what chains are supported
 
-### Chain Requirements
 
-The blockchain must be based on Cosmos SDK `v0.41.1+`. In particular it must have
-[PR 8458](https://github.com/cosmos/cosmos-sdk/pull/8458) merged (if you are using a fork)
-in order for the relayer to work properly. `ibc-setup` should work on `v0.40.0+`
-
-The chain must have a large value for `staking.params.historical_entries` (often set in genesis).
-The default is "10000" and this should work with "1000", but no relayer will work if it is set to 0.
-
-### Full Node Requirements
-
-Ideally you are in control of the node that the relayer connects to. If not, it should be run
-by a known and trusted party, whom you can check the configuration with. Note that a malicious node
-could cause the relayer to send invalid packets and waste tokens on gas (but not create invalid state).
-
-The indexer should be enabled (`tx_index.indexer = "kv"` in `config.toml`),
-and all events should be indexed (`index-events = []` in `app.toml`).
-
-The node must support historical queries. `--pruning=nothing` will definitely work, but will use an
-enormous amount of disk space. You can also trim it to 3 weeks of data with
-`--pruning=custom --pruning-keep-recent=362880 --pruning-keep-every=0 --pruning-interval=100`, which has been
-tested. It is likely you could reduce `pruning-keep-recent` to as low as, say, 3600, but that would need testing.
-
-## Specification
-[Refer to the specification page.](spec/index.md)
 ## Installation
 
 ### NPM
@@ -168,3 +151,25 @@ There are 3 files that live in the relayer's home.
 ## Development
 [Refer to the development page.](DEVELOPMENT.md)
 
+## Chain Requirements
+
+The blockchain must be based on Cosmos SDK `v0.41.1+`. In particular it must have
+[PR 8458](https://github.com/cosmos/cosmos-sdk/pull/8458) merged (if you are using a fork)
+in order for the relayer to work properly. `ibc-setup` should work on `v0.40.0+`
+
+The chain must have a large value for `staking.params.historical_entries` (often set in genesis).
+The default is "10000" and this should work with "1000", but no relayer will work if it is set to 0.
+
+### Full Node Requirements
+
+Ideally you are in control of the node that the relayer connects to. If not, it should be run
+by a known and trusted party, whom you can check the configuration with. Note that a malicious node
+could cause the relayer to send invalid packets and waste tokens on gas (but not create invalid state).
+
+The indexer should be enabled (`tx_index.indexer = "kv"` in `config.toml`),
+and all events should be indexed (`index-events = []` in `app.toml`).
+
+The node must support historical queries. `--pruning=nothing` will definitely work, but will use an
+enormous amount of disk space. You can also trim it to 3 weeks of data with
+`--pruning=custom --pruning-keep-recent=362880 --pruning-keep-every=0 --pruning-interval=100`, which has been
+tested. It is likely you could reduce `pruning-keep-recent` to as low as, say, 3600, but that would need testing.
