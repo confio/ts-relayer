@@ -23,19 +23,15 @@ type Flags = {
 
 export type Options = {
   readonly home: string;
-  readonly src: string;
-  readonly dest: string;
+  readonly src: string | null;
+  readonly dest: string | null;
   readonly registryFrom: string | null;
 };
 
 export async function init(flags: Flags, _logger: Logger) {
   const options = {
-    src: resolveOption('src', {
-      required: true,
-    })(flags.src, process.env.RELAYER_SRC),
-    dest: resolveOption('dest', {
-      required: true,
-    })(flags.dest, process.env.RELAYER_DEST),
+    src: resolveOption('src')(flags.src, process.env.RELAYER_SRC),
+    dest: resolveOption('dest')(flags.dest, process.env.RELAYER_DEST),
     home: resolveHomeOption({ homeFlag: flags.home }),
     registryFrom: resolveOption('registryFrom')(flags.registryFrom),
   };
@@ -84,12 +80,20 @@ export async function run(options: Options) {
           'https://raw.githubusercontent.com/confio/ts-relayer/main/demo/registry.yaml'
         );
         fs.writeFileSync(registryFilePath, registryFromRemote.data);
+        console.log(`Pulled default ${registryFile} from remote.`);
       } catch (error) {
         throw new Error(`Cannot fetch ${registryFile} from remote. ${error}`);
       }
     }
   } else if (!fs.lstatSync(registryFilePath).isFile()) {
     throw new Error(`${registryFilePath} must be a file.`);
+  }
+
+  if (!options.src || !options.dest) {
+    console.log(
+      `Exited earlier. To generate ${appFile}, run the command again with "src" and "dest" chains defined.`
+    );
+    return;
   }
 
   const registry = loadAndValidateRegistry(registryFilePath);

@@ -255,3 +255,24 @@ test('copies existing registry', async (t) => {
     consoleLog.getCall(-1).calledWithMatch(/Destination address: [\w ]+/)
   );
 });
+
+test.only('exits earlier when "src" and "dest" are not set', async (t) => {
+  const options: Options = {
+    home: '/home/user',
+    src: null,
+    dest: null,
+    registryFrom: null,
+  };
+
+  fsExistSync.onCall(0).returns(false).onCall(1).returns(false);
+  axiosGet.resolves({
+    data: registryYaml,
+  });
+  fsReadFileSync.returns(registryYaml);
+  fsWriteFileSync.returns();
+
+  await run(options);
+
+  t.assert(consoleLog.getCall(-1).calledWithMatch(/Exited earlier/));
+  t.is(fsExistSync.callCount, 3);
+});
