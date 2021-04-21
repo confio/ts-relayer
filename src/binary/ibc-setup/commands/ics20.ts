@@ -49,7 +49,9 @@ export type Options = {
   readonly connections: Connections;
 };
 
-const defaultPort = 'transfer';
+export const defaults = {
+  port: 'transfer',
+};
 
 function resolveConnections({
   srcConnection,
@@ -221,12 +223,12 @@ export async function run(
   const srcPort = resolveOption('src-port', { required: true })(
     options.srcPort,
     srcChain.ics20_port,
-    defaultPort
+    defaults.port
   );
   const destPort = resolveOption('dest-port', { required: true })(
     options.destPort,
     destChain.ics20_port,
-    defaultPort
+    defaults.port
   );
 
   const channel = await link.createChannel(
