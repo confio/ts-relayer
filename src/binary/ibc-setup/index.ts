@@ -59,8 +59,8 @@ const ics20Command = program
   .addOption(srcTrust)
   .addOption(destTrust)
   .addOption(mnemonicOption)
-  .addOption(srcPort())
-  .addOption(destPort())
+  .addOption(srcPort(` (default: ${ics20Defaults.port})`))
+  .addOption(destPort(` (default: ${ics20Defaults.port})`))
   .action(loggerWithErrorBoundary(ics20));
 addLoggerOptionsTo(ics20Command);
 
@@ -130,8 +130,8 @@ const channelCommand = program
   .addOption(destOption)
   .addOption(srcConnection)
   .addOption(destConnection)
-  .addOption(srcPort(` (default: ${ics20Defaults.port})`))
-  .addOption(destPort(` (default: ${ics20Defaults.port})`))
+  .addOption(srcPort())
+  .addOption(destPort())
   .option('--ordered')
   .option('--version <version>', `(default: ${channelDefaults.version})`)
   .action(loggerWithErrorBoundary(channel));
