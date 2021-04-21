@@ -42,8 +42,8 @@ but rather the cases that matter to users:
 | Only relay on one channel                       |   🚧    |
 | Only relay on one port                          |   🚧    |
 | Only relay by sender (whitelist)                |   🚧    |
+| Dynamic config without restart                  |   ❌    |
 | Resume relay on restart                         |   ✅    |
-| Handles multiple relayers on one connection     |   ❓    |
 | Handles multiple relayers on one connection     |   ❓    |
 | Submit misbehavior evidence                     |   ❌    |
 | Relay packets with delay                        |   ❌    |
@@ -61,6 +61,7 @@ but rather the cases that matter to users:
 | Prometheus integration                           |  🚧    |
 | Sample Grafana dashboards                        |  🚧    |
 | Sample systemd/etc configs                       |  🚧    |
+| Sample primary/secondary fallover scripts        |  ❌    |
 
 ### Key Management
 
@@ -77,3 +78,13 @@ but rather the cases that matter to users:
 | Easy to embed in webapp                         |  ✅    |
 | Easy to embed in custom node app                |  ✅    |
 | Example how to embed in webapp                  |  🚧    |
+
+### Documentation
+
+| Feature                                         | State  |
+|-------------------------------------------------|:------:|
+| Quick Start guide to demo                       |  ✅    |
+| Developer onboarding documentation              |  ✅    |
+| Intuitive CLI and help text                     |  ✅    |
+| Detailed docs how to setup custom chains        |  🚧    |
+| Tutorials on how to customize                   |  ❌    |
