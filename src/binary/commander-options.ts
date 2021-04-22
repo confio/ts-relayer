@@ -1,6 +1,6 @@
 import commander, { Option } from 'commander';
 
-import { levels } from './create-logger';
+import { defaultLevel, levels } from './create-logger';
 
 export const homeOption = new Option(
   '--home <path>',
@@ -61,13 +61,18 @@ export const destPort = new Option(
 export const addLoggerOptionsTo = (command: commander.Command) => {
   return command
     .addOption(
-      new Option('--log-level <level>', 'Set log level').choices(
-        Object.keys(levels)
-      )
+      new Option(
+        '--log-level <level>',
+        `Set log level (default: ${defaultLevel})`
+      ).choices(Object.keys(levels))
     )
-    .option('-v, --verbose', 'Alias for "--log-level verbose"')
-    .option('-q, --quiet', 'Alias for "--log-level error"')
-    .option('--log-file <path>', 'Path to file to write logs to');
+    .option('-v, --verbose', 'Alias for "--log-level verbose (default: false)"')
+    .option('-q, --quiet', 'Alias for "--log-level error (default: false)"')
+    .option('--log-file <path>', 'Path to file to write logs to')
+    .option(
+      '--stack-trace',
+      'Print stack trace along with log messages (default: false)'
+    );
 };
 
 export const helpOptions = ['-h, --help', 'Display help command'];

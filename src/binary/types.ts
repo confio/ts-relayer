@@ -29,6 +29,7 @@ export type LoggerFlags = {
   logFile?: string;
   verbose: boolean;
   quiet: boolean;
+  stackTrace: boolean;
 };
 
 export function feeDenom(chain: Chain): string {

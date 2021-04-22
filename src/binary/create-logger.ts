@@ -79,7 +79,7 @@ export function createLogger(flags: LoggerFlags): Logger {
         handleExceptions: true,
         format: winston.format.combine(
           winston.format.colorize(),
-          simpleFormat()
+          simpleFormat(flags.stackTrace)
         ),
       }),
 
@@ -101,15 +101,18 @@ export function createLogger(flags: LoggerFlags): Logger {
 }
 
 // Heavily based on https://github.com/winstonjs/logform/blob/master/simple.js
-function simpleFormat() {
+function simpleFormat(stackTrace: boolean) {
   return winston.format((info: winston.Logform.TransformableInfo) => {
-    let stringifiedRest = jsonStringify({
-      ...info,
-      level: undefined,
-      message: undefined,
-      label: undefined,
-    });
-    stringifiedRest = stringifiedRest !== '{}' ? ` ${stringifiedRest}` : '';
+    let stringifiedRest = '';
+    if (stackTrace) {
+      stringifiedRest = jsonStringify({
+        ...info,
+        level: undefined,
+        message: undefined,
+        label: undefined,
+      });
+      stringifiedRest = stringifiedRest !== '{}' ? ` ${stringifiedRest}` : '';
+    }
 
     const label = info.label ? ` [${info.label}]` : '';
 
