@@ -92,7 +92,7 @@ export async function run(options: Options) {
         registryFilePath
       );
     } else {
-      pullRegistryFromRemote(registryFilePath);
+      await pullRegistryFromRemote(registryFilePath);
     }
   } else if (!fs.lstatSync(registryFilePath).isFile()) {
     throw new Error(`${registryFilePath} must be a file.`);

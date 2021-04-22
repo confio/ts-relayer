@@ -92,7 +92,7 @@ test('creates app.yaml', async (t) => {
   );
 });
 
-test('initialize home directory, pull registry.yaml and create app.yaml', async (t) => {
+test.only('initialize home directory, pull registry.yaml and create app.yaml', async (t) => {
   const options: Options = {
     home: '/home/user',
     src: 'local_wasm',
