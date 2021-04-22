@@ -250,7 +250,7 @@ test('copies existing registry', async (t) => {
   );
 });
 
-test.only('exits earlier when "src" and "dest" are not set', async (t) => {
+test('exits earlier when "src" and "dest" are not set', async (t) => {
   const options: Options = {
     home: '/home/user',
     src: null,
