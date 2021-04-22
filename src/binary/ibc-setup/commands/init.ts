@@ -94,7 +94,7 @@ export async function run(options: Options) {
 
   if (!options.src || !options.dest) {
     console.log(
-      `Exited earlier. To generate ${appFile}, run the command again with "src" and "dest" chains defined.`
+      `Exited early. Registry file downloaded to ${registryFilePath}. Please edit that file and add any chains you wish. Then complete the initialization by running ibc-setup init --src <chain-1> --dest <chain-2>.`
     );
     return;
   }
