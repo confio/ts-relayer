@@ -22,6 +22,7 @@ to the console.
 - `--quiet` or `-q` is an alias to `--log-level=error`
 - `--log-file=<path>` - specified a file to write to, logs will be written in JSON format to the file
   (but a human-readable format to the console)
+- `--stack-trace` - prints stack trace along with error messages
 
 Note: if multiple flags that set log-level are set (eg. `-v -q --log-level=info`), then the most permissive level is taken. (In this case `verbose`).
 
