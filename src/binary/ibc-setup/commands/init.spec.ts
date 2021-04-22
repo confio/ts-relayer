@@ -219,13 +219,7 @@ test('copies existing registry', async (t) => {
   const appPath = path.join(options.home, 'app.yaml');
   const registryPath = path.join(options.home, 'registry.yaml');
 
-  fsExistSync
-    .onCall(0)
-    .returns(false)
-    .onCall(1)
-    .returns(false)
-    .onCall(2)
-    .returns(false);
+  fsExistSync.returns(false);
   fsMkdirSync.returns(options.home);
   fsReadFileSync.returns(registryYaml);
   fsWriteFileSync.returns();
