@@ -30,9 +30,9 @@ dest: ABC
 mnemonic: 'your codes here...'
 ```
 
-It will then output the relayers addresses on each chain on standard out and request the admin to fill those addresses with funds.
+It will then output the relayer's addresses on each chain on standard out and request the admin to fill those addresses with funds.
 
-The idea is that you can initialize a home dir with default registry file using `ibc-setup init`, make adjustments and then run the command again with `--src` and `--dest` flags to generate configuration file (`app.yaml`).
+The idea is that you can initialize a home dir with a default registry file using `ibc-setup init`, make adjustments and then run the command again with `--src` and `--dest` flags to generate a configuration file (`app.yaml`).
 
 
 ### ics20
