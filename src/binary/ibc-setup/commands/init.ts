@@ -28,6 +28,33 @@ export type Options = {
   readonly registryFrom: string | null;
 };
 
+function copyRegistryFile(from: string, to: string) {
+  try {
+    fs.copyFileSync(from, to);
+    console.log(`Copied existing registry from ${from} to ${to}.`);
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      throw new Error(
+        `No such file: ${from}. Make sure that "--registry-from" points at existing relayer's home dir.`
+      );
+    } else {
+      throw error;
+    }
+  }
+}
+
+async function pullRegistryFromRemote(writeTo: string) {
+  try {
+    const registryFromRemote = await axios.get(
+      'https://raw.githubusercontent.com/confio/ts-relayer/main/demo/registry.yaml'
+    );
+    fs.writeFileSync(writeTo, registryFromRemote.data);
+    console.log(`Pulled default ${registryFile} from remote.`);
+  } catch (error) {
+    throw new Error(`Cannot fetch ${registryFile} from remote. ${error}`);
+  }
+}
+
 export async function init(flags: Flags, _logger: Logger) {
   const options = {
     src: resolveOption('src')(flags.src, process.env.RELAYER_SRC),
@@ -57,36 +84,15 @@ export async function run(options: Options) {
   }
 
   const registryFilePath = path.join(options.home, registryFile);
+
   if (!fs.existsSync(registryFilePath)) {
     if (options.registryFrom) {
-      const existingRegistryFilePath = path.join(
-        options.registryFrom,
-        registryFile
+      copyRegistryFile(
+        path.join(options.registryFrom, registryFile),
+        registryFilePath
       );
-      try {
-        fs.copyFileSync(existingRegistryFilePath, registryFilePath);
-        console.log(
-          `Copied existing registry from ${existingRegistryFilePath} to ${registryFilePath}.`
-        );
-      } catch (error) {
-        if (error.code === 'ENOENT') {
-          throw new Error(
-            `No such file: ${existingRegistryFilePath}. Make sure that "--registry-from" points at existing relayer's home dir.`
-          );
-        } else {
-          throw error;
-        }
-      }
     } else {
-      try {
-        const registryFromRemote = await axios.get(
-          'https://raw.githubusercontent.com/confio/ts-relayer/main/demo/registry.yaml'
-        );
-        fs.writeFileSync(registryFilePath, registryFromRemote.data);
-        console.log(`Pulled default ${registryFile} from remote.`);
-      } catch (error) {
-        throw new Error(`Cannot fetch ${registryFile} from remote. ${error}`);
-      }
+      pullRegistryFromRemote(registryFilePath);
     }
   } else if (!fs.lstatSync(registryFilePath).isFile()) {
     throw new Error(`${registryFilePath} must be a file.`);
