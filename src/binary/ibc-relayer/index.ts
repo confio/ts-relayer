@@ -40,7 +40,7 @@ const startCommand = program
   .addOption(destConnection)
   .option(
     '--poll <frequency>',
-    `How many second we sleep between checking for packets (default: ${startDefaults.poll})`
+    `How many seconds we sleep between checking for packets (default: ${startDefaults.poll})`
   )
   .option(
     '--max-age-src <seconds>',
