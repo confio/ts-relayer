@@ -37,7 +37,8 @@ but rather the cases that matter to users:
 | Relay acknowledgements                          |   ✅    |
 | Relay timeouts                                  |   ✅    |
 | Relay timeout on closed channel                 |   ❌    |
-| Auto-detect needed gas for packets (hardcoded)  |   ❌    |
+| Auto-update client (keep alive)                 |   ✅    |
+| Auto-detect needed gas for non-ics20 packets    |   ❌    |
 | Dynamically relay channels (all on 1 connection)|   ✅    |
 | Only relay on one channel                       |   🚧    |
 | Only relay on one port                          |   🚧    |
