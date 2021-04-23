@@ -108,14 +108,12 @@ type Options = {
 } & LoopOptions;
 
 // some defaults for looping
-const defaultOptions: LoopOptions = {
+export const defaults = {
   // check once per minute
   poll: 60,
   // once per day: 86400s
   maxAgeSrc: 86400,
   maxAgeDest: 86400,
-
-  once: false,
 };
 
 export async function start(flags: Flags, logger: Logger) {
@@ -154,16 +152,16 @@ export async function start(flags: Flags, logger: Logger) {
   // TODO: add this in app.yaml, process.env
   const poll = resolveOption('poll', { required: true, integer: true })(
     flags.poll,
-    defaultOptions.poll
+    defaults.poll
   );
   const maxAgeSrc = resolveOption('maxAgeSrc', {
     required: true,
     integer: true,
-  })(flags.maxAgeSrc, defaultOptions.maxAgeSrc);
+  })(flags.maxAgeSrc, defaults.maxAgeSrc);
   const maxAgeDest = resolveOption('maxAgeB', {
     required: true,
     integer: true,
-  })(flags.maxAgeDest, defaultOptions.maxAgeDest);
+  })(flags.maxAgeDest, defaults.maxAgeDest);
 
   const scanFromSrc = resolveOption('scanFromSrc', { integer: true })(
     flags.scanFromSrc,

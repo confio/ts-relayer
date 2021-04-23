@@ -49,14 +49,16 @@ export const destConnection = new Option(
   '--dest-connection <connection>',
   'Destination connection id'
 );
-export const srcPort = new Option(
-  '--src-port <port>',
-  'Source port to create channel'
-);
-export const destPort = new Option(
-  '--dest-port <port>',
-  'Destination port to create channel'
-);
+export const srcPort = (descriptionPostfix = '') =>
+  new Option(
+    '--src-port <port>',
+    `Source port to create channel${descriptionPostfix}`
+  );
+export const destPort = (descriptionPostfix = '') =>
+  new Option(
+    '--dest-port <port>',
+    `Destination port to create channel${descriptionPostfix}`
+  );
 
 export const addLoggerOptionsTo = (command: commander.Command) => {
   return command

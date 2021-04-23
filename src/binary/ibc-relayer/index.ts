@@ -16,7 +16,7 @@ import {
 } from '../commander-options';
 import { loggerWithErrorBoundary } from '../utils/logger-with-error-boundary';
 
-import { start } from './commands/start';
+import { start, defaults as startDefaults } from './commands/start';
 
 const program = new Command();
 
@@ -40,15 +40,15 @@ const startCommand = program
   .addOption(destConnection)
   .option(
     '--poll <frequency>',
-    'How many second we sleep between checking for packets'
+    `How many seconds we sleep between checking for packets (default: ${startDefaults.poll})`
   )
   .option(
     '--max-age-src <seconds>',
-    'How old can the client on src chain be, before we update it'
+    `How old can the client on src chain be, before we update it (default: ${startDefaults.maxAgeSrc})`
   )
   .option(
     '--max-age-dest <seconds>',
-    'How old can the client on dest chain be, before we update it'
+    `How old can the client on dest chain be, before we update it (default: ${startDefaults.maxAgeDest})`
   )
   .option('--scan-from-src <height>')
   .option('--scan-from-dest <height>')

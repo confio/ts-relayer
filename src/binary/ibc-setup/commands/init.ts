@@ -10,9 +10,9 @@ import { Logger } from '../../create-logger';
 import { feeDenom } from '../../types';
 import { deriveAddress } from '../../utils/derive-address';
 import { generateMnemonic } from '../../utils/generate-mnemonic';
-import { getDefaultHomePath } from '../../utils/get-default-home-path';
 import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
 import { resolveOption } from '../../utils/options/resolve-option';
+import { resolveHomeOption } from '../../utils/options/shared/resolve-home-option';
 
 type Flags = {
   readonly home?: string;
@@ -30,11 +30,7 @@ export async function init(flags: Flags, _logger: Logger) {
     dest: resolveOption('dest', {
       required: true,
     })(flags.dest, process.env.RELAYER_DEST),
-    home: resolveOption('home', { required: true })(
-      flags.home,
-      process.env.RELAYER_HOME,
-      getDefaultHomePath
-    ),
+    home: resolveHomeOption({ homeFlag: flags.home }),
   };
 
   await run(options);
