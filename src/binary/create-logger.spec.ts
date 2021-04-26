@@ -7,6 +7,7 @@ function bootstrap(flags: Partial<LoggerFlags> = {}) {
   return resolveLevel({
     quiet: false,
     verbose: false,
+    stackTrace: false,
     ...flags,
   });
 }
