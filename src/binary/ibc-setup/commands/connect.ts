@@ -20,8 +20,6 @@ export type Flags = {
   readonly home?: string;
   readonly keyFile?: string;
   readonly mnemonic?: string;
-  readonly src?: string;
-  readonly dest?: string;
   readonly srcTrust?: string;
   readonly destTrust?: string;
 };
@@ -49,16 +47,8 @@ export async function connect(flags: Flags, logger: Logger) {
     keyFile,
     app,
   });
-  const src = resolveOption('src', { required: true })(
-    flags.src,
-    app?.src,
-    process.env.RELAYER_SRC
-  );
-  const dest = resolveOption('dest', { required: true })(
-    flags.dest,
-    app?.dest,
-    process.env.RELAYER_DEST
-  );
+  const src = resolveOption('src', { required: true })(app.src);
+  const dest = resolveOption('dest', { required: true })(app.dest);
   const srcTrust = resolveOption('srcTrust', { integer: true })(
     flags.srcTrust,
     process.env.RELAYER_SRC_TRUST
