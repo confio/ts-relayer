@@ -161,6 +161,7 @@ The summary of your change goes here.
 
 #### How to write a changeset summary
 <sub><sup>Borrowed from [the changesets docs](https://github.com/atlassian/changesets/blob/main/docs/adding-a-changeset.md#i-am-in-a-single-package-repository).</sup></sub>
+
 While not every changeset is going to need a huge amount of detail, a good idea of what should be in a changeset is:
 
 - WHAT the change is
@@ -182,8 +183,6 @@ Or add it manually:
 ---
 
 ```
-
-
 
 ### Useful npm scripts
 Rebuild on every change.
