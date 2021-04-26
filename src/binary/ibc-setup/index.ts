@@ -58,8 +58,6 @@ const ics20Command = program
   .description(
     'Create new unordered channel (ics20-1) for given chains, ports, and connections'
   )
-  .addOption(srcOption)
-  .addOption(destOption)
   .addOption(srcTrust)
   .addOption(destTrust)
   .addOption(mnemonicOption)
@@ -100,8 +98,6 @@ addLoggerOptionsTo(balancesCommand);
 const connectCommand = program
   .command('connect')
   .description('Create and store new connections for given chains')
-  .addOption(srcOption)
-  .addOption(destOption)
   .addOption(homeOption)
   .addOption(mnemonicOption)
   .addOption(keyFileOption('read'))
@@ -130,8 +126,6 @@ const channelCommand = program
   .addOption(mnemonicOption)
   .addOption(interactiveOption)
   .addOption(keyFileOption('read'))
-  .addOption(srcOption)
-  .addOption(destOption)
   .addOption(srcConnection)
   .addOption(destConnection)
   .addOption(srcPort())

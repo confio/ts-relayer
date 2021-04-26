@@ -3,7 +3,7 @@ import path from 'path';
 
 import { Order } from '../../../codec/ibc/core/channel/v1/channel';
 import { Link } from '../../../lib/link';
-import { registryFile } from '../../constants';
+import { appFile, registryFile } from '../../constants';
 import { Logger } from '../../create-logger';
 import { indent } from '../../utils/indent';
 import { loadAndValidateApp } from '../../utils/load-and-validate-app';
@@ -20,8 +20,6 @@ export type Flags = {
   readonly mnemonic?: string;
   readonly keyFile?: string;
   readonly home?: string;
-  readonly src?: string;
-  readonly dest?: string;
   readonly srcConnection?: string;
   readonly destConnection?: string;
   readonly srcPort?: string;
@@ -49,6 +47,9 @@ export const defaults = {
 export async function channel(flags: Flags, logger: Logger) {
   const home = resolveHomeOption({ homeFlag: flags.home });
   const app = loadAndValidateApp(home);
+  if (!app) {
+    throw new Error(`${appFile} not found at ${home}`);
+  }
 
   const keyFile = resolveKeyFileOption({ keyFileFlag: flags.keyFile, app });
   const mnemonic = await resolveMnemonicOption({
@@ -57,24 +58,16 @@ export async function channel(flags: Flags, logger: Logger) {
     keyFile,
     app,
   });
-  const src = resolveOption('src', { required: true })(
-    flags.src,
-    app?.src,
-    process.env.RELAYER_SRC
-  );
-  const dest = resolveOption('dest', { required: true })(
-    flags.dest,
-    app?.dest,
-    process.env.RELAYER_DEST
-  );
+  const src = resolveOption('src', { required: true })(app.src);
+  const dest = resolveOption('dest', { required: true })(app.dest);
   const srcConnection = resolveOption('srcConnection', { required: true })(
     flags.srcConnection,
-    app?.srcConnection,
+    app.srcConnection,
     process.env.RELAYER_SRC_CONNECTION
   );
   const destConnection = resolveOption('destConnection', { required: true })(
     flags.destConnection,
-    app?.destConnection,
+    app.destConnection,
     process.env.RELAYER_DEST_CONNECTION
   );
   const srcPort = resolveOption('srcPort', { required: true })(

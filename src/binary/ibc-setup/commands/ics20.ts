@@ -29,8 +29,6 @@ export type Flags = {
   readonly home?: string;
   readonly keyFile?: string;
   readonly mnemonic?: string;
-  readonly src?: string;
-  readonly dest?: string;
   readonly srcPort?: string;
   readonly destPort?: string;
   readonly srcTrust?: string;
@@ -94,16 +92,8 @@ export async function ics20(flags: Flags, logger: Logger): Promise<void> {
     keyFile,
     app,
   });
-  const src = resolveOption('src', { required: true })(
-    flags.src,
-    app.src,
-    process.env.RELAYER_SRC
-  );
-  const dest = resolveOption('dest', { required: true })(
-    flags.dest,
-    app.dest,
-    process.env.RELAYER_DEST
-  );
+  const src = resolveOption('src', { required: true })(app.src);
+  const dest = resolveOption('dest', { required: true })(app.dest);
   // we apply default ports later, once we have the registry
   const srcPort = resolveOption('srcPort')(
     flags.srcPort,
