@@ -147,7 +147,10 @@ to avoid outdated artifacts, meaning any manual changes will be lost.
 We use [changesets](https://github.com/atlassian/changesets) to keep track of changes between the releases. A changeset is a markdown file that describes changes made. Every pull request must contain a changeset.
 
 #### Create a changeset
-Run `yarn changeset` to quickly generate a changeset via interactive CLI.
+Use interactive CLI to quickly generate a changeset:
+```sh
+yarn changeset
+```
 > **NOTE:** Since we don't follow the semver yet, please mark every change as a `patch`.
 
 Alternatively, you can create a new file with whatever name and `.md` extension under the `.changeset` directory with the following contents:
