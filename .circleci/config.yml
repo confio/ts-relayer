@@ -19,7 +19,19 @@ jobs:
       - run: yarn test:lint
       - run: yarn test:prettier
 
-  publish_main_tag:
+  changeset-validation:
+    docker:
+      - image: circleci/node:12
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "yarn.lock" }}
+      - run:
+          name: Validate changeset
+          command: yarn changeset status
+
+  publish-main-tag:
     docker:
       - image: circleci/node:12
     steps:
@@ -119,7 +131,13 @@ workflows:
     jobs:
       - build
       - test
-      - publish_main_tag:
+      - changeset-validation:
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: main
+      - publish-main-tag:
           requires:
             - build
           filters:
