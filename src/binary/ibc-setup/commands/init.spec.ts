@@ -1,8 +1,11 @@
 import fs from 'fs';
+import path from 'path';
 
 import test from 'ava';
 import axios from 'axios';
 import sinon from 'sinon';
+
+import { registryFile } from '../../constants';
 
 import { Options, run } from './init';
 
@@ -11,6 +14,7 @@ const fsMkdirSync = sinon.stub(fs, 'mkdirSync');
 const axiosGet = sinon.stub(axios, 'get');
 const fsReadFileSync = sinon.stub(fs, 'readFileSync');
 const fsWriteFileSync = sinon.stub(fs, 'writeFileSync');
+const fsCopyFileSync = sinon.stub(fs, 'copyFileSync');
 const consoleLog = sinon.stub(console, 'log');
 
 sinon.replace(
@@ -45,14 +49,15 @@ test.beforeEach(() => {
   sinon.reset();
 });
 
-test('create app.yaml', async (t) => {
+test('creates app.yaml', async (t) => {
   const options: Options = {
     home: '/home/user',
     src: 'local_wasm',
     dest: 'local_simapp',
+    registryFrom: null,
   };
-  const appPath = `${options.home}/app.yaml`;
-  const registryPath = `${options.home}/registry.yaml`;
+  const appPath = path.join(options.home, 'app.yaml');
+  const registryPath = path.join(options.home, 'registry.yaml');
 
   fsExistSync
     .onCall(0)
@@ -73,12 +78,12 @@ test('create app.yaml', async (t) => {
   t.assert(axiosGet.notCalled);
   t.assert(fsReadFileSync.calledOnceWith(registryPath));
 
-  const [path, contents] = fsWriteFileSync.getCall(0).args;
+  const [calledAppPath, contents] = fsWriteFileSync.getCall(0).args;
   const appYamlRegexp = new RegExp(
     `src: ${options.src}\ndest: ${options.dest}\nmnemonic: [\\w ]+`,
     'mg'
   );
-  t.is(path, appPath);
+  t.is(calledAppPath, appPath);
   t.regex(contents as string, appYamlRegexp);
 
   t.assert(consoleLog.getCall(-2).calledWithMatch(/Source address: [\w ]+/));
@@ -87,14 +92,15 @@ test('create app.yaml', async (t) => {
   );
 });
 
-test('initialize home directory, pull registry.yaml and create app.yaml', async (t) => {
+test.only('initialize home directory, pull registry.yaml and create app.yaml', async (t) => {
   const options: Options = {
     home: '/home/user',
     src: 'local_wasm',
     dest: 'local_simapp',
+    registryFrom: null,
   };
-  const appPath = `${options.home}/app.yaml`;
-  const registryPath = `${options.home}/registry.yaml`;
+  const appPath = path.join(options.home, 'app.yaml');
+  const registryPath = path.join(options.home, 'registry.yaml');
 
   fsExistSync
     .onCall(0)
@@ -118,12 +124,12 @@ test('initialize home directory, pull registry.yaml and create app.yaml', async 
   t.assert(fsWriteFileSync.calledWithExactly(registryPath, registryYaml));
   t.assert(consoleLog.calledWithMatch(new RegExp(`at ${options.home}`)));
 
-  const [path, contents] = fsWriteFileSync.getCall(1).args;
+  const [calledAppPath, contents] = fsWriteFileSync.getCall(1).args;
   const appYamlRegexp = new RegExp(
     `src: ${options.src}\ndest: ${options.dest}\nmnemonic: [\\w ]+`,
     'mg'
   );
-  t.is(path, appPath);
+  t.is(calledAppPath, appPath);
   t.regex(contents as string, appYamlRegexp);
 
   t.assert(consoleLog.getCall(-2).calledWithMatch(/Source address: [\w ]+/));
@@ -137,6 +143,7 @@ test('throws when cannot fetch registry.yaml from remote', async (t) => {
     home: '/home/user',
     src: 'local_wasm',
     dest: 'local_simapp',
+    registryFrom: null,
   };
 
   fsExistSync.returns(false);
@@ -159,6 +166,7 @@ test('returns early if app.yaml exists', async (t) => {
     home: '/home/user',
     src: 'local_wasm',
     dest: 'local_simapp',
+    registryFrom: null,
   };
 
   fsExistSync.onCall(0).returns(true);
@@ -175,8 +183,9 @@ test('throws if provided chain does not exist in the registry', async (t) => {
     home: '/home/user',
     src: 'chain_that_does_not_exist',
     dest: 'local_simapp',
+    registryFrom: null,
   };
-  const registryPath = `${options.home}/registry.yaml`;
+  const registryPath = path.join(options.home, 'registry.yaml');
 
   fsExistSync
     .onCall(0)
@@ -198,4 +207,66 @@ test('throws if provided chain does not exist in the registry', async (t) => {
   t.assert(fsMkdirSync.notCalled);
   t.assert(axiosGet.notCalled);
   t.assert(fsReadFileSync.calledOnceWith(registryPath));
+});
+
+test('copies existing registry', async (t) => {
+  const options: Options = {
+    home: '/home/user',
+    src: 'local_wasm',
+    dest: 'local_simapp',
+    registryFrom: '/home/user/.relayer-home',
+  };
+  const appPath = path.join(options.home, 'app.yaml');
+  const registryPath = path.join(options.home, 'registry.yaml');
+
+  fsExistSync.returns(false);
+  fsMkdirSync.returns(options.home);
+  fsReadFileSync.returns(registryYaml);
+  fsWriteFileSync.returns();
+  fsCopyFileSync.returns();
+
+  await run(options);
+
+  t.assert(axiosGet.notCalled);
+  t.assert(fsReadFileSync.calledOnceWith(registryPath));
+  t.assert(
+    fsCopyFileSync.calledOnceWith(
+      path.join(options.registryFrom as string, registryFile),
+      registryPath
+    )
+  );
+
+  const [calledAppPath, contents] = fsWriteFileSync.getCall(0).args;
+  const appYamlRegexp = new RegExp(
+    `src: ${options.src}\ndest: ${options.dest}\nmnemonic: [\\w ]+`,
+    'mg'
+  );
+  t.is(calledAppPath, appPath);
+  t.regex(contents as string, appYamlRegexp);
+
+  t.assert(consoleLog.getCall(-2).calledWithMatch(/Source address: [\w ]+/));
+  t.assert(
+    consoleLog.getCall(-1).calledWithMatch(/Destination address: [\w ]+/)
+  );
+});
+
+test('exits earlier when "src" and "dest" are not set', async (t) => {
+  const options: Options = {
+    home: '/home/user',
+    src: null,
+    dest: null,
+    registryFrom: null,
+  };
+
+  fsExistSync.onCall(0).returns(false).onCall(1).returns(false);
+  axiosGet.resolves({
+    data: registryYaml,
+  });
+  fsReadFileSync.returns(registryYaml);
+  fsWriteFileSync.returns();
+
+  await run(options);
+
+  t.assert(consoleLog.getCall(-1).calledWithMatch(/Exited earlier/));
+  t.is(fsExistSync.callCount, 3);
 });

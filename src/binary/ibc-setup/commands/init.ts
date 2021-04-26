@@ -18,19 +18,52 @@ type Flags = {
   readonly home?: string;
   readonly src?: string;
   readonly dest?: string;
+  readonly registryFrom?: string;
 };
 
-export type Options = Required<Flags>;
+export type Options = {
+  readonly home: string;
+  readonly src: string | null;
+  readonly dest: string | null;
+  readonly registryFrom: string | null;
+};
+
+function copyRegistryFile(from: string, to: string) {
+  try {
+    fs.copyFileSync(from, to);
+    console.log(`Copied existing registry from ${from} to ${to}.`);
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      throw new Error(
+        `No such file: ${from}. Make sure that "--registry-from" points at existing relayer's home dir.`
+      );
+    } else {
+      throw error;
+    }
+  }
+}
+
+async function pullRegistryFromRemote(writeTo: string) {
+  try {
+    const registryFromRemote = await axios.get(
+      'https://raw.githubusercontent.com/confio/ts-relayer/main/demo/registry.yaml'
+    );
+    fs.writeFileSync(writeTo, registryFromRemote.data);
+    console.log(`Pulled default ${registryFile} from remote.`);
+  } catch (error) {
+    throw new Error(`Cannot fetch ${registryFile} from remote. ${error}`);
+  }
+}
 
 export async function init(flags: Flags, _logger: Logger) {
   const options = {
-    src: resolveOption('src', {
-      required: true,
-    })(flags.src, process.env.RELAYER_SRC),
-    dest: resolveOption('dest', {
-      required: true,
-    })(flags.dest, process.env.RELAYER_DEST),
+    src: resolveOption('src')(flags.src, process.env.RELAYER_SRC),
+    dest: resolveOption('dest')(flags.dest, process.env.RELAYER_DEST),
     home: resolveHomeOption({ homeFlag: flags.home }),
+    registryFrom: resolveOption('registryFrom')(
+      flags.registryFrom,
+      process.env.RELAYER_REGISTRY_FROM
+    ),
   };
 
   await run(options);
@@ -39,7 +72,7 @@ export async function init(flags: Flags, _logger: Logger) {
 export async function run(options: Options) {
   const appFilePath = path.join(options.home, appFile);
   if (fs.existsSync(appFilePath)) {
-    console.log(`The ${appFile} is already initialized at ${options.home}`);
+    console.log(`The ${appFile} is already initialized at ${options.home}.`);
     return;
   }
 
@@ -51,17 +84,25 @@ export async function run(options: Options) {
   }
 
   const registryFilePath = path.join(options.home, registryFile);
+
   if (!fs.existsSync(registryFilePath)) {
-    try {
-      const registryFromRemote = await axios.get(
-        'https://raw.githubusercontent.com/confio/ts-relayer/main/demo/registry.yaml'
+    if (options.registryFrom) {
+      copyRegistryFile(
+        path.join(options.registryFrom, registryFile),
+        registryFilePath
       );
-      fs.writeFileSync(registryFilePath, registryFromRemote.data);
-    } catch (error) {
-      throw new Error(`Cannot fetch ${registryFile} from remote. ${error}`);
+    } else {
+      await pullRegistryFromRemote(registryFilePath);
     }
   } else if (!fs.lstatSync(registryFilePath).isFile()) {
     throw new Error(`${registryFilePath} must be a file.`);
+  }
+
+  if (!options.src || !options.dest) {
+    console.log(
+      `Exited early. Registry file downloaded to ${registryFilePath}. Please edit that file and add any chains you wish. Then complete the initialization by running ibc-setup init --src <chain-1> --dest <chain-2>.`
+    );
+    return;
   }
 
   const registry = loadAndValidateRegistry(registryFilePath);
@@ -71,7 +112,7 @@ export async function run(options: Options) {
 
     if (!chainData) {
       throw new Error(
-        `Chain ${chain} is missing in the registry, either check the spelling or add the chain definition to ${registryFilePath}`
+        `Chain ${chain} is missing in the registry, either check the spelling or add the chain definition to ${registryFilePath}.`
       );
     }
 
