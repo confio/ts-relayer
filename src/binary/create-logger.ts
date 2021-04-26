@@ -103,16 +103,15 @@ export function createLogger(flags: LoggerFlags): Logger {
 // Heavily based on https://github.com/winstonjs/logform/blob/master/simple.js
 function simpleFormat(stackTrace: boolean) {
   return winston.format((info: winston.Logform.TransformableInfo) => {
-    let stringifiedRest = '';
-    if (stackTrace) {
-      stringifiedRest = jsonStringify({
-        ...info,
-        level: undefined,
-        message: undefined,
-        label: undefined,
-      });
-      stringifiedRest = stringifiedRest !== '{}' ? ` ${stringifiedRest}` : '';
-    }
+    let stringifiedRest = jsonStringify({
+      ...info,
+      level: undefined,
+      message: undefined,
+      label: undefined,
+
+      ...(stackTrace ? {} : { stack: undefined }), // remove `stack` from the output if no --stack-trace is provided
+    });
+    stringifiedRest = stringifiedRest !== '{}' ? ` ${stringifiedRest}` : '';
 
     const label = info.label ? ` [${info.label}]` : '';
 
