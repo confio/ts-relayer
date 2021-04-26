@@ -143,6 +143,47 @@ have set the desired Cosmos SDK tag there (eg. `v0.41.0`). After that, run:
 This will overwrite the data in `src/codec` with newly generated definitions. We delete the folder first
 to avoid outdated artifacts, meaning any manual changes will be lost.
 
+### Maintain a clean changelog
+We use [changesets](https://github.com/atlassian/changesets) to keep track of changes between the releases. A changeset is a markdown file that describes changes made. Every pull request must contain a changeset.
+
+#### Create a changeset
+Run `yarn changeset` to quickly generate a changeset via interactive CLI.
+> **NOTE:** Since we don't follow the semver yet, please mark every change as a `patch`.
+
+Alternatively, you can create a new file with whatever name and `.md` extension under the `.changeset` directory with the following contents:
+```md
+---
+'@confio/relayer': patch
+---
+
+The summary of your change goes here.
+```
+
+#### How to write a changeset summary
+<sub><sup>Borrowed from [the changesets docs](https://github.com/atlassian/changesets/blob/main/docs/adding-a-changeset.md#i-am-in-a-single-package-repository).</sup></sub>
+While not every changeset is going to need a huge amount of detail, a good idea of what should be in a changeset is:
+
+- WHAT the change is
+- WHY the change was made
+- HOW a consumer should update their code (if it's a breaking change)
+
+#### Skip changeset validation
+A changeset is always required, however, sometimes you may want to merge your pull request without it. For example, while fixing a typo.
+
+To pass the changeset validation, create an empty changeset with a CLI:
+```
+yarn changeset --empty
+```
+
+Or add it manually:
+**.changeset/some-not-relevant-changeset-name.md**
+```md
+---
+---
+
+```
+
+
 
 ### Useful npm scripts
 Rebuild on every change.
