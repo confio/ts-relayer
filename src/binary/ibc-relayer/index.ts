@@ -44,7 +44,7 @@ const startCommand = program
   )
   .option(
     `--metrics-port <port>', 'Specify port for GET /metrics http server (default: ${startDefaults.metricsPort})`
-  ) //TODO default port
+  )
   .option(
     '--poll <frequency>',
     `How many seconds we sleep between checking for packets (default: ${startDefaults.poll})`
