@@ -16,6 +16,7 @@ import { resolveHomeOption } from '../../utils/options/shared/resolve-home-optio
 import { resolveKeyFileOption } from '../../utils/options/shared/resolve-key-file-option';
 import { resolveMnemonicOption } from '../../utils/options/shared/resolve-mnemonic-option';
 import { signingClient } from '../../utils/signing-client';
+import { Metrics, setupPrometheus } from '../setup-prometheus';
 
 type ResolveHeightsParams = {
   scanFromSrc: number | null;
@@ -94,6 +95,8 @@ type Flags = {
   destConnection?: string;
   scanFromSrc?: string;
   scanFromDest?: string;
+  enableMetrics: boolean;
+  metricsPort?: string;
 } & LoggerFlags &
   LoopFlags;
 
@@ -105,15 +108,17 @@ type Options = {
   srcConnection: string;
   destConnection: string;
   heights: RelayedHeights | null;
+  enableMetrics: boolean;
+  metricsPort: number;
 } & LoopOptions;
 
-// some defaults for looping
 export const defaults = {
   // check once per minute
   poll: 60,
   // once per day: 86400s
   maxAgeSrc: 86400,
   maxAgeDest: 86400,
+  metricsPort: 26660,
 };
 
 export async function start(flags: Flags, logger: Logger) {
@@ -171,6 +176,20 @@ export async function start(flags: Flags, logger: Logger) {
     flags.scanFromDest,
     process.env.RELAYER_SCAN_FROM_DEST
   );
+  const enableMetrics =
+    flags.enableMetrics ||
+    Boolean(process.env.RELAYER_ENABLE_METRICS) ||
+    app?.enableMetrics ||
+    false;
+  const metricsPort = resolveOption('metricsPort', {
+    integer: true,
+    required: true,
+  })(
+    flags.metricsPort,
+    process.env.RELAYER_METRICS_PORT,
+    app?.metricsPort,
+    defaults.metricsPort
+  );
 
   const heights = resolveHeights({ scanFromSrc, scanFromDest, home }, logger);
 
@@ -189,12 +208,20 @@ export async function start(flags: Flags, logger: Logger) {
     maxAgeDest,
     once,
     heights,
+    enableMetrics,
+    metricsPort,
   };
 
   await run(options, logger);
 }
 
 async function run(options: Options, logger: Logger) {
+  const metrics = setupPrometheus({
+    enabled: options.enableMetrics,
+    port: options.metricsPort,
+    logger,
+  });
+
   const registryFilePath = path.join(options.home, registryFile);
   const { chains } = loadAndValidateRegistry(registryFilePath);
   const srcChain = chains[options.src];
@@ -224,10 +251,15 @@ async function run(options: Options, logger: Logger) {
     logger
   );
 
-  await relayerLoop(link, options, logger);
+  await relayerLoop(link, options, logger, metrics);
 }
 
-async function relayerLoop(link: Link, options: Options, logger: Logger) {
+async function relayerLoop(
+  link: Link,
+  options: Options,
+  logger: Logger,
+  metrics: Metrics
+) {
   let nextRelay = options.heights ?? {};
   const lastQueriedHeightsFilePath = path.join(
     options.home,
@@ -262,5 +294,7 @@ async function relayerLoop(link: Link, options: Options, logger: Logger) {
     logger.info(`Sleeping ${options.poll} seconds...`);
     await sleep(options.poll * 1000);
     logger.info('... waking up and checking for packets!');
+
+    metrics.pollCounter?.inc();
   }
 }

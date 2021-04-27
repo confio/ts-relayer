@@ -41,6 +41,8 @@ export function loadAndValidateApp(home: string) {
       destConnection: { type: 'string', nullable: true },
       mnemonic: { type: 'string', nullable: true },
       keyFile: { type: 'string', nullable: true },
+      enableMetrics: { type: 'boolean', nullable: true },
+      metricsPort: { type: 'number', nullable: true },
     },
   };
   const validate = ajv.compile(schema);
