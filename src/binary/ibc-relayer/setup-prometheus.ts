@@ -15,14 +15,7 @@ function getMetrics() {
   };
 }
 
-type StubbedMetrics = Record<keyof ReturnType<typeof getMetrics>, null>;
-function getStubbedMetrics(): StubbedMetrics {
-  return {
-    pollCounter: null,
-  };
-}
-
-export type Metrics = ReturnType<typeof getMetrics> | StubbedMetrics;
+export type Metrics = ReturnType<typeof setupPrometheus>;
 export function setupPrometheus({
   enabled,
   port,
@@ -40,7 +33,7 @@ export function setupPrometheus({
   initialized = true;
 
   if (!enabled) {
-    return getStubbedMetrics();
+    return null;
   }
 
   client.collectDefaultMetrics({ prefix: 'confio_relayer_' });
