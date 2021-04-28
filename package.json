@@ -8,11 +8,11 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "fix": "run-s fix:*",
-    "fix:prettier": "prettier \"src/**/*.ts\" --write",
+    "fix:prettier": "prettier \"**/*.{ts,md}\" --write",
     "fix:lint": "eslint src --ext .ts --fix",
     "test": "run-s build test:*",
     "test:lint": "eslint src --ext .ts",
-    "test:prettier": "prettier \"src/**/*.ts\" --list-different",
+    "test:prettier": "prettier \"**/*.{ts,md}\" --list-different",
     "test:unit": "nyc --silent ava --serial",
     "focused-test": "yarn test:unit ./src/binary/ibc-setup/commands/init.spec.ts",
     "watch:build": "tsc -p tsconfig.json -w",
@@ -50,6 +50,7 @@
   },
   "devDependencies": {
     "@ava/typescript": "^1.1.1",
+    "@changesets/cli": "^2.16.0",
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
     "@types/js-yaml": "^4.0.0",
     "@types/lodash": "^4.14.168",
