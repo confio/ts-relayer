@@ -14,7 +14,6 @@ the relayer works, but the Quick Start probably gives a better intro.
 - RPC addresses of 2 full nodes on compatible, IBC-enabled chains
 - See [Chain Requirements below](#Chain-Requirements) for details of what chains are supported
 
-
 ## Installation
 
 ### NPM
@@ -66,7 +65,7 @@ Reads the configuration and starts relaying packets.
    - pulls default `registry.yaml` to relayer's home
    - funds addresses on both sides so relayer can pay the fee while relaying packets
 
-   > **NOTE:** Test blockchains `relayer_test_1` and `relayer_test_2` are  running in the public. You do not need to start any blockchain locally to complete the quick start guide.
+   > **NOTE:** Test blockchains `relayer_test_1` and `relayer_test_2` are running in the public. You do not need to start any blockchain locally to complete the quick start guide.
 
    > **NOTE:** Run `ibc-setup balances` to see the amount of tokens on each address.
 
@@ -88,15 +87,16 @@ Reads the configuration and starts relaying packets.
 ### Send tokens between chains
 
 1. Make sure `wasmd` binary is installed on your system
+
    - you must be running Linux or OSX on amd64 (not arm64/Mac M1)
    - [install Go 1.15+](https://golang.org/doc/install) and ensure that `$PATH` includes Go binaries (you may need to restart your terminal session)
-   -  clone and install `wasmd`:
-      ```sh
-      git clone https://github.com/CosmWasm/wasmd.git
-      cd wasmd
-      git checkout v0.15.1
-      make install
-      ```
+   - clone and install `wasmd`:
+     ```sh
+     git clone https://github.com/CosmWasm/wasmd.git
+     cd wasmd
+     git checkout v0.15.1
+     make install
+     ```
 
 2. Create a new account and fund it
 
@@ -125,6 +125,7 @@ Reads the configuration and starts relaying packets.
 ## Configuration overview
 
 The relayer configuration is stored under relayer's home directory. By default, it's located at `$HOME/.ibc-setup`, however, can be customized with `home` option, e.g.:
+
 ```sh
 # initialize the configuration at /home/user/relayer_custom_home
 ibc-setup init --home /home/user/relayer_custom_home
@@ -136,38 +137,45 @@ ibc-relayer start --home /home/user/relayer_custom_home
 There are 3 files that live in the relayer's home.
 
 - **registry.yaml** (required)
-  
-   Contains a list of available chains with corresponding information. The chains from the registry can be referenced by `ibc-setup` binary or within the `app.yaml` file. [View an example of registry.yaml file.](demo/registry.yaml)
+
+  Contains a list of available chains with corresponding information. The chains from the registry can be referenced by `ibc-setup` binary or within the `app.yaml` file. [View an example of registry.yaml file.](demo/registry.yaml)
 
 - **app.yaml** (optional)
-  
-   Holds the relayer-specific options such as source or destination chains. These options can be overridden with CLI flags or environment variables.
+
+  Holds the relayer-specific options such as source or destination chains. These options can be overridden with CLI flags or environment variables.
+
 - **last-queried-heights.json** (optional)
-  
+
   Stores last queried heights for better performance on relayer startup. It's constantly overwritten with new heights when relayer is running. Simply delete this file to scan the events since forever.
 
 [Learn more about configuration.](spec/config.md)
 
 ## Monitoring
-The relayer collects various metrics that [Prometheus](https://prometheus.io/docs/introduction/overview/) instance can consume.
 
-To enable metrics collection, pass `--enable-metrics` flag when starting the relayer:
+The relayer collects various metrics that a [Prometheus](https://prometheus.io/docs/introduction/overview/) instance can consume.
+
+To enable metrics collection, pass the `--enable-metrics` flag when starting the relayer:
+
 ```sh
 ibc-relayer start --enable-metrics
 ```
-> **NOTE:** Metrics can be also enabled via an environment variable `RELAYER_ENABLE_METRICS=true`, or with a `enableMetrics: true` entry in the `app.yaml` file, as explained in the [config specifiation](./spec/config.md#configuration).
 
-The `GET /metrics` endpoint is exposed on a default port `26660`, which you can modify with `--metrics-port` flag/env variable/entry in app.yaml.
+> **NOTE:** Metrics can also be enabled via an environment variable `RELAYER_ENABLE_METRICS=true`, or with an `enableMetrics: true` entry in the `app.yaml` file, as explained in the [config specification](./spec/config.md#configuration).
+
+The `GET /metrics` endpoint will be exposed by default on port `26660`, which you can override with `--metrics-port` flag, `RELAYER_METRICS_PORT` env variable, or `metricsPort` entry in `app.yaml`.
 
 ### Local setup
+
 1. Start the relayer with metrics enabled
 2. Spin up the Prometheus instance:
    ```sh
-   docker run -it -v $(pwd):/prometheus  -p9090:9090  prom/prometheus --config.file=prometheus.yaml
+   docker run -it -v $(pwd):/prometheus -p9090:9090 prom/prometheus --config.file=prometheus.yaml
    ```
-   > **NOTE:** Ensure that `--config.file=<path>` flag points at the existing configuration file, you can find an example here: [prometheus.yaml](prometheus.yaml).
-3. Open Prometheus dashboard in the browser at [http://localhost:9090](http://localhost:9090)
+   > **NOTE:** Ensure that `the --config.file=<path>` flag points at the existing configuration file. You can find an example here: [prometheus.yaml](prometheus.yaml).
+3. Open the Prometheus dashboard in a browser at [http://localhost:9090](http://localhost:9090)
+
 ## Development
+
 [Refer to the development page.](DEVELOPMENT.md)
 
 ## Chain Requirements
