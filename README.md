@@ -169,9 +169,9 @@ The `GET /metrics` endpoint will be exposed by default on port `26660`, which yo
 1. Start the relayer with metrics enabled
 2. Spin up the Prometheus instance:
    ```sh
-   docker run -it -v $(pwd):/prometheus -p9090:9090 prom/prometheus --config.file=prometheus.yaml
+   docker run -it -v $(pwd):/prometheus -p9090:9090 prom/prometheus --config.file=demo/prometheus.yaml
    ```
-   > **NOTE:** Ensure that `the --config.file=<path>` flag points at the existing configuration file. You can find an example here: [prometheus.yaml](prometheus.yaml).
+   > **NOTE:** Ensure that `the --config.file=<path>` flag points at the existing configuration file. You can find an example here: [prometheus.yaml](demo/prometheus.yaml).
 3. Open the Prometheus dashboard in a browser at [http://localhost:9090](http://localhost:9090)
 
 ## Development
