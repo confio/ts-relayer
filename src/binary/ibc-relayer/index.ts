@@ -39,6 +39,13 @@ const startCommand = program
   .addOption(srcConnection)
   .addOption(destConnection)
   .option(
+    '--enable-metrics',
+    'Enable Prometheus metrics collection and GET /metrics endpoint'
+  )
+  .option(
+    `--metrics-port <port>', 'Specify port for GET /metrics http server (default: ${startDefaults.metricsPort})`
+  )
+  .option(
     '--poll <frequency>',
     `How many seconds we sleep between checking for packets (default: ${startDefaults.poll})`
   )

@@ -22,6 +22,8 @@ export type AppConfig = {
   destConnection?: string;
   mnemonic?: string;
   keyFile?: string;
+  enableMetrics?: boolean;
+  metricsPort?: number;
 };
 
 export type LoggerFlags = {

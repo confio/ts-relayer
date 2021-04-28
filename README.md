@@ -150,6 +150,30 @@ There are 3 files that live in the relayer's home.
 
 [Learn more about configuration.](spec/config.md)
 
+## Monitoring
+
+The relayer collects various metrics that a [Prometheus](https://prometheus.io/docs/introduction/overview/) instance can consume.
+
+To enable metrics collection, pass the `--enable-metrics` flag when starting the relayer:
+
+```sh
+ibc-relayer start --enable-metrics
+```
+
+> **NOTE:** Metrics can also be enabled via an environment variable `RELAYER_ENABLE_METRICS=true`, or with an `enableMetrics: true` entry in the `app.yaml` file, as explained in the [config specification](./spec/config.md#configuration).
+
+The `GET /metrics` endpoint will be exposed by default on port `26660`, which you can override with `--metrics-port` flag, `RELAYER_METRICS_PORT` env variable, or `metricsPort` entry in `app.yaml`.
+
+### Local setup
+
+1. Start the relayer with metrics enabled
+2. Spin up the Prometheus instance:
+   ```sh
+   docker run -it -v $(pwd):/prometheus -p9090:9090 prom/prometheus --config.file=demo/prometheus.yaml
+   ```
+   > **NOTE:** Ensure that `the --config.file=<path>` flag points at the existing configuration file. You can find an example here: [prometheus.yaml](demo/prometheus.yaml).
+3. Open the Prometheus dashboard in a browser at [http://localhost:9090](http://localhost:9090)
+
 ## Development
 
 [Refer to the development page.](DEVELOPMENT.md)
