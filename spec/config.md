@@ -71,4 +71,3 @@ If creating a connection/channel, we init on the "src" side. If relaying packets
 one chain to another (some configurations will be bi-directional).
 
 As mentioned above, if a CLI flag is not found, we will check for an environmental variable, and ultimately `app.yaml`.
-
