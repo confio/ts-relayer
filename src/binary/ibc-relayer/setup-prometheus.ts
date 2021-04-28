@@ -15,7 +15,9 @@ function getMetrics() {
   };
 }
 
-export type Metrics = ReturnType<typeof setupPrometheus>;
+export type Metrics = {
+  pollCounter: client.Counter<string>;
+} | null;
 export function setupPrometheus({
   enabled,
   port,
@@ -24,7 +26,7 @@ export function setupPrometheus({
   enabled: boolean;
   port: number;
   logger: Logger;
-}) {
+}): Metrics {
   if (initialized) {
     throw new Error(
       `"setupPrometheus" func shouldn't be initialized more than once.`
