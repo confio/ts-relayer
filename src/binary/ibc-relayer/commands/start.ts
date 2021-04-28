@@ -68,48 +68,48 @@ function resolveHeights(
 }
 
 type LoopFlags = {
-  poll?: string;
-  maxAgeSrc?: string;
-  maxAgeDest?: string;
-  once: boolean;
+  readonly poll?: string;
+  readonly maxAgeSrc?: string;
+  readonly maxAgeDest?: string;
+  readonly once: boolean;
 };
 type LoopOptions = {
   // how many seconds we sleep between relaying batches
-  poll: number;
+  readonly poll: number;
   // number of seconds old the client on chain A can be
-  maxAgeSrc: number;
+  readonly maxAgeSrc: number;
   // number of seconds old the client on chain B can be
-  maxAgeDest: number;
+  readonly maxAgeDest: number;
   // if set to 'true' quit after one pass
-  once: boolean;
+  readonly once: boolean;
 };
 
 type Flags = {
-  interactive: boolean;
-  home?: string;
-  src?: string;
-  dest?: string;
-  keyFile?: string;
-  mnemonic?: string;
-  srcConnection?: string;
-  destConnection?: string;
-  scanFromSrc?: string;
-  scanFromDest?: string;
-  enableMetrics: boolean;
-  metricsPort?: string;
+  readonly interactive: boolean;
+  readonly home?: string;
+  readonly src?: string;
+  readonly dest?: string;
+  readonly keyFile?: string;
+  readonly mnemonic?: string;
+  readonly srcConnection?: string;
+  readonly destConnection?: string;
+  readonly scanFromSrc?: string;
+  readonly scanFromDest?: string;
+  readonly enableMetrics: boolean;
+  readonly metricsPort?: string;
 } & LoggerFlags &
   LoopFlags;
 
 type Options = {
-  home: string;
-  src: string;
-  dest: string;
-  mnemonic: string;
-  srcConnection: string;
-  destConnection: string;
-  heights: RelayedHeights | null;
-  enableMetrics: boolean;
-  metricsPort: number;
+  readonly home: string;
+  readonly src: string;
+  readonly dest: string;
+  readonly mnemonic: string;
+  readonly srcConnection: string;
+  readonly destConnection: string;
+  readonly heights: RelayedHeights | null;
+  readonly enableMetrics: boolean;
+  readonly metricsPort: number;
 } & LoopOptions;
 
 export const defaults = {
