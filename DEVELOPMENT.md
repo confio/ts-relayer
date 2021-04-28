@@ -175,7 +175,7 @@ While not every changeset is going to need a huge amount of detail, a good idea 
 A changeset is always required, however, sometimes you may want to merge your pull request without it. For example, while fixing a typo.
 
 To pass the changeset validation, create an empty changeset with a CLI:
-```
+```sh
 yarn changeset --empty
 ```
 
@@ -186,6 +186,24 @@ Or add it manually:
 ---
 
 ```
+
+#### Aggregate the changesets
+Before release, it's important to utilize the changesets. To do so, run:
+```sh
+yarn changeset version
+```
+The command will:
+   - write to changelog
+   - remove changesets
+   - bump package version
+
+Inspect your changes with:
+```sh
+git status
+git diff
+```
+
+
 
 ### Useful npm scripts
 Rebuild on every change.
