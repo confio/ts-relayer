@@ -118,7 +118,7 @@ export const defaults = {
   // once per day: 86400s
   maxAgeSrc: 86400,
   maxAgeDest: 86400,
-  metricsPort: 26660,
+  metricsPort: 8080,
 };
 
 export async function start(flags: Flags, logger: Logger) {
