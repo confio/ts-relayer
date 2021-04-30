@@ -295,6 +295,6 @@ async function relayerLoop(
     await sleep(options.poll * 1000);
     logger.info('... waking up and checking for packets!');
 
-    metrics?.pollCounter?.inc();
+    metrics?.loopTotal?.inc();
   }
 }
