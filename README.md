@@ -162,7 +162,7 @@ ibc-relayer start --enable-metrics
 
 > **NOTE:** Metrics can also be enabled via an environment variable `RELAYER_ENABLE_METRICS=true`, or with an `enableMetrics: true` entry in the `app.yaml` file, as explained in the [config specification](./spec/config.md#configuration).
 
-The `GET /metrics` endpoint will be exposed by default on port `26660`, which you can override with `--metrics-port` flag, `RELAYER_METRICS_PORT` env variable, or `metricsPort` entry in `app.yaml`.
+The `GET /metrics` endpoint will be exposed by default on port `8080`, which you can override with `--metrics-port` flag, `RELAYER_METRICS_PORT` env variable, or `metricsPort` entry in `app.yaml`.
 
 ### Local setup
 

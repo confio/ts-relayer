@@ -6,17 +6,20 @@ import { Logger } from '../create-logger';
 
 let initialized = false;
 
+const prefix = 'relayer';
+const withPrefix = (name: string) => `${prefix}_${name}`;
+
 function getMetrics() {
   return {
-    pollCounter: new client.Counter({
-      name: 'poll_counter',
-      help: 'Poll counter',
+    loopTotal: new client.Counter({
+      name: withPrefix('loop_total'),
+      help: 'Total relayer loops.',
     }),
   };
 }
 
 export type Metrics = {
-  pollCounter: client.Counter<string>;
+  loopTotal: client.Counter<string>;
 } | null;
 export function setupPrometheus({
   enabled,
@@ -38,7 +41,7 @@ export function setupPrometheus({
     return null;
   }
 
-  client.collectDefaultMetrics({ prefix: 'confio_relayer_' });
+  client.collectDefaultMetrics({ prefix: `${prefix}_` });
   const server = http.createServer(async (request, response) => {
     if (request.method === 'GET' && request.url === '/metrics') {
       const metrics = await client.register.metrics();
