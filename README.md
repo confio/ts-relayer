@@ -166,13 +166,29 @@ The `GET /metrics` endpoint will be exposed by default on port `8080`, which you
 
 ### Local setup
 
+#### Prometheus
+
 1. Start the relayer with metrics enabled
 2. Spin up the Prometheus instance:
    ```sh
    docker run -it -v $(pwd):/prometheus -p9090:9090 prom/prometheus --config.file=demo/prometheus.yaml
    ```
-   > **NOTE:** Ensure that `the --config.file=<path>` flag points at the existing configuration file. You can find an example here: [prometheus.yaml](demo/prometheus.yaml).
+   > **NOTE:** Ensure that `the --config.file=<path>` flag points at the existing configuration file. If you wish to use [the example config](demo/prometheus.yaml), just run the command above in the root of this repository. Otherwise, you must adjust the volume (`-v`) and config file path to your setup.
 3. Open the Prometheus dashboard in a browser at [http://localhost:9090](http://localhost:9090)
+
+#### Grafana
+
+1. Spin up the Grafana instance:
+   ```sh
+   docker run -d --name=grafana -p 3000:3000 grafana/grafana
+   ```
+2. Navigate to [http://localhost:3000](http://localhost:3000) and log in (`admin`/`admin`)
+3. [Create a Prometheus data source](https://prometheus.io/docs/visualization/grafana/#creating-a-prometheus-data-source)
+   > **NOTE:** Use `http://host.docker.internal:9090` as the server URL and `Server` as the Access method.
+4. Create a new graph and query data
+   > **NOTE:** Useful guides:
+   - https://grafana.com/docs/grafana/latest/getting-started/getting-started/#step-3-create-a-dashboard
+   - https://prometheus.io/docs/visualization/grafana/#creating-a-prometheus-graph
 
 ## Development
 
