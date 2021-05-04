@@ -184,7 +184,7 @@ The `GET /metrics` endpoint will be exposed by default on port `8080`, which you
    ```
 2. Navigate to [http://localhost:3000](http://localhost:3000) and log in (`admin`/`admin`)
 3. [Create a Prometheus data source](https://prometheus.io/docs/visualization/grafana/#creating-a-prometheus-data-source)
-   > **NOTE:** Use `http://localhost:9090/` as the server URL, and `Browser` as Access method for the local setup.
+   > **NOTE:** Use `http://host.docker.internal:9090` as the server URL and `Server` as the Access method.
 4. Create a new graph and query data
    > **NOTE:** Useful guides:
    - https://grafana.com/docs/grafana/latest/getting-started/getting-started/#step-3-create-a-dashboard
