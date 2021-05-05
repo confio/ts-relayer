@@ -47,8 +47,10 @@ export async function run(options: Options, logger: Logger) {
       addresses.map(async ([chain, data, address]) => {
         const signer = await DirectSecp256k1HdWallet.fromMnemonic(
           options.mnemonic,
-          data.hd_path ? stringToPath(data.hd_path) : undefined,
-          data.prefix
+          {
+            hdPaths: data.hd_path ? [stringToPath(data.hd_path)] : undefined,
+            prefix: data.prefix,
+          }
         );
 
         const gasPrice = GasPrice.fromString(data.gas_price);

@@ -167,11 +167,9 @@ export async function signingClient(
   mnemonic: string,
   logger?: Logger
 ): Promise<IbcClient> {
-  const signer = await DirectSecp256k1HdWallet.fromMnemonic(
-    mnemonic,
-    undefined,
-    opts.prefix
-  );
+  const signer = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, {
+    prefix: opts.prefix,
+  });
   const { address } = (await signer.getAccounts())[0];
   const options: IbcClientOptions = {
     prefix: opts.prefix,
