@@ -11,10 +11,12 @@ export async function signingClient(
   mnemonic: string,
   logger?: Logger
 ): Promise<IbcClient> {
-  const hdPath = chain.hd_path ? [stringToPath(chain.hd_path)] : undefined;
+  const hdPathsToSpread = chain.hd_path
+    ? { hdPaths: [stringToPath(chain.hd_path)] }
+    : {};
   const signer = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, {
     prefix: chain.prefix,
-    hdPaths: hdPath,
+    ...hdPathsToSpread,
   });
   const { address } = (await signer.getAccounts())[0];
   const options: IbcClientOptions = {

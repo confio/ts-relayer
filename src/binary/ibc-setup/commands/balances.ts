@@ -45,11 +45,14 @@ export async function run(options: Options, logger: Logger) {
   const balances = (
     await Promise.allSettled(
       addresses.map(async ([chain, data, address]) => {
+        const hdPathsToSpread = data.hd_path
+          ? { hdPaths: [stringToPath(data.hd_path)] }
+          : {};
         const signer = await DirectSecp256k1HdWallet.fromMnemonic(
           options.mnemonic,
           {
-            hdPaths: data.hd_path ? [stringToPath(data.hd_path)] : undefined,
             prefix: data.prefix,
+            ...hdPathsToSpread,
           }
         );
 
