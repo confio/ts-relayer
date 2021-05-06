@@ -90,7 +90,7 @@
   ],
   "ava": {
     "failFast": true,
-    "timeout": "90s",
+    "timeout": "120s",
     "typescript": {
       "rewritePaths": {
         "src/": "build/"
