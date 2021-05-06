@@ -83,7 +83,10 @@ export function mapRpcPubKeyToProto(
       secp256k1: pubkey.data,
     };
   } else {
-    throw new Error(`Unknown validator pubkey type: ${pubkey.algorithm}`);
+    throw new Error(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      `Unknown validator pubkey type: ${(pubkey as any).algorithm}`
+    );
   }
 }
 

@@ -6,11 +6,11 @@ export async function deriveAddress(
   prefix: string,
   hdPath?: string
 ): Promise<string> {
-  const wallet = await DirectSecp256k1HdWallet.fromMnemonic(
-    mnemomic,
-    hdPath ? stringToPath(hdPath) : undefined,
-    prefix
-  );
+  const hdPathsToSpread = hdPath ? { hdPaths: [stringToPath(hdPath)] } : {};
+  const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemomic, {
+    prefix,
+    ...hdPathsToSpread,
+  });
   const accounts = await wallet.getAccounts();
   return accounts[0].address;
 }
