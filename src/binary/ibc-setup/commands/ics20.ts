@@ -113,7 +113,7 @@ export async function ics20(flags: Flags, logger: Logger): Promise<void> {
   );
   const connections = resolveConnections(app);
 
-  run(
+  await run(
     {
       src,
       dest,
