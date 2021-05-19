@@ -175,6 +175,9 @@ export async function signingClient(
     prefix: opts.prefix,
     gasPrice: GasPrice.fromString(opts.minFee),
     logger,
+    // This is just for tests - don't add this in production code
+    broadcastPollIntervalMs: 300,
+    broadcastTimeoutMs: 2000,
   };
   const client = await IbcClient.connectWithSigner(
     opts.tendermintUrlHttp,
