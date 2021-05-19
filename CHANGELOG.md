@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.5
+
+### Patch Changes
+
+- 486a7db: Update CosmJS to 0.25.3
+- 486a7db: Test against wasmd 0.16.0 in CI
+
 ## 0.1.4
 
 ### Patch Changes
