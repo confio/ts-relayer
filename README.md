@@ -226,9 +226,9 @@ tested. It is likely you could reduce `pruning-keep-recent` to as low as, say, 3
 This repo can also be imported as a library and used in a web app. @clockworkgr has been so nice
 to share a [sample Vue.js app using the relayer](https://github.com/clockworkgr/ts-relayer-example).
 This includes some nice code samples to
-[send a IbcTransfer message with CosmJS](https://github.com/clockworkgr/ts-relayer-example/blob/main/src/App.vue#L153-L184)
-as well as [setting up](https://github.com/clockworkgr/ts-relayer-example/blob/main/src/App.vue#L216-L283)
-and [running the relayer](https://github.com/clockworkgr/ts-relayer-example/blob/main/src/App.vue#L185-L205).
+[send a IbcTransfer message with CosmJS](https://github.com/clockworkgr/ts-relayer-example/blob/main/src/App.vue#L153-L186)
+as well as [setting up](https://github.com/clockworkgr/ts-relayer-example/blob/main/src/App.vue#L218-L289)
+and [running the relayer](https://github.com/clockworkgr/ts-relayer-example/blob/main/src/App.vue#L187-L207).
 
 ![screenshot](https://user-images.githubusercontent.com/6826762/116312118-b3f40e00-a7b4-11eb-879b-ce3135764460.png)
 
