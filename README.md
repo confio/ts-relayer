@@ -8,6 +8,10 @@ To get a good overview of what it can do, please
 You can also read [our specification page](./spec/index.md), which explains how
 the relayer works, but the Quick Start probably gives a better intro.
 
+This repo is mainly used as a node binary to perform IBC relaying. However, all logic is
+available in the library, which can be run equally well in the browser or in Node.
+You can see an example of embedding the relayer in a [webapp below](#Web-App).
+
 ## Requirements
 
 - [Node.js 14.16.1](https://nodejs.org/en/blog/release/v14.16.1/) or later
@@ -216,3 +220,16 @@ The node must support historical queries. `--pruning=nothing` will definitely wo
 enormous amount of disk space. You can also trim it to 3 weeks of data with
 `--pruning=custom --pruning-keep-recent=362880 --pruning-keep-every=0 --pruning-interval=100`, which has been
 tested. It is likely you could reduce `pruning-keep-recent` to as low as, say, 3600, but that would need testing.
+
+## Web App
+
+This repo can also be imported as a library and used in a web app. @clockworkgr has been so nice
+to share a [sample Vue.js app using the relayer](https://github.com/clockworkgr/ts-relayer-example).
+This includes some nice code samples to
+[send a IbcTransfer message with CosmJS](https://github.com/clockworkgr/ts-relayer-example/blob/main/src/App.vue#L153-L186)
+as well as [setting up](https://github.com/clockworkgr/ts-relayer-example/blob/main/src/App.vue#L218-L289)
+and [running the relayer](https://github.com/clockworkgr/ts-relayer-example/blob/main/src/App.vue#L187-L207).
+
+![screenshot](https://user-images.githubusercontent.com/6826762/116312118-b3f40e00-a7b4-11eb-879b-ce3135764460.png)
+
+The key import is `import { IbcClient, Link } from "@confio/relayer/build";`
