@@ -3,17 +3,19 @@ version: 1
 chains:
   musselnet:
     chain_id: musselnet-4
-    # bech32 prefix for addresses
+    # Bech32 prefix for addresses
     prefix: wasm
-    # this determines the gas payments we make (and defines the fee token)
+    # This determines the gas payments we make (and defines the fee token)
     gas_price: 0.025umayo
-    # the path we use to derive the private key from the mnemonic
-    hd_path: m/44'/108'/0'/1'
-    # if you include an optional faucet, it will load the relayer with tokens in `ibc-setup init`
+    # The path we use to derive the private key from the mnemonic
+    # Note: The hd paths shown have no meaningful relationship to the existing chains.
+    # It is recommended practice to use a different hd_path than those commonly used for user accounts.
+    hd_path: m/44'/1234'/0'/1'
+    # If you include an optional faucet, it will load the relayer with tokens in `ibc-setup init`
     faucet: https://faucet.musselnet.cosmwasm.com
-    # you can optionally define a default ics20_port that will be used instead of transfer if no flags set
+    # You can optionally define a default ics20_port that will be used instead of transfer if no flags set
     ics20_port: 'transfer'
-    # you can include multiple RPC endpoints and it will rotate through them if
+    # You can include multiple RPC endpoints and it will rotate through them if
     # one is down (TODO)
     rpc:
       - https://rpc.musselnet.cosmwasm.com
@@ -21,14 +23,14 @@ chains:
     chain_id: testing
     prefix: wasm
     gas_price: 0.025ucosm
-    hd_path: m/44'/108'/0'/2'
+    hd_path: m/44'/1234'/0'/2'
     rpc:
       - http://localhost:26659
   local_simapp:
     chain_id: simd-testing
     prefix: cosmos
     gas_price: 0.025umuon
-    hd_path: m/44'/108'/0'/3'
+    hd_path: m/44'/1234'/0'/3'
     ics20_port: 'custom'
     rpc:
       - http://localhost:26658
@@ -36,7 +38,7 @@ chains:
     chain_id: network-1
     prefix: wasm
     gas_price: 0.01umuon
-    hd_path: m/44'/108'/0'/4'
+    hd_path: m/44'/1234'/0'/4'
     ics20_port: 'transfer'
     faucet: http://49.12.73.189:8001
     rpc:
@@ -45,7 +47,7 @@ chains:
     chain_id: network-2
     prefix: wasm
     gas_price: 0.01umuon
-    hd_path: m/44'/108'/0'/5'
+    hd_path: m/44'/1234'/0'/5'
     ics20_port: 'transfer'
     faucet: http://49.12.73.189:8002
     rpc:
@@ -54,7 +56,10 @@ chains:
     chain_id: cosmoshub-4
     prefix: cosmos
     gas_price: 0.026uatom
-    hd_path: m/44'/108'/0'/6'
+    # Default keyring hd_path for the SDK
+    # This is used for example by `gaiad keys` and most CosmJS webapps
+    # Set this if you want to share the relayer account with a CLI account (not recommended)
+    hd_path: m/44'/118'/0'/0/0
     ics20_port: 'transfer'
     rpc:
       - https://rpc.cosmos.network:443
