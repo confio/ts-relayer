@@ -35,7 +35,7 @@
     "@cosmjs/proto-signing": "0.25.3",
     "@cosmjs/stargate": "0.25.3",
     "@cosmjs/stream": "0.25.3",
-    "@cosmjs/tendermint-rpc": "0.25.3",
+    "@cosmjs/tendermint-rpc": "https://gitpkg.now.sh/desmos-labs/cosmjs/packages/tendermint-rpc?riccardo/add-block-search",
     "@cosmjs/utils": "0.25.3",
     "ajv": "7.1.1",
     "axios": "0.21.1",

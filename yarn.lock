@@ -511,6 +511,20 @@
     readonly-date "^1.0.0"
     xstream "^11.14.0"
 
+"@cosmjs/tendermint-rpc@https://gitpkg.now.sh/desmos-labs/cosmjs/packages/tendermint-rpc?riccardo/add-block-search":
+  version "0.25.3"
+  resolved "https://gitpkg.now.sh/desmos-labs/cosmjs/packages/tendermint-rpc?riccardo/add-block-search#03c68a35639b17d50646cc62c2cf9644cfdfd46d"
+  dependencies:
+    "@cosmjs/crypto" "^0.25.3"
+    "@cosmjs/encoding" "^0.25.3"
+    "@cosmjs/json-rpc" "^0.25.3"
+    "@cosmjs/math" "^0.25.3"
+    "@cosmjs/socket" "^0.25.3"
+    "@cosmjs/stream" "^0.25.3"
+    axios "^0.21.1"
+    readonly-date "^1.0.0"
+    xstream "^11.14.0"
+
 "@cosmjs/utils@0.25.3", "@cosmjs/utils@^0.25.3":
   version "0.25.3"
   resolved "https://registry.yarnpkg.com/@cosmjs/utils/-/utils-0.25.3.tgz#e74a85d0be74ef6a9cb3efa45fd219e459cdaa03"
