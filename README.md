@@ -200,9 +200,9 @@ The `GET /metrics` endpoint will be exposed by default on port `8080`, which you
 
 ## Chain Requirements
 
-The blockchain must be based on Cosmos SDK `v0.41.1+`. In particular it must have
-[PR 8458](https://github.com/cosmos/cosmos-sdk/pull/8458) merged (if you are using a fork)
-in order for the relayer to work properly. `ibc-setup` should work on `v0.40.0+`
+The blockchain must be based on Cosmos SDK `v0.42.4+`. In particular it must have
+[PR 8458](https://github.com/cosmos/cosmos-sdk/pull/8458) and [PR 9081](https://github.com/cosmos/cosmos-sdk/pull/9081) 
+merged (if you are using a fork) in order for the relayer to work properly. `ibc-setup` should work on `v0.40.0+`
 
 The chain must have a large value for `staking.params.historical_entries` (often set in genesis).
 The default is "10000" and this should work with "1000", but no relayer will work if it is set to 0.
