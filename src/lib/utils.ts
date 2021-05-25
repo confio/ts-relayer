@@ -1,10 +1,11 @@
 import { fromUtf8, toHex, toUtf8 } from '@cosmjs/encoding';
 import { BroadcastTxFailure, Coin, logs, StdFee } from '@cosmjs/stargate';
-import { parseEvent } from '@cosmjs/stargate/build/logs';
+const { parseEvent } = logs;
 import {
   BlockResultsResponse,
   ReadonlyDateWithNanoseconds,
-  Header as RpcHeader, ValidatorPubkey as RpcPubKey
+  Header as RpcHeader,
+  ValidatorPubkey as RpcPubKey,
 } from '@cosmjs/tendermint-rpc';
 import Long from 'long';
 
@@ -14,7 +15,7 @@ import { Packet } from '../codec/ibc/core/channel/v1/channel';
 import { Height } from '../codec/ibc/core/client/v1/client';
 import {
   ClientState as TendermintClientState,
-  ConsensusState as TendermintConsensusState
+  ConsensusState as TendermintConsensusState,
 } from '../codec/ibc/lightclients/tendermint/v1/tendermint';
 import { PublicKey as ProtoPubKey } from '../codec/tendermint/crypto/keys';
 
@@ -45,7 +46,7 @@ export function ensureIntHeight(height: number | Height): number {
 export function subtractBlock(height: Height, count = 1): Height {
   return {
     revisionNumber: height.revisionNumber,
-    revisionHeight: height.revisionHeight.subtract(count)
+    revisionHeight: height.revisionHeight.subtract(count),
   };
 }
 
@@ -76,12 +77,12 @@ export function mapRpcPubKeyToProto(
   if (pubkey.algorithm == 'ed25519') {
     return {
       ed25519: pubkey.data,
-      secp256k1: undefined
+      secp256k1: undefined,
     };
   } else if (pubkey.algorithm == 'secp256k1') {
     return {
       ed25519: undefined,
-      secp256k1: pubkey.data
+      secp256k1: pubkey.data,
     };
   } else {
     throw new Error(
@@ -97,7 +98,7 @@ export function timestampFromDateNanos(
   const nanos = (date.getTime() % 1000) * 1000000 + (date.nanoseconds ?? 0);
   return Timestamp.fromPartial({
     seconds: new Long(date.getTime() / 1000),
-    nanos
+    nanos,
   });
 }
 
@@ -113,9 +114,9 @@ export function buildConsensusState(
   return TendermintConsensusState.fromPartial({
     timestamp: timestampFromDateNanos(header.time),
     root: {
-      hash: header.appHash
+      hash: header.appHash,
     },
-    nextValidatorsHash: header.nextValidatorsHash
+    nextValidatorsHash: header.nextValidatorsHash,
   });
 }
 
@@ -134,15 +135,15 @@ export function buildClientState(
       hash: HashOp.SHA256,
       prehashValue: HashOp.SHA256,
       prehashKey: HashOp.NO_HASH,
-      length: LengthOp.VAR_PROTO
+      length: LengthOp.VAR_PROTO,
     },
     innerSpec: {
       childOrder: [0, 1],
       minPrefixLength: 4,
       maxPrefixLength: 12,
       childSize: 33,
-      hash: HashOp.SHA256
-    }
+      hash: HashOp.SHA256,
+    },
   };
   const tendermintSpec = {
     leafSpec: {
@@ -150,37 +151,37 @@ export function buildClientState(
       hash: HashOp.SHA256,
       prehashValue: HashOp.SHA256,
       prehashKey: HashOp.NO_HASH,
-      length: LengthOp.VAR_PROTO
+      length: LengthOp.VAR_PROTO,
     },
     innerSpec: {
       childOrder: [0, 1],
       minPrefixLength: 1,
       maxPrefixLength: 1,
       childSize: 32,
-      hash: HashOp.SHA256
-    }
+      hash: HashOp.SHA256,
+    },
   };
 
   return TendermintClientState.fromPartial({
     chainId,
     trustLevel: {
       numerator: Long.fromInt(1),
-      denominator: Long.fromInt(3)
+      denominator: Long.fromInt(3),
     },
     unbondingPeriod: {
-      seconds: new Long(unbondingPeriodSec)
+      seconds: new Long(unbondingPeriodSec),
     },
     trustingPeriod: {
-      seconds: new Long(trustPeriodSec)
+      seconds: new Long(trustPeriodSec),
     },
     maxClockDrift: {
-      seconds: new Long(20)
+      seconds: new Long(20),
     },
     latestHeight: height,
     proofSpecs: [iavlSpec, tendermintSpec],
     upgradePath: ['upgrade', 'upgradedIBCState'],
     allowUpdateAfterExpiry: false,
-    allowUpdateAfterMisbehaviour: false
+    allowUpdateAfterMisbehaviour: false,
   });
 }
 
@@ -198,7 +199,9 @@ function decodeBase64(value: Uint8Array): string {
   return Buffer.from(value).toString('binary');
 }
 
-export function parsePacketsFromBlockResult(result: BlockResultsResponse): Packet[] {
+export function parsePacketsFromBlockResult(
+  result: BlockResultsResponse
+): Packet[] {
   const allEvents: ParsedEvent[] = result.beginBlockEvents
     .concat(...result.endBlockEvents)
     .filter(({ type }) => type === 'send_packet')
@@ -206,8 +209,8 @@ export function parsePacketsFromBlockResult(result: BlockResultsResponse): Packe
       type,
       attributes: attributes.map(({ key, value }) => ({
         key: decodeBase64(key),
-        value: decodeBase64(value)
-      }))
+        value: decodeBase64(value),
+      })),
     }));
 
   const flatEvents = ([] as ParsedEvent[]).concat(allEvents.map(parseEvent));
@@ -225,7 +228,7 @@ export function parsePacketsFromLogs(logs: readonly logs.Log[]): Packet[] {
 
 export function parseHeightAttribute(attribute?: string): Height | undefined {
   const [timeoutRevisionNumber, timeoutRevisionHeight] =
-  attribute?.split('-') ?? [];
+    attribute?.split('-') ?? [];
   if (!timeoutRevisionHeight || !timeoutRevisionNumber) {
     return undefined;
   }
@@ -245,7 +248,7 @@ export function parsePacket({ type, attributes }: ParsedEvent): Packet {
   const attributesObj: Record<string, string> = attributes.reduce(
     (acc, { key, value }) => ({
       ...acc,
-      [key]: value
+      [key]: value,
     }),
     {}
   );
@@ -270,7 +273,7 @@ export function parsePacket({ type, attributes }: ParsedEvent): Packet {
     timeoutTimestamp: may(
       Long.fromString,
       attributesObj.packet_timeout_timestamp
-    )
+    ),
   });
 }
 
@@ -290,7 +293,7 @@ export function parseAck({ type, attributes }: ParsedEvent): Ack {
   const attributesObj: Record<string, string | undefined> = attributes.reduce(
     (acc, { key, value }) => ({
       ...acc,
-      [key]: value
+      [key]: value,
     }),
     {}
   );
@@ -312,12 +315,12 @@ export function parseAck({ type, attributes }: ParsedEvent): Ack {
     timeoutTimestamp: may(
       Long.fromString,
       attributesObj.packet_timeout_timestamp
-    )
+    ),
   });
   const acknowledgement = toUtf8(attributesObj.packet_ack ?? '');
   return {
     acknowledgement,
-    originalPacket
+    originalPacket,
   };
 }
 
@@ -326,7 +329,7 @@ export function multiplyFees({ gas, amount }: StdFee, mult: number): StdFee {
   const multAmount = amount.map((c) => multiplyCoin(c, mult));
   const result = {
     gas: multGas.toString(),
-    amount: multAmount
+    amount: multAmount,
   };
   return result;
 }
@@ -347,7 +350,7 @@ export function heightGreater(a: Height | undefined, b: Height): boolean {
     a.revisionNumber.toNumber(),
     a.revisionHeight.toNumber(),
     b.revisionNumber.toNumber(),
-    b.revisionHeight.toNumber()
+    b.revisionHeight.toNumber(),
   ];
   const valid = numA > numB || (numA == numB && heightA > heightB);
   return valid;
@@ -381,17 +384,17 @@ export function splitPendingPackets(
         timeGreater(packet.packet.timeoutTimestamp, currentTime);
       return validPacket
         ? {
-          ...acc,
-          toSubmit: [...acc.toSubmit, packet]
-        }
+            ...acc,
+            toSubmit: [...acc.toSubmit, packet],
+          }
         : {
-          ...acc,
-          toTimeout: [...acc.toTimeout, packet]
-        };
+            ...acc,
+            toTimeout: [...acc.toTimeout, packet],
+          };
     },
     {
       toSubmit: [] as readonly PacketWithMetadata[],
-      toTimeout: [] as readonly PacketWithMetadata[]
+      toTimeout: [] as readonly PacketWithMetadata[],
     }
   );
 }

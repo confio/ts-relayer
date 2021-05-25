@@ -9,7 +9,7 @@ import {
   Ack,
   parseAcksFromLogs,
   parsePacketsFromBlockResult,
-  parsePacketsFromLogs
+  parsePacketsFromLogs,
 } from './utils';
 
 export interface PacketWithMetadata {
@@ -61,7 +61,7 @@ export class Endpoint {
 
   private async getPacketsFromBlockEvents({
     minHeight,
-    maxHeight
+    maxHeight,
   }: QueryOpts = {}): Promise<PacketWithMetadata[]> {
     let query = `send_packet.packet_connection='${this.connectionID}'`;
     if (minHeight) {
@@ -72,22 +72,24 @@ export class Endpoint {
     }
 
     const search = await this.client.tm.blockSearchAll({ query });
-    const resultsNested = await Promise.all(search.blocks.map(async ({ block}) => {
-      const height = block.header.height;
-      const result = await this.client.tm.blockResults(height);
-      return parsePacketsFromBlockResult(result).map((packet) => ({
-        packet,
-        height,
-        sender: "",
-      }))
-    }));
+    const resultsNested = await Promise.all(
+      search.blocks.map(async ({ block }) => {
+        const height = block.header.height;
+        const result = await this.client.tm.blockResults(height);
+        return parsePacketsFromBlockResult(result).map((packet) => ({
+          packet,
+          height,
+          sender: '',
+        }));
+      })
+    );
 
     return ([] as PacketWithMetadata[]).concat(...resultsNested);
   }
 
   private async getPacketsFromTxs({
     minHeight,
-    maxHeight
+    maxHeight,
   }: QueryOpts = {}): Promise<PacketWithMetadata[]> {
     let query = `send_packet.packet_connection='${this.connectionID}'`;
     if (minHeight) {
@@ -128,7 +130,10 @@ export class Endpoint {
     maxHeight,
   }: QueryOpts = {}): Promise<PacketWithMetadata[]> {
     const txsPackets = await this.getPacketsFromTxs({ minHeight, maxHeight });
-    const eventsPackets = await this.getPacketsFromBlockEvents({ minHeight, maxHeight });
+    const eventsPackets = await this.getPacketsFromBlockEvents({
+      minHeight,
+      maxHeight,
+    });
     return ([] as PacketWithMetadata[])
       .concat(...txsPackets)
       .concat(...eventsPackets);
