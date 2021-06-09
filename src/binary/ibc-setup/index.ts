@@ -58,6 +58,7 @@ const ics20Command = program
   .description(
     'Create new unordered channel (ics20-1) for given chains, ports, and connections'
   )
+  .addOption(homeOption)
   .addOption(srcTrust)
   .addOption(destTrust)
   .addOption(mnemonicOption)
