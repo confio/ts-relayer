@@ -4,7 +4,8 @@ See [docs for starter pack](https://www.npmjs.com/package/typescript-starter).
 
 ### Set up local chains
 
-To start two local blockchains, so we can test, run the following commands in two different consoles.
+To start two local blockchains, so we can test, run the following commands in three different consoles.
+These are long-living commands and will keep running indefinitely
 
 ```sh
 # in one console
@@ -15,7 +16,7 @@ To start two local blockchains, so we can test, run the following commands in tw
 ./scripts/gaia/start.sh
 ```
 
-When you are done, you can run the following in any console:
+When you are done running tests, you can run the following in any console to shut down the chains:
 
 ```sh
 ./scripts/simapp/stop.sh

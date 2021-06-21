@@ -1,4 +1,8 @@
 // This file outputs some basic test functionality, and includes tests that they work
+import {
+  SigningCosmWasmClient,
+  SigningCosmWasmClientOptions,
+} from '@cosmjs/cosmwasm-stargate';
 import { Bip39, Random } from '@cosmjs/crypto';
 import { Bech32 } from '@cosmjs/encoding';
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
@@ -188,6 +192,34 @@ export async function signingClient(
   return client;
 }
 
+export async function signingCosmWasmClient(
+  opts: SigningOpts,
+  mnemonic: string
+): Promise<CosmWasmSigner> {
+  const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, {
+    prefix: opts.prefix,
+  });
+  const { address: senderAddress } = (await wallet.getAccounts())[0];
+
+  const options: SigningCosmWasmClientOptions = {
+    prefix: opts.prefix,
+    gasPrice: GasPrice.fromString(opts.minFee),
+    // This is just for tests - don't add this in production code
+    broadcastPollIntervalMs: 300,
+    broadcastTimeoutMs: 2000,
+    gasLimits: {
+      upload: 1750000,
+    },
+  };
+  const sign = await SigningCosmWasmClient.connectWithSigner(
+    opts.tendermintUrlHttp,
+    wallet,
+    options
+  );
+
+  return { sign, senderAddress };
+}
+
 // This is simapp -> wasm
 export async function setup(logger?: Logger): Promise<IbcClient[]> {
   // create apps and fund an account
@@ -209,6 +241,20 @@ export async function setupGaiaWasm(logger?: Logger): Promise<IbcClient[]> {
   return [src, dest];
 }
 
+export interface CosmWasmSigner {
+  readonly sign: SigningCosmWasmClient;
+  readonly senderAddress: string;
+}
+
+// This creates a client for the CosmWasm chain, that can interact with contracts
+export async function setupWasmClient(): Promise<CosmWasmSigner> {
+  // create apps and fund an account
+  const mnemonic = generateMnemonic();
+  const cosmwasm = await signingCosmWasmClient(wasmd, mnemonic);
+  await fundAccount(wasmd, cosmwasm.senderAddress, '4000000');
+  return cosmwasm;
+}
+
 export async function fundAccount(
   opts: FundingOpts,
   rcpt: string,
@@ -218,6 +264,9 @@ export async function fundAccount(
   const feeTokens = {
     amount,
     denom: GasPrice.fromString(opts.minFee).denom,
+    gasLimits: {
+      upload: 1750000,
+    },
   };
   await client.sendTokens(rcpt, [feeTokens]);
 }

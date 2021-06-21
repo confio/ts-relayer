@@ -8,13 +8,13 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "fix": "run-s fix:*",
-    "fix:prettier": "prettier \"**/*.{ts,md}\" --write",
+    "fix:prettier": "prettier \"**/*.{ts,md}\" \"scripts/wasmd/*.js\" --write",
     "fix:lint": "eslint src --ext .ts --fix",
     "test": "run-s build test:*",
     "test:lint": "eslint src --ext .ts",
-    "test:prettier": "prettier \"**/*.{ts,md}\" --list-different",
+    "test:prettier": "prettier \"**/*.{ts,md}\" \"scripts/wasmd/*.js\" --list-different",
     "test:unit": "nyc --silent ava --serial",
-    "focused-test": "yarn test:unit ./src/lib/link.spec.ts",
+    "focused-test": "yarn test:unit ./src/lib/cosmwasm.spec.ts",
     "watch:build": "tsc -p tsconfig.json -w",
     "watch:test": "nyc --silent ava --watch --serial",
     "cov": "run-s build test:unit cov:html cov:lcov && open-cli coverage/index.html",
@@ -28,6 +28,7 @@
     "node": ">=12"
   },
   "dependencies": {
+    "@cosmjs/cosmwasm-stargate": "0.25.4",
     "@cosmjs/crypto": "0.25.4",
     "@cosmjs/encoding": "0.25.4",
     "@cosmjs/faucet-client": "0.25.4",
