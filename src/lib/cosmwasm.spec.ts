@@ -1,4 +1,5 @@
 import { toBase64, toUtf8 } from '@cosmjs/encoding';
+import { assert } from '@cosmjs/utils';
 import test from 'ava';
 
 import { Link } from './link';
@@ -97,7 +98,7 @@ test.serial('set up channel with ics20 contract', async (t) => {
   );
 });
 
-test.serial('send packets with ics20 contract', async (t) => {
+test.only('send packets with ics20 contract', async (t) => {
   const cosmwasm = await setupWasmClient();
 
   // instantiate cw20
@@ -160,6 +161,11 @@ test.serial('send packets with ics20 contract', async (t) => {
   bal = await balance(cosmwasm, cw20Addr);
   t.is('123000000000', bal);
 
+  // check source balance
+  const preBalance = await src.sign.getAllBalances(src.senderAddress);
+  t.is(1, preBalance.length);
+  t.is('umuon', preBalance[0].denom);
+
   // ensure the packet moves
   const packets = await link.getPendingPackets('B');
   t.is(packets.length, 1);
@@ -173,5 +179,35 @@ test.serial('send packets with ics20 contract', async (t) => {
   // and send the acks over
   await link.relayAcks('A', txAcks);
 
-  // TODO: before and after of all balances on source
+  // check source balances increased
+  const relayedBalance = await src.sign.getAllBalances(src.senderAddress);
+  t.is(2, relayedBalance.length);
+  const ibcCoin = relayedBalance.find((d) => d.denom !== 'umuon');
+  assert(ibcCoin);
+  t.is('456789000', ibcCoin.amount);
+  console.log(ibcCoin);
+
+  // send this token back over the channel
+  const timeoutHeight = await dest.timeoutHeight(500);
+  await src.transferTokens(
+    channels.src.portId,
+    channels.src.channelId,
+    ibcCoin,
+    dest.senderAddress,
+    timeoutHeight
+  );
+  await src.waitOneBlock();
+
+  // ensure the packet moves
+  const packets2 = await link.getPendingPackets('A');
+  t.is(packets2.length, 1);
+  // move it and the ack
+  const txAcks2 = await link.relayPackets('A', packets2);
+  t.is(txAcks2.length, 1);
+  // need to wait briefly for it to be indexed
+  await dest.waitOneBlock();
+  // and send the acks over
+  await link.relayAcks('B', txAcks2);
+
+  // TODO: send other token over channel
 });
