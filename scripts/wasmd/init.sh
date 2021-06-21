@@ -10,23 +10,6 @@ echo "Waiting for height to be >= 1 ..."
 timeout 20 bash -c "until [ \"\$( curl -s http://localhost:1319/blocks/latest | jq -r '.block.header.height // 0' )\" -ge 1 ]; do sleep 0.5; done"
 echo "Okay, thank you for your patience."
 
-SCRIPT_DIR="$(realpath "$(dirname "$0")")"
+SCRIPT_DIR="$(realpath "$(dirname "$0")")"1319
 
-#
-# Cosmos SDK init
-#
-"$SCRIPT_DIR/send_first.js"
-
-#
-# CosmWasm init
-#
-(
-  echo "Ensuring contracts' checksums are correct ..."
-  cd "$SCRIPT_DIR/contracts"
-  sha256sum --check checksums.sha256
-)
-"$SCRIPT_DIR/deploy_hackatom.js"
-"$SCRIPT_DIR/deploy_erc20.js"
-"$SCRIPT_DIR/deploy_cw3.js"
-"$SCRIPT_DIR/deploy_cw1.js"
-# "$SCRIPT_DIR/deploy_nameservice.js"
+"$SCRIPT_DIR/deploy_contracts.js"
