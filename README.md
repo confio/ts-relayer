@@ -95,9 +95,8 @@ Reads the configuration and starts relaying packets.
 
 4. Start the relayer in the verbose mode and 10s frequency polling
    ```sh
-   ibc-relayer start -v --poll 2
+   ibc-relayer start -v --poll 15
    ```
-   TODO: bring it to 10 or 20 when we work out pruning on nyancat
 
 ### Send tokens between chains
 

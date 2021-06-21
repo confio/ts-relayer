@@ -53,4 +53,4 @@ chains:
     hd_path: m/44'/118'/0'/0/0
     ics20_port: 'transfer'
     rpc:
-      - http://35.234.10.84:26657/
+      - http://34.80.202.172:26657/
