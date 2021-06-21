@@ -19,10 +19,19 @@ export async function signingClient(
     ...hdPathsToSpread,
   });
   const { address } = (await signer.getAccounts())[0];
+  // This is test timing to let us handle 250ms blocks without huge delays
+  const extras =
+    process.env.NODE_ENV == 'test'
+      ? {
+          broadcastPollIntervalMs: 300,
+          broadcastTimeoutMs: 2000,
+        }
+      : {};
   const options: IbcClientOptions = {
     prefix: chain.prefix,
     gasPrice: GasPrice.fromString(chain.gas_price),
     logger,
+    ...extras,
   };
   const client = await IbcClient.connectWithSigner(
     chain.rpc[0],
