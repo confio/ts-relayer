@@ -207,6 +207,9 @@ export async function signingCosmWasmClient(
     // This is just for tests - don't add this in production code
     broadcastPollIntervalMs: 300,
     broadcastTimeoutMs: 2000,
+    gasLimits: {
+      upload: 1750000,
+    },
   };
   const sign = await SigningCosmWasmClient.connectWithSigner(
     opts.tendermintUrlHttp,
@@ -261,6 +264,9 @@ export async function fundAccount(
   const feeTokens = {
     amount,
     denom: GasPrice.fromString(opts.minFee).denom,
+    gasLimits: {
+      upload: 1750000,
+    },
   };
   await client.sendTokens(rcpt, [feeTokens]);
 }

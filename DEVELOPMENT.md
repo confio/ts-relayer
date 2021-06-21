@@ -16,13 +16,7 @@ These are long-living commands and will keep running indefinitely
 ./scripts/gaia/start.sh
 ```
 
-Once they are all started, you need to upload the wasm contracts. This will return quickly, so you can reuse the console:
-
-```sh
-./scripts/wasmd/init.sh
-```
-
-When you are done, you can run the following in any console:
+When you are done running tests, you can run the following in any console to shut down the chains:
 
 ```sh
 ./scripts/simapp/stop.sh

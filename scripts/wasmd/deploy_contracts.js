@@ -43,22 +43,6 @@ const contracts = [
   },
 ];
 
-// const addresses = [
-//   "wasm1lk46aknye76sgfv65v5zcyyld0fnuu5jg02hs8",
-// ];
-// const initDataHash = {
-//   admin: undefined,
-//   initMsg: {
-//     decimals: 5,
-//     name: "Hash token",
-//     symbol: "HASH",
-//     initial_balances: addresses.map((address) => ({
-//       address,
-//       amount: "123456",
-//     })),
-//   },
-// };
-
 async function downloadWasm(url) {
   const r = await axios.get(url, { responseType: 'arraybuffer' });
   if (r.status !== 200) {

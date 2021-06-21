@@ -1,14 +1,72 @@
 import { fromUtf8, toBase64, toUtf8 } from '@cosmjs/encoding';
 import { assert } from '@cosmjs/utils';
 import test from 'ava';
+import axios from 'axios';
 
 import { Link } from './link';
 import { CosmWasmSigner, ics20, setup, setupWasmClient } from './testutils';
 
-const codeIds = {
-  cw20: 1,
-  ics20: 2,
+const codeIds: Record<string, number> = {
+  cw20: 0,
+  ics20: 0,
 };
+
+interface WasmData {
+  wasmUrl: string;
+  codeMeta: {
+    source: string;
+    builder: string;
+  };
+}
+
+const contracts: Record<string, WasmData> = {
+  cw20: {
+    wasmUrl:
+      'https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.6.1/cw20_base.wasm',
+    codeMeta: {
+      source:
+        'https://github.com/CosmWasm/cosmwasm-plus/tree/v0.6.0/contracts/cw20-base',
+      builder: 'cosmwasm/workspace-optimizer:0.11.0',
+    },
+  },
+  ics20: {
+    wasmUrl:
+      'https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.6.1/cw20_ics20.wasm',
+    codeMeta: {
+      source:
+        'https://github.com/CosmWasm/cosmwasm-plus/tree/v0.6.0/contracts/cw20-ics20',
+      builder: 'cosmwasm/workspace-optimizer:0.11.0',
+    },
+  },
+};
+
+async function downloadWasm(url: string) {
+  const r = await axios.get(url, { responseType: 'arraybuffer' });
+  if (r.status !== 200) {
+    throw new Error(`Download error: ${r.status}`);
+  }
+  return r.data;
+}
+
+test.before(async (t) => {
+  const cosmwasm = await setupWasmClient();
+
+  for (const name in contracts) {
+    const contract = contracts[name];
+    console.info(`Downloading ${name} at ${contract.wasmUrl}...`);
+    const wasm = await downloadWasm(contract.wasmUrl);
+    const receipt = await cosmwasm.sign.upload(
+      cosmwasm.senderAddress,
+      wasm,
+      contract.codeMeta,
+      `Upload ${name}`
+    );
+    console.debug(`Upload ${name} with CodeID: ${receipt.codeId}`);
+    codeIds[name] = receipt.codeId;
+  }
+
+  t.pass();
+});
 
 // creates it with 6 decimal places
 // provides 123456.789 tokens to the creator
@@ -99,7 +157,7 @@ test.serial('set up channel with ics20 contract', async (t) => {
   );
 });
 
-test.only('send packets with ics20 contract', async (t) => {
+test.serial('send packets with ics20 contract', async (t) => {
   const cosmwasm = await setupWasmClient();
 
   // instantiate cw20
@@ -175,6 +233,10 @@ test.only('send packets with ics20 contract', async (t) => {
   // move it and the ack
   const txAcks = await link.relayPackets('B', packets);
   t.is(txAcks.length, 1);
+  const parsedAck1 = JSON.parse(fromUtf8(txAcks[0].acknowledgement));
+  t.truthy(parsedAck1.result);
+  t.falsy(parsedAck1.error);
+
   // need to wait briefly for it to be indexed
   await src.waitOneBlock();
   // and send the acks over
@@ -229,14 +291,13 @@ test.only('send packets with ics20 contract', async (t) => {
   );
   await src.waitOneBlock();
 
-  // relaye this packet
+  // relay this packet
   const packets3 = await link.getPendingPackets('A');
   t.is(packets3.length, 1);
   const txAcks3 = await link.relayPackets('A', packets3);
   t.is(txAcks3.length, 1);
   // and expect error on ack
   const parsedAck = JSON.parse(fromUtf8(txAcks3[0].acknowledgement));
-  console.log(parsedAck);
   t.truthy(parsedAck.error);
   t.falsy(parsedAck.result);
 });
