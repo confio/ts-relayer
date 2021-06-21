@@ -93,7 +93,7 @@ Reads the configuration and starts relaying packets.
    - saves connection ids to `app.yaml` file
    - creates a new channel
 
-3. Start the relayer in the verbose mode and 10s frequency polling
+4. Start the relayer in the verbose mode and 10s frequency polling
    ```sh
    ibc-relayer start -v --poll 2
    ```
@@ -122,9 +122,11 @@ Reads the configuration and starts relaying packets.
    ```
 
 3. Create a valid IrisNet address to send tokens to
+
    ```sh
    RCPT=$(ibc-setup keys list | grep nyancat | cut -d' '  -f2)
    ```
+
    TODO: setup irisnet binary and make real account there
 
 4. Send tokens
