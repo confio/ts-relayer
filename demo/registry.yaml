@@ -1,24 +1,24 @@
 version: 1
 
 chains:
-  musselnet:
-    chain_id: musselnet-4
+  oysternet:
+    chain_id: oysternet-1
     # Bech32 prefix for addresses
     prefix: wasm
     # This determines the gas payments we make (and defines the fee token)
-    gas_price: 0.025umayo
+    gas_price: 0.025usponge
     # The path we use to derive the private key from the mnemonic
     # Note: The hd paths shown have no meaningful relationship to the existing chains.
     # It is recommended practice to use a different hd_path than those commonly used for user accounts.
     hd_path: m/44'/1234'/0'/1'
     # If you include an optional faucet, it will load the relayer with tokens in `ibc-setup init`
-    faucet: https://faucet.musselnet.cosmwasm.com
+    faucet: https://faucet.oysternet.cosmwasm.com
     # You can optionally define a default ics20_port that will be used instead of transfer if no flags set
     ics20_port: 'transfer'
     # You can include multiple RPC endpoints and it will rotate through them if
     # one is down (TODO)
     rpc:
-      - https://rpc.musselnet.cosmwasm.com
+      - http://rpc.oysternet.cosmwasm.com:80
   local_wasm:
     chain_id: testing
     prefix: wasm
@@ -34,24 +34,6 @@ chains:
     ics20_port: 'custom'
     rpc:
       - http://localhost:26658
-  relayer_test_1:
-    chain_id: network-1
-    prefix: wasm
-    gas_price: 0.01umuon
-    hd_path: m/44'/1234'/0'/4'
-    ics20_port: 'transfer'
-    faucet: http://49.12.73.189:8001
-    rpc:
-      - http://168.119.254.205:26657
-  relayer_test_2:
-    chain_id: network-2
-    prefix: wasm
-    gas_price: 0.01umuon
-    hd_path: m/44'/1234'/0'/5'
-    ics20_port: 'transfer'
-    faucet: http://49.12.73.189:8002
-    rpc:
-      - http://188.34.162.78:26657
   cosmoshub-4:
     chain_id: cosmoshub-4
     prefix: cosmos
@@ -63,3 +45,12 @@ chains:
     ics20_port: 'transfer'
     rpc:
       - https://rpc.cosmos.network:443
+  nyancat:
+    # This is a long-living testnet by IrisNet
+    chain_id: nyancat-8
+    prefix: iaa
+    gas_price: 0.2unyan
+    hd_path: m/44'/118'/0'/0/0
+    ics20_port: 'transfer'
+    rpc:
+      - http://34.80.202.172:26657/
