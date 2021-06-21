@@ -86,7 +86,7 @@ Reads the configuration and starts relaying packets.
 3. Create `ics20` channel
 
    ```sh
-   ibc-setup ics20
+   ibc-setup ics20 -v
    ```
 
    - creates a new connection on source and desination chains
@@ -95,8 +95,9 @@ Reads the configuration and starts relaying packets.
 
 3. Start the relayer in the verbose mode and 10s frequency polling
    ```sh
-   ibc-relayer start -v --poll 10
+   ibc-relayer start -v --poll 2
    ```
+   TODO: bring it to 10 or 20 when we work out pruning on nyancat
 
 ### Send tokens between chains
 
@@ -116,23 +117,24 @@ Reads the configuration and starts relaying packets.
 
    ```sh
    wasmd keys add sender
-   JSON=$(jq -n --arg addr $(wasmd keys show -a sender) '{"denom":"umuon","address":$addr}')
-   curl -X POST --header "Content-Type: application/json" --data "$JSON" http://49.12.73.189:8001/credit
+   JSON=$(jq -n --arg addr $(wasmd keys show -a sender) '{"denom":"usponge","address":$addr}')
+   curl -X POST --header "Content-Type: application/json" --data "$JSON" https://faucet.oysternet.cosmwasm.com/credit
    ```
 
-3. Create another account to send tokens to
+3. Create a valid IrisNet address to send tokens to
    ```sh
-   wasmd keys add receiver
+   RCPT=$(ibc-setup keys list | grep nyancat | cut -d' '  -f2)
    ```
+   TODO: setup irisnet binary and make real account there
+
 4. Send tokens
    ```sh
-   wasmd tx ibc-transfer transfer transfer <channel-id> $(wasmd keys show -a receiver) 200umuon --from $(wasmd keys show -a sender) --node http://168.119.254.205:26657 --chain-id network-1 --fees 2000umuon
+   wasmd tx ibc-transfer transfer transfer <channel-id> "$RCPT" 200usponge --from $(wasmd keys show -a sender) --node http://rpc.oysternet.cosmwasm.com:80 --chain-id oysternet-1 --fees 2000usponge --packet-timeout-height 0-0
    ```
    - replace `<channel-id>` with the channel id obtained while configuring the relayer (2nd point)
    - if you cleared out the terminal, query the channel
      ```sh
-     # replace `connection-id` with value of `srcConnection` property from `~/.ibc-setup/app.yaml` file
-     ibc-setup channels --chain relayer_test_1 --connection <connection-id>
+     ibc-setup channels --chain oysternet
      ```
 5. Observe the relayer output
 
