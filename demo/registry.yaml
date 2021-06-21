@@ -45,3 +45,12 @@ chains:
     ics20_port: 'transfer'
     rpc:
       - https://rpc.cosmos.network:443
+  nyancat:
+    # This is a long-living testnet by IrisNet
+    chain_id: nyancat-8
+    prefix: iaa
+    gas_price: 0.025unyan
+    hd_path: m/44'/118'/0'/0/0
+    ics20_port: 'transfer'
+    rpc:
+      - http://35.234.10.84:26657/
