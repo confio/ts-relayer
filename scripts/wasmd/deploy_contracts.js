@@ -2,40 +2,46 @@
 /*jshint esversion: 8 */
 
 /* eslint-disable @typescript-eslint/naming-convention */
-const axios = require("axios");
-const { SigningCosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
-const { GasPrice } = require("@cosmjs/stargate");
-const { DirectSecp256k1HdWallet } = require("@cosmjs/proto-signing");
-const { QueryPacketReceiptRequest } = require("@cosmjs/stargate/build/codec/ibc/core/channel/v1/query");
+const axios = require('axios');
+const { SigningCosmWasmClient } = require('@cosmjs/cosmwasm-stargate');
+const { GasPrice } = require('@cosmjs/stargate');
+const { DirectSecp256k1HdWallet } = require('@cosmjs/proto-signing');
+const {
+  QueryPacketReceiptRequest,
+} = require('@cosmjs/stargate/build/codec/ibc/core/channel/v1/query');
 
 // from src/lib/testutils.ts:wasmd
 const config = {
-  endpoint: "http://localhost:26659",
-  bech32prefix: "wasm",
-  feeDenom: "ucosm",
-  gasPrice: GasPrice.fromString("0.025ucosm"),
-  mnemonic: "enlist hip relief stomach skate base shallow young switch frequent cry park",
+  endpoint: 'http://localhost:26659',
+  bech32prefix: 'wasm',
+  feeDenom: 'ucosm',
+  gasPrice: GasPrice.fromString('0.025ucosm'),
+  mnemonic:
+    'enlist hip relief stomach skate base shallow young switch frequent cry park',
 };
 
 const contracts = [
   {
-    name: "cw20-base",
-    wasmUrl: "https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.6.1/cw20_base.wasm",
+    name: 'cw20-base',
+    wasmUrl:
+      'https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.6.1/cw20_base.wasm',
     codeMeta: {
-      source: "https://github.com/CosmWasm/cosmwasm-plus/tree/v0.6.0/contracts/cw20-base",
-      builder: "cosmwasm/workspace-optimizer:0.11.0",
+      source:
+        'https://github.com/CosmWasm/cosmwasm-plus/tree/v0.6.0/contracts/cw20-base',
+      builder: 'cosmwasm/workspace-optimizer:0.11.0',
     },
   },
   {
-    name: "cw20-ics20",
-    wasmUrl: "https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.6.1/cw20_ics20.wasm",
+    name: 'cw20-ics20',
+    wasmUrl:
+      'https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.6.1/cw20_ics20.wasm',
     codeMeta: {
-      source: "https://github.com/CosmWasm/cosmwasm-plus/tree/v0.6.0/contracts/cw20-ics20",
-      builder: "cosmwasm/workspace-optimizer:0.11.0",
+      source:
+        'https://github.com/CosmWasm/cosmwasm-plus/tree/v0.6.0/contracts/cw20-ics20',
+      builder: 'cosmwasm/workspace-optimizer:0.11.0',
     },
   },
 ];
-
 
 // const addresses = [
 //   "wasm1lk46aknye76sgfv65v5zcyyld0fnuu5jg02hs8",
@@ -54,7 +60,7 @@ const contracts = [
 // };
 
 async function downloadWasm(url) {
-  const r = await axios.get(url, { responseType: "arraybuffer" });
+  const r = await axios.get(url, { responseType: 'arraybuffer' });
   if (r.status !== 200) {
     throw new Error(`Download error: ${r.status}`);
   }
@@ -63,36 +69,47 @@ async function downloadWasm(url) {
 
 async function main() {
   // use the faucet account to upload (it has fee tokens)
-  const wallet = await DirectSecp256k1HdWallet.fromMnemonic(config.mnemonic, { prefix: config.bech32prefix});
+  const wallet = await DirectSecp256k1HdWallet.fromMnemonic(config.mnemonic, {
+    prefix: config.bech32prefix,
+  });
   const { address } = (await wallet.getAccounts())[0];
   const options = {
     prefix: config.bech32prefix,
     gasPrice: config.gasPrice,
     gasLimits: {
       upload: 1750000,
-    }
+    },
   };
-  const client = await SigningCosmWasmClient.connectWithSigner(config.endpoint, wallet, options);
+  const client = await SigningCosmWasmClient.connectWithSigner(
+    config.endpoint,
+    wallet,
+    options
+  );
 
   const uploaded = [];
   for (const contract of contracts) {
     console.info(`Downloading ${contract.name} at ${contract.wasmUrl}...`);
     const wasm = await downloadWasm(contract.wasmUrl);
-    const receipt = await client.upload(address, wasm, contract.codeMeta, `Upload ${contract.name}`);
+    const receipt = await client.upload(
+      address,
+      wasm,
+      contract.codeMeta,
+      `Upload ${contract.name}`
+    );
     console.debug(`Upload succeeded. Receipt: ${JSON.stringify(receipt)}`);
-    uploaded.push({codeId: receipt.codeId, name: contract.name});
+    uploaded.push({ codeId: receipt.codeId, name: contract.name });
   }
 
-  uploaded.forEach(x => console.log(x));
+  uploaded.forEach((x) => console.log(x));
 }
 
 main().then(
   () => {
-    console.info("All done, let the coins flow.");
+    console.info('All done, let the coins flow.');
     process.exit(0);
   },
   (error) => {
     console.error(error);
     process.exit(1);
-  },
+  }
 );
