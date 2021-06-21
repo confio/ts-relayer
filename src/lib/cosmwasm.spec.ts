@@ -1,6 +1,7 @@
 import test from 'ava';
 
-import { setupWasmClient } from './testutils';
+import { Link } from './link';
+import { ics20, setup, setupWasmClient } from './testutils';
 
 const codeIds = {
   cw20: 1,
@@ -47,4 +48,33 @@ test.serial('successfully instantiate contracts', async (t) => {
     'ICS'
   );
   t.truthy(ics20Addr);
+});
+
+test.serial('set up channel with ics20 contract', async (t) => {
+  const cosmwasm = await setupWasmClient();
+
+  // instantiate ics20
+  const ics20Msg = {
+    default_timeout: 3600,
+  };
+  const { contractAddress: ics20Addr } = await cosmwasm.sign.instantiate(
+    cosmwasm.senderAddress,
+    codeIds.ics20,
+    ics20Msg,
+    'ICS'
+  );
+  t.truthy(ics20Addr);
+
+  // FIXME: query this when https://github.com/cosmos/cosmjs/issues/836 is resolved
+  const wasmPort = `wasm.${ics20Addr}`;
+
+  const [src, dest] = await setup();
+  const link = await Link.createWithNewConnections(src, dest);
+  await link.createChannel(
+    'A',
+    ics20.srcPortId,
+    wasmPort,
+    ics20.ordering,
+    ics20.version
+  );
 });
