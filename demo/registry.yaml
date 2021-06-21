@@ -49,7 +49,7 @@ chains:
     # This is a long-living testnet by IrisNet
     chain_id: nyancat-8
     prefix: iaa
-    gas_price: 0.025unyan
+    gas_price: 0.2unyan
     hd_path: m/44'/118'/0'/0/0
     ics20_port: 'transfer'
     rpc:

@@ -61,19 +61,29 @@ Reads the configuration and starts relaying packets.
 1. Init the configuration
 
    ```sh
-   ibc-setup init --src relayer_test_1 --dest relayer_test_2
+   ibc-setup init --src oysternet --dest nyancat
    ```
 
    - creates relayer's home directory at `~/.ibc-setup`
    - creates `app.yaml` inside relayer's home with `src`, `dest` and newly generated `mnemonic`
    - pulls default `registry.yaml` to relayer's home
-   - funds addresses on both sides so relayer can pay the fee while relaying packets
+   - funds addresses on `oysternet` so relayer can pay the fee while relaying packets
 
-   > **NOTE:** Test blockchains `relayer_test_1` and `relayer_test_2` are running in the public. You do not need to start any blockchain locally to complete the quick start guide.
+   > **NOTE:** Both testnets are running in the public. You do not need to start any blockchain locally to complete the quick start guide.
 
    > **NOTE:** Run `ibc-setup balances` to see the amount of tokens on each address.
 
-2. Create `ics20` channel
+2. Get testnet tokens for `nyancat`
+
+   - Find your relayer address on nyancat via: `ibc-setup keys list | grep nyancat`
+   - Join IrisNet discord with [this invite link](https://discord.gg/X6dZZxs3#nyncat-faucet)
+   - Go to the `nyancat-faucet` channel
+   - Request tokens at this address in the above channel: `$faucet iaa1fxmqew9dgg44jdf3l34zwa8rx7tcf42wz8ehjk`
+   - Check you have tokens on oysternet and nyancat via `ibc-setup balances`
+
+   [Original Instructions from IrisNet](https://github.com/irisnet/testnets/tree/master/nyancat#faucet)
+
+3. Create `ics20` channel
 
    ```sh
    ibc-setup ics20
