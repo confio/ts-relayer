@@ -1,4 +1,4 @@
-import { toBase64, toUtf8 } from '@cosmjs/encoding';
+import { fromUtf8, toBase64, toUtf8 } from '@cosmjs/encoding';
 import { assert } from '@cosmjs/utils';
 import test from 'ava';
 
@@ -28,11 +28,12 @@ function cw20init(owner: string, symbol: string): Record<string, unknown> {
 
 async function balance(
   cosmwasm: CosmWasmSigner,
-  cw20Addr: string
+  cw20Addr: string,
+  senderAddress?: string
 ): Promise<string> {
   const query = {
     balance: {
-      address: cosmwasm.senderAddress,
+      address: senderAddress || cosmwasm.senderAddress,
     },
   };
   const res = await cosmwasm.sign.queryContractSmart(cw20Addr, query);
@@ -209,5 +210,33 @@ test.only('send packets with ics20 contract', async (t) => {
   // and send the acks over
   await link.relayAcks('B', txAcks2);
 
-  // TODO: send other token over channel
+  // balance updated on recipient
+  const gotBal = await balance(cosmwasm, cw20Addr, dest.senderAddress);
+  t.is(gotBal, '456789000');
+
+  // send native token over channel (from dest -> cosmwasm chain)
+  const timeoutHeight2 = await dest.timeoutHeight(500);
+  const nativeCoin = {
+    denom: 'umuon',
+    amount: '111111',
+  };
+  await src.transferTokens(
+    channels.src.portId,
+    channels.src.channelId,
+    nativeCoin,
+    dest.senderAddress,
+    timeoutHeight2
+  );
+  await src.waitOneBlock();
+
+  // relaye this packet
+  const packets3 = await link.getPendingPackets('A');
+  t.is(packets3.length, 1);
+  const txAcks3 = await link.relayPackets('A', packets3);
+  t.is(txAcks3.length, 1);
+  // and expect error on ack
+  const parsedAck = JSON.parse(fromUtf8(txAcks3[0].acknowledgement));
+  console.log(parsedAck);
+  t.truthy(parsedAck.error);
+  t.falsy(parsedAck.result);
 });
