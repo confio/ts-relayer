@@ -11,6 +11,8 @@ To start two local blockchains, so we can test, run the following commands in tw
 ./scripts/simapp/start.sh
 # in another console
 ./scripts/wasmd/start.sh
+# in yet another console
+./scripts/gaia/start.sh
 ```
 
 When you are done, you can run the following in any console:
@@ -18,6 +20,7 @@ When you are done, you can run the following in any console:
 ```sh
 ./scripts/simapp/stop.sh
 ./scripts/wasmd/stop.sh
+./scripts/gaia/stop.sh
 ```
 
 ### Setup binaries
