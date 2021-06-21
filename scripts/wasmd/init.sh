@@ -10,6 +10,6 @@ echo "Waiting for height to be >= 1 ..."
 timeout 20 bash -c "until [ \"\$( curl -s http://localhost:1319/blocks/latest | jq -r '.block.header.height // 0' )\" -ge 1 ]; do sleep 0.5; done"
 echo "Okay, thank you for your patience."
 
-SCRIPT_DIR="$(realpath "$(dirname "$0")")"1319
+SCRIPT_DIR="$(realpath "$(dirname "$0")")"
 
 "$SCRIPT_DIR/deploy_contracts.js"

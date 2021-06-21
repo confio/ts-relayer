@@ -117,6 +117,9 @@ jobs:
             sleep 1
             echo "Chains up and running!"
       - run:
+          name: Upload wasm contracts
+          command: ./scripts/wasmd/init.sh
+      - run:
           command: yarn test
       - run:
           name: Stop chains
