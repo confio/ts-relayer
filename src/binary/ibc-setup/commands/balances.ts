@@ -1,11 +1,8 @@
 import path from 'path';
 
-import { stringToPath } from '@cosmjs/crypto';
-import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 import { GasPrice } from '@cosmjs/stargate';
 
 import { Coin } from '../../../codec/cosmos/base/v1beta1/coin';
-import { IbcClient } from '../../../lib/ibcclient';
 import { registryFile } from '../../constants';
 import { Logger } from '../../create-logger';
 import { borderlessTable } from '../../utils/borderless-table';
@@ -14,6 +11,7 @@ import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry'
 import { resolveHomeOption } from '../../utils/options/shared/resolve-home-option';
 import { resolveKeyFileOption } from '../../utils/options/shared/resolve-key-file-option';
 import { resolveMnemonicOption } from '../../utils/options/shared/resolve-mnemonic-option';
+import { signingClient } from '../../utils/signing-client';
 
 import { Flags, getAddresses, Options } from './keys-list';
 
@@ -45,32 +43,13 @@ export async function run(options: Options, logger: Logger) {
   const balances = (
     await Promise.allSettled(
       addresses.map(async ([chain, data, address]) => {
-        const hdPathsToSpread = data.hd_path
-          ? { hdPaths: [stringToPath(data.hd_path)] }
-          : {};
-        const signer = await DirectSecp256k1HdWallet.fromMnemonic(
+        const client = await signingClient(
+          data,
           options.mnemonic,
-          {
-            prefix: data.prefix,
-            ...hdPathsToSpread,
-          }
+          logger.child({ label: chain })
         );
-
         const gasPrice = GasPrice.fromString(data.gas_price);
-
-        const client = await IbcClient.connectWithSigner(
-          data.rpc[0], // rpc[0] is guaranteed to be defined by registry validator
-          signer,
-          address,
-          {
-            prefix: data.prefix,
-            gasPrice,
-            logger,
-          }
-        );
-
         const coin = await client.query.bank.balance(address, gasPrice.denom);
-
         return [chain, coin];
       })
     )
