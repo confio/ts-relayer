@@ -76,12 +76,12 @@ Reads the configuration and starts relaying packets.
 2. Get testnet tokens for `nyancat`
 
    - Find your relayer address on nyancat via: `ibc-setup keys list | grep nyancat`
-   - Join IrisNet discord with [this invite link](https://discord.gg/X6dZZxs3#nyncat-faucet)
+   - Join IRISnet discord with [this invite link](https://discord.gg/X6dZZxs3#nyncat-faucet)
    - Go to the `nyancat-faucet` channel
    - Request tokens at this address in the above channel: `$faucet iaa1fxmqew9dgg44jdf3l34zwa8rx7tcf42wz8ehjk`
    - Check you have tokens on oysternet and nyancat via `ibc-setup balances`
 
-   [Original Instructions from IrisNet](https://github.com/irisnet/testnets/tree/master/nyancat#faucet)
+   [Original Instructions from IRISnet](https://github.com/irisnet/testnets/tree/master/nyancat#faucet)
 
 3. Create `ics20` channel
 
@@ -111,8 +111,19 @@ Reads the configuration and starts relaying packets.
      git checkout v0.15.1
      make install
      ```
+2. Make sure `iris` binary is installed on your system
 
-2. Create a new account and fund it
+   - you must be running Linux or OSX on amd64
+   - [install Go 1.15+](https://golang.org/doc/install) and ensure that `$PATH` includes Go binaries (you may need to restart your terminal session)
+   - clone and install `iris`:
+     ```sh
+     git clone https://github.com/irisnet/irishub
+     cd irishub
+     git checkout v1.1.1
+     make install
+     ```
+
+3. Create a new account and fund it
 
    ```sh
    wasmd keys add sender
@@ -120,24 +131,24 @@ Reads the configuration and starts relaying packets.
    curl -X POST --header "Content-Type: application/json" --data "$JSON" https://faucet.oysternet.cosmwasm.com/credit
    ```
 
-3. Create a valid IrisNet address to send tokens to
+4. Create a valid IRISnet address to send tokens to
 
    ```sh
-   RCPT=$(ibc-setup keys list | grep nyancat | cut -d' '  -f2)
+   iris keys add receiver
    ```
 
-   TODO: setup irisnet binary and make real account there
+   [Get testnet tokens](https://github.com/irisnet/testnets/tree/master/nyancat#faucet) if you want to send tokens to `oysternet`.
 
-4. Send tokens
+5. Send tokens
    ```sh
-   wasmd tx ibc-transfer transfer transfer <channel-id> "$RCPT" 200usponge --from $(wasmd keys show -a sender) --node http://rpc.oysternet.cosmwasm.com:80 --chain-id oysternet-1 --fees 2000usponge --packet-timeout-height 0-0
+   wasmd tx ibc-transfer transfer transfer <channel-id> $(iris keys show -a receiver) 200usponge --from $(wasmd keys show -a sender) --node http://rpc.oysternet.cosmwasm.com:80 --chain-id oysternet-1 --fees 2000usponge --packet-timeout-height 0-0
    ```
    - replace `<channel-id>` with the channel id obtained while configuring the relayer (2nd point)
    - if you cleared out the terminal, query the channel
      ```sh
      ibc-setup channels --chain oysternet
      ```
-5. Observe the relayer output
+6. Observe the relayer output
 
 ## Configuration overview
 
