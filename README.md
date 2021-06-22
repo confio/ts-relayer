@@ -111,6 +111,7 @@ Reads the configuration and starts relaying packets.
      git checkout v0.15.1
      make install
      ```
+
 2. Make sure `iris` binary is installed on your system
 
    - you must be running Linux or OSX on amd64
