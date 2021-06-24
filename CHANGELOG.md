@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.0
+
+### Minor Changes
+
+- b124983: Added the handling of begin and end block events
+
+### Patch Changes
+
+- 8589c03: Added the ability to specify custom gas limits for each chain
+
 ## 0.1.6
 
 ### Patch Changes
