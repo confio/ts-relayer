@@ -26,22 +26,52 @@ in a future version (thus all files are versioned as 1).
 version: 1
 
 chains:
-  - musselnet:
-      - chain_id: musselnet-2
-      # bech32 prefix for addresses
-      - prefix: wasm
-      # this determines the gas payments we make (and defines the fee token)
-      - gas_price: 0.1umayo
-      # the path we use to derive the private key from the mnemonic
-      - hd_path: 44'/108'/0'/1'
-      # if you include an optional faucet, it will load the relayer with tokens in `ibc-setup init`
-      - faucet: https://faucet.musselnet.cosmwasm.com
-      # you can include multiple RPC endpoints and it will rotate through them if
-      # one is down
-      - rpc:
-          - https://rpc.musselnet.cosmwasm.com:443
-          - https://rpc.musselnet.aneka.com:443
-  - bifrost:
+  oysternet:
+    chain_id: oysternet-1
+    # Bech32 prefix for addresses
+    prefix: wasm
+    # This determines the gas payments we make (and defines the fee token)
+    gas_price: 0.025usponge
+    # this defines the gas limits we are going to use
+    gas_limits:
+      # max amount of gas to be used when performing client init transactions
+      init_client: 150000
+      # # max amount of gas to be used when performing client update transactions
+      update_client:
+        600000
+        # max amount of gas to be used when performing connection init transactions
+      init_connection:
+        150000
+        # max amount of gas to be used when performing connection handshakes transactions
+      connection_handshake:
+        300000
+        # max amount of gas to be used when performing channel init transactions
+      init_channel:
+        150000
+        # max amount of gas to be used when performing channel handshakes transactions
+      channel_handshake:
+        300000
+        # max amount of gas to be used when receiving packets
+      receive_packet:
+        300000
+        # max amount of gas to be used when receiving acknowledgments
+      ack_packet:
+        300000
+        # max amount of gas to be used when receiving timeout packets
+      timeout_packet:
+        300000
+        # max amount of gas to be used when performing transfer transactions
+      transfer: 180000
+    # the path we use to derive the private key from the mnemonic
+    hd_path: 44'/108'/0'/1'
+    # if you include an optional faucet, it will load the relayer with tokens in `ibc-setup init`
+    faucet: https://faucet.musselnet.cosmwasm.com
+    # you can include multiple RPC endpoints and it will rotate through them if
+    # one is down
+    rpc:
+      - https://rpc.musselnet.cosmwasm.com:443
+      - https://rpc.musselnet.aneka.com:443
+  bifrost:
     # ...
 ```
 
