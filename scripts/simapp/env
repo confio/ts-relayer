@@ -1,5 +1,5 @@
 # Choose from https://hub.docker.com/r/interchainio/simapp/tags
 REPOSITORY="interchainio/simapp"
 # We pin this to the oldest version we want to maintain compatibility with
-VERSION="v0.41.1"
+VERSION="v0.42.4"
 CONTAINER_NAME="simapp"

@@ -1,6 +1,8 @@
 import { fromUtf8, toHex, toUtf8 } from '@cosmjs/encoding';
 import { BroadcastTxFailure, Coin, logs, StdFee } from '@cosmjs/stargate';
+const { parseEvent } = logs;
 import {
+  BlockResultsResponse,
   ReadonlyDateWithNanoseconds,
   Header as RpcHeader,
   ValidatorPubkey as RpcPubKey,
@@ -191,6 +193,28 @@ interface ParsedAttribute {
 interface ParsedEvent {
   readonly type: string;
   readonly attributes: readonly ParsedAttribute[];
+}
+
+function decodeBase64(value: Uint8Array): string {
+  return Buffer.from(value).toString('binary');
+}
+
+export function parsePacketsFromBlockResult(
+  result: BlockResultsResponse
+): Packet[] {
+  const allEvents: ParsedEvent[] = result.beginBlockEvents
+    .concat(...result.endBlockEvents)
+    .filter(({ type }) => type === 'send_packet')
+    .map(({ type, attributes }) => ({
+      type,
+      attributes: attributes.map(({ key, value }) => ({
+        key: decodeBase64(key),
+        value: decodeBase64(value),
+      })),
+    }));
+
+  const flatEvents = ([] as ParsedEvent[]).concat(allEvents.map(parseEvent));
+  return flatEvents.map(parsePacket);
 }
 
 export function parsePacketsFromLogs(logs: readonly logs.Log[]): Packet[] {

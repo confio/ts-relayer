@@ -5,7 +5,12 @@ import { CommitResponse } from '@cosmjs/tendermint-rpc';
 import { Packet } from '../codec/ibc/core/channel/v1/channel';
 
 import { IbcClient } from './ibcclient';
-import { Ack, parseAcksFromLogs, parsePacketsFromLogs } from './utils';
+import {
+  Ack,
+  parseAcksFromLogs,
+  parsePacketsFromBlockResult,
+  parsePacketsFromLogs,
+} from './utils';
 
 export interface PacketWithMetadata {
   packet: Packet;
@@ -54,8 +59,35 @@ export class Endpoint {
     return this.client.getCommit();
   }
 
-  // returns all packets (auto-paginates, so be careful about not setting a minHeight)
-  public async querySentPackets({
+  private async getPacketsFromBlockEvents({
+    minHeight,
+    maxHeight,
+  }: QueryOpts = {}): Promise<PacketWithMetadata[]> {
+    let query = `send_packet.packet_connection='${this.connectionID}'`;
+    if (minHeight) {
+      query = `${query} AND block.height>=${minHeight}`;
+    }
+    if (maxHeight) {
+      query = `${query} AND block.height<=${maxHeight}`;
+    }
+
+    const search = await this.client.tm.blockSearchAll({ query });
+    const resultsNested = await Promise.all(
+      search.blocks.map(async ({ block }) => {
+        const height = block.header.height;
+        const result = await this.client.tm.blockResults(height);
+        return parsePacketsFromBlockResult(result).map((packet) => ({
+          packet,
+          height,
+          sender: '',
+        }));
+      })
+    );
+
+    return ([] as PacketWithMetadata[]).concat(...resultsNested);
+  }
+
+  private async getPacketsFromTxs({
     minHeight,
     maxHeight,
   }: QueryOpts = {}): Promise<PacketWithMetadata[]> {
@@ -90,6 +122,21 @@ export class Endpoint {
       }));
     });
     return ([] as PacketWithMetadata[]).concat(...resultsNested);
+  }
+
+  // returns all packets (auto-paginates, so be careful about not setting a minHeight)
+  public async querySentPackets({
+    minHeight,
+    maxHeight,
+  }: QueryOpts = {}): Promise<PacketWithMetadata[]> {
+    const txsPackets = await this.getPacketsFromTxs({ minHeight, maxHeight });
+    const eventsPackets = await this.getPacketsFromBlockEvents({
+      minHeight,
+      maxHeight,
+    });
+    return ([] as PacketWithMetadata[])
+      .concat(...txsPackets)
+      .concat(...eventsPackets);
   }
 
   // returns all acks (auto-paginates, so be careful about not setting a minHeight)
