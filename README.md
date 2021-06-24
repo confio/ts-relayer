@@ -18,6 +18,16 @@ You can see an example of embedding the relayer in a [webapp below](#Web-App).
 - RPC addresses of 2 full nodes on compatible, IBC-enabled chains
 - See [Chain Requirements below](#Chain-Requirements) for details of what chains are supported
 
+## Important Note
+
+Versions until `v0.1.6` support Cosmos SDK `v0.41.1+`.
+From `v0.2.0` on we require Tendermint `v0.34.9+` (which is used in SDK `v0.42.4+`).
+If you are connecting to a v0.41 chain, please use the `v0.1.x` relayer.
+
+With `v0.2.0` we add support for relaying packets in BeginBlock and EndBlock. However, this requires
+an extra rpc endpoint in Tendermint that is not available in `v0.41.1`. We therefore increase the
+minimum compatible version of the SDK.
+
 ## Installation
 
 ### NPM
