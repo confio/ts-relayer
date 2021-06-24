@@ -32,28 +32,28 @@ chains:
       - prefix: wasm
       # this determines the gas payments we make (and defines the fee token)
       - gas_price: 0.1umayo
-      # this defines the gas limits we are going to use 
-      - gas_limits: 
-        # max amount of gas to be used when performing client init transactions
-        - init_client: 150000
-        # # max amount of gas to be used when performing client update transactions
-        - update_client: 600000
-          # max amount of gas to be used when performing connection init transactions
-        - init_connection: 150000
-          # max amount of gas to be used when performing connection handshakes transactions
-        - connection_handshake: 300000
-          # max amount of gas to be used when performing channel init transactions
-        - init_channel: 150000
-          # max amount of gas to be used when performing channel handshakes transactions
-        - channel_handshake: 300000
-          # max amount of gas to be used when receiving packets
-        - receive_packet: 300000
-          # max amount of gas to be used when receiving acknowledgments
-        - ack_packet: 300000
-          # max amount of gas to be used when receiving timeout packets
-        - timeout_packet: 300000
-          # max amount of gas to be used when performing transfer transactions
-        - transfer: 180000
+      # this defines the gas limits we are going to use
+      - gas_limits:
+          # max amount of gas to be used when performing client init transactions
+          - init_client: 150000
+          # # max amount of gas to be used when performing client update transactions
+          - update_client: 600000
+            # max amount of gas to be used when performing connection init transactions
+          - init_connection: 150000
+            # max amount of gas to be used when performing connection handshakes transactions
+          - connection_handshake: 300000
+            # max amount of gas to be used when performing channel init transactions
+          - init_channel: 150000
+            # max amount of gas to be used when performing channel handshakes transactions
+          - channel_handshake: 300000
+            # max amount of gas to be used when receiving packets
+          - receive_packet: 300000
+            # max amount of gas to be used when receiving acknowledgments
+          - ack_packet: 300000
+            # max amount of gas to be used when receiving timeout packets
+          - timeout_packet: 300000
+            # max amount of gas to be used when performing transfer transactions
+          - transfer: 180000
       # the path we use to derive the private key from the mnemonic
       - hd_path: 44'/108'/0'/1'
       # if you include an optional faucet, it will load the relayer with tokens in `ibc-setup init`
