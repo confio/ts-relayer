@@ -57,7 +57,7 @@ test.serial('lists connections', async (t) => {
 
   fsReadFileSync.returns(registryYaml);
 
-  await run(options, (logger as unknown) as Logger);
+  await run(options, logger as unknown as Logger);
 
   const tableRow = [link.endA.connectionID, link.endA.clientID, 0, 'Open'];
   const match = new RegExp(tableRow.join('\\s+'));

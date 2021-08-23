@@ -92,8 +92,10 @@ test.serial('connects two chains', async (t) => {
   const ibcClientSimapp = await signingClient(simappChain, mnemonic);
   const ibcClientWasm = await signingClient(wasmdChain, mnemonic);
 
-  const allConnectionsWasm = await ibcClientWasm.query.ibc.connection.allConnections();
-  const allConnectionsSimapp = await ibcClientSimapp.query.ibc.connection.allConnections();
+  const allConnectionsWasm =
+    await ibcClientWasm.query.ibc.connection.allConnections();
+  const allConnectionsSimapp =
+    await ibcClientSimapp.query.ibc.connection.allConnections();
 
   const options: Options = {
     home: '/home/user',
@@ -107,7 +109,7 @@ test.serial('connects two chains', async (t) => {
   fsReadFileSync.returns(registryYaml);
   fsWriteFileSync.returns();
 
-  await run(options, app, (logger as unknown) as Logger);
+  await run(options, app, logger as unknown as Logger);
 
   const args = fsWriteFileSync.getCall(0).args as [string, string];
   const contentsRegexp = new RegExp(
@@ -123,23 +125,23 @@ destConnection: .+
   t.assert(consoleLog.calledOnce);
   t.assert(consoleLog.calledWithMatch(/Created connections/));
 
-  const nextAllConnectionsWasm = await ibcClientWasm.query.ibc.connection.allConnections();
+  const nextAllConnectionsWasm =
+    await ibcClientWasm.query.ibc.connection.allConnections();
   const destConnectionIdMatch = /destConnection: (?<connection>.+)/.exec(
     args[1]
   );
   const destConnectionId = destConnectionIdMatch?.groups?.connection;
   assert(destConnectionId);
-  const nextConnectionWasm = await ibcClientWasm.query.ibc.connection.connection(
-    destConnectionId
-  );
+  const nextConnectionWasm =
+    await ibcClientWasm.query.ibc.connection.connection(destConnectionId);
 
-  const nextAllConnectionsSimapp = await ibcClientSimapp.query.ibc.connection.allConnections();
+  const nextAllConnectionsSimapp =
+    await ibcClientSimapp.query.ibc.connection.allConnections();
   const srcConnectionIdMatch = /srcConnection: (?<connection>.+)/.exec(args[1]);
   const srcConnectionId = srcConnectionIdMatch?.groups?.connection;
   assert(srcConnectionId);
-  const nextConnectionSimapp = await ibcClientSimapp.query.ibc.connection.connection(
-    srcConnectionId
-  );
+  const nextConnectionSimapp =
+    await ibcClientSimapp.query.ibc.connection.connection(srcConnectionId);
 
   t.is(
     nextAllConnectionsWasm.connections.length,
@@ -159,8 +161,10 @@ test.serial('connects two chains fails with too low gas', async (t) => {
   const ibcClientSimapp = await signingClient(simappChain, mnemonic);
   const ibcClientWasm = await signingClient(wasmdChain, mnemonic);
 
-  const allConnectionsWasm = await ibcClientWasm.query.ibc.connection.allConnections();
-  const allConnectionsSimapp = await ibcClientSimapp.query.ibc.connection.allConnections();
+  const allConnectionsWasm =
+    await ibcClientWasm.query.ibc.connection.allConnections();
+  const allConnectionsSimapp =
+    await ibcClientSimapp.query.ibc.connection.allConnections();
 
   const options: Options = {
     home: '/home/user',
@@ -175,10 +179,12 @@ test.serial('connects two chains fails with too low gas', async (t) => {
   fsWriteFileSync.returns();
 
   // this should throw an error when trying to set up the connection
-  await t.throwsAsync(() => run(options, app, (logger as unknown) as Logger));
+  await t.throwsAsync(() => run(options, app, logger as unknown as Logger));
 
-  const nextAllConnectionsWasm = await ibcClientWasm.query.ibc.connection.allConnections();
-  const nextAllConnectionsSimapp = await ibcClientSimapp.query.ibc.connection.allConnections();
+  const nextAllConnectionsWasm =
+    await ibcClientWasm.query.ibc.connection.allConnections();
+  const nextAllConnectionsSimapp =
+    await ibcClientSimapp.query.ibc.connection.allConnections();
   // no connection can be made
   t.is(
     nextAllConnectionsWasm.connections.length,
@@ -196,8 +202,10 @@ test.serial('connects two chains with explicit high gas works', async (t) => {
   const ibcClientSimapp = await signingClient(simappChain, mnemonic);
   const ibcClientWasm = await signingClient(wasmdChain, mnemonic);
 
-  const allConnectionsWasm = await ibcClientWasm.query.ibc.connection.allConnections();
-  const allConnectionsSimapp = await ibcClientSimapp.query.ibc.connection.allConnections();
+  const allConnectionsWasm =
+    await ibcClientWasm.query.ibc.connection.allConnections();
+  const allConnectionsSimapp =
+    await ibcClientSimapp.query.ibc.connection.allConnections();
 
   const options: Options = {
     home: '/home/user',
@@ -212,10 +220,12 @@ test.serial('connects two chains with explicit high gas works', async (t) => {
   fsWriteFileSync.returns();
 
   // this will NOT fail
-  await run(options, app, (logger as unknown) as Logger);
+  await run(options, app, logger as unknown as Logger);
 
-  const nextAllConnectionsWasm = await ibcClientWasm.query.ibc.connection.allConnections();
-  const nextAllConnectionsSimapp = await ibcClientSimapp.query.ibc.connection.allConnections();
+  const nextAllConnectionsWasm =
+    await ibcClientWasm.query.ibc.connection.allConnections();
+  const nextAllConnectionsSimapp =
+    await ibcClientSimapp.query.ibc.connection.allConnections();
   // one connection is made
   t.is(
     nextAllConnectionsWasm.connections.length,

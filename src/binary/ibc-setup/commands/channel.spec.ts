@@ -66,7 +66,7 @@ test.serial('creates channel for given connections and ports', async (t) => {
 
   fsReadFileSync.returns(registryYaml);
 
-  await run(options, (logger as unknown) as Logger);
+  await run(options, logger as unknown as Logger);
 
   t.assert(consoleLog.calledWithMatch(/Created channel:/));
 

@@ -502,27 +502,24 @@ export class IbcClient {
     } = await this.query.ibc.proof.client.state(clientId, queryHeight);
 
     // This is the most recent state we have on this chain of the other
-    const {
-      latestHeight: consensusHeight,
-    } = await this.query.ibc.client.stateTm(clientId);
+    const { latestHeight: consensusHeight } =
+      await this.query.ibc.client.stateTm(clientId);
     assert(consensusHeight);
 
     // get the init proof
-    const {
-      proof: proofConnection,
-    } = await this.query.ibc.proof.connection.connection(
-      connectionId,
-      queryHeight
-    );
+    const { proof: proofConnection } =
+      await this.query.ibc.proof.connection.connection(
+        connectionId,
+        queryHeight
+      );
 
     // get the consensus proof
-    const {
-      proof: proofConsensus,
-    } = await this.query.ibc.proof.client.consensusState(
-      clientId,
-      consensusHeight,
-      queryHeight
-    );
+    const { proof: proofConsensus } =
+      await this.query.ibc.proof.client.consensusState(
+        clientId,
+        consensusHeight,
+        queryHeight
+      );
 
     return {
       clientId,

@@ -25,13 +25,13 @@ const localWasmArgs = buildIbcArgs('http://localhost:26659');
 const localSimappArgs = buildIbcArgs('http://localhost:26658');
 
 async function createFakeIbcClient(amount: string, denom: string) {
-  return ({
+  return {
     query: {
       bank: {
         balance: sinon.fake.returns({ amount, denom }),
       },
     },
-  } as unknown) as IbcClient;
+  } as unknown as IbcClient;
 }
 
 test.beforeEach(() => {
@@ -86,7 +86,7 @@ test('lists chains with non-zero balance', async (t) => {
     .withArgs(...localSimappArgs)
     .returns(createFakeIbcClient('3', 'simappdenom'));
 
-  await run(options, (logger as unknown) as Logger);
+  await run(options, logger as unknown as Logger);
 
   t.assert(fsReadFileSync.calledOnce);
   t.assert(consoleLog.calledOnce);
@@ -120,7 +120,7 @@ test('omits chains with zero balance', async (t) => {
     .withArgs(...localSimappArgs)
     .returns(createFakeIbcClient('3', 'simappdenom'));
 
-  await run(options, (logger as unknown) as Logger);
+  await run(options, logger as unknown as Logger);
 
   t.assert(fsReadFileSync.calledOnce);
   t.assert(consoleLog.calledOnce);
@@ -153,7 +153,7 @@ test('informs when there are no funds on any balance', async (t) => {
     .withArgs(...localSimappArgs)
     .returns(createFakeIbcClient('0', 'simappdenom'));
 
-  await run(options, (logger as unknown) as Logger);
+  await run(options, logger as unknown as Logger);
 
   t.assert(fsReadFileSync.calledOnce);
   t.assert(consoleLog.calledOnce);

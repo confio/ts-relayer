@@ -70,7 +70,7 @@ test('lists channels for given chain (A)', async (t) => {
 
   fsReadFileSync.returns(registryYaml);
 
-  await run(options, (logger as unknown) as Logger);
+  await run(options, logger as unknown as Logger);
 
   const output = consoleLog.getCall(-1);
 
@@ -102,7 +102,7 @@ test('lists channels for given chain (B)', async (t) => {
 
   fsReadFileSync.returns(registryYaml);
 
-  await run(options, (logger as unknown) as Logger);
+  await run(options, logger as unknown as Logger);
 
   const output = consoleLog.getCall(-1);
 
@@ -134,7 +134,7 @@ test('filters channels by port', async (t) => {
 
   fsReadFileSync.returns(registryYaml);
 
-  await run(options, (logger as unknown) as Logger);
+  await run(options, logger as unknown as Logger);
 
   const output = consoleLog.getCall(-1).args[0] as string;
 
@@ -162,7 +162,7 @@ test('filters channels by port (non-existing port)', async (t) => {
 
   fsReadFileSync.returns(registryYaml);
 
-  await run(options, (logger as unknown) as Logger);
+  await run(options, logger as unknown as Logger);
 
   t.assert(consoleLog.getCall(-1).calledWithMatch(/No channels found/));
 });
@@ -180,7 +180,7 @@ test('filters channels by connection', async (t) => {
 
   fsReadFileSync.returns(registryYaml);
 
-  await run(options, (logger as unknown) as Logger);
+  await run(options, logger as unknown as Logger);
 
   const output = consoleLog.getCall(-1).args[0] as string;
 
@@ -210,7 +210,7 @@ test('filters channels by connection (non-existing connection)', async (t) => {
 
   fsReadFileSync.returns(registryYaml);
 
-  await run(options, (logger as unknown) as Logger);
+  await run(options, logger as unknown as Logger);
 
   t.assert(consoleLog.getCall(-1).calledWithMatch(/No channels found/));
 });
@@ -228,7 +228,7 @@ test('filters channels by port and connection', async (t) => {
 
   fsReadFileSync.returns(registryYaml);
 
-  await run(options, (logger as unknown) as Logger);
+  await run(options, logger as unknown as Logger);
 
   const output = consoleLog.getCall(-1).args[0] as string;
 
@@ -258,7 +258,7 @@ test('filters channels by port and connection (non-existing connection)', async 
 
   fsReadFileSync.returns(registryYaml);
 
-  await run(options, (logger as unknown) as Logger);
+  await run(options, logger as unknown as Logger);
 
   t.assert(consoleLog.getCall(-1).calledWithMatch(/No channels found/));
 });

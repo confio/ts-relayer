@@ -102,9 +102,8 @@ export async function run(options: Options, logger: Logger) {
 
   const client = await signingClient(chain, mnemonic, logger);
 
-  const {
-    channels: allChannels,
-  } = await client.query.ibc.channel.allChannels();
+  const { channels: allChannels } =
+    await client.query.ibc.channel.allChannels();
 
   const channels = allChannels
     .filter(

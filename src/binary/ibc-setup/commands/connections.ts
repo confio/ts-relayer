@@ -89,9 +89,8 @@ export async function run(options: Options, logger: Logger) {
 
   const client = await signingClient(chain, mnemonic, logger);
 
-  const {
-    connections: allConnections,
-  } = await client.query.ibc.connection.allConnections();
+  const { connections: allConnections } =
+    await client.query.ibc.connection.allConnections();
 
   const connections = allConnections.map((connection: IdentifiedConnection) => [
     connection.id,
