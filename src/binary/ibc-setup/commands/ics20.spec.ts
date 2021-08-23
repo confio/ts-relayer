@@ -53,8 +53,10 @@ test.serial('ics20 create channels with new connection', async (t) => {
   const ibcClientSimapp = await signingClient(simappChain, mnemonic);
   const ibcClientWasm = await signingClient(wasmdChain, mnemonic);
 
-  const allConnectionsWasm = await ibcClientWasm.query.ibc.connection.allConnections();
-  const allConnectionsSimapp = await ibcClientSimapp.query.ibc.connection.allConnections();
+  const allConnectionsWasm =
+    await ibcClientWasm.query.ibc.connection.allConnections();
+  const allConnectionsSimapp =
+    await ibcClientSimapp.query.ibc.connection.allConnections();
 
   const options: Options = {
     home: '/home/user',
@@ -71,7 +73,7 @@ test.serial('ics20 create channels with new connection', async (t) => {
   fsReadFileSync.returns(registryYaml);
   fsWriteFileSync.returns();
 
-  await run(options, app, (logger as unknown) as Logger);
+  await run(options, app, logger as unknown as Logger);
 
   const args = fsWriteFileSync.getCall(0).args as [string, string];
   const contentsRegexp = new RegExp(
@@ -88,23 +90,23 @@ destConnection: .+
   t.assert(consoleLog.calledWithMatch(/Created connections/));
   t.assert(consoleLog.calledWithMatch(/Created channel/));
 
-  const nextAllConnectionsWasm = await ibcClientWasm.query.ibc.connection.allConnections();
+  const nextAllConnectionsWasm =
+    await ibcClientWasm.query.ibc.connection.allConnections();
   const srcConnectionIdMatch = /srcConnection: (?<connection>.+)/.exec(args[1]);
   const srcConnectionId = srcConnectionIdMatch?.groups?.connection;
   assert(srcConnectionId);
-  const nextConnectionWasm = await ibcClientWasm.query.ibc.connection.connection(
-    srcConnectionId
-  );
+  const nextConnectionWasm =
+    await ibcClientWasm.query.ibc.connection.connection(srcConnectionId);
 
-  const nextAllConnectionsSimapp = await ibcClientSimapp.query.ibc.connection.allConnections();
+  const nextAllConnectionsSimapp =
+    await ibcClientSimapp.query.ibc.connection.allConnections();
   const destConnectionIdMatch = /destConnection: (?<connection>.+)/.exec(
     args[1]
   );
   const destConnectionId = destConnectionIdMatch?.groups?.connection;
   assert(destConnectionId);
-  const nextConnectionSimapp = await ibcClientSimapp.query.ibc.connection.connection(
-    destConnectionId
-  );
+  const nextConnectionSimapp =
+    await ibcClientSimapp.query.ibc.connection.connection(destConnectionId);
 
   t.is(
     nextAllConnectionsWasm.connections.length,
@@ -128,8 +130,10 @@ test.serial('ics20 create channels with existing connection', async (t) => {
     ibcClientSimapp
   );
 
-  const allConnectionsSimapp = await ibcClientSimapp.query.ibc.connection.allConnections();
-  const allConnectionsWasm = await ibcClientWasm.query.ibc.connection.allConnections();
+  const allConnectionsSimapp =
+    await ibcClientSimapp.query.ibc.connection.allConnections();
+  const allConnectionsWasm =
+    await ibcClientWasm.query.ibc.connection.allConnections();
 
   const options: Options = {
     home: '/home/user',
@@ -149,7 +153,7 @@ test.serial('ics20 create channels with existing connection', async (t) => {
   fsReadFileSync.returns(registryYaml);
   fsWriteFileSync.returns();
 
-  await run(options, app, (logger as unknown) as Logger);
+  await run(options, app, logger as unknown as Logger);
 
   const args = fsWriteFileSync.getCall(0).args as [string, string];
   const contentsRegexp = new RegExp(
@@ -167,8 +171,10 @@ destConnection: ${link.endB.connectionID}
   t.assert(consoleLog.calledWithMatch(/Used existing connections/));
   t.assert(consoleLog.calledWithMatch(/Created channel/));
 
-  const nextAllConnectionsWasm = await ibcClientWasm.query.ibc.connection.allConnections();
-  const nextAllConnectionsSimapp = await ibcClientSimapp.query.ibc.connection.allConnections();
+  const nextAllConnectionsWasm =
+    await ibcClientWasm.query.ibc.connection.allConnections();
+  const nextAllConnectionsSimapp =
+    await ibcClientSimapp.query.ibc.connection.allConnections();
 
   t.is(
     nextAllConnectionsWasm.connections.length,

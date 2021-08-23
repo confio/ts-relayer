@@ -95,13 +95,11 @@ export class Link {
   ): Promise<Link> {
     const [chainA, chainB] = [nodeA.chainId, nodeB.chainId];
 
-    const [
-      { connection: connectionA },
-      { connection: connectionB },
-    ] = await Promise.all([
-      nodeA.query.ibc.connection.connection(connA),
-      nodeB.query.ibc.connection.connection(connB),
-    ]);
+    const [{ connection: connectionA }, { connection: connectionB }] =
+      await Promise.all([
+        nodeA.query.ibc.connection.connection(connA),
+        nodeB.query.ibc.connection.connection(connB),
+      ]);
     if (!connectionA) {
       throw new Error(`[${chainA}] Connection not found for ID ${connA}`);
     }
@@ -468,17 +466,13 @@ export class Link {
     timedoutThresholdSeconds = 0
   ): Promise<RelayedHeights> {
     // FIXME: is there a cleaner way to get the height we query at?
-    const [
-      packetHeightA,
-      packetHeightB,
-      packetsA,
-      packetsB,
-    ] = await Promise.all([
-      this.endA.client.currentHeight(),
-      this.endB.client.currentHeight(),
-      this.getPendingPackets('A', { minHeight: relayFrom.packetHeightA }),
-      this.getPendingPackets('B', { minHeight: relayFrom.packetHeightB }),
-    ]);
+    const [packetHeightA, packetHeightB, packetsA, packetsB] =
+      await Promise.all([
+        this.endA.client.currentHeight(),
+        this.endB.client.currentHeight(),
+        this.getPendingPackets('A', { minHeight: relayFrom.packetHeightA }),
+        this.getPendingPackets('B', { minHeight: relayFrom.packetHeightB }),
+      ]);
 
     const cutoffHeightA = await this.endB.client.timeoutHeight(
       timedoutThresholdBlocks
@@ -767,12 +761,11 @@ export class Link {
           originalPacket: packet,
           acknowledgement: new Uint8Array(),
         };
-        const {
-          nextSequenceReceive: sequence,
-        } = await dest.client.query.ibc.channel.nextSequenceReceive(
-          packet.destinationPort,
-          packet.destinationChannel
-        );
+        const { nextSequenceReceive: sequence } =
+          await dest.client.query.ibc.channel.nextSequenceReceive(
+            packet.destinationPort,
+            packet.destinationChannel
+          );
         const proof = await dest.client.getTimeoutProof(fakeAck, headerHeight);
         return { proof, sequence };
       })
