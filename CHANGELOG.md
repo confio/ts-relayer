@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.1
+
+### Patch Changes
+
+- c8408bb: Added Juno testnet details to registry
+- efe3d0d: Update yarn dependencies
+
 ## 0.2.0
 
 ### Minor Changes
