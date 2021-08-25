@@ -13,30 +13,16 @@ const codeIds: Record<string, number> = {
 
 interface WasmData {
   wasmUrl: string;
-  codeMeta: {
-    source: string;
-    builder: string;
-  };
 }
 
 const contracts: Record<string, WasmData> = {
   cw20: {
     wasmUrl:
-      'https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.6.1/cw20_base.wasm',
-    codeMeta: {
-      source:
-        'https://github.com/CosmWasm/cosmwasm-plus/tree/v0.6.0/contracts/cw20-base',
-      builder: 'cosmwasm/workspace-optimizer:0.11.0',
-    },
+      'https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.8.0/cw20_base.wasm',
   },
   ics20: {
     wasmUrl:
-      'https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.6.1/cw20_ics20.wasm',
-    codeMeta: {
-      source:
-        'https://github.com/CosmWasm/cosmwasm-plus/tree/v0.6.0/contracts/cw20-ics20',
-      builder: 'cosmwasm/workspace-optimizer:0.11.0',
-    },
+      'https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.8.0/cw20_ics20.wasm',
   },
 };
 
@@ -58,7 +44,6 @@ test.before(async (t) => {
     const receipt = await cosmwasm.sign.upload(
       cosmwasm.senderAddress,
       wasm,
-      contract.codeMeta,
       `Upload ${name}`
     );
     console.debug(`Upload ${name} with CodeID: ${receipt.codeId}`);
