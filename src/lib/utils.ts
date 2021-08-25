@@ -1,11 +1,11 @@
 import { fromUtf8, toHex, toUtf8 } from '@cosmjs/encoding';
-import { BroadcastTxFailure, Coin, logs, StdFee } from '@cosmjs/stargate';
+import { BroadcastTxFailure, logs } from '@cosmjs/stargate';
 const { parseEvent } = logs;
 import {
   BlockResultsResponse,
   ReadonlyDateWithNanoseconds,
-  Header as RpcHeader,
   ValidatorPubkey as RpcPubKey,
+  tendermint34,
 } from '@cosmjs/tendermint-rpc';
 import Long from 'long';
 
@@ -109,7 +109,7 @@ export function secondsFromDateNanos(
 }
 
 export function buildConsensusState(
-  header: RpcHeader
+  header: tendermint34.Header
 ): TendermintConsensusState {
   return TendermintConsensusState.fromPartial({
     timestamp: timestampFromDateNanos(header.time),
@@ -322,21 +322,6 @@ export function parseAck({ type, attributes }: ParsedEvent): Ack {
     acknowledgement,
     originalPacket,
   };
-}
-
-export function multiplyFees({ gas, amount }: StdFee, mult: number): StdFee {
-  const multGas = Number.parseInt(gas, 10) * mult;
-  const multAmount = amount.map((c) => multiplyCoin(c, mult));
-  const result = {
-    gas: multGas.toString(),
-    amount: multAmount,
-  };
-  return result;
-}
-
-export function multiplyCoin({ amount, denom }: Coin, mult: number): Coin {
-  const multAmount = Number.parseInt(amount, 10) * mult;
-  return { amount: multAmount.toString(), denom };
 }
 
 // return true if a > b, or a undefined
