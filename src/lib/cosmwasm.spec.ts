@@ -1,4 +1,5 @@
 import { fromUtf8, toBase64, toUtf8 } from '@cosmjs/encoding';
+import { calculateFee, GasPrice } from '@cosmjs/stargate';
 import { assert } from '@cosmjs/utils';
 import test from 'ava';
 import axios from 'axios';
@@ -13,30 +14,16 @@ const codeIds: Record<string, number> = {
 
 interface WasmData {
   wasmUrl: string;
-  codeMeta: {
-    source: string;
-    builder: string;
-  };
 }
 
 const contracts: Record<string, WasmData> = {
   cw20: {
     wasmUrl:
-      'https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.6.1/cw20_base.wasm',
-    codeMeta: {
-      source:
-        'https://github.com/CosmWasm/cosmwasm-plus/tree/v0.6.0/contracts/cw20-base',
-      builder: 'cosmwasm/workspace-optimizer:0.11.0',
-    },
+      'https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.8.0/cw20_base.wasm',
   },
   ics20: {
     wasmUrl:
-      'https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.6.1/cw20_ics20.wasm',
-    codeMeta: {
-      source:
-        'https://github.com/CosmWasm/cosmwasm-plus/tree/v0.6.0/contracts/cw20-ics20',
-      builder: 'cosmwasm/workspace-optimizer:0.11.0',
-    },
+      'https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.8.0/cw20_ics20.wasm',
   },
 };
 
@@ -48,6 +35,8 @@ async function downloadWasm(url: string) {
   return r.data;
 }
 
+const testingGasPrice = GasPrice.fromString('0.025ucosm');
+
 test.before(async (t) => {
   const cosmwasm = await setupWasmClient();
 
@@ -58,7 +47,7 @@ test.before(async (t) => {
     const receipt = await cosmwasm.sign.upload(
       cosmwasm.senderAddress,
       wasm,
-      contract.codeMeta,
+      calculateFee(1750000, testingGasPrice),
       `Upload ${name}`
     );
     console.debug(`Upload ${name} with CodeID: ${receipt.codeId}`);
@@ -108,7 +97,8 @@ test.serial('successfully instantiate contracts', async (t) => {
     cosmwasm.senderAddress,
     codeIds.cw20,
     initMsg,
-    'DEMO'
+    'DEMO',
+    calculateFee(300_000, testingGasPrice)
   );
   t.truthy(cw20Addr);
 
@@ -123,7 +113,8 @@ test.serial('successfully instantiate contracts', async (t) => {
     cosmwasm.senderAddress,
     codeIds.ics20,
     ics20Msg,
-    'ICS'
+    'ICS',
+    calculateFee(300_000, testingGasPrice)
   );
   t.truthy(ics20Addr);
 });
@@ -139,7 +130,8 @@ test.serial('set up channel with ics20 contract', async (t) => {
     cosmwasm.senderAddress,
     codeIds.ics20,
     ics20Msg,
-    'ICS'
+    'ICS',
+    calculateFee(300_000, testingGasPrice)
   );
   t.truthy(ics20Addr);
 
@@ -166,7 +158,8 @@ test.serial('send packets with ics20 contract', async (t) => {
     cosmwasm.senderAddress,
     codeIds.cw20,
     initMsg,
-    'CASH'
+    'CASH',
+    calculateFee(300_000, testingGasPrice)
   );
   t.truthy(cw20Addr);
   let bal = await balance(cosmwasm, cw20Addr);
@@ -180,7 +173,8 @@ test.serial('send packets with ics20 contract', async (t) => {
     cosmwasm.senderAddress,
     codeIds.ics20,
     ics20Msg,
-    'ICSX'
+    'ICSX',
+    calculateFee(300_000, testingGasPrice)
   );
   t.truthy(ics20Addr);
   // FIXME: query this when https://github.com/cosmos/cosmjs/issues/836 is resolved
@@ -213,6 +207,7 @@ test.serial('send packets with ics20 contract', async (t) => {
     cosmwasm.senderAddress,
     cw20Addr,
     sendMsg,
+    calculateFee(300_000, testingGasPrice),
     'Send CW20 tokens via ICS20'
   );
 

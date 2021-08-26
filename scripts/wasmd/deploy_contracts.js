@@ -24,22 +24,12 @@ const contracts = [
   {
     name: 'cw20-base',
     wasmUrl:
-      'https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.6.1/cw20_base.wasm',
-    codeMeta: {
-      source:
-        'https://github.com/CosmWasm/cosmwasm-plus/tree/v0.6.0/contracts/cw20-base',
-      builder: 'cosmwasm/workspace-optimizer:0.11.0',
-    },
+      'https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.8.0/cw20_base.wasm',
   },
   {
     name: 'cw20-ics20',
     wasmUrl:
-      'https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.6.1/cw20_ics20.wasm',
-    codeMeta: {
-      source:
-        'https://github.com/CosmWasm/cosmwasm-plus/tree/v0.6.0/contracts/cw20-ics20',
-      builder: 'cosmwasm/workspace-optimizer:0.11.0',
-    },
+      'https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.8.0/cw20_ics20.wasm',
   },
 ];
 
