@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.0
+
+### Minor Changes
+
+- ca2b9fe: Update cosmjs to 0.26
+
 ## 0.2.1
 
 ### Patch Changes
