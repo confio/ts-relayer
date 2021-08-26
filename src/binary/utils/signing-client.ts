@@ -30,20 +30,18 @@ export async function signingClient(
   const options: IbcClientOptions = {
     prefix: chain.prefix,
     gasPrice: GasPrice.fromString(chain.gas_price),
-    // TODO: these currently end up as "undefined" which overrides defaults...
-    // figure out how to optionally set them without causing issues when unset
-    // gasLimits: {
-    //   initClient: chain.gas_limits?.init_client,
-    //   updateClient: chain.gas_limits?.update_client,
-    //   initConnection: chain.gas_limits?.init_connection,
-    //   connectionHandshake: chain.gas_limits?.connection_handshake,
-    //   initChannel: chain.gas_limits?.init_channel,
-    //   channelHandshake: chain.gas_limits?.channel_handshake,
-    //   receivePacket: chain.gas_limits?.receive_packet,
-    //   ackPacket: chain.gas_limits?.ack_packet,
-    //   timeoutPacket: chain.gas_limits?.ack_packet,
-    //   transfer: chain.gas_limits?.transfer,
-    // },
+    gasLimits: {
+      initClient: chain.gas_limits?.init_client,
+      updateClient: chain.gas_limits?.update_client,
+      initConnection: chain.gas_limits?.init_connection,
+      connectionHandshake: chain.gas_limits?.connection_handshake,
+      initChannel: chain.gas_limits?.init_channel,
+      channelHandshake: chain.gas_limits?.channel_handshake,
+      receivePacket: chain.gas_limits?.receive_packet,
+      ackPacket: chain.gas_limits?.ack_packet,
+      timeoutPacket: chain.gas_limits?.ack_packet,
+      transfer: chain.gas_limits?.transfer,
+    },
     logger,
     ...extras,
   };

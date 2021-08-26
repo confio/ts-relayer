@@ -282,7 +282,25 @@ export class IbcClient {
 
     const { gasPrice = defaultGasPrice, gasLimits = {}, logger } = options;
     this.gasPrice = gasPrice;
-    this.limits = { ...defaultGasLimits, ...gasLimits };
+    // we must do this explicitly, not
+    //   this.limits = { ...defaultGasLimits, ...gasLimits };
+    // so undefined in gasLimits don't overwrite defaults
+    this.limits = {
+      bankSend: gasLimits.bankSend || defaultGasLimits.bankSend,
+      initClient: gasLimits.initClient || defaultGasLimits.initClient,
+      updateClient: gasLimits.updateClient || defaultGasLimits.updateClient,
+      initConnection:
+        gasLimits.initConnection || defaultGasLimits.initConnection,
+      connectionHandshake:
+        gasLimits.connectionHandshake || defaultGasLimits.connectionHandshake,
+      initChannel: gasLimits.initChannel || defaultGasLimits.initChannel,
+      channelHandshake:
+        gasLimits.channelHandshake || defaultGasLimits.channelHandshake,
+      receivePacket: gasLimits.receivePacket || defaultGasLimits.receivePacket,
+      ackPacket: gasLimits.ackPacket || defaultGasLimits.ackPacket,
+      timeoutPacket: gasLimits.timeoutPacket || defaultGasLimits.timeoutPacket,
+      transfer: gasLimits.transfer || defaultGasLimits.transfer,
+    };
     this.logger = logger ?? new NoopLogger();
   }
 
