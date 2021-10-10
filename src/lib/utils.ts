@@ -57,7 +57,7 @@ export function parseRevisionNumber(chainId: string): Long {
   if (match && match.length >= 2) {
     return Long.fromString(match[1]);
   }
-  return new Long(0);
+  return Long.ZERO;
 }
 
 // may will run the transform if value is defined, otherwise returns undefined
@@ -97,7 +97,7 @@ export function timestampFromDateNanos(
 ): Timestamp {
   const nanos = (date.getTime() % 1000) * 1000000 + (date.nanoseconds ?? 0);
   return Timestamp.fromPartial({
-    seconds: new Long(date.getTime() / 1000),
+    seconds: Long.fromNumber(date.getTime() / 1000),
     nanos,
   });
 }
@@ -169,13 +169,13 @@ export function buildClientState(
       denominator: Long.fromInt(3),
     },
     unbondingPeriod: {
-      seconds: new Long(unbondingPeriodSec),
+      seconds: Long.fromNumber(unbondingPeriodSec),
     },
     trustingPeriod: {
-      seconds: new Long(trustPeriodSec),
+      seconds: Long.fromNumber(trustPeriodSec),
     },
     maxClockDrift: {
-      seconds: new Long(20),
+      seconds: Long.fromNumber(20),
     },
     latestHeight: height,
     proofSpecs: [iavlSpec, tendermintSpec],
