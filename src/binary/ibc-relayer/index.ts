@@ -65,4 +65,11 @@ const startCommand = program
 
 addLoggerOptionsTo(startCommand);
 
-program.parse(process.argv);
+// We don't have top-level await in commonjs
+program.parseAsync(process.argv).then(
+  () => process.exit(0),
+  (err) => {
+    console.error(err);
+    process.exit(5);
+  }
+);
