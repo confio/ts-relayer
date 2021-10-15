@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.1
+
+### Patch Changes
+
+- 3e0ade2: Fix misusage of commander for async actions
+- 97c5530: Avoid the usage of Long constructor with one argument
+
 ## 0.3.0
 
 ### Minor Changes
