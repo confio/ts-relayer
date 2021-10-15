@@ -109,7 +109,7 @@ const defaultConnectionVersion: Version = {
   features: ['ORDER_ORDERED', 'ORDER_UNORDERED'],
 };
 // this is a sane default, but we can revisit it
-const defaultDelayPeriod = new Long(0);
+const defaultDelayPeriod = Long.ZERO;
 
 function ibcRegistry(): Registry {
   return new Registry([
@@ -306,7 +306,7 @@ export class IbcClient {
 
   public revisionHeight(height: number): Height {
     return Height.fromPartial({
-      revisionHeight: new Long(height),
+      revisionHeight: Long.fromNumber(height),
       revisionNumber: this.revisionNumber,
     });
   }
@@ -409,9 +409,9 @@ export class IbcClient {
     const header = Header.fromPartial({
       ...rpcHeader,
       version: {
-        block: new Long(rpcHeader.version.block),
+        block: Long.fromNumber(rpcHeader.version.block),
       },
-      height: new Long(rpcHeader.height),
+      height: Long.fromNumber(rpcHeader.height),
       time: timestampFromDateNanos(rpcHeader.time),
       lastBlockId: {
         hash: rpcHeader.lastBlockId?.hash,
@@ -425,7 +425,7 @@ export class IbcClient {
       blockIdFlag: blockIDFlagFromJSON(sig.blockIdFlag),
     }));
     const commit = Commit.fromPartial({
-      height: new Long(rpcCommit.height),
+      height: Long.fromNumber(rpcCommit.height),
       round: rpcCommit.round,
       blockId: {
         hash: rpcCommit.blockId.hash,
@@ -447,9 +447,9 @@ export class IbcClient {
     const mappedValidators = validators.validators.map((val) => ({
       address: val.address,
       pubKey: mapRpcPubKeyToProto(val.pubkey),
-      votingPower: new Long(val.votingPower),
+      votingPower: Long.fromNumber(val.votingPower),
       proposerPriority: val.proposerPriority
-        ? new Long(val.proposerPriority)
+        ? Long.fromNumber(val.proposerPriority)
         : undefined,
     }));
     const totalPower = validators.validators.reduce(
@@ -461,7 +461,7 @@ export class IbcClient {
     );
     return ValidatorSet.fromPartial({
       validators: mappedValidators,
-      totalVotingPower: new Long(totalPower),
+      totalVotingPower: Long.fromNumber(totalPower),
       proposer,
     });
   }
