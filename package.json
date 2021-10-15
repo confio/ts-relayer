@@ -1,6 +1,6 @@
 {
   "name": "@confio/relayer",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "IBC Relayer in TypeScript",
   "repository": "https://github.com/confio/ts-relayer",
   "license": "MIT",
