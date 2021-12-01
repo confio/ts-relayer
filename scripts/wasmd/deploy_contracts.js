@@ -6,9 +6,6 @@ const axios = require('axios');
 const { SigningCosmWasmClient } = require('@cosmjs/cosmwasm-stargate');
 const { GasPrice } = require('@cosmjs/stargate');
 const { DirectSecp256k1HdWallet } = require('@cosmjs/proto-signing');
-const {
-  QueryPacketReceiptRequest,
-} = require('@cosmjs/stargate/build/codec/ibc/core/channel/v1/query');
 
 // from src/lib/testutils.ts:wasmd
 const config = {
