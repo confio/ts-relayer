@@ -41,6 +41,7 @@
     "ajv": "7.1.1",
     "axios": "0.21.4",
     "commander": "7.1.0",
+    "cosmjs-types": "^0.4.0",
     "fast-safe-stringify": "2.0.4",
     "js-yaml": "4.0.0",
     "lodash": "4.17.21",

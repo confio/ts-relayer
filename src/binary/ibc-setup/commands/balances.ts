@@ -1,8 +1,8 @@
 import path from 'path';
 
 import { GasPrice } from '@cosmjs/stargate';
+import { Coin } from 'cosmjs-types/cosmos/base/v1beta1/coin';
 
-import { Coin } from '../../../codec/cosmos/base/v1beta1/coin';
 import { registryFile } from '../../constants';
 import { Logger } from '../../create-logger';
 import { borderlessTable } from '../../utils/borderless-table';

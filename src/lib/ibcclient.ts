@@ -23,12 +23,9 @@ import {
   Tendermint34Client,
 } from '@cosmjs/tendermint-rpc';
 import { arrayContentEquals, assert, sleep } from '@cosmjs/utils';
-import cloneDeep from 'lodash/cloneDeep';
-import Long from 'long';
-
-import { Any } from '../codec/google/protobuf/any';
-import { MsgTransfer } from '../codec/ibc/applications/transfer/v1/tx';
-import { Order, Packet, State } from '../codec/ibc/core/channel/v1/channel';
+import { Any } from 'cosmjs-types/google/protobuf/any';
+import { MsgTransfer } from 'cosmjs-types/ibc/applications/transfer/v1/tx';
+import { Order, Packet, State } from 'cosmjs-types/ibc/core/channel/v1/channel';
 import {
   MsgAcknowledgement,
   MsgChannelOpenAck,
@@ -37,31 +34,33 @@ import {
   MsgChannelOpenTry,
   MsgRecvPacket,
   MsgTimeout,
-} from '../codec/ibc/core/channel/v1/tx';
-import { Height } from '../codec/ibc/core/client/v1/client';
+} from 'cosmjs-types/ibc/core/channel/v1/tx';
+import { Height } from 'cosmjs-types/ibc/core/client/v1/client';
 import {
   MsgCreateClient,
   MsgUpdateClient,
-} from '../codec/ibc/core/client/v1/tx';
-import { Version } from '../codec/ibc/core/connection/v1/connection';
+} from 'cosmjs-types/ibc/core/client/v1/tx';
+import { Version } from 'cosmjs-types/ibc/core/connection/v1/connection';
 import {
   MsgConnectionOpenAck,
   MsgConnectionOpenConfirm,
   MsgConnectionOpenInit,
   MsgConnectionOpenTry,
-} from '../codec/ibc/core/connection/v1/tx';
+} from 'cosmjs-types/ibc/core/connection/v1/tx';
 import {
   ClientState as TendermintClientState,
   ConsensusState as TendermintConsensusState,
   Header as TendermintHeader,
-} from '../codec/ibc/lightclients/tendermint/v1/tendermint';
+} from 'cosmjs-types/ibc/lightclients/tendermint/v1/tendermint';
 import {
   blockIDFlagFromJSON,
   Commit,
   Header,
   SignedHeader,
-} from '../codec/tendermint/types/types';
-import { ValidatorSet } from '../codec/tendermint/types/validator';
+} from 'cosmjs-types/tendermint/types/types';
+import { ValidatorSet } from 'cosmjs-types/tendermint/types/validator';
+import cloneDeep from 'lodash/cloneDeep';
+import Long from 'long';
 
 import { Logger, NoopLogger } from './logger';
 import { IbcExtension, setupIbcExtension } from './queries/ibc';
