@@ -4,11 +4,9 @@ import {
   createProtobufRpcClient,
   QueryClient,
 } from '@cosmjs/stargate';
-import Long from 'long';
-
-import { CommitmentProof } from '../../codec/confio/proofs';
-import { Any } from '../../codec/google/protobuf/any';
-import { Channel } from '../../codec/ibc/core/channel/v1/channel';
+import { CommitmentProof } from 'cosmjs-types/confio/proofs';
+import { Any } from 'cosmjs-types/google/protobuf/any';
+import { Channel } from 'cosmjs-types/ibc/core/channel/v1/channel';
 import {
   QueryClientImpl as ChannelQuery,
   QueryChannelClientStateResponse,
@@ -24,8 +22,8 @@ import {
   QueryPacketReceiptResponse,
   QueryUnreceivedAcksResponse,
   QueryUnreceivedPacketsResponse,
-} from '../../codec/ibc/core/channel/v1/query';
-import { Height } from '../../codec/ibc/core/client/v1/client';
+} from 'cosmjs-types/ibc/core/channel/v1/query';
+import { Height } from 'cosmjs-types/ibc/core/client/v1/client';
 import {
   QueryClientImpl as ClientQuery,
   QueryClientParamsResponse,
@@ -34,9 +32,9 @@ import {
   QueryConsensusStateRequest,
   QueryConsensusStateResponse,
   QueryConsensusStatesResponse,
-} from '../../codec/ibc/core/client/v1/query';
-import { MerkleProof } from '../../codec/ibc/core/commitment/v1/commitment';
-import { ConnectionEnd } from '../../codec/ibc/core/connection/v1/connection';
+} from 'cosmjs-types/ibc/core/client/v1/query';
+import { MerkleProof } from 'cosmjs-types/ibc/core/commitment/v1/commitment';
+import { ConnectionEnd } from 'cosmjs-types/ibc/core/connection/v1/connection';
 import {
   QueryClientImpl as ConnectionQuery,
   QueryClientConnectionsResponse,
@@ -45,12 +43,13 @@ import {
   QueryConnectionConsensusStateResponse,
   QueryConnectionResponse,
   QueryConnectionsResponse,
-} from '../../codec/ibc/core/connection/v1/query';
+} from 'cosmjs-types/ibc/core/connection/v1/query';
 import {
   ClientState as TendermintClientState,
   ConsensusState as TendermintConsensusState,
-} from '../../codec/ibc/lightclients/tendermint/v1/tendermint';
-import { ProofOps } from '../../codec/tendermint/crypto/proof';
+} from 'cosmjs-types/ibc/lightclients/tendermint/v1/tendermint';
+import { ProofOps } from 'cosmjs-types/tendermint/crypto/proof';
+import Long from 'long';
 
 function decodeTendermintClientStateAny(
   clientState: Any | undefined

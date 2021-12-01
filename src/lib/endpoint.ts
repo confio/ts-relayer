@@ -1,8 +1,7 @@
 import { toHex } from '@cosmjs/encoding';
 import { logs } from '@cosmjs/stargate';
 import { tendermint34 } from '@cosmjs/tendermint-rpc';
-
-import { Packet } from '../codec/ibc/core/channel/v1/channel';
+import { Packet } from 'cosmjs-types/ibc/core/channel/v1/channel';
 
 import { IbcClient } from './ibcclient';
 import {

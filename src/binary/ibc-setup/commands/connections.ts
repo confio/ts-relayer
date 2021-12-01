@@ -1,7 +1,8 @@
 import path from 'path';
 
-import { State as ConnectionState } from '../../../codec/ibc/core/connection/v1/connection';
-import { IdentifiedConnection } from '../../../codec/ibc/core/connection/v1/connection';
+import { State as ConnectionState } from 'cosmjs-types/ibc/core/connection/v1/connection';
+import { IdentifiedConnection } from 'cosmjs-types/ibc/core/connection/v1/connection';
+
 import { registryFile } from '../../constants';
 import { Logger } from '../../create-logger';
 import { borderlessTable } from '../../utils/borderless-table';

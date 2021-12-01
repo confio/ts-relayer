@@ -1,7 +1,6 @@
 import { sleep } from '@cosmjs/utils';
 import test from 'ava';
-
-import { MsgTransfer } from '../codec/ibc/applications/transfer/v1/tx';
+import { MsgTransfer } from 'cosmjs-types/ibc/applications/transfer/v1/tx';
 
 import { buildCreateClientArgs, prepareConnectionHandshake } from './ibcclient';
 import { Link } from './link';

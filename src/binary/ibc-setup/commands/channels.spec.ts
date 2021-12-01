@@ -2,9 +2,9 @@ import fs from 'fs';
 import os from 'os';
 
 import test from 'ava';
+import { State as ChannelState } from 'cosmjs-types/ibc/core/channel/v1/channel';
 import sinon from 'sinon';
 
-import { State as ChannelState } from '../../../codec/ibc/core/channel/v1/channel';
 import { ChannelPair, Link } from '../../../lib/link';
 import { TestLogger } from '../../../lib/testutils';
 import { ics20 } from '../../../lib/testutils';
