@@ -7,7 +7,7 @@ import {
   Coin,
   defaultRegistryTypes,
   GasPrice,
-  isBroadcastTxFailure,
+  isDeliverTxFailure,
   logs,
   QueryClient,
   setupAuthExtension,
@@ -69,7 +69,7 @@ import {
   Ack,
   buildClientState,
   buildConsensusState,
-  createBroadcastTxErrorMessage,
+  createDeliverTxFailureMessage,
   mapRpcPubKeyToProto,
   parseRevisionNumber,
   presentPacketData,
@@ -662,8 +662,8 @@ export class IbcClient {
       calculateFee(this.limits.bankSend, this.gasPrice),
       memo
     );
-    if (isBroadcastTxFailure(result)) {
-      throw new Error(createBroadcastTxErrorMessage(result));
+    if (isDeliverTxFailure(result)) {
+      throw new Error(createDeliverTxFailureMessage(result));
     }
     const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
@@ -686,8 +686,8 @@ export class IbcClient {
     const senderAddress = this.senderAddress;
     const fee = calculateFee(gasLimit, this.gasPrice);
     const result = await this.sign.signAndBroadcast(senderAddress, msgs, fee);
-    if (isBroadcastTxFailure(result)) {
-      throw new Error(createBroadcastTxErrorMessage(result));
+    if (isDeliverTxFailure(result)) {
+      throw new Error(createDeliverTxFailureMessage(result));
     }
     const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
@@ -724,8 +724,8 @@ export class IbcClient {
       [createMsg],
       calculateFee(this.limits.initClient, this.gasPrice)
     );
-    if (isBroadcastTxFailure(result)) {
-      throw new Error(createBroadcastTxErrorMessage(result));
+    if (isDeliverTxFailure(result)) {
+      throw new Error(createDeliverTxFailureMessage(result));
     }
     const parsedLogs = logs.parseRawLog(result.rawLog);
 
@@ -776,8 +776,8 @@ export class IbcClient {
       [updateMsg],
       calculateFee(this.limits.updateClient, this.gasPrice)
     );
-    if (isBroadcastTxFailure(result)) {
-      throw new Error(createBroadcastTxErrorMessage(result));
+    if (isDeliverTxFailure(result)) {
+      throw new Error(createDeliverTxFailureMessage(result));
     }
     const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
@@ -813,8 +813,8 @@ export class IbcClient {
       [msg],
       calculateFee(this.limits.initConnection, this.gasPrice)
     );
-    if (isBroadcastTxFailure(result)) {
-      throw new Error(createBroadcastTxErrorMessage(result));
+    if (isDeliverTxFailure(result)) {
+      throw new Error(createDeliverTxFailureMessage(result));
     }
     const parsedLogs = logs.parseRawLog(result.rawLog);
     const connectionId = logs.findAttribute(
@@ -887,8 +887,8 @@ export class IbcClient {
       [msg],
       calculateFee(this.limits.connectionHandshake, this.gasPrice)
     );
-    if (isBroadcastTxFailure(result)) {
-      throw new Error(createBroadcastTxErrorMessage(result));
+    if (isDeliverTxFailure(result)) {
+      throw new Error(createDeliverTxFailureMessage(result));
     }
     const parsedLogs = logs.parseRawLog(result.rawLog);
     const myConnectionId = logs.findAttribute(
@@ -957,8 +957,8 @@ export class IbcClient {
       [msg],
       calculateFee(this.limits.connectionHandshake, this.gasPrice)
     );
-    if (isBroadcastTxFailure(result)) {
-      throw new Error(createBroadcastTxErrorMessage(result));
+    if (isDeliverTxFailure(result)) {
+      throw new Error(createDeliverTxFailureMessage(result));
     }
     const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
@@ -996,8 +996,8 @@ export class IbcClient {
       [msg],
       calculateFee(this.limits.connectionHandshake, this.gasPrice)
     );
-    if (isBroadcastTxFailure(result)) {
-      throw new Error(createBroadcastTxErrorMessage(result));
+    if (isDeliverTxFailure(result)) {
+      throw new Error(createDeliverTxFailureMessage(result));
     }
     const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
@@ -1041,8 +1041,8 @@ export class IbcClient {
       [msg],
       calculateFee(this.limits.initChannel, this.gasPrice)
     );
-    if (isBroadcastTxFailure(result)) {
-      throw new Error(createBroadcastTxErrorMessage(result));
+    if (isDeliverTxFailure(result)) {
+      throw new Error(createDeliverTxFailureMessage(result));
     }
     const parsedLogs = logs.parseRawLog(result.rawLog);
     const channelId = logs.findAttribute(
@@ -1102,8 +1102,8 @@ export class IbcClient {
       [msg],
       calculateFee(this.limits.channelHandshake, this.gasPrice)
     );
-    if (isBroadcastTxFailure(result)) {
-      throw new Error(createBroadcastTxErrorMessage(result));
+    if (isDeliverTxFailure(result)) {
+      throw new Error(createDeliverTxFailureMessage(result));
     }
     const parsedLogs = logs.parseRawLog(result.rawLog);
     const channelId = logs.findAttribute(
@@ -1158,8 +1158,8 @@ export class IbcClient {
       [msg],
       calculateFee(this.limits.channelHandshake, this.gasPrice)
     );
-    if (isBroadcastTxFailure(result)) {
-      throw new Error(createBroadcastTxErrorMessage(result));
+    if (isDeliverTxFailure(result)) {
+      throw new Error(createDeliverTxFailureMessage(result));
     }
     const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
@@ -1201,8 +1201,8 @@ export class IbcClient {
       [msg],
       calculateFee(this.limits.channelHandshake, this.gasPrice)
     );
-    if (isBroadcastTxFailure(result)) {
-      throw new Error(createBroadcastTxErrorMessage(result));
+    if (isDeliverTxFailure(result)) {
+      throw new Error(createDeliverTxFailureMessage(result));
     }
     const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
@@ -1275,8 +1275,8 @@ export class IbcClient {
       msgs,
       calculateFee(this.limits.receivePacket * msgs.length, this.gasPrice)
     );
-    if (isBroadcastTxFailure(result)) {
-      throw new Error(createBroadcastTxErrorMessage(result));
+    if (isDeliverTxFailure(result)) {
+      throw new Error(createDeliverTxFailureMessage(result));
     }
     const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
@@ -1358,8 +1358,8 @@ export class IbcClient {
       msgs,
       calculateFee(this.limits.ackPacket * msgs.length, this.gasPrice)
     );
-    if (isBroadcastTxFailure(result)) {
-      throw new Error(createBroadcastTxErrorMessage(result));
+    if (isDeliverTxFailure(result)) {
+      throw new Error(createDeliverTxFailureMessage(result));
     }
     const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
@@ -1441,8 +1441,8 @@ export class IbcClient {
       msgs,
       calculateFee(this.limits.timeoutPacket * msgs.length, this.gasPrice)
     );
-    if (isBroadcastTxFailure(result)) {
-      throw new Error(createBroadcastTxErrorMessage(result));
+    if (isDeliverTxFailure(result)) {
+      throw new Error(createDeliverTxFailureMessage(result));
     }
     const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
@@ -1472,8 +1472,8 @@ export class IbcClient {
       timeoutTime,
       calculateFee(this.limits.transfer, this.gasPrice)
     );
-    if (isBroadcastTxFailure(result)) {
-      throw new Error(createBroadcastTxErrorMessage(result));
+    if (isDeliverTxFailure(result)) {
+      throw new Error(createDeliverTxFailureMessage(result));
     }
     const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
