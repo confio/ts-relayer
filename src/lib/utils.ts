@@ -1,5 +1,5 @@
 import { fromUtf8, toHex, toUtf8 } from '@cosmjs/encoding';
-import { BroadcastTxFailure, logs } from '@cosmjs/stargate';
+import { DeliverTxResponse, logs } from '@cosmjs/stargate';
 const { parseEvent } = logs;
 import {
   BlockResultsResponse,
@@ -26,8 +26,8 @@ export interface Ack {
   readonly originalPacket: Packet;
 }
 
-export function createBroadcastTxErrorMessage(
-  result: BroadcastTxFailure
+export function createDeliverTxFailureMessage(
+  result: DeliverTxResponse
 ): string {
   return `Error when broadcasting tx ${result.transactionHash} at height ${result.height}. Code: ${result.code}; Raw log: ${result.rawLog}`;
 }
