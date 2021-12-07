@@ -1,9 +1,9 @@
 /* eslint-disable */
+import Long from 'long';
 import {
   Counterparty,
   Version,
 } from '../../../../ibc/core/connection/v1/connection';
-import Long from 'long';
 import { Any } from '../../../../google/protobuf/any';
 import { Height } from '../../../../ibc/core/client/v1/client';
 import _m0 from 'protobufjs/minimal';
@@ -1275,3 +1275,8 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+if (_m0.util.Long !== Long) {
+  _m0.util.Long = Long as any;
+  _m0.configure();
+}

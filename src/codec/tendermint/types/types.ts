@@ -1,7 +1,7 @@
 /* eslint-disable */
+import Long from 'long';
 import { Proof } from '../../tendermint/crypto/proof';
 import { Consensus } from '../../tendermint/version/types';
-import Long from 'long';
 import { Timestamp } from '../../google/protobuf/timestamp';
 import { ValidatorSet } from '../../tendermint/types/validator';
 import _m0 from 'protobufjs/minimal';

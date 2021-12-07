@@ -1,6 +1,6 @@
 /* eslint-disable */
-import { Height } from '../../../../ibc/core/client/v1/client';
 import Long from 'long';
+import { Height } from '../../../../ibc/core/client/v1/client';
 import _m0 from 'protobufjs/minimal';
 
 export const protobufPackage = 'ibc.lightclients.localhost.v1';
@@ -109,3 +109,8 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+if (_m0.util.Long !== Long) {
+  _m0.util.Long = Long as any;
+  _m0.configure();
+}

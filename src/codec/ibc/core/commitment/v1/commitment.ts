@@ -1,7 +1,7 @@
 /* eslint-disable */
-import { CommitmentProof } from '../../../../confio/proofs';
 import Long from 'long';
 import _m0 from 'protobufjs/minimal';
+import { CommitmentProof } from '../../../../confio/proofs';
 
 export const protobufPackage = 'ibc.core.commitment.v1';
 
@@ -342,3 +342,8 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+if (_m0.util.Long !== Long) {
+  _m0.util.Long = Long as any;
+  _m0.configure();
+}
