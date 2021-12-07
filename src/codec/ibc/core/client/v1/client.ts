@@ -138,8 +138,8 @@ export const IdentifiedClientState = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<IdentifiedClientState>
+  fromPartial<I extends Exact<DeepPartial<IdentifiedClientState>, I>>(
+    object: I
   ): IdentifiedClientState {
     const message = { ...baseIdentifiedClientState } as IdentifiedClientState;
     message.clientId = object.clientId ?? '';
@@ -219,8 +219,8 @@ export const ConsensusStateWithHeight = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<ConsensusStateWithHeight>
+  fromPartial<I extends Exact<DeepPartial<ConsensusStateWithHeight>, I>>(
+    object: I
   ): ConsensusStateWithHeight {
     const message = {
       ...baseConsensusStateWithHeight,
@@ -305,14 +305,15 @@ export const ClientConsensusStates = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<ClientConsensusStates>
+  fromPartial<I extends Exact<DeepPartial<ClientConsensusStates>, I>>(
+    object: I
   ): ClientConsensusStates {
     const message = { ...baseClientConsensusStates } as ClientConsensusStates;
     message.clientId = object.clientId ?? '';
-    message.consensusStates = (object.consensusStates ?? []).map((e) =>
-      ConsensusStateWithHeight.fromPartial(e)
-    );
+    message.consensusStates =
+      object.consensusStates?.map((e) =>
+        ConsensusStateWithHeight.fromPartial(e)
+      ) || [];
     return message;
   },
 };
@@ -405,7 +406,9 @@ export const ClientUpdateProposal = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<ClientUpdateProposal>): ClientUpdateProposal {
+  fromPartial<I extends Exact<DeepPartial<ClientUpdateProposal>, I>>(
+    object: I
+  ): ClientUpdateProposal {
     const message = { ...baseClientUpdateProposal } as ClientUpdateProposal;
     message.title = object.title ?? '';
     message.description = object.description ?? '';
@@ -480,7 +483,7 @@ export const Height = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<Height>): Height {
+  fromPartial<I extends Exact<DeepPartial<Height>, I>>(object: I): Height {
     const message = { ...baseHeight } as Height;
     message.revisionNumber =
       object.revisionNumber !== undefined && object.revisionNumber !== null
@@ -544,9 +547,9 @@ export const Params = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<Params>): Params {
+  fromPartial<I extends Exact<DeepPartial<Params>, I>>(object: I): Params {
     const message = { ...baseParams } as Params;
-    message.allowedClients = (object.allowedClients ?? []).map((e) => e);
+    message.allowedClients = object.allowedClients?.map((e) => e) || [];
     return message;
   },
 };
@@ -559,6 +562,7 @@ type Builtin =
   | number
   | boolean
   | undefined;
+
 export type DeepPartial<T> = T extends Builtin
   ? T
   : T extends Long
@@ -570,6 +574,14 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+type KeysOfUnion<T> = T extends T ? keyof T : never;
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<
+        Exclude<keyof I, KeysOfUnion<P>>,
+        never
+      >;
 
 if (_m0.util.Long !== Long) {
   _m0.util.Long = Long as any;

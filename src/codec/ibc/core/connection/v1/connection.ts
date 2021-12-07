@@ -255,12 +255,13 @@ export const ConnectionEnd = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<ConnectionEnd>): ConnectionEnd {
+  fromPartial<I extends Exact<DeepPartial<ConnectionEnd>, I>>(
+    object: I
+  ): ConnectionEnd {
     const message = { ...baseConnectionEnd } as ConnectionEnd;
     message.clientId = object.clientId ?? '';
-    message.versions = (object.versions ?? []).map((e) =>
-      Version.fromPartial(e)
-    );
+    message.versions =
+      object.versions?.map((e) => Version.fromPartial(e)) || [];
     message.state = object.state ?? 0;
     message.counterparty =
       object.counterparty !== undefined && object.counterparty !== null
@@ -394,13 +395,14 @@ export const IdentifiedConnection = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<IdentifiedConnection>): IdentifiedConnection {
+  fromPartial<I extends Exact<DeepPartial<IdentifiedConnection>, I>>(
+    object: I
+  ): IdentifiedConnection {
     const message = { ...baseIdentifiedConnection } as IdentifiedConnection;
     message.id = object.id ?? '';
     message.clientId = object.clientId ?? '';
-    message.versions = (object.versions ?? []).map((e) =>
-      Version.fromPartial(e)
-    );
+    message.versions =
+      object.versions?.map((e) => Version.fromPartial(e)) || [];
     message.state = object.state ?? 0;
     message.counterparty =
       object.counterparty !== undefined && object.counterparty !== null
@@ -486,7 +488,9 @@ export const Counterparty = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<Counterparty>): Counterparty {
+  fromPartial<I extends Exact<DeepPartial<Counterparty>, I>>(
+    object: I
+  ): Counterparty {
     const message = { ...baseCounterparty } as Counterparty;
     message.clientId = object.clientId ?? '';
     message.connectionId = object.connectionId ?? '';
@@ -546,9 +550,11 @@ export const ClientPaths = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<ClientPaths>): ClientPaths {
+  fromPartial<I extends Exact<DeepPartial<ClientPaths>, I>>(
+    object: I
+  ): ClientPaths {
     const message = { ...baseClientPaths } as ClientPaths;
-    message.paths = (object.paths ?? []).map((e) => e);
+    message.paths = object.paths?.map((e) => e) || [];
     return message;
   },
 };
@@ -612,10 +618,12 @@ export const ConnectionPaths = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<ConnectionPaths>): ConnectionPaths {
+  fromPartial<I extends Exact<DeepPartial<ConnectionPaths>, I>>(
+    object: I
+  ): ConnectionPaths {
     const message = { ...baseConnectionPaths } as ConnectionPaths;
     message.clientId = object.clientId ?? '';
-    message.paths = (object.paths ?? []).map((e) => e);
+    message.paths = object.paths?.map((e) => e) || [];
     return message;
   },
 };
@@ -679,10 +687,10 @@ export const Version = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<Version>): Version {
+  fromPartial<I extends Exact<DeepPartial<Version>, I>>(object: I): Version {
     const message = { ...baseVersion } as Version;
     message.identifier = object.identifier ?? '';
-    message.features = (object.features ?? []).map((e) => e);
+    message.features = object.features?.map((e) => e) || [];
     return message;
   },
 };
@@ -695,6 +703,7 @@ type Builtin =
   | number
   | boolean
   | undefined;
+
 export type DeepPartial<T> = T extends Builtin
   ? T
   : T extends Long
@@ -706,6 +715,14 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+type KeysOfUnion<T> = T extends T ? keyof T : never;
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<
+        Exclude<keyof I, KeysOfUnion<P>>,
+        never
+      >;
 
 if (_m0.util.Long !== Long) {
   _m0.util.Long = Long as any;

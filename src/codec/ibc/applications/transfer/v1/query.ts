@@ -108,8 +108,8 @@ export const QueryDenomTraceRequest = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<QueryDenomTraceRequest>
+  fromPartial<I extends Exact<DeepPartial<QueryDenomTraceRequest>, I>>(
+    object: I
   ): QueryDenomTraceRequest {
     const message = { ...baseQueryDenomTraceRequest } as QueryDenomTraceRequest;
     message.hash = object.hash ?? '';
@@ -173,8 +173,8 @@ export const QueryDenomTraceResponse = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<QueryDenomTraceResponse>
+  fromPartial<I extends Exact<DeepPartial<QueryDenomTraceResponse>, I>>(
+    object: I
   ): QueryDenomTraceResponse {
     const message = {
       ...baseQueryDenomTraceResponse,
@@ -243,8 +243,8 @@ export const QueryDenomTracesRequest = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<QueryDenomTracesRequest>
+  fromPartial<I extends Exact<DeepPartial<QueryDenomTracesRequest>, I>>(
+    object: I
   ): QueryDenomTracesRequest {
     const message = {
       ...baseQueryDenomTracesRequest,
@@ -333,15 +333,14 @@ export const QueryDenomTracesResponse = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<QueryDenomTracesResponse>
+  fromPartial<I extends Exact<DeepPartial<QueryDenomTracesResponse>, I>>(
+    object: I
   ): QueryDenomTracesResponse {
     const message = {
       ...baseQueryDenomTracesResponse,
     } as QueryDenomTracesResponse;
-    message.denomTraces = (object.denomTraces ?? []).map((e) =>
-      DenomTrace.fromPartial(e)
-    );
+    message.denomTraces =
+      object.denomTraces?.map((e) => DenomTrace.fromPartial(e)) || [];
     message.pagination =
       object.pagination !== undefined && object.pagination !== null
         ? PageResponse.fromPartial(object.pagination)
@@ -385,7 +384,9 @@ export const QueryParamsRequest = {
     return obj;
   },
 
-  fromPartial(_: DeepPartial<QueryParamsRequest>): QueryParamsRequest {
+  fromPartial<I extends Exact<DeepPartial<QueryParamsRequest>, I>>(
+    _: I
+  ): QueryParamsRequest {
     const message = { ...baseQueryParamsRequest } as QueryParamsRequest;
     return message;
   },
@@ -438,7 +439,9 @@ export const QueryParamsResponse = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<QueryParamsResponse>): QueryParamsResponse {
+  fromPartial<I extends Exact<DeepPartial<QueryParamsResponse>, I>>(
+    object: I
+  ): QueryParamsResponse {
     const message = { ...baseQueryParamsResponse } as QueryParamsResponse;
     message.params =
       object.params !== undefined && object.params !== null
@@ -525,6 +528,7 @@ type Builtin =
   | number
   | boolean
   | undefined;
+
 export type DeepPartial<T> = T extends Builtin
   ? T
   : T extends Long
@@ -536,6 +540,14 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+type KeysOfUnion<T> = T extends T ? keyof T : never;
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<
+        Exclude<keyof I, KeysOfUnion<P>>,
+        never
+      >;
 
 if (_m0.util.Long !== Long) {
   _m0.util.Long = Long as any;

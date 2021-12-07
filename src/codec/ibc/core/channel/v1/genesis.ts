@@ -210,29 +210,24 @@ export const GenesisState = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<GenesisState>): GenesisState {
+  fromPartial<I extends Exact<DeepPartial<GenesisState>, I>>(
+    object: I
+  ): GenesisState {
     const message = { ...baseGenesisState } as GenesisState;
-    message.channels = (object.channels ?? []).map((e) =>
-      IdentifiedChannel.fromPartial(e)
-    );
-    message.acknowledgements = (object.acknowledgements ?? []).map((e) =>
-      PacketState.fromPartial(e)
-    );
-    message.commitments = (object.commitments ?? []).map((e) =>
-      PacketState.fromPartial(e)
-    );
-    message.receipts = (object.receipts ?? []).map((e) =>
-      PacketState.fromPartial(e)
-    );
-    message.sendSequences = (object.sendSequences ?? []).map((e) =>
-      PacketSequence.fromPartial(e)
-    );
-    message.recvSequences = (object.recvSequences ?? []).map((e) =>
-      PacketSequence.fromPartial(e)
-    );
-    message.ackSequences = (object.ackSequences ?? []).map((e) =>
-      PacketSequence.fromPartial(e)
-    );
+    message.channels =
+      object.channels?.map((e) => IdentifiedChannel.fromPartial(e)) || [];
+    message.acknowledgements =
+      object.acknowledgements?.map((e) => PacketState.fromPartial(e)) || [];
+    message.commitments =
+      object.commitments?.map((e) => PacketState.fromPartial(e)) || [];
+    message.receipts =
+      object.receipts?.map((e) => PacketState.fromPartial(e)) || [];
+    message.sendSequences =
+      object.sendSequences?.map((e) => PacketSequence.fromPartial(e)) || [];
+    message.recvSequences =
+      object.recvSequences?.map((e) => PacketSequence.fromPartial(e)) || [];
+    message.ackSequences =
+      object.ackSequences?.map((e) => PacketSequence.fromPartial(e)) || [];
     message.nextChannelSequence =
       object.nextChannelSequence !== undefined &&
       object.nextChannelSequence !== null
@@ -315,7 +310,9 @@ export const PacketSequence = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<PacketSequence>): PacketSequence {
+  fromPartial<I extends Exact<DeepPartial<PacketSequence>, I>>(
+    object: I
+  ): PacketSequence {
     const message = { ...basePacketSequence } as PacketSequence;
     message.portId = object.portId ?? '';
     message.channelId = object.channelId ?? '';
@@ -335,6 +332,7 @@ type Builtin =
   | number
   | boolean
   | undefined;
+
 export type DeepPartial<T> = T extends Builtin
   ? T
   : T extends Long
@@ -346,6 +344,14 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+type KeysOfUnion<T> = T extends T ? keyof T : never;
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<
+        Exclude<keyof I, KeysOfUnion<P>>,
+        never
+      >;
 
 if (_m0.util.Long !== Long) {
   _m0.util.Long = Long as any;

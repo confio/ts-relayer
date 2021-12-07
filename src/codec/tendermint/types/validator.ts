@@ -103,11 +103,12 @@ export const ValidatorSet = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<ValidatorSet>): ValidatorSet {
+  fromPartial<I extends Exact<DeepPartial<ValidatorSet>, I>>(
+    object: I
+  ): ValidatorSet {
     const message = { ...baseValidatorSet } as ValidatorSet;
-    message.validators = (object.validators ?? []).map((e) =>
-      Validator.fromPartial(e)
-    );
+    message.validators =
+      object.validators?.map((e) => Validator.fromPartial(e)) || [];
     message.proposer =
       object.proposer !== undefined && object.proposer !== null
         ? Validator.fromPartial(object.proposer)
@@ -213,7 +214,9 @@ export const Validator = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<Validator>): Validator {
+  fromPartial<I extends Exact<DeepPartial<Validator>, I>>(
+    object: I
+  ): Validator {
     const message = { ...baseValidator } as Validator;
     message.address = object.address ?? new Uint8Array();
     message.pubKey =
@@ -293,7 +296,9 @@ export const SimpleValidator = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<SimpleValidator>): SimpleValidator {
+  fromPartial<I extends Exact<DeepPartial<SimpleValidator>, I>>(
+    object: I
+  ): SimpleValidator {
     const message = { ...baseSimpleValidator } as SimpleValidator;
     message.pubKey =
       object.pubKey !== undefined && object.pubKey !== null
@@ -349,6 +354,7 @@ type Builtin =
   | number
   | boolean
   | undefined;
+
 export type DeepPartial<T> = T extends Builtin
   ? T
   : T extends Long
@@ -360,6 +366,14 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+type KeysOfUnion<T> = T extends T ? keyof T : never;
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<
+        Exclude<keyof I, KeysOfUnion<P>>,
+        never
+      >;
 
 if (_m0.util.Long !== Long) {
   _m0.util.Long = Long as any;

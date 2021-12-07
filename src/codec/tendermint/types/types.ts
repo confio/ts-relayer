@@ -284,7 +284,9 @@ export const PartSetHeader = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<PartSetHeader>): PartSetHeader {
+  fromPartial<I extends Exact<DeepPartial<PartSetHeader>, I>>(
+    object: I
+  ): PartSetHeader {
     const message = { ...basePartSetHeader } as PartSetHeader;
     message.total = object.total ?? 0;
     message.hash = object.hash ?? new Uint8Array();
@@ -362,7 +364,7 @@ export const Part = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<Part>): Part {
+  fromPartial<I extends Exact<DeepPartial<Part>, I>>(object: I): Part {
     const message = { ...basePart } as Part;
     message.index = object.index ?? 0;
     message.bytes = object.bytes ?? new Uint8Array();
@@ -441,7 +443,7 @@ export const BlockID = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<BlockID>): BlockID {
+  fromPartial<I extends Exact<DeepPartial<BlockID>, I>>(object: I): BlockID {
     const message = { ...baseBlockID } as BlockID;
     message.hash = object.hash ?? new Uint8Array();
     message.partSetHeader =
@@ -700,7 +702,7 @@ export const Header = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<Header>): Header {
+  fromPartial<I extends Exact<DeepPartial<Header>, I>>(object: I): Header {
     const message = { ...baseHeader } as Header;
     message.version =
       object.version !== undefined && object.version !== null
@@ -779,9 +781,9 @@ export const Data = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<Data>): Data {
+  fromPartial<I extends Exact<DeepPartial<Data>, I>>(object: I): Data {
     const message = { ...baseData } as Data;
-    message.txs = (object.txs ?? []).map((e) => e);
+    message.txs = object.txs?.map((e) => e) || [];
     return message;
   },
 };
@@ -928,7 +930,7 @@ export const Vote = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<Vote>): Vote {
+  fromPartial<I extends Exact<DeepPartial<Vote>, I>>(object: I): Vote {
     const message = { ...baseVote } as Vote;
     message.type = object.type ?? 0;
     message.height =
@@ -1040,7 +1042,7 @@ export const Commit = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<Commit>): Commit {
+  fromPartial<I extends Exact<DeepPartial<Commit>, I>>(object: I): Commit {
     const message = { ...baseCommit } as Commit;
     message.height =
       object.height !== undefined && object.height !== null
@@ -1051,9 +1053,8 @@ export const Commit = {
       object.blockId !== undefined && object.blockId !== null
         ? BlockID.fromPartial(object.blockId)
         : undefined;
-    message.signatures = (object.signatures ?? []).map((e) =>
-      CommitSig.fromPartial(e)
-    );
+    message.signatures =
+      object.signatures?.map((e) => CommitSig.fromPartial(e)) || [];
     return message;
   },
 };
@@ -1149,7 +1150,9 @@ export const CommitSig = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<CommitSig>): CommitSig {
+  fromPartial<I extends Exact<DeepPartial<CommitSig>, I>>(
+    object: I
+  ): CommitSig {
     const message = { ...baseCommitSig } as CommitSig;
     message.blockIdFlag = object.blockIdFlag ?? 0;
     message.validatorAddress = object.validatorAddress ?? new Uint8Array();
@@ -1289,7 +1292,7 @@ export const Proposal = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<Proposal>): Proposal {
+  fromPartial<I extends Exact<DeepPartial<Proposal>, I>>(object: I): Proposal {
     const message = { ...baseProposal } as Proposal;
     message.type = object.type ?? 0;
     message.height =
@@ -1370,7 +1373,9 @@ export const SignedHeader = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<SignedHeader>): SignedHeader {
+  fromPartial<I extends Exact<DeepPartial<SignedHeader>, I>>(
+    object: I
+  ): SignedHeader {
     const message = { ...baseSignedHeader } as SignedHeader;
     message.header =
       object.header !== undefined && object.header !== null
@@ -1453,7 +1458,9 @@ export const LightBlock = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<LightBlock>): LightBlock {
+  fromPartial<I extends Exact<DeepPartial<LightBlock>, I>>(
+    object: I
+  ): LightBlock {
     const message = { ...baseLightBlock } as LightBlock;
     message.signedHeader =
       object.signedHeader !== undefined && object.signedHeader !== null
@@ -1552,7 +1559,9 @@ export const BlockMeta = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<BlockMeta>): BlockMeta {
+  fromPartial<I extends Exact<DeepPartial<BlockMeta>, I>>(
+    object: I
+  ): BlockMeta {
     const message = { ...baseBlockMeta } as BlockMeta;
     message.blockId =
       object.blockId !== undefined && object.blockId !== null
@@ -1651,7 +1660,7 @@ export const TxProof = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<TxProof>): TxProof {
+  fromPartial<I extends Exact<DeepPartial<TxProof>, I>>(object: I): TxProof {
     const message = { ...baseTxProof } as TxProof;
     message.rootHash = object.rootHash ?? new Uint8Array();
     message.data = object.data ?? new Uint8Array();
@@ -1705,6 +1714,7 @@ type Builtin =
   | number
   | boolean
   | undefined;
+
 export type DeepPartial<T> = T extends Builtin
   ? T
   : T extends Long
@@ -1716,6 +1726,14 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+type KeysOfUnion<T> = T extends T ? keyof T : never;
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<
+        Exclude<keyof I, KeysOfUnion<P>>,
+        never
+      >;
 
 function toTimestamp(date: Date): Timestamp {
   const seconds = numberToLong(date.getTime() / 1_000);

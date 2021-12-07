@@ -205,8 +205,8 @@ export const MsgConnectionOpenInit = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<MsgConnectionOpenInit>
+  fromPartial<I extends Exact<DeepPartial<MsgConnectionOpenInit>, I>>(
+    object: I
   ): MsgConnectionOpenInit {
     const message = { ...baseMsgConnectionOpenInit } as MsgConnectionOpenInit;
     message.clientId = object.clientId ?? '';
@@ -269,8 +269,8 @@ export const MsgConnectionOpenInitResponse = {
     return obj;
   },
 
-  fromPartial(
-    _: DeepPartial<MsgConnectionOpenInitResponse>
+  fromPartial<I extends Exact<DeepPartial<MsgConnectionOpenInitResponse>, I>>(
+    _: I
   ): MsgConnectionOpenInitResponse {
     const message = {
       ...baseMsgConnectionOpenInitResponse,
@@ -496,7 +496,9 @@ export const MsgConnectionOpenTry = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<MsgConnectionOpenTry>): MsgConnectionOpenTry {
+  fromPartial<I extends Exact<DeepPartial<MsgConnectionOpenTry>, I>>(
+    object: I
+  ): MsgConnectionOpenTry {
     const message = { ...baseMsgConnectionOpenTry } as MsgConnectionOpenTry;
     message.clientId = object.clientId ?? '';
     message.previousConnectionId = object.previousConnectionId ?? '';
@@ -512,9 +514,8 @@ export const MsgConnectionOpenTry = {
       object.delayPeriod !== undefined && object.delayPeriod !== null
         ? Long.fromValue(object.delayPeriod)
         : Long.UZERO;
-    message.counterpartyVersions = (object.counterpartyVersions ?? []).map(
-      (e) => Version.fromPartial(e)
-    );
+    message.counterpartyVersions =
+      object.counterpartyVersions?.map((e) => Version.fromPartial(e)) || [];
     message.proofHeight =
       object.proofHeight !== undefined && object.proofHeight !== null
         ? Height.fromPartial(object.proofHeight)
@@ -573,8 +574,8 @@ export const MsgConnectionOpenTryResponse = {
     return obj;
   },
 
-  fromPartial(
-    _: DeepPartial<MsgConnectionOpenTryResponse>
+  fromPartial<I extends Exact<DeepPartial<MsgConnectionOpenTryResponse>, I>>(
+    _: I
   ): MsgConnectionOpenTryResponse {
     const message = {
       ...baseMsgConnectionOpenTryResponse,
@@ -766,7 +767,9 @@ export const MsgConnectionOpenAck = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<MsgConnectionOpenAck>): MsgConnectionOpenAck {
+  fromPartial<I extends Exact<DeepPartial<MsgConnectionOpenAck>, I>>(
+    object: I
+  ): MsgConnectionOpenAck {
     const message = { ...baseMsgConnectionOpenAck } as MsgConnectionOpenAck;
     message.connectionId = object.connectionId ?? '';
     message.counterpartyConnectionId = object.counterpartyConnectionId ?? '';
@@ -836,8 +839,8 @@ export const MsgConnectionOpenAckResponse = {
     return obj;
   },
 
-  fromPartial(
-    _: DeepPartial<MsgConnectionOpenAckResponse>
+  fromPartial<I extends Exact<DeepPartial<MsgConnectionOpenAckResponse>, I>>(
+    _: I
   ): MsgConnectionOpenAckResponse {
     const message = {
       ...baseMsgConnectionOpenAckResponse,
@@ -940,8 +943,8 @@ export const MsgConnectionOpenConfirm = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<MsgConnectionOpenConfirm>
+  fromPartial<I extends Exact<DeepPartial<MsgConnectionOpenConfirm>, I>>(
+    object: I
   ): MsgConnectionOpenConfirm {
     const message = {
       ...baseMsgConnectionOpenConfirm,
@@ -999,9 +1002,9 @@ export const MsgConnectionOpenConfirmResponse = {
     return obj;
   },
 
-  fromPartial(
-    _: DeepPartial<MsgConnectionOpenConfirmResponse>
-  ): MsgConnectionOpenConfirmResponse {
+  fromPartial<
+    I extends Exact<DeepPartial<MsgConnectionOpenConfirmResponse>, I>
+  >(_: I): MsgConnectionOpenConfirmResponse {
     const message = {
       ...baseMsgConnectionOpenConfirmResponse,
     } as MsgConnectionOpenConfirmResponse;
@@ -1145,6 +1148,7 @@ type Builtin =
   | number
   | boolean
   | undefined;
+
 export type DeepPartial<T> = T extends Builtin
   ? T
   : T extends Long
@@ -1156,6 +1160,14 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+type KeysOfUnion<T> = T extends T ? keyof T : never;
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<
+        Exclude<keyof I, KeysOfUnion<P>>,
+        never
+      >;
 
 if (_m0.util.Long !== Long) {
   _m0.util.Long = Long as any;

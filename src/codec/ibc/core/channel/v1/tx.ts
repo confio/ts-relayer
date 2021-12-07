@@ -219,7 +219,9 @@ export const MsgChannelOpenInit = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<MsgChannelOpenInit>): MsgChannelOpenInit {
+  fromPartial<I extends Exact<DeepPartial<MsgChannelOpenInit>, I>>(
+    object: I
+  ): MsgChannelOpenInit {
     const message = { ...baseMsgChannelOpenInit } as MsgChannelOpenInit;
     message.portId = object.portId ?? '';
     message.channel =
@@ -273,8 +275,8 @@ export const MsgChannelOpenInitResponse = {
     return obj;
   },
 
-  fromPartial(
-    _: DeepPartial<MsgChannelOpenInitResponse>
+  fromPartial<I extends Exact<DeepPartial<MsgChannelOpenInitResponse>, I>>(
+    _: I
   ): MsgChannelOpenInitResponse {
     const message = {
       ...baseMsgChannelOpenInitResponse,
@@ -414,7 +416,9 @@ export const MsgChannelOpenTry = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<MsgChannelOpenTry>): MsgChannelOpenTry {
+  fromPartial<I extends Exact<DeepPartial<MsgChannelOpenTry>, I>>(
+    object: I
+  ): MsgChannelOpenTry {
     const message = { ...baseMsgChannelOpenTry } as MsgChannelOpenTry;
     message.portId = object.portId ?? '';
     message.previousChannelId = object.previousChannelId ?? '';
@@ -475,8 +479,8 @@ export const MsgChannelOpenTryResponse = {
     return obj;
   },
 
-  fromPartial(
-    _: DeepPartial<MsgChannelOpenTryResponse>
+  fromPartial<I extends Exact<DeepPartial<MsgChannelOpenTryResponse>, I>>(
+    _: I
   ): MsgChannelOpenTryResponse {
     const message = {
       ...baseMsgChannelOpenTryResponse,
@@ -614,7 +618,9 @@ export const MsgChannelOpenAck = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<MsgChannelOpenAck>): MsgChannelOpenAck {
+  fromPartial<I extends Exact<DeepPartial<MsgChannelOpenAck>, I>>(
+    object: I
+  ): MsgChannelOpenAck {
     const message = { ...baseMsgChannelOpenAck } as MsgChannelOpenAck;
     message.portId = object.portId ?? '';
     message.channelId = object.channelId ?? '';
@@ -672,8 +678,8 @@ export const MsgChannelOpenAckResponse = {
     return obj;
   },
 
-  fromPartial(
-    _: DeepPartial<MsgChannelOpenAckResponse>
+  fromPartial<I extends Exact<DeepPartial<MsgChannelOpenAckResponse>, I>>(
+    _: I
   ): MsgChannelOpenAckResponse {
     const message = {
       ...baseMsgChannelOpenAckResponse,
@@ -786,8 +792,8 @@ export const MsgChannelOpenConfirm = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<MsgChannelOpenConfirm>
+  fromPartial<I extends Exact<DeepPartial<MsgChannelOpenConfirm>, I>>(
+    object: I
   ): MsgChannelOpenConfirm {
     const message = { ...baseMsgChannelOpenConfirm } as MsgChannelOpenConfirm;
     message.portId = object.portId ?? '';
@@ -844,8 +850,8 @@ export const MsgChannelOpenConfirmResponse = {
     return obj;
   },
 
-  fromPartial(
-    _: DeepPartial<MsgChannelOpenConfirmResponse>
+  fromPartial<I extends Exact<DeepPartial<MsgChannelOpenConfirmResponse>, I>>(
+    _: I
   ): MsgChannelOpenConfirmResponse {
     const message = {
       ...baseMsgChannelOpenConfirmResponse,
@@ -926,7 +932,9 @@ export const MsgChannelCloseInit = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<MsgChannelCloseInit>): MsgChannelCloseInit {
+  fromPartial<I extends Exact<DeepPartial<MsgChannelCloseInit>, I>>(
+    object: I
+  ): MsgChannelCloseInit {
     const message = { ...baseMsgChannelCloseInit } as MsgChannelCloseInit;
     message.portId = object.portId ?? '';
     message.channelId = object.channelId ?? '';
@@ -977,8 +985,8 @@ export const MsgChannelCloseInitResponse = {
     return obj;
   },
 
-  fromPartial(
-    _: DeepPartial<MsgChannelCloseInitResponse>
+  fromPartial<I extends Exact<DeepPartial<MsgChannelCloseInitResponse>, I>>(
+    _: I
   ): MsgChannelCloseInitResponse {
     const message = {
       ...baseMsgChannelCloseInitResponse,
@@ -1091,8 +1099,8 @@ export const MsgChannelCloseConfirm = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<MsgChannelCloseConfirm>
+  fromPartial<I extends Exact<DeepPartial<MsgChannelCloseConfirm>, I>>(
+    object: I
   ): MsgChannelCloseConfirm {
     const message = { ...baseMsgChannelCloseConfirm } as MsgChannelCloseConfirm;
     message.portId = object.portId ?? '';
@@ -1149,8 +1157,8 @@ export const MsgChannelCloseConfirmResponse = {
     return obj;
   },
 
-  fromPartial(
-    _: DeepPartial<MsgChannelCloseConfirmResponse>
+  fromPartial<I extends Exact<DeepPartial<MsgChannelCloseConfirmResponse>, I>>(
+    _: I
   ): MsgChannelCloseConfirmResponse {
     const message = {
       ...baseMsgChannelCloseConfirmResponse,
@@ -1248,7 +1256,9 @@ export const MsgRecvPacket = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<MsgRecvPacket>): MsgRecvPacket {
+  fromPartial<I extends Exact<DeepPartial<MsgRecvPacket>, I>>(
+    object: I
+  ): MsgRecvPacket {
     const message = { ...baseMsgRecvPacket } as MsgRecvPacket;
     message.packet =
       object.packet !== undefined && object.packet !== null
@@ -1302,7 +1312,9 @@ export const MsgRecvPacketResponse = {
     return obj;
   },
 
-  fromPartial(_: DeepPartial<MsgRecvPacketResponse>): MsgRecvPacketResponse {
+  fromPartial<I extends Exact<DeepPartial<MsgRecvPacketResponse>, I>>(
+    _: I
+  ): MsgRecvPacketResponse {
     const message = { ...baseMsgRecvPacketResponse } as MsgRecvPacketResponse;
     return message;
   },
@@ -1411,7 +1423,9 @@ export const MsgTimeout = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<MsgTimeout>): MsgTimeout {
+  fromPartial<I extends Exact<DeepPartial<MsgTimeout>, I>>(
+    object: I
+  ): MsgTimeout {
     const message = { ...baseMsgTimeout } as MsgTimeout;
     message.packet =
       object.packet !== undefined && object.packet !== null
@@ -1466,7 +1480,9 @@ export const MsgTimeoutResponse = {
     return obj;
   },
 
-  fromPartial(_: DeepPartial<MsgTimeoutResponse>): MsgTimeoutResponse {
+  fromPartial<I extends Exact<DeepPartial<MsgTimeoutResponse>, I>>(
+    _: I
+  ): MsgTimeoutResponse {
     const message = { ...baseMsgTimeoutResponse } as MsgTimeoutResponse;
     return message;
   },
@@ -1593,7 +1609,9 @@ export const MsgTimeoutOnClose = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<MsgTimeoutOnClose>): MsgTimeoutOnClose {
+  fromPartial<I extends Exact<DeepPartial<MsgTimeoutOnClose>, I>>(
+    object: I
+  ): MsgTimeoutOnClose {
     const message = { ...baseMsgTimeoutOnClose } as MsgTimeoutOnClose;
     message.packet =
       object.packet !== undefined && object.packet !== null
@@ -1656,8 +1674,8 @@ export const MsgTimeoutOnCloseResponse = {
     return obj;
   },
 
-  fromPartial(
-    _: DeepPartial<MsgTimeoutOnCloseResponse>
+  fromPartial<I extends Exact<DeepPartial<MsgTimeoutOnCloseResponse>, I>>(
+    _: I
   ): MsgTimeoutOnCloseResponse {
     const message = {
       ...baseMsgTimeoutOnCloseResponse,
@@ -1770,7 +1788,9 @@ export const MsgAcknowledgement = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<MsgAcknowledgement>): MsgAcknowledgement {
+  fromPartial<I extends Exact<DeepPartial<MsgAcknowledgement>, I>>(
+    object: I
+  ): MsgAcknowledgement {
     const message = { ...baseMsgAcknowledgement } as MsgAcknowledgement;
     message.packet =
       object.packet !== undefined && object.packet !== null
@@ -1829,8 +1849,8 @@ export const MsgAcknowledgementResponse = {
     return obj;
   },
 
-  fromPartial(
-    _: DeepPartial<MsgAcknowledgementResponse>
+  fromPartial<I extends Exact<DeepPartial<MsgAcknowledgementResponse>, I>>(
+    _: I
   ): MsgAcknowledgementResponse {
     const message = {
       ...baseMsgAcknowledgementResponse,
@@ -2081,6 +2101,7 @@ type Builtin =
   | number
   | boolean
   | undefined;
+
 export type DeepPartial<T> = T extends Builtin
   ? T
   : T extends Long
@@ -2092,6 +2113,14 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+type KeysOfUnion<T> = T extends T ? keyof T : never;
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<
+        Exclude<keyof I, KeysOfUnion<P>>,
+        never
+      >;
 
 if (_m0.util.Long !== Long) {
   _m0.util.Long = Long as any;

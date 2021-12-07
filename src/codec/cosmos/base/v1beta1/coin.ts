@@ -90,7 +90,7 @@ export const Coin = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<Coin>): Coin {
+  fromPartial<I extends Exact<DeepPartial<Coin>, I>>(object: I): Coin {
     const message = { ...baseCoin } as Coin;
     message.denom = object.denom ?? '';
     message.amount = object.amount ?? '';
@@ -155,7 +155,7 @@ export const DecCoin = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<DecCoin>): DecCoin {
+  fromPartial<I extends Exact<DeepPartial<DecCoin>, I>>(object: I): DecCoin {
     const message = { ...baseDecCoin } as DecCoin;
     message.denom = object.denom ?? '';
     message.amount = object.amount ?? '';
@@ -207,7 +207,7 @@ export const IntProto = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<IntProto>): IntProto {
+  fromPartial<I extends Exact<DeepPartial<IntProto>, I>>(object: I): IntProto {
     const message = { ...baseIntProto } as IntProto;
     message.int = object.int ?? '';
     return message;
@@ -258,7 +258,7 @@ export const DecProto = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<DecProto>): DecProto {
+  fromPartial<I extends Exact<DeepPartial<DecProto>, I>>(object: I): DecProto {
     const message = { ...baseDecProto } as DecProto;
     message.dec = object.dec ?? '';
     return message;
@@ -273,6 +273,7 @@ type Builtin =
   | number
   | boolean
   | undefined;
+
 export type DeepPartial<T> = T extends Builtin
   ? T
   : T extends Long
@@ -284,6 +285,14 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+type KeysOfUnion<T> = T extends T ? keyof T : never;
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<
+        Exclude<keyof I, KeysOfUnion<P>>,
+        never
+      >;
 
 if (_m0.util.Long !== Long) {
   _m0.util.Long = Long as any;

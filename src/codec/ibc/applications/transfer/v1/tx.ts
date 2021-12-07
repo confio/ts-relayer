@@ -163,7 +163,9 @@ export const MsgTransfer = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<MsgTransfer>): MsgTransfer {
+  fromPartial<I extends Exact<DeepPartial<MsgTransfer>, I>>(
+    object: I
+  ): MsgTransfer {
     const message = { ...baseMsgTransfer } as MsgTransfer;
     message.sourcePort = object.sourcePort ?? '';
     message.sourceChannel = object.sourceChannel ?? '';
@@ -220,7 +222,9 @@ export const MsgTransferResponse = {
     return obj;
   },
 
-  fromPartial(_: DeepPartial<MsgTransferResponse>): MsgTransferResponse {
+  fromPartial<I extends Exact<DeepPartial<MsgTransferResponse>, I>>(
+    _: I
+  ): MsgTransferResponse {
     const message = { ...baseMsgTransferResponse } as MsgTransferResponse;
     return message;
   },
@@ -267,6 +271,7 @@ type Builtin =
   | number
   | boolean
   | undefined;
+
 export type DeepPartial<T> = T extends Builtin
   ? T
   : T extends Long
@@ -278,6 +283,14 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+type KeysOfUnion<T> = T extends T ? keyof T : never;
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<
+        Exclude<keyof I, KeysOfUnion<P>>,
+        never
+      >;
 
 if (_m0.util.Long !== Long) {
   _m0.util.Long = Long as any;

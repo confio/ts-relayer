@@ -78,13 +78,13 @@ export const BitArray = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<BitArray>): BitArray {
+  fromPartial<I extends Exact<DeepPartial<BitArray>, I>>(object: I): BitArray {
     const message = { ...baseBitArray } as BitArray;
     message.bits =
       object.bits !== undefined && object.bits !== null
         ? Long.fromValue(object.bits)
         : Long.ZERO;
-    message.elems = (object.elems ?? []).map((e) => Long.fromValue(e));
+    message.elems = object.elems?.map((e) => Long.fromValue(e)) || [];
     return message;
   },
 };
@@ -97,6 +97,7 @@ type Builtin =
   | number
   | boolean
   | undefined;
+
 export type DeepPartial<T> = T extends Builtin
   ? T
   : T extends Long
@@ -108,6 +109,14 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+type KeysOfUnion<T> = T extends T ? keyof T : never;
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<
+        Exclude<keyof I, KeysOfUnion<P>>,
+        never
+      >;
 
 if (_m0.util.Long !== Long) {
   _m0.util.Long = Long as any;
