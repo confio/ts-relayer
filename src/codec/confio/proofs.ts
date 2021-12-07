@@ -392,25 +392,22 @@ export const ExistenceProof = {
 
   fromJSON(object: any): ExistenceProof {
     const message = { ...baseExistenceProof } as ExistenceProof;
-    message.path = [];
-    message.key = new Uint8Array();
-    message.value = new Uint8Array();
     if (object.key !== undefined && object.key !== null) {
       message.key = bytesFromBase64(object.key);
+    } else {
+      message.key = new Uint8Array();
     }
     if (object.value !== undefined && object.value !== null) {
       message.value = bytesFromBase64(object.value);
+    } else {
+      message.value = new Uint8Array();
     }
     if (object.leaf !== undefined && object.leaf !== null) {
       message.leaf = LeafOp.fromJSON(object.leaf);
     } else {
       message.leaf = undefined;
     }
-    if (object.path !== undefined && object.path !== null) {
-      for (const e of object.path) {
-        message.path.push(InnerOp.fromJSON(e));
-      }
-    }
+    message.path = (object.path ?? []).map((e: any) => InnerOp.fromJSON(e));
     return message;
   },
 
@@ -443,12 +440,7 @@ export const ExistenceProof = {
     } else {
       message.leaf = undefined;
     }
-    message.path = [];
-    if (object.path !== undefined && object.path !== null) {
-      for (const e of object.path) {
-        message.path.push(InnerOp.fromPartial(e));
-      }
-    }
+    message.path = (object.path ?? []).map((e) => InnerOp.fromPartial(e));
     return message;
   },
 };
@@ -499,9 +491,10 @@ export const NonExistenceProof = {
 
   fromJSON(object: any): NonExistenceProof {
     const message = { ...baseNonExistenceProof } as NonExistenceProof;
-    message.key = new Uint8Array();
     if (object.key !== undefined && object.key !== null) {
       message.key = bytesFromBase64(object.key);
+    } else {
+      message.key = new Uint8Array();
     }
     if (object.left !== undefined && object.left !== null) {
       message.left = ExistenceProof.fromJSON(object.left);
@@ -743,7 +736,6 @@ export const LeafOp = {
 
   fromJSON(object: any): LeafOp {
     const message = { ...baseLeafOp } as LeafOp;
-    message.prefix = new Uint8Array();
     if (object.hash !== undefined && object.hash !== null) {
       message.hash = hashOpFromJSON(object.hash);
     } else {
@@ -766,6 +758,8 @@ export const LeafOp = {
     }
     if (object.prefix !== undefined && object.prefix !== null) {
       message.prefix = bytesFromBase64(object.prefix);
+    } else {
+      message.prefix = new Uint8Array();
     }
     return message;
   },
@@ -844,8 +838,6 @@ export const InnerOp = {
 
   fromJSON(object: any): InnerOp {
     const message = { ...baseInnerOp } as InnerOp;
-    message.prefix = new Uint8Array();
-    message.suffix = new Uint8Array();
     if (object.hash !== undefined && object.hash !== null) {
       message.hash = hashOpFromJSON(object.hash);
     } else {
@@ -853,9 +845,13 @@ export const InnerOp = {
     }
     if (object.prefix !== undefined && object.prefix !== null) {
       message.prefix = bytesFromBase64(object.prefix);
+    } else {
+      message.prefix = new Uint8Array();
     }
     if (object.suffix !== undefined && object.suffix !== null) {
       message.suffix = bytesFromBase64(object.suffix);
+    } else {
+      message.suffix = new Uint8Array();
     }
     return message;
   },
@@ -1070,13 +1066,7 @@ export const InnerSpec = {
 
   fromJSON(object: any): InnerSpec {
     const message = { ...baseInnerSpec } as InnerSpec;
-    message.childOrder = [];
-    message.emptyChild = new Uint8Array();
-    if (object.childOrder !== undefined && object.childOrder !== null) {
-      for (const e of object.childOrder) {
-        message.childOrder.push(Number(e));
-      }
-    }
+    message.childOrder = (object.childOrder ?? []).map((e: any) => Number(e));
     if (object.childSize !== undefined && object.childSize !== null) {
       message.childSize = Number(object.childSize);
     } else {
@@ -1100,6 +1090,8 @@ export const InnerSpec = {
     }
     if (object.emptyChild !== undefined && object.emptyChild !== null) {
       message.emptyChild = bytesFromBase64(object.emptyChild);
+    } else {
+      message.emptyChild = new Uint8Array();
     }
     if (object.hash !== undefined && object.hash !== null) {
       message.hash = hashOpFromJSON(object.hash);
@@ -1131,12 +1123,7 @@ export const InnerSpec = {
 
   fromPartial(object: DeepPartial<InnerSpec>): InnerSpec {
     const message = { ...baseInnerSpec } as InnerSpec;
-    message.childOrder = [];
-    if (object.childOrder !== undefined && object.childOrder !== null) {
-      for (const e of object.childOrder) {
-        message.childOrder.push(e);
-      }
-    }
+    message.childOrder = (object.childOrder ?? []).map((e) => e);
     message.childSize = object.childSize ?? 0;
     message.minPrefixLength = object.minPrefixLength ?? 0;
     message.maxPrefixLength = object.maxPrefixLength ?? 0;
@@ -1180,12 +1167,9 @@ export const BatchProof = {
 
   fromJSON(object: any): BatchProof {
     const message = { ...baseBatchProof } as BatchProof;
-    message.entries = [];
-    if (object.entries !== undefined && object.entries !== null) {
-      for (const e of object.entries) {
-        message.entries.push(BatchEntry.fromJSON(e));
-      }
-    }
+    message.entries = (object.entries ?? []).map((e: any) =>
+      BatchEntry.fromJSON(e)
+    );
     return message;
   },
 
@@ -1203,12 +1187,9 @@ export const BatchProof = {
 
   fromPartial(object: DeepPartial<BatchProof>): BatchProof {
     const message = { ...baseBatchProof } as BatchProof;
-    message.entries = [];
-    if (object.entries !== undefined && object.entries !== null) {
-      for (const e of object.entries) {
-        message.entries.push(BatchEntry.fromPartial(e));
-      }
-    }
+    message.entries = (object.entries ?? []).map((e) =>
+      BatchEntry.fromPartial(e)
+    );
     return message;
   },
 };
@@ -1343,18 +1324,12 @@ export const CompressedBatchProof = {
 
   fromJSON(object: any): CompressedBatchProof {
     const message = { ...baseCompressedBatchProof } as CompressedBatchProof;
-    message.entries = [];
-    message.lookupInners = [];
-    if (object.entries !== undefined && object.entries !== null) {
-      for (const e of object.entries) {
-        message.entries.push(CompressedBatchEntry.fromJSON(e));
-      }
-    }
-    if (object.lookupInners !== undefined && object.lookupInners !== null) {
-      for (const e of object.lookupInners) {
-        message.lookupInners.push(InnerOp.fromJSON(e));
-      }
-    }
+    message.entries = (object.entries ?? []).map((e: any) =>
+      CompressedBatchEntry.fromJSON(e)
+    );
+    message.lookupInners = (object.lookupInners ?? []).map((e: any) =>
+      InnerOp.fromJSON(e)
+    );
     return message;
   },
 
@@ -1379,18 +1354,12 @@ export const CompressedBatchProof = {
 
   fromPartial(object: DeepPartial<CompressedBatchProof>): CompressedBatchProof {
     const message = { ...baseCompressedBatchProof } as CompressedBatchProof;
-    message.entries = [];
-    if (object.entries !== undefined && object.entries !== null) {
-      for (const e of object.entries) {
-        message.entries.push(CompressedBatchEntry.fromPartial(e));
-      }
-    }
-    message.lookupInners = [];
-    if (object.lookupInners !== undefined && object.lookupInners !== null) {
-      for (const e of object.lookupInners) {
-        message.lookupInners.push(InnerOp.fromPartial(e));
-      }
-    }
+    message.entries = (object.entries ?? []).map((e) =>
+      CompressedBatchEntry.fromPartial(e)
+    );
+    message.lookupInners = (object.lookupInners ?? []).map((e) =>
+      InnerOp.fromPartial(e)
+    );
     return message;
   },
 };
@@ -1563,25 +1532,22 @@ export const CompressedExistenceProof = {
     const message = {
       ...baseCompressedExistenceProof,
     } as CompressedExistenceProof;
-    message.path = [];
-    message.key = new Uint8Array();
-    message.value = new Uint8Array();
     if (object.key !== undefined && object.key !== null) {
       message.key = bytesFromBase64(object.key);
+    } else {
+      message.key = new Uint8Array();
     }
     if (object.value !== undefined && object.value !== null) {
       message.value = bytesFromBase64(object.value);
+    } else {
+      message.value = new Uint8Array();
     }
     if (object.leaf !== undefined && object.leaf !== null) {
       message.leaf = LeafOp.fromJSON(object.leaf);
     } else {
       message.leaf = undefined;
     }
-    if (object.path !== undefined && object.path !== null) {
-      for (const e of object.path) {
-        message.path.push(Number(e));
-      }
-    }
+    message.path = (object.path ?? []).map((e: any) => Number(e));
     return message;
   },
 
@@ -1618,12 +1584,7 @@ export const CompressedExistenceProof = {
     } else {
       message.leaf = undefined;
     }
-    message.path = [];
-    if (object.path !== undefined && object.path !== null) {
-      for (const e of object.path) {
-        message.path.push(e);
-      }
-    }
+    message.path = (object.path ?? []).map((e) => e);
     return message;
   },
 };
@@ -1693,9 +1654,10 @@ export const CompressedNonExistenceProof = {
     const message = {
       ...baseCompressedNonExistenceProof,
     } as CompressedNonExistenceProof;
-    message.key = new Uint8Array();
     if (object.key !== undefined && object.key !== null) {
       message.key = bytesFromBase64(object.key);
+    } else {
+      message.key = new Uint8Array();
     }
     if (object.left !== undefined && object.left !== null) {
       message.left = CompressedExistenceProof.fromJSON(object.left);

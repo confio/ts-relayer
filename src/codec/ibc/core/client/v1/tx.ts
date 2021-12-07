@@ -420,8 +420,6 @@ export const MsgUpgradeClient = {
 
   fromJSON(object: any): MsgUpgradeClient {
     const message = { ...baseMsgUpgradeClient } as MsgUpgradeClient;
-    message.proofUpgradeClient = new Uint8Array();
-    message.proofUpgradeConsensusState = new Uint8Array();
     if (object.clientId !== undefined && object.clientId !== null) {
       message.clientId = String(object.clientId);
     } else {
@@ -442,6 +440,8 @@ export const MsgUpgradeClient = {
       object.proofUpgradeClient !== null
     ) {
       message.proofUpgradeClient = bytesFromBase64(object.proofUpgradeClient);
+    } else {
+      message.proofUpgradeClient = new Uint8Array();
     }
     if (
       object.proofUpgradeConsensusState !== undefined &&
@@ -450,6 +450,8 @@ export const MsgUpgradeClient = {
       message.proofUpgradeConsensusState = bytesFromBase64(
         object.proofUpgradeConsensusState
       );
+    } else {
+      message.proofUpgradeConsensusState = new Uint8Array();
     }
     if (object.signer !== undefined && object.signer !== null) {
       message.signer = String(object.signer);

@@ -544,7 +544,6 @@ export const Header = {
 
   fromJSON(object: any): Header {
     const message = { ...baseHeader } as Header;
-    message.signature = new Uint8Array();
     if (object.sequence !== undefined && object.sequence !== null) {
       message.sequence = Long.fromString(object.sequence);
     } else {
@@ -557,6 +556,8 @@ export const Header = {
     }
     if (object.signature !== undefined && object.signature !== null) {
       message.signature = bytesFromBase64(object.signature);
+    } else {
+      message.signature = new Uint8Array();
     }
     if (object.newPublicKey !== undefined && object.newPublicKey !== null) {
       message.newPublicKey = Any.fromJSON(object.newPublicKey);
@@ -790,10 +791,10 @@ export const SignatureAndData = {
 
   fromJSON(object: any): SignatureAndData {
     const message = { ...baseSignatureAndData } as SignatureAndData;
-    message.signature = new Uint8Array();
-    message.data = new Uint8Array();
     if (object.signature !== undefined && object.signature !== null) {
       message.signature = bytesFromBase64(object.signature);
+    } else {
+      message.signature = new Uint8Array();
     }
     if (object.dataType !== undefined && object.dataType !== null) {
       message.dataType = dataTypeFromJSON(object.dataType);
@@ -802,6 +803,8 @@ export const SignatureAndData = {
     }
     if (object.data !== undefined && object.data !== null) {
       message.data = bytesFromBase64(object.data);
+    } else {
+      message.data = new Uint8Array();
     }
     if (object.timestamp !== undefined && object.timestamp !== null) {
       message.timestamp = Long.fromString(object.timestamp);
@@ -889,9 +892,10 @@ export const TimestampedSignatureData = {
     const message = {
       ...baseTimestampedSignatureData,
     } as TimestampedSignatureData;
-    message.signatureData = new Uint8Array();
     if (object.signatureData !== undefined && object.signatureData !== null) {
       message.signatureData = bytesFromBase64(object.signatureData);
+    } else {
+      message.signatureData = new Uint8Array();
     }
     if (object.timestamp !== undefined && object.timestamp !== null) {
       message.timestamp = Long.fromString(object.timestamp);
@@ -993,7 +997,6 @@ export const SignBytes = {
 
   fromJSON(object: any): SignBytes {
     const message = { ...baseSignBytes } as SignBytes;
-    message.data = new Uint8Array();
     if (object.sequence !== undefined && object.sequence !== null) {
       message.sequence = Long.fromString(object.sequence);
     } else {
@@ -1016,6 +1019,8 @@ export const SignBytes = {
     }
     if (object.data !== undefined && object.data !== null) {
       message.data = bytesFromBase64(object.data);
+    } else {
+      message.data = new Uint8Array();
     }
     return message;
   },
@@ -1171,9 +1176,10 @@ export const ClientStateData = {
 
   fromJSON(object: any): ClientStateData {
     const message = { ...baseClientStateData } as ClientStateData;
-    message.path = new Uint8Array();
     if (object.path !== undefined && object.path !== null) {
       message.path = bytesFromBase64(object.path);
+    } else {
+      message.path = new Uint8Array();
     }
     if (object.clientState !== undefined && object.clientState !== null) {
       message.clientState = Any.fromJSON(object.clientState);
@@ -1248,9 +1254,10 @@ export const ConsensusStateData = {
 
   fromJSON(object: any): ConsensusStateData {
     const message = { ...baseConsensusStateData } as ConsensusStateData;
-    message.path = new Uint8Array();
     if (object.path !== undefined && object.path !== null) {
       message.path = bytesFromBase64(object.path);
+    } else {
+      message.path = new Uint8Array();
     }
     if (object.consensusState !== undefined && object.consensusState !== null) {
       message.consensusState = Any.fromJSON(object.consensusState);
@@ -1328,9 +1335,10 @@ export const ConnectionStateData = {
 
   fromJSON(object: any): ConnectionStateData {
     const message = { ...baseConnectionStateData } as ConnectionStateData;
-    message.path = new Uint8Array();
     if (object.path !== undefined && object.path !== null) {
       message.path = bytesFromBase64(object.path);
+    } else {
+      message.path = new Uint8Array();
     }
     if (object.connection !== undefined && object.connection !== null) {
       message.connection = ConnectionEnd.fromJSON(object.connection);
@@ -1405,9 +1413,10 @@ export const ChannelStateData = {
 
   fromJSON(object: any): ChannelStateData {
     const message = { ...baseChannelStateData } as ChannelStateData;
-    message.path = new Uint8Array();
     if (object.path !== undefined && object.path !== null) {
       message.path = bytesFromBase64(object.path);
+    } else {
+      message.path = new Uint8Array();
     }
     if (object.channel !== undefined && object.channel !== null) {
       message.channel = Channel.fromJSON(object.channel);
@@ -1486,13 +1495,15 @@ export const PacketCommitmentData = {
 
   fromJSON(object: any): PacketCommitmentData {
     const message = { ...basePacketCommitmentData } as PacketCommitmentData;
-    message.path = new Uint8Array();
-    message.commitment = new Uint8Array();
     if (object.path !== undefined && object.path !== null) {
       message.path = bytesFromBase64(object.path);
+    } else {
+      message.path = new Uint8Array();
     }
     if (object.commitment !== undefined && object.commitment !== null) {
       message.commitment = bytesFromBase64(object.commitment);
+    } else {
+      message.commitment = new Uint8Array();
     }
     return message;
   },
@@ -1566,16 +1577,18 @@ export const PacketAcknowledgementData = {
     const message = {
       ...basePacketAcknowledgementData,
     } as PacketAcknowledgementData;
-    message.path = new Uint8Array();
-    message.acknowledgement = new Uint8Array();
     if (object.path !== undefined && object.path !== null) {
       message.path = bytesFromBase64(object.path);
+    } else {
+      message.path = new Uint8Array();
     }
     if (
       object.acknowledgement !== undefined &&
       object.acknowledgement !== null
     ) {
       message.acknowledgement = bytesFromBase64(object.acknowledgement);
+    } else {
+      message.acknowledgement = new Uint8Array();
     }
     return message;
   },
@@ -1648,9 +1661,10 @@ export const PacketReceiptAbsenceData = {
     const message = {
       ...basePacketReceiptAbsenceData,
     } as PacketReceiptAbsenceData;
-    message.path = new Uint8Array();
     if (object.path !== undefined && object.path !== null) {
       message.path = bytesFromBase64(object.path);
+    } else {
+      message.path = new Uint8Array();
     }
     return message;
   },
@@ -1718,9 +1732,10 @@ export const NextSequenceRecvData = {
 
   fromJSON(object: any): NextSequenceRecvData {
     const message = { ...baseNextSequenceRecvData } as NextSequenceRecvData;
-    message.path = new Uint8Array();
     if (object.path !== undefined && object.path !== null) {
       message.path = bytesFromBase64(object.path);
+    } else {
+      message.path = new Uint8Array();
     }
     if (object.nextSeqRecv !== undefined && object.nextSeqRecv !== null) {
       message.nextSeqRecv = Long.fromString(object.nextSeqRecv);

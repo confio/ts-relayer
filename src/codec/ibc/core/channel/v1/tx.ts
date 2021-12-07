@@ -362,7 +362,6 @@ export const MsgChannelOpenTry = {
 
   fromJSON(object: any): MsgChannelOpenTry {
     const message = { ...baseMsgChannelOpenTry } as MsgChannelOpenTry;
-    message.proofInit = new Uint8Array();
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = String(object.portId);
     } else {
@@ -391,6 +390,8 @@ export const MsgChannelOpenTry = {
     }
     if (object.proofInit !== undefined && object.proofInit !== null) {
       message.proofInit = bytesFromBase64(object.proofInit);
+    } else {
+      message.proofInit = new Uint8Array();
     }
     if (object.proofHeight !== undefined && object.proofHeight !== null) {
       message.proofHeight = Height.fromJSON(object.proofHeight);
@@ -577,7 +578,6 @@ export const MsgChannelOpenAck = {
 
   fromJSON(object: any): MsgChannelOpenAck {
     const message = { ...baseMsgChannelOpenAck } as MsgChannelOpenAck;
-    message.proofTry = new Uint8Array();
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = String(object.portId);
     } else {
@@ -606,6 +606,8 @@ export const MsgChannelOpenAck = {
     }
     if (object.proofTry !== undefined && object.proofTry !== null) {
       message.proofTry = bytesFromBase64(object.proofTry);
+    } else {
+      message.proofTry = new Uint8Array();
     }
     if (object.proofHeight !== undefined && object.proofHeight !== null) {
       message.proofHeight = Height.fromJSON(object.proofHeight);
@@ -774,7 +776,6 @@ export const MsgChannelOpenConfirm = {
 
   fromJSON(object: any): MsgChannelOpenConfirm {
     const message = { ...baseMsgChannelOpenConfirm } as MsgChannelOpenConfirm;
-    message.proofAck = new Uint8Array();
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = String(object.portId);
     } else {
@@ -787,6 +788,8 @@ export const MsgChannelOpenConfirm = {
     }
     if (object.proofAck !== undefined && object.proofAck !== null) {
       message.proofAck = bytesFromBase64(object.proofAck);
+    } else {
+      message.proofAck = new Uint8Array();
     }
     if (object.proofHeight !== undefined && object.proofHeight !== null) {
       message.proofHeight = Height.fromJSON(object.proofHeight);
@@ -1087,7 +1090,6 @@ export const MsgChannelCloseConfirm = {
 
   fromJSON(object: any): MsgChannelCloseConfirm {
     const message = { ...baseMsgChannelCloseConfirm } as MsgChannelCloseConfirm;
-    message.proofInit = new Uint8Array();
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = String(object.portId);
     } else {
@@ -1100,6 +1102,8 @@ export const MsgChannelCloseConfirm = {
     }
     if (object.proofInit !== undefined && object.proofInit !== null) {
       message.proofInit = bytesFromBase64(object.proofInit);
+    } else {
+      message.proofInit = new Uint8Array();
     }
     if (object.proofHeight !== undefined && object.proofHeight !== null) {
       message.proofHeight = Height.fromJSON(object.proofHeight);
@@ -1251,7 +1255,6 @@ export const MsgRecvPacket = {
 
   fromJSON(object: any): MsgRecvPacket {
     const message = { ...baseMsgRecvPacket } as MsgRecvPacket;
-    message.proofCommitment = new Uint8Array();
     if (object.packet !== undefined && object.packet !== null) {
       message.packet = Packet.fromJSON(object.packet);
     } else {
@@ -1262,6 +1265,8 @@ export const MsgRecvPacket = {
       object.proofCommitment !== null
     ) {
       message.proofCommitment = bytesFromBase64(object.proofCommitment);
+    } else {
+      message.proofCommitment = new Uint8Array();
     }
     if (object.proofHeight !== undefined && object.proofHeight !== null) {
       message.proofHeight = Height.fromJSON(object.proofHeight);
@@ -1414,7 +1419,6 @@ export const MsgTimeout = {
 
   fromJSON(object: any): MsgTimeout {
     const message = { ...baseMsgTimeout } as MsgTimeout;
-    message.proofUnreceived = new Uint8Array();
     if (object.packet !== undefined && object.packet !== null) {
       message.packet = Packet.fromJSON(object.packet);
     } else {
@@ -1425,6 +1429,8 @@ export const MsgTimeout = {
       object.proofUnreceived !== null
     ) {
       message.proofUnreceived = bytesFromBase64(object.proofUnreceived);
+    } else {
+      message.proofUnreceived = new Uint8Array();
     }
     if (object.proofHeight !== undefined && object.proofHeight !== null) {
       message.proofHeight = Height.fromJSON(object.proofHeight);
@@ -1604,8 +1610,6 @@ export const MsgTimeoutOnClose = {
 
   fromJSON(object: any): MsgTimeoutOnClose {
     const message = { ...baseMsgTimeoutOnClose } as MsgTimeoutOnClose;
-    message.proofUnreceived = new Uint8Array();
-    message.proofClose = new Uint8Array();
     if (object.packet !== undefined && object.packet !== null) {
       message.packet = Packet.fromJSON(object.packet);
     } else {
@@ -1616,9 +1620,13 @@ export const MsgTimeoutOnClose = {
       object.proofUnreceived !== null
     ) {
       message.proofUnreceived = bytesFromBase64(object.proofUnreceived);
+    } else {
+      message.proofUnreceived = new Uint8Array();
     }
     if (object.proofClose !== undefined && object.proofClose !== null) {
       message.proofClose = bytesFromBase64(object.proofClose);
+    } else {
+      message.proofClose = new Uint8Array();
     }
     if (object.proofHeight !== undefined && object.proofHeight !== null) {
       message.proofHeight = Height.fromJSON(object.proofHeight);
@@ -1805,8 +1813,6 @@ export const MsgAcknowledgement = {
 
   fromJSON(object: any): MsgAcknowledgement {
     const message = { ...baseMsgAcknowledgement } as MsgAcknowledgement;
-    message.acknowledgement = new Uint8Array();
-    message.proofAcked = new Uint8Array();
     if (object.packet !== undefined && object.packet !== null) {
       message.packet = Packet.fromJSON(object.packet);
     } else {
@@ -1817,9 +1823,13 @@ export const MsgAcknowledgement = {
       object.acknowledgement !== null
     ) {
       message.acknowledgement = bytesFromBase64(object.acknowledgement);
+    } else {
+      message.acknowledgement = new Uint8Array();
     }
     if (object.proofAcked !== undefined && object.proofAcked !== null) {
       message.proofAcked = bytesFromBase64(object.proofAcked);
+    } else {
+      message.proofAcked = new Uint8Array();
     }
     if (object.proofHeight !== undefined && object.proofHeight !== null) {
       message.proofHeight = Height.fromJSON(object.proofHeight);

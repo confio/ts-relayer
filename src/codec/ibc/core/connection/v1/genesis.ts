@@ -67,21 +67,12 @@ export const GenesisState = {
 
   fromJSON(object: any): GenesisState {
     const message = { ...baseGenesisState } as GenesisState;
-    message.connections = [];
-    message.clientConnectionPaths = [];
-    if (object.connections !== undefined && object.connections !== null) {
-      for (const e of object.connections) {
-        message.connections.push(IdentifiedConnection.fromJSON(e));
-      }
-    }
-    if (
-      object.clientConnectionPaths !== undefined &&
-      object.clientConnectionPaths !== null
-    ) {
-      for (const e of object.clientConnectionPaths) {
-        message.clientConnectionPaths.push(ConnectionPaths.fromJSON(e));
-      }
-    }
+    message.connections = (object.connections ?? []).map((e: any) =>
+      IdentifiedConnection.fromJSON(e)
+    );
+    message.clientConnectionPaths = (object.clientConnectionPaths ?? []).map(
+      (e: any) => ConnectionPaths.fromJSON(e)
+    );
     if (
       object.nextConnectionSequence !== undefined &&
       object.nextConnectionSequence !== null
@@ -120,21 +111,12 @@ export const GenesisState = {
 
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = { ...baseGenesisState } as GenesisState;
-    message.connections = [];
-    if (object.connections !== undefined && object.connections !== null) {
-      for (const e of object.connections) {
-        message.connections.push(IdentifiedConnection.fromPartial(e));
-      }
-    }
-    message.clientConnectionPaths = [];
-    if (
-      object.clientConnectionPaths !== undefined &&
-      object.clientConnectionPaths !== null
-    ) {
-      for (const e of object.clientConnectionPaths) {
-        message.clientConnectionPaths.push(ConnectionPaths.fromPartial(e));
-      }
-    }
+    message.connections = (object.connections ?? []).map((e) =>
+      IdentifiedConnection.fromPartial(e)
+    );
+    message.clientConnectionPaths = (object.clientConnectionPaths ?? []).map(
+      (e) => ConnectionPaths.fromPartial(e)
+    );
     if (
       object.nextConnectionSequence !== undefined &&
       object.nextConnectionSequence !== null

@@ -1281,8 +1281,6 @@ export const RequestInitChain = {
 
   fromJSON(object: any): RequestInitChain {
     const message = { ...baseRequestInitChain } as RequestInitChain;
-    message.validators = [];
-    message.appStateBytes = new Uint8Array();
     if (object.time !== undefined && object.time !== null) {
       message.time = fromJsonTimestamp(object.time);
     } else {
@@ -1303,13 +1301,13 @@ export const RequestInitChain = {
     } else {
       message.consensusParams = undefined;
     }
-    if (object.validators !== undefined && object.validators !== null) {
-      for (const e of object.validators) {
-        message.validators.push(ValidatorUpdate.fromJSON(e));
-      }
-    }
+    message.validators = (object.validators ?? []).map((e: any) =>
+      ValidatorUpdate.fromJSON(e)
+    );
     if (object.appStateBytes !== undefined && object.appStateBytes !== null) {
       message.appStateBytes = bytesFromBase64(object.appStateBytes);
+    } else {
+      message.appStateBytes = new Uint8Array();
     }
     if (object.initialHeight !== undefined && object.initialHeight !== null) {
       message.initialHeight = Long.fromString(object.initialHeight);
@@ -1364,12 +1362,9 @@ export const RequestInitChain = {
     } else {
       message.consensusParams = undefined;
     }
-    message.validators = [];
-    if (object.validators !== undefined && object.validators !== null) {
-      for (const e of object.validators) {
-        message.validators.push(ValidatorUpdate.fromPartial(e));
-      }
-    }
+    message.validators = (object.validators ?? []).map((e) =>
+      ValidatorUpdate.fromPartial(e)
+    );
     message.appStateBytes = object.appStateBytes ?? new Uint8Array();
     if (object.initialHeight !== undefined && object.initialHeight !== null) {
       message.initialHeight = object.initialHeight as Long;
@@ -1432,9 +1427,10 @@ export const RequestQuery = {
 
   fromJSON(object: any): RequestQuery {
     const message = { ...baseRequestQuery } as RequestQuery;
-    message.data = new Uint8Array();
     if (object.data !== undefined && object.data !== null) {
       message.data = bytesFromBase64(object.data);
+    } else {
+      message.data = new Uint8Array();
     }
     if (object.path !== undefined && object.path !== null) {
       message.path = String(object.path);
@@ -1542,10 +1538,10 @@ export const RequestBeginBlock = {
 
   fromJSON(object: any): RequestBeginBlock {
     const message = { ...baseRequestBeginBlock } as RequestBeginBlock;
-    message.byzantineValidators = [];
-    message.hash = new Uint8Array();
     if (object.hash !== undefined && object.hash !== null) {
       message.hash = bytesFromBase64(object.hash);
+    } else {
+      message.hash = new Uint8Array();
     }
     if (object.header !== undefined && object.header !== null) {
       message.header = Header.fromJSON(object.header);
@@ -1557,14 +1553,9 @@ export const RequestBeginBlock = {
     } else {
       message.lastCommitInfo = undefined;
     }
-    if (
-      object.byzantineValidators !== undefined &&
-      object.byzantineValidators !== null
-    ) {
-      for (const e of object.byzantineValidators) {
-        message.byzantineValidators.push(Evidence.fromJSON(e));
-      }
-    }
+    message.byzantineValidators = (object.byzantineValidators ?? []).map(
+      (e: any) => Evidence.fromJSON(e)
+    );
     return message;
   },
 
@@ -1605,15 +1596,9 @@ export const RequestBeginBlock = {
     } else {
       message.lastCommitInfo = undefined;
     }
-    message.byzantineValidators = [];
-    if (
-      object.byzantineValidators !== undefined &&
-      object.byzantineValidators !== null
-    ) {
-      for (const e of object.byzantineValidators) {
-        message.byzantineValidators.push(Evidence.fromPartial(e));
-      }
-    }
+    message.byzantineValidators = (object.byzantineValidators ?? []).map((e) =>
+      Evidence.fromPartial(e)
+    );
     return message;
   },
 };
@@ -1658,9 +1643,10 @@ export const RequestCheckTx = {
 
   fromJSON(object: any): RequestCheckTx {
     const message = { ...baseRequestCheckTx } as RequestCheckTx;
-    message.tx = new Uint8Array();
     if (object.tx !== undefined && object.tx !== null) {
       message.tx = bytesFromBase64(object.tx);
+    } else {
+      message.tx = new Uint8Array();
     }
     if (object.type !== undefined && object.type !== null) {
       message.type = checkTxTypeFromJSON(object.type);
@@ -1722,9 +1708,10 @@ export const RequestDeliverTx = {
 
   fromJSON(object: any): RequestDeliverTx {
     const message = { ...baseRequestDeliverTx } as RequestDeliverTx;
-    message.tx = new Uint8Array();
     if (object.tx !== undefined && object.tx !== null) {
       message.tx = bytesFromBase64(object.tx);
+    } else {
+      message.tx = new Uint8Array();
     }
     return message;
   },
@@ -1932,7 +1919,6 @@ export const RequestOfferSnapshot = {
 
   fromJSON(object: any): RequestOfferSnapshot {
     const message = { ...baseRequestOfferSnapshot } as RequestOfferSnapshot;
-    message.appHash = new Uint8Array();
     if (object.snapshot !== undefined && object.snapshot !== null) {
       message.snapshot = Snapshot.fromJSON(object.snapshot);
     } else {
@@ -1940,6 +1926,8 @@ export const RequestOfferSnapshot = {
     }
     if (object.appHash !== undefined && object.appHash !== null) {
       message.appHash = bytesFromBase64(object.appHash);
+    } else {
+      message.appHash = new Uint8Array();
     }
     return message;
   },
@@ -2122,7 +2110,6 @@ export const RequestApplySnapshotChunk = {
     const message = {
       ...baseRequestApplySnapshotChunk,
     } as RequestApplySnapshotChunk;
-    message.chunk = new Uint8Array();
     if (object.index !== undefined && object.index !== null) {
       message.index = Number(object.index);
     } else {
@@ -2130,6 +2117,8 @@ export const RequestApplySnapshotChunk = {
     }
     if (object.chunk !== undefined && object.chunk !== null) {
       message.chunk = bytesFromBase64(object.chunk);
+    } else {
+      message.chunk = new Uint8Array();
     }
     if (object.sender !== undefined && object.sender !== null) {
       message.sender = String(object.sender);
@@ -2808,7 +2797,6 @@ export const ResponseInfo = {
 
   fromJSON(object: any): ResponseInfo {
     const message = { ...baseResponseInfo } as ResponseInfo;
-    message.lastBlockAppHash = new Uint8Array();
     if (object.data !== undefined && object.data !== null) {
       message.data = String(object.data);
     } else {
@@ -2837,6 +2825,8 @@ export const ResponseInfo = {
       object.lastBlockAppHash !== null
     ) {
       message.lastBlockAppHash = bytesFromBase64(object.lastBlockAppHash);
+    } else {
+      message.lastBlockAppHash = new Uint8Array();
     }
     return message;
   },
@@ -3015,8 +3005,6 @@ export const ResponseInitChain = {
 
   fromJSON(object: any): ResponseInitChain {
     const message = { ...baseResponseInitChain } as ResponseInitChain;
-    message.validators = [];
-    message.appHash = new Uint8Array();
     if (
       object.consensusParams !== undefined &&
       object.consensusParams !== null
@@ -3027,13 +3015,13 @@ export const ResponseInitChain = {
     } else {
       message.consensusParams = undefined;
     }
-    if (object.validators !== undefined && object.validators !== null) {
-      for (const e of object.validators) {
-        message.validators.push(ValidatorUpdate.fromJSON(e));
-      }
-    }
+    message.validators = (object.validators ?? []).map((e: any) =>
+      ValidatorUpdate.fromJSON(e)
+    );
     if (object.appHash !== undefined && object.appHash !== null) {
       message.appHash = bytesFromBase64(object.appHash);
+    } else {
+      message.appHash = new Uint8Array();
     }
     return message;
   },
@@ -3070,12 +3058,9 @@ export const ResponseInitChain = {
     } else {
       message.consensusParams = undefined;
     }
-    message.validators = [];
-    if (object.validators !== undefined && object.validators !== null) {
-      for (const e of object.validators) {
-        message.validators.push(ValidatorUpdate.fromPartial(e));
-      }
-    }
+    message.validators = (object.validators ?? []).map((e) =>
+      ValidatorUpdate.fromPartial(e)
+    );
     message.appHash = object.appHash ?? new Uint8Array();
     return message;
   },
@@ -3171,8 +3156,6 @@ export const ResponseQuery = {
 
   fromJSON(object: any): ResponseQuery {
     const message = { ...baseResponseQuery } as ResponseQuery;
-    message.key = new Uint8Array();
-    message.value = new Uint8Array();
     if (object.code !== undefined && object.code !== null) {
       message.code = Number(object.code);
     } else {
@@ -3195,9 +3178,13 @@ export const ResponseQuery = {
     }
     if (object.key !== undefined && object.key !== null) {
       message.key = bytesFromBase64(object.key);
+    } else {
+      message.key = new Uint8Array();
     }
     if (object.value !== undefined && object.value !== null) {
       message.value = bytesFromBase64(object.value);
+    } else {
+      message.value = new Uint8Array();
     }
     if (object.proofOps !== undefined && object.proofOps !== null) {
       message.proofOps = ProofOps.fromJSON(object.proofOps);
@@ -3303,12 +3290,7 @@ export const ResponseBeginBlock = {
 
   fromJSON(object: any): ResponseBeginBlock {
     const message = { ...baseResponseBeginBlock } as ResponseBeginBlock;
-    message.events = [];
-    if (object.events !== undefined && object.events !== null) {
-      for (const e of object.events) {
-        message.events.push(Event.fromJSON(e));
-      }
-    }
+    message.events = (object.events ?? []).map((e: any) => Event.fromJSON(e));
     return message;
   },
 
@@ -3324,12 +3306,7 @@ export const ResponseBeginBlock = {
 
   fromPartial(object: DeepPartial<ResponseBeginBlock>): ResponseBeginBlock {
     const message = { ...baseResponseBeginBlock } as ResponseBeginBlock;
-    message.events = [];
-    if (object.events !== undefined && object.events !== null) {
-      for (const e of object.events) {
-        message.events.push(Event.fromPartial(e));
-      }
-    }
+    message.events = (object.events ?? []).map((e) => Event.fromPartial(e));
     return message;
   },
 };
@@ -3418,8 +3395,6 @@ export const ResponseCheckTx = {
 
   fromJSON(object: any): ResponseCheckTx {
     const message = { ...baseResponseCheckTx } as ResponseCheckTx;
-    message.events = [];
-    message.data = new Uint8Array();
     if (object.code !== undefined && object.code !== null) {
       message.code = Number(object.code);
     } else {
@@ -3427,6 +3402,8 @@ export const ResponseCheckTx = {
     }
     if (object.data !== undefined && object.data !== null) {
       message.data = bytesFromBase64(object.data);
+    } else {
+      message.data = new Uint8Array();
     }
     if (object.log !== undefined && object.log !== null) {
       message.log = String(object.log);
@@ -3448,11 +3425,7 @@ export const ResponseCheckTx = {
     } else {
       message.gasUsed = Long.ZERO;
     }
-    if (object.events !== undefined && object.events !== null) {
-      for (const e of object.events) {
-        message.events.push(Event.fromJSON(e));
-      }
-    }
+    message.events = (object.events ?? []).map((e: any) => Event.fromJSON(e));
     if (object.codespace !== undefined && object.codespace !== null) {
       message.codespace = String(object.codespace);
     } else {
@@ -3499,12 +3472,7 @@ export const ResponseCheckTx = {
     } else {
       message.gasUsed = Long.ZERO;
     }
-    message.events = [];
-    if (object.events !== undefined && object.events !== null) {
-      for (const e of object.events) {
-        message.events.push(Event.fromPartial(e));
-      }
-    }
+    message.events = (object.events ?? []).map((e) => Event.fromPartial(e));
     message.codespace = object.codespace ?? '';
     return message;
   },
@@ -3594,8 +3562,6 @@ export const ResponseDeliverTx = {
 
   fromJSON(object: any): ResponseDeliverTx {
     const message = { ...baseResponseDeliverTx } as ResponseDeliverTx;
-    message.events = [];
-    message.data = new Uint8Array();
     if (object.code !== undefined && object.code !== null) {
       message.code = Number(object.code);
     } else {
@@ -3603,6 +3569,8 @@ export const ResponseDeliverTx = {
     }
     if (object.data !== undefined && object.data !== null) {
       message.data = bytesFromBase64(object.data);
+    } else {
+      message.data = new Uint8Array();
     }
     if (object.log !== undefined && object.log !== null) {
       message.log = String(object.log);
@@ -3624,11 +3592,7 @@ export const ResponseDeliverTx = {
     } else {
       message.gasUsed = Long.ZERO;
     }
-    if (object.events !== undefined && object.events !== null) {
-      for (const e of object.events) {
-        message.events.push(Event.fromJSON(e));
-      }
-    }
+    message.events = (object.events ?? []).map((e: any) => Event.fromJSON(e));
     if (object.codespace !== undefined && object.codespace !== null) {
       message.codespace = String(object.codespace);
     } else {
@@ -3675,12 +3639,7 @@ export const ResponseDeliverTx = {
     } else {
       message.gasUsed = Long.ZERO;
     }
-    message.events = [];
-    if (object.events !== undefined && object.events !== null) {
-      for (const e of object.events) {
-        message.events.push(Event.fromPartial(e));
-      }
-    }
+    message.events = (object.events ?? []).map((e) => Event.fromPartial(e));
     message.codespace = object.codespace ?? '';
     return message;
   },
@@ -3741,16 +3700,9 @@ export const ResponseEndBlock = {
 
   fromJSON(object: any): ResponseEndBlock {
     const message = { ...baseResponseEndBlock } as ResponseEndBlock;
-    message.validatorUpdates = [];
-    message.events = [];
-    if (
-      object.validatorUpdates !== undefined &&
-      object.validatorUpdates !== null
-    ) {
-      for (const e of object.validatorUpdates) {
-        message.validatorUpdates.push(ValidatorUpdate.fromJSON(e));
-      }
-    }
+    message.validatorUpdates = (object.validatorUpdates ?? []).map((e: any) =>
+      ValidatorUpdate.fromJSON(e)
+    );
     if (
       object.consensusParamUpdates !== undefined &&
       object.consensusParamUpdates !== null
@@ -3761,11 +3713,7 @@ export const ResponseEndBlock = {
     } else {
       message.consensusParamUpdates = undefined;
     }
-    if (object.events !== undefined && object.events !== null) {
-      for (const e of object.events) {
-        message.events.push(Event.fromJSON(e));
-      }
-    }
+    message.events = (object.events ?? []).map((e: any) => Event.fromJSON(e));
     return message;
   },
 
@@ -3792,15 +3740,9 @@ export const ResponseEndBlock = {
 
   fromPartial(object: DeepPartial<ResponseEndBlock>): ResponseEndBlock {
     const message = { ...baseResponseEndBlock } as ResponseEndBlock;
-    message.validatorUpdates = [];
-    if (
-      object.validatorUpdates !== undefined &&
-      object.validatorUpdates !== null
-    ) {
-      for (const e of object.validatorUpdates) {
-        message.validatorUpdates.push(ValidatorUpdate.fromPartial(e));
-      }
-    }
+    message.validatorUpdates = (object.validatorUpdates ?? []).map((e) =>
+      ValidatorUpdate.fromPartial(e)
+    );
     if (
       object.consensusParamUpdates !== undefined &&
       object.consensusParamUpdates !== null
@@ -3811,12 +3753,7 @@ export const ResponseEndBlock = {
     } else {
       message.consensusParamUpdates = undefined;
     }
-    message.events = [];
-    if (object.events !== undefined && object.events !== null) {
-      for (const e of object.events) {
-        message.events.push(Event.fromPartial(e));
-      }
-    }
+    message.events = (object.events ?? []).map((e) => Event.fromPartial(e));
     return message;
   },
 };
@@ -3861,9 +3798,10 @@ export const ResponseCommit = {
 
   fromJSON(object: any): ResponseCommit {
     const message = { ...baseResponseCommit } as ResponseCommit;
-    message.data = new Uint8Array();
     if (object.data !== undefined && object.data !== null) {
       message.data = bytesFromBase64(object.data);
+    } else {
+      message.data = new Uint8Array();
     }
     if (object.retainHeight !== undefined && object.retainHeight !== null) {
       message.retainHeight = Long.fromString(object.retainHeight);
@@ -3933,12 +3871,9 @@ export const ResponseListSnapshots = {
 
   fromJSON(object: any): ResponseListSnapshots {
     const message = { ...baseResponseListSnapshots } as ResponseListSnapshots;
-    message.snapshots = [];
-    if (object.snapshots !== undefined && object.snapshots !== null) {
-      for (const e of object.snapshots) {
-        message.snapshots.push(Snapshot.fromJSON(e));
-      }
-    }
+    message.snapshots = (object.snapshots ?? []).map((e: any) =>
+      Snapshot.fromJSON(e)
+    );
     return message;
   },
 
@@ -3958,12 +3893,9 @@ export const ResponseListSnapshots = {
     object: DeepPartial<ResponseListSnapshots>
   ): ResponseListSnapshots {
     const message = { ...baseResponseListSnapshots } as ResponseListSnapshots;
-    message.snapshots = [];
-    if (object.snapshots !== undefined && object.snapshots !== null) {
-      for (const e of object.snapshots) {
-        message.snapshots.push(Snapshot.fromPartial(e));
-      }
-    }
+    message.snapshots = (object.snapshots ?? []).map((e) =>
+      Snapshot.fromPartial(e)
+    );
     return message;
   },
 };
@@ -4069,9 +4001,10 @@ export const ResponseLoadSnapshotChunk = {
     const message = {
       ...baseResponseLoadSnapshotChunk,
     } as ResponseLoadSnapshotChunk;
-    message.chunk = new Uint8Array();
     if (object.chunk !== undefined && object.chunk !== null) {
       message.chunk = bytesFromBase64(object.chunk);
+    } else {
+      message.chunk = new Uint8Array();
     }
     return message;
   },
@@ -4163,23 +4096,17 @@ export const ResponseApplySnapshotChunk = {
     const message = {
       ...baseResponseApplySnapshotChunk,
     } as ResponseApplySnapshotChunk;
-    message.refetchChunks = [];
-    message.rejectSenders = [];
     if (object.result !== undefined && object.result !== null) {
       message.result = responseApplySnapshotChunk_ResultFromJSON(object.result);
     } else {
       message.result = 0;
     }
-    if (object.refetchChunks !== undefined && object.refetchChunks !== null) {
-      for (const e of object.refetchChunks) {
-        message.refetchChunks.push(Number(e));
-      }
-    }
-    if (object.rejectSenders !== undefined && object.rejectSenders !== null) {
-      for (const e of object.rejectSenders) {
-        message.rejectSenders.push(String(e));
-      }
-    }
+    message.refetchChunks = (object.refetchChunks ?? []).map((e: any) =>
+      Number(e)
+    );
+    message.rejectSenders = (object.rejectSenders ?? []).map((e: any) =>
+      String(e)
+    );
     return message;
   },
 
@@ -4207,18 +4134,8 @@ export const ResponseApplySnapshotChunk = {
       ...baseResponseApplySnapshotChunk,
     } as ResponseApplySnapshotChunk;
     message.result = object.result ?? 0;
-    message.refetchChunks = [];
-    if (object.refetchChunks !== undefined && object.refetchChunks !== null) {
-      for (const e of object.refetchChunks) {
-        message.refetchChunks.push(e);
-      }
-    }
-    message.rejectSenders = [];
-    if (object.rejectSenders !== undefined && object.rejectSenders !== null) {
-      for (const e of object.rejectSenders) {
-        message.rejectSenders.push(e);
-      }
-    }
+    message.refetchChunks = (object.refetchChunks ?? []).map((e) => e);
+    message.rejectSenders = (object.rejectSenders ?? []).map((e) => e);
     return message;
   },
 };
@@ -4467,17 +4384,12 @@ export const LastCommitInfo = {
 
   fromJSON(object: any): LastCommitInfo {
     const message = { ...baseLastCommitInfo } as LastCommitInfo;
-    message.votes = [];
     if (object.round !== undefined && object.round !== null) {
       message.round = Number(object.round);
     } else {
       message.round = 0;
     }
-    if (object.votes !== undefined && object.votes !== null) {
-      for (const e of object.votes) {
-        message.votes.push(VoteInfo.fromJSON(e));
-      }
-    }
+    message.votes = (object.votes ?? []).map((e: any) => VoteInfo.fromJSON(e));
     return message;
   },
 
@@ -4497,12 +4409,7 @@ export const LastCommitInfo = {
   fromPartial(object: DeepPartial<LastCommitInfo>): LastCommitInfo {
     const message = { ...baseLastCommitInfo } as LastCommitInfo;
     message.round = object.round ?? 0;
-    message.votes = [];
-    if (object.votes !== undefined && object.votes !== null) {
-      for (const e of object.votes) {
-        message.votes.push(VoteInfo.fromPartial(e));
-      }
-    }
+    message.votes = (object.votes ?? []).map((e) => VoteInfo.fromPartial(e));
     return message;
   },
 };
@@ -4546,17 +4453,14 @@ export const Event = {
 
   fromJSON(object: any): Event {
     const message = { ...baseEvent } as Event;
-    message.attributes = [];
     if (object.type !== undefined && object.type !== null) {
       message.type = String(object.type);
     } else {
       message.type = '';
     }
-    if (object.attributes !== undefined && object.attributes !== null) {
-      for (const e of object.attributes) {
-        message.attributes.push(EventAttribute.fromJSON(e));
-      }
-    }
+    message.attributes = (object.attributes ?? []).map((e: any) =>
+      EventAttribute.fromJSON(e)
+    );
     return message;
   },
 
@@ -4576,12 +4480,9 @@ export const Event = {
   fromPartial(object: DeepPartial<Event>): Event {
     const message = { ...baseEvent } as Event;
     message.type = object.type ?? '';
-    message.attributes = [];
-    if (object.attributes !== undefined && object.attributes !== null) {
-      for (const e of object.attributes) {
-        message.attributes.push(EventAttribute.fromPartial(e));
-      }
-    }
+    message.attributes = (object.attributes ?? []).map((e) =>
+      EventAttribute.fromPartial(e)
+    );
     return message;
   },
 };
@@ -4633,13 +4534,15 @@ export const EventAttribute = {
 
   fromJSON(object: any): EventAttribute {
     const message = { ...baseEventAttribute } as EventAttribute;
-    message.key = new Uint8Array();
-    message.value = new Uint8Array();
     if (object.key !== undefined && object.key !== null) {
       message.key = bytesFromBase64(object.key);
+    } else {
+      message.key = new Uint8Array();
     }
     if (object.value !== undefined && object.value !== null) {
       message.value = bytesFromBase64(object.value);
+    } else {
+      message.value = new Uint8Array();
     }
     if (object.index !== undefined && object.index !== null) {
       message.index = Boolean(object.index);
@@ -4727,7 +4630,6 @@ export const TxResult = {
 
   fromJSON(object: any): TxResult {
     const message = { ...baseTxResult } as TxResult;
-    message.tx = new Uint8Array();
     if (object.height !== undefined && object.height !== null) {
       message.height = Long.fromString(object.height);
     } else {
@@ -4740,6 +4642,8 @@ export const TxResult = {
     }
     if (object.tx !== undefined && object.tx !== null) {
       message.tx = bytesFromBase64(object.tx);
+    } else {
+      message.tx = new Uint8Array();
     }
     if (object.result !== undefined && object.result !== null) {
       message.result = ResponseDeliverTx.fromJSON(object.result);
@@ -4823,9 +4727,10 @@ export const Validator = {
 
   fromJSON(object: any): Validator {
     const message = { ...baseValidator } as Validator;
-    message.address = new Uint8Array();
     if (object.address !== undefined && object.address !== null) {
       message.address = bytesFromBase64(object.address);
+    } else {
+      message.address = new Uint8Array();
     }
     if (object.power !== undefined && object.power !== null) {
       message.power = Long.fromString(object.power);
@@ -5214,8 +5119,6 @@ export const Snapshot = {
 
   fromJSON(object: any): Snapshot {
     const message = { ...baseSnapshot } as Snapshot;
-    message.hash = new Uint8Array();
-    message.metadata = new Uint8Array();
     if (object.height !== undefined && object.height !== null) {
       message.height = Long.fromString(object.height);
     } else {
@@ -5233,9 +5136,13 @@ export const Snapshot = {
     }
     if (object.hash !== undefined && object.hash !== null) {
       message.hash = bytesFromBase64(object.hash);
+    } else {
+      message.hash = new Uint8Array();
     }
     if (object.metadata !== undefined && object.metadata !== null) {
       message.metadata = bytesFromBase64(object.metadata);
+    } else {
+      message.metadata = new Uint8Array();
     }
     return message;
   },

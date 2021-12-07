@@ -454,12 +454,7 @@ export const ValidatorParams = {
 
   fromJSON(object: any): ValidatorParams {
     const message = { ...baseValidatorParams } as ValidatorParams;
-    message.pubKeyTypes = [];
-    if (object.pubKeyTypes !== undefined && object.pubKeyTypes !== null) {
-      for (const e of object.pubKeyTypes) {
-        message.pubKeyTypes.push(String(e));
-      }
-    }
+    message.pubKeyTypes = (object.pubKeyTypes ?? []).map((e: any) => String(e));
     return message;
   },
 
@@ -475,12 +470,7 @@ export const ValidatorParams = {
 
   fromPartial(object: DeepPartial<ValidatorParams>): ValidatorParams {
     const message = { ...baseValidatorParams } as ValidatorParams;
-    message.pubKeyTypes = [];
-    if (object.pubKeyTypes !== undefined && object.pubKeyTypes !== null) {
-      for (const e of object.pubKeyTypes) {
-        message.pubKeyTypes.push(e);
-      }
-    }
+    message.pubKeyTypes = (object.pubKeyTypes ?? []).map((e) => e);
     return message;
   },
 };

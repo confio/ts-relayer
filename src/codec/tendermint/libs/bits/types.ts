@@ -58,17 +58,12 @@ export const BitArray = {
 
   fromJSON(object: any): BitArray {
     const message = { ...baseBitArray } as BitArray;
-    message.elems = [];
     if (object.bits !== undefined && object.bits !== null) {
       message.bits = Long.fromString(object.bits);
     } else {
       message.bits = Long.ZERO;
     }
-    if (object.elems !== undefined && object.elems !== null) {
-      for (const e of object.elems) {
-        message.elems.push(Long.fromString(e));
-      }
-    }
+    message.elems = (object.elems ?? []).map((e: any) => Long.fromString(e));
     return message;
   },
 
@@ -91,12 +86,7 @@ export const BitArray = {
     } else {
       message.bits = Long.ZERO;
     }
-    message.elems = [];
-    if (object.elems !== undefined && object.elems !== null) {
-      for (const e of object.elems) {
-        message.elems.push(e);
-      }
-    }
+    message.elems = (object.elems ?? []).map((e) => e);
     return message;
   },
 };

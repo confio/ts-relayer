@@ -289,7 +289,6 @@ export const Channel = {
 
   fromJSON(object: any): Channel {
     const message = { ...baseChannel } as Channel;
-    message.connectionHops = [];
     if (object.state !== undefined && object.state !== null) {
       message.state = stateFromJSON(object.state);
     } else {
@@ -305,11 +304,9 @@ export const Channel = {
     } else {
       message.counterparty = undefined;
     }
-    if (object.connectionHops !== undefined && object.connectionHops !== null) {
-      for (const e of object.connectionHops) {
-        message.connectionHops.push(String(e));
-      }
-    }
+    message.connectionHops = (object.connectionHops ?? []).map((e: any) =>
+      String(e)
+    );
     if (object.version !== undefined && object.version !== null) {
       message.version = String(object.version);
     } else {
@@ -345,12 +342,7 @@ export const Channel = {
     } else {
       message.counterparty = undefined;
     }
-    message.connectionHops = [];
-    if (object.connectionHops !== undefined && object.connectionHops !== null) {
-      for (const e of object.connectionHops) {
-        message.connectionHops.push(e);
-      }
-    }
+    message.connectionHops = (object.connectionHops ?? []).map((e) => e);
     message.version = object.version ?? '';
     return message;
   },
@@ -436,7 +428,6 @@ export const IdentifiedChannel = {
 
   fromJSON(object: any): IdentifiedChannel {
     const message = { ...baseIdentifiedChannel } as IdentifiedChannel;
-    message.connectionHops = [];
     if (object.state !== undefined && object.state !== null) {
       message.state = stateFromJSON(object.state);
     } else {
@@ -452,11 +443,9 @@ export const IdentifiedChannel = {
     } else {
       message.counterparty = undefined;
     }
-    if (object.connectionHops !== undefined && object.connectionHops !== null) {
-      for (const e of object.connectionHops) {
-        message.connectionHops.push(String(e));
-      }
-    }
+    message.connectionHops = (object.connectionHops ?? []).map((e: any) =>
+      String(e)
+    );
     if (object.version !== undefined && object.version !== null) {
       message.version = String(object.version);
     } else {
@@ -504,12 +493,7 @@ export const IdentifiedChannel = {
     } else {
       message.counterparty = undefined;
     }
-    message.connectionHops = [];
-    if (object.connectionHops !== undefined && object.connectionHops !== null) {
-      for (const e of object.connectionHops) {
-        message.connectionHops.push(e);
-      }
-    }
+    message.connectionHops = (object.connectionHops ?? []).map((e) => e);
     message.version = object.version ?? '';
     message.portId = object.portId ?? '';
     message.channelId = object.channelId ?? '';
@@ -667,7 +651,6 @@ export const Packet = {
 
   fromJSON(object: any): Packet {
     const message = { ...basePacket } as Packet;
-    message.data = new Uint8Array();
     if (object.sequence !== undefined && object.sequence !== null) {
       message.sequence = Long.fromString(object.sequence);
     } else {
@@ -701,6 +684,8 @@ export const Packet = {
     }
     if (object.data !== undefined && object.data !== null) {
       message.data = bytesFromBase64(object.data);
+    } else {
+      message.data = new Uint8Array();
     }
     if (object.timeoutHeight !== undefined && object.timeoutHeight !== null) {
       message.timeoutHeight = Height.fromJSON(object.timeoutHeight);
@@ -829,7 +814,6 @@ export const PacketState = {
 
   fromJSON(object: any): PacketState {
     const message = { ...basePacketState } as PacketState;
-    message.data = new Uint8Array();
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = String(object.portId);
     } else {
@@ -847,6 +831,8 @@ export const PacketState = {
     }
     if (object.data !== undefined && object.data !== null) {
       message.data = bytesFromBase64(object.data);
+    } else {
+      message.data = new Uint8Array();
     }
     return message;
   },
@@ -919,6 +905,8 @@ export const Acknowledgement = {
     const message = { ...baseAcknowledgement } as Acknowledgement;
     if (object.result !== undefined && object.result !== null) {
       message.result = bytesFromBase64(object.result);
+    } else {
+      message.result = undefined;
     }
     if (object.error !== undefined && object.error !== null) {
       message.error = String(object.error);

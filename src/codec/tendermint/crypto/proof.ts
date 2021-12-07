@@ -90,8 +90,6 @@ export const Proof = {
 
   fromJSON(object: any): Proof {
     const message = { ...baseProof } as Proof;
-    message.aunts = [];
-    message.leafHash = new Uint8Array();
     if (object.total !== undefined && object.total !== null) {
       message.total = Long.fromString(object.total);
     } else {
@@ -104,12 +102,10 @@ export const Proof = {
     }
     if (object.leafHash !== undefined && object.leafHash !== null) {
       message.leafHash = bytesFromBase64(object.leafHash);
+    } else {
+      message.leafHash = new Uint8Array();
     }
-    if (object.aunts !== undefined && object.aunts !== null) {
-      for (const e of object.aunts) {
-        message.aunts.push(bytesFromBase64(e));
-      }
-    }
+    message.aunts = (object.aunts ?? []).map((e: any) => bytesFromBase64(e));
     return message;
   },
 
@@ -146,12 +142,7 @@ export const Proof = {
       message.index = Long.ZERO;
     }
     message.leafHash = object.leafHash ?? new Uint8Array();
-    message.aunts = [];
-    if (object.aunts !== undefined && object.aunts !== null) {
-      for (const e of object.aunts) {
-        message.aunts.push(e);
-      }
-    }
+    message.aunts = (object.aunts ?? []).map((e) => e);
     return message;
   },
 };
@@ -196,9 +187,10 @@ export const ValueOp = {
 
   fromJSON(object: any): ValueOp {
     const message = { ...baseValueOp } as ValueOp;
-    message.key = new Uint8Array();
     if (object.key !== undefined && object.key !== null) {
       message.key = bytesFromBase64(object.key);
+    } else {
+      message.key = new Uint8Array();
     }
     if (object.proof !== undefined && object.proof !== null) {
       message.proof = Proof.fromJSON(object.proof);
@@ -358,8 +350,6 @@ export const ProofOp = {
 
   fromJSON(object: any): ProofOp {
     const message = { ...baseProofOp } as ProofOp;
-    message.key = new Uint8Array();
-    message.data = new Uint8Array();
     if (object.type !== undefined && object.type !== null) {
       message.type = String(object.type);
     } else {
@@ -367,9 +357,13 @@ export const ProofOp = {
     }
     if (object.key !== undefined && object.key !== null) {
       message.key = bytesFromBase64(object.key);
+    } else {
+      message.key = new Uint8Array();
     }
     if (object.data !== undefined && object.data !== null) {
       message.data = bytesFromBase64(object.data);
+    } else {
+      message.data = new Uint8Array();
     }
     return message;
   },
@@ -431,12 +425,7 @@ export const ProofOps = {
 
   fromJSON(object: any): ProofOps {
     const message = { ...baseProofOps } as ProofOps;
-    message.ops = [];
-    if (object.ops !== undefined && object.ops !== null) {
-      for (const e of object.ops) {
-        message.ops.push(ProofOp.fromJSON(e));
-      }
-    }
+    message.ops = (object.ops ?? []).map((e: any) => ProofOp.fromJSON(e));
     return message;
   },
 
@@ -452,12 +441,7 @@ export const ProofOps = {
 
   fromPartial(object: DeepPartial<ProofOps>): ProofOps {
     const message = { ...baseProofOps } as ProofOps;
-    message.ops = [];
-    if (object.ops !== undefined && object.ops !== null) {
-      for (const e of object.ops) {
-        message.ops.push(ProofOp.fromPartial(e));
-      }
-    }
+    message.ops = (object.ops ?? []).map((e) => ProofOp.fromPartial(e));
     return message;
   },
 };

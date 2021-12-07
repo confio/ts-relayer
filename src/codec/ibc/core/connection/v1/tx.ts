@@ -403,10 +403,6 @@ export const MsgConnectionOpenTry = {
 
   fromJSON(object: any): MsgConnectionOpenTry {
     const message = { ...baseMsgConnectionOpenTry } as MsgConnectionOpenTry;
-    message.counterpartyVersions = [];
-    message.proofInit = new Uint8Array();
-    message.proofClient = new Uint8Array();
-    message.proofConsensus = new Uint8Array();
     if (object.clientId !== undefined && object.clientId !== null) {
       message.clientId = String(object.clientId);
     } else {
@@ -435,14 +431,9 @@ export const MsgConnectionOpenTry = {
     } else {
       message.delayPeriod = Long.UZERO;
     }
-    if (
-      object.counterpartyVersions !== undefined &&
-      object.counterpartyVersions !== null
-    ) {
-      for (const e of object.counterpartyVersions) {
-        message.counterpartyVersions.push(Version.fromJSON(e));
-      }
-    }
+    message.counterpartyVersions = (object.counterpartyVersions ?? []).map(
+      (e: any) => Version.fromJSON(e)
+    );
     if (object.proofHeight !== undefined && object.proofHeight !== null) {
       message.proofHeight = Height.fromJSON(object.proofHeight);
     } else {
@@ -450,12 +441,18 @@ export const MsgConnectionOpenTry = {
     }
     if (object.proofInit !== undefined && object.proofInit !== null) {
       message.proofInit = bytesFromBase64(object.proofInit);
+    } else {
+      message.proofInit = new Uint8Array();
     }
     if (object.proofClient !== undefined && object.proofClient !== null) {
       message.proofClient = bytesFromBase64(object.proofClient);
+    } else {
+      message.proofClient = new Uint8Array();
     }
     if (object.proofConsensus !== undefined && object.proofConsensus !== null) {
       message.proofConsensus = bytesFromBase64(object.proofConsensus);
+    } else {
+      message.proofConsensus = new Uint8Array();
     }
     if (
       object.consensusHeight !== undefined &&
@@ -542,15 +539,9 @@ export const MsgConnectionOpenTry = {
     } else {
       message.delayPeriod = Long.UZERO;
     }
-    message.counterpartyVersions = [];
-    if (
-      object.counterpartyVersions !== undefined &&
-      object.counterpartyVersions !== null
-    ) {
-      for (const e of object.counterpartyVersions) {
-        message.counterpartyVersions.push(Version.fromPartial(e));
-      }
-    }
+    message.counterpartyVersions = (object.counterpartyVersions ?? []).map(
+      (e) => Version.fromPartial(e)
+    );
     if (object.proofHeight !== undefined && object.proofHeight !== null) {
       message.proofHeight = Height.fromPartial(object.proofHeight);
     } else {
@@ -721,9 +712,6 @@ export const MsgConnectionOpenAck = {
 
   fromJSON(object: any): MsgConnectionOpenAck {
     const message = { ...baseMsgConnectionOpenAck } as MsgConnectionOpenAck;
-    message.proofTry = new Uint8Array();
-    message.proofClient = new Uint8Array();
-    message.proofConsensus = new Uint8Array();
     if (object.connectionId !== undefined && object.connectionId !== null) {
       message.connectionId = String(object.connectionId);
     } else {
@@ -756,12 +744,18 @@ export const MsgConnectionOpenAck = {
     }
     if (object.proofTry !== undefined && object.proofTry !== null) {
       message.proofTry = bytesFromBase64(object.proofTry);
+    } else {
+      message.proofTry = new Uint8Array();
     }
     if (object.proofClient !== undefined && object.proofClient !== null) {
       message.proofClient = bytesFromBase64(object.proofClient);
+    } else {
+      message.proofClient = new Uint8Array();
     }
     if (object.proofConsensus !== undefined && object.proofConsensus !== null) {
       message.proofConsensus = bytesFromBase64(object.proofConsensus);
+    } else {
+      message.proofConsensus = new Uint8Array();
     }
     if (
       object.consensusHeight !== undefined &&
@@ -967,7 +961,6 @@ export const MsgConnectionOpenConfirm = {
     const message = {
       ...baseMsgConnectionOpenConfirm,
     } as MsgConnectionOpenConfirm;
-    message.proofAck = new Uint8Array();
     if (object.connectionId !== undefined && object.connectionId !== null) {
       message.connectionId = String(object.connectionId);
     } else {
@@ -975,6 +968,8 @@ export const MsgConnectionOpenConfirm = {
     }
     if (object.proofAck !== undefined && object.proofAck !== null) {
       message.proofAck = bytesFromBase64(object.proofAck);
+    } else {
+      message.proofAck = new Uint8Array();
     }
     if (object.proofHeight !== undefined && object.proofHeight !== null) {
       message.proofHeight = Height.fromJSON(object.proofHeight);

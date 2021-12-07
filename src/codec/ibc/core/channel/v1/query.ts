@@ -453,7 +453,6 @@ export const QueryChannelResponse = {
 
   fromJSON(object: any): QueryChannelResponse {
     const message = { ...baseQueryChannelResponse } as QueryChannelResponse;
-    message.proof = new Uint8Array();
     if (object.channel !== undefined && object.channel !== null) {
       message.channel = Channel.fromJSON(object.channel);
     } else {
@@ -461,6 +460,8 @@ export const QueryChannelResponse = {
     }
     if (object.proof !== undefined && object.proof !== null) {
       message.proof = bytesFromBase64(object.proof);
+    } else {
+      message.proof = new Uint8Array();
     }
     if (object.proofHeight !== undefined && object.proofHeight !== null) {
       message.proofHeight = Height.fromJSON(object.proofHeight);
@@ -622,12 +623,9 @@ export const QueryChannelsResponse = {
 
   fromJSON(object: any): QueryChannelsResponse {
     const message = { ...baseQueryChannelsResponse } as QueryChannelsResponse;
-    message.channels = [];
-    if (object.channels !== undefined && object.channels !== null) {
-      for (const e of object.channels) {
-        message.channels.push(IdentifiedChannel.fromJSON(e));
-      }
-    }
+    message.channels = (object.channels ?? []).map((e: any) =>
+      IdentifiedChannel.fromJSON(e)
+    );
     if (object.pagination !== undefined && object.pagination !== null) {
       message.pagination = PageResponse.fromJSON(object.pagination);
     } else {
@@ -663,12 +661,9 @@ export const QueryChannelsResponse = {
     object: DeepPartial<QueryChannelsResponse>
   ): QueryChannelsResponse {
     const message = { ...baseQueryChannelsResponse } as QueryChannelsResponse;
-    message.channels = [];
-    if (object.channels !== undefined && object.channels !== null) {
-      for (const e of object.channels) {
-        message.channels.push(IdentifiedChannel.fromPartial(e));
-      }
-    }
+    message.channels = (object.channels ?? []).map((e) =>
+      IdentifiedChannel.fromPartial(e)
+    );
     if (object.pagination !== undefined && object.pagination !== null) {
       message.pagination = PageResponse.fromPartial(object.pagination);
     } else {
@@ -826,12 +821,9 @@ export const QueryConnectionChannelsResponse = {
     const message = {
       ...baseQueryConnectionChannelsResponse,
     } as QueryConnectionChannelsResponse;
-    message.channels = [];
-    if (object.channels !== undefined && object.channels !== null) {
-      for (const e of object.channels) {
-        message.channels.push(IdentifiedChannel.fromJSON(e));
-      }
-    }
+    message.channels = (object.channels ?? []).map((e: any) =>
+      IdentifiedChannel.fromJSON(e)
+    );
     if (object.pagination !== undefined && object.pagination !== null) {
       message.pagination = PageResponse.fromJSON(object.pagination);
     } else {
@@ -869,12 +861,9 @@ export const QueryConnectionChannelsResponse = {
     const message = {
       ...baseQueryConnectionChannelsResponse,
     } as QueryConnectionChannelsResponse;
-    message.channels = [];
-    if (object.channels !== undefined && object.channels !== null) {
-      for (const e of object.channels) {
-        message.channels.push(IdentifiedChannel.fromPartial(e));
-      }
-    }
+    message.channels = (object.channels ?? []).map((e) =>
+      IdentifiedChannel.fromPartial(e)
+    );
     if (object.pagination !== undefined && object.pagination !== null) {
       message.pagination = PageResponse.fromPartial(object.pagination);
     } else {
@@ -1029,7 +1018,6 @@ export const QueryChannelClientStateResponse = {
     const message = {
       ...baseQueryChannelClientStateResponse,
     } as QueryChannelClientStateResponse;
-    message.proof = new Uint8Array();
     if (
       object.identifiedClientState !== undefined &&
       object.identifiedClientState !== null
@@ -1042,6 +1030,8 @@ export const QueryChannelClientStateResponse = {
     }
     if (object.proof !== undefined && object.proof !== null) {
       message.proof = bytesFromBase64(object.proof);
+    } else {
+      message.proof = new Uint8Array();
     }
     if (object.proofHeight !== undefined && object.proofHeight !== null) {
       message.proofHeight = Height.fromJSON(object.proofHeight);
@@ -1272,7 +1262,6 @@ export const QueryChannelConsensusStateResponse = {
     const message = {
       ...baseQueryChannelConsensusStateResponse,
     } as QueryChannelConsensusStateResponse;
-    message.proof = new Uint8Array();
     if (object.consensusState !== undefined && object.consensusState !== null) {
       message.consensusState = Any.fromJSON(object.consensusState);
     } else {
@@ -1285,6 +1274,8 @@ export const QueryChannelConsensusStateResponse = {
     }
     if (object.proof !== undefined && object.proof !== null) {
       message.proof = bytesFromBase64(object.proof);
+    } else {
+      message.proof = new Uint8Array();
     }
     if (object.proofHeight !== undefined && object.proofHeight !== null) {
       message.proofHeight = Height.fromJSON(object.proofHeight);
@@ -1488,13 +1479,15 @@ export const QueryPacketCommitmentResponse = {
     const message = {
       ...baseQueryPacketCommitmentResponse,
     } as QueryPacketCommitmentResponse;
-    message.commitment = new Uint8Array();
-    message.proof = new Uint8Array();
     if (object.commitment !== undefined && object.commitment !== null) {
       message.commitment = bytesFromBase64(object.commitment);
+    } else {
+      message.commitment = new Uint8Array();
     }
     if (object.proof !== undefined && object.proof !== null) {
       message.proof = bytesFromBase64(object.proof);
+    } else {
+      message.proof = new Uint8Array();
     }
     if (object.proofHeight !== undefined && object.proofHeight !== null) {
       message.proofHeight = Height.fromJSON(object.proofHeight);
@@ -1692,12 +1685,9 @@ export const QueryPacketCommitmentsResponse = {
     const message = {
       ...baseQueryPacketCommitmentsResponse,
     } as QueryPacketCommitmentsResponse;
-    message.commitments = [];
-    if (object.commitments !== undefined && object.commitments !== null) {
-      for (const e of object.commitments) {
-        message.commitments.push(PacketState.fromJSON(e));
-      }
-    }
+    message.commitments = (object.commitments ?? []).map((e: any) =>
+      PacketState.fromJSON(e)
+    );
     if (object.pagination !== undefined && object.pagination !== null) {
       message.pagination = PageResponse.fromJSON(object.pagination);
     } else {
@@ -1735,12 +1725,9 @@ export const QueryPacketCommitmentsResponse = {
     const message = {
       ...baseQueryPacketCommitmentsResponse,
     } as QueryPacketCommitmentsResponse;
-    message.commitments = [];
-    if (object.commitments !== undefined && object.commitments !== null) {
-      for (const e of object.commitments) {
-        message.commitments.push(PacketState.fromPartial(e));
-      }
-    }
+    message.commitments = (object.commitments ?? []).map((e) =>
+      PacketState.fromPartial(e)
+    );
     if (object.pagination !== undefined && object.pagination !== null) {
       message.pagination = PageResponse.fromPartial(object.pagination);
     } else {
@@ -1908,7 +1895,6 @@ export const QueryPacketReceiptResponse = {
     const message = {
       ...baseQueryPacketReceiptResponse,
     } as QueryPacketReceiptResponse;
-    message.proof = new Uint8Array();
     if (object.received !== undefined && object.received !== null) {
       message.received = Boolean(object.received);
     } else {
@@ -1916,6 +1902,8 @@ export const QueryPacketReceiptResponse = {
     }
     if (object.proof !== undefined && object.proof !== null) {
       message.proof = bytesFromBase64(object.proof);
+    } else {
+      message.proof = new Uint8Array();
     }
     if (object.proofHeight !== undefined && object.proofHeight !== null) {
       message.proofHeight = Height.fromJSON(object.proofHeight);
@@ -2110,16 +2098,18 @@ export const QueryPacketAcknowledgementResponse = {
     const message = {
       ...baseQueryPacketAcknowledgementResponse,
     } as QueryPacketAcknowledgementResponse;
-    message.acknowledgement = new Uint8Array();
-    message.proof = new Uint8Array();
     if (
       object.acknowledgement !== undefined &&
       object.acknowledgement !== null
     ) {
       message.acknowledgement = bytesFromBase64(object.acknowledgement);
+    } else {
+      message.acknowledgement = new Uint8Array();
     }
     if (object.proof !== undefined && object.proof !== null) {
       message.proof = bytesFromBase64(object.proof);
+    } else {
+      message.proof = new Uint8Array();
     }
     if (object.proofHeight !== undefined && object.proofHeight !== null) {
       message.proofHeight = Height.fromJSON(object.proofHeight);
@@ -2324,15 +2314,9 @@ export const QueryPacketAcknowledgementsResponse = {
     const message = {
       ...baseQueryPacketAcknowledgementsResponse,
     } as QueryPacketAcknowledgementsResponse;
-    message.acknowledgements = [];
-    if (
-      object.acknowledgements !== undefined &&
-      object.acknowledgements !== null
-    ) {
-      for (const e of object.acknowledgements) {
-        message.acknowledgements.push(PacketState.fromJSON(e));
-      }
-    }
+    message.acknowledgements = (object.acknowledgements ?? []).map((e: any) =>
+      PacketState.fromJSON(e)
+    );
     if (object.pagination !== undefined && object.pagination !== null) {
       message.pagination = PageResponse.fromJSON(object.pagination);
     } else {
@@ -2370,15 +2354,9 @@ export const QueryPacketAcknowledgementsResponse = {
     const message = {
       ...baseQueryPacketAcknowledgementsResponse,
     } as QueryPacketAcknowledgementsResponse;
-    message.acknowledgements = [];
-    if (
-      object.acknowledgements !== undefined &&
-      object.acknowledgements !== null
-    ) {
-      for (const e of object.acknowledgements) {
-        message.acknowledgements.push(PacketState.fromPartial(e));
-      }
-    }
+    message.acknowledgements = (object.acknowledgements ?? []).map((e) =>
+      PacketState.fromPartial(e)
+    );
     if (object.pagination !== undefined && object.pagination !== null) {
       message.pagination = PageResponse.fromPartial(object.pagination);
     } else {
@@ -2459,7 +2437,6 @@ export const QueryUnreceivedPacketsRequest = {
     const message = {
       ...baseQueryUnreceivedPacketsRequest,
     } as QueryUnreceivedPacketsRequest;
-    message.packetCommitmentSequences = [];
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = String(object.portId);
     } else {
@@ -2470,14 +2447,9 @@ export const QueryUnreceivedPacketsRequest = {
     } else {
       message.channelId = '';
     }
-    if (
-      object.packetCommitmentSequences !== undefined &&
-      object.packetCommitmentSequences !== null
-    ) {
-      for (const e of object.packetCommitmentSequences) {
-        message.packetCommitmentSequences.push(Long.fromString(e));
-      }
-    }
+    message.packetCommitmentSequences = (
+      object.packetCommitmentSequences ?? []
+    ).map((e: any) => Long.fromString(e));
     return message;
   },
 
@@ -2503,15 +2475,9 @@ export const QueryUnreceivedPacketsRequest = {
     } as QueryUnreceivedPacketsRequest;
     message.portId = object.portId ?? '';
     message.channelId = object.channelId ?? '';
-    message.packetCommitmentSequences = [];
-    if (
-      object.packetCommitmentSequences !== undefined &&
-      object.packetCommitmentSequences !== null
-    ) {
-      for (const e of object.packetCommitmentSequences) {
-        message.packetCommitmentSequences.push(e);
-      }
-    }
+    message.packetCommitmentSequences = (
+      object.packetCommitmentSequences ?? []
+    ).map((e) => e);
     return message;
   },
 };
@@ -2572,12 +2538,9 @@ export const QueryUnreceivedPacketsResponse = {
     const message = {
       ...baseQueryUnreceivedPacketsResponse,
     } as QueryUnreceivedPacketsResponse;
-    message.sequences = [];
-    if (object.sequences !== undefined && object.sequences !== null) {
-      for (const e of object.sequences) {
-        message.sequences.push(Long.fromString(e));
-      }
-    }
+    message.sequences = (object.sequences ?? []).map((e: any) =>
+      Long.fromString(e)
+    );
     if (object.height !== undefined && object.height !== null) {
       message.height = Height.fromJSON(object.height);
     } else {
@@ -2606,12 +2569,7 @@ export const QueryUnreceivedPacketsResponse = {
     const message = {
       ...baseQueryUnreceivedPacketsResponse,
     } as QueryUnreceivedPacketsResponse;
-    message.sequences = [];
-    if (object.sequences !== undefined && object.sequences !== null) {
-      for (const e of object.sequences) {
-        message.sequences.push(e);
-      }
-    }
+    message.sequences = (object.sequences ?? []).map((e) => e);
     if (object.height !== undefined && object.height !== null) {
       message.height = Height.fromPartial(object.height);
     } else {
@@ -2687,7 +2645,6 @@ export const QueryUnreceivedAcksRequest = {
     const message = {
       ...baseQueryUnreceivedAcksRequest,
     } as QueryUnreceivedAcksRequest;
-    message.packetAckSequences = [];
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = String(object.portId);
     } else {
@@ -2698,14 +2655,9 @@ export const QueryUnreceivedAcksRequest = {
     } else {
       message.channelId = '';
     }
-    if (
-      object.packetAckSequences !== undefined &&
-      object.packetAckSequences !== null
-    ) {
-      for (const e of object.packetAckSequences) {
-        message.packetAckSequences.push(Long.fromString(e));
-      }
-    }
+    message.packetAckSequences = (object.packetAckSequences ?? []).map(
+      (e: any) => Long.fromString(e)
+    );
     return message;
   },
 
@@ -2731,15 +2683,9 @@ export const QueryUnreceivedAcksRequest = {
     } as QueryUnreceivedAcksRequest;
     message.portId = object.portId ?? '';
     message.channelId = object.channelId ?? '';
-    message.packetAckSequences = [];
-    if (
-      object.packetAckSequences !== undefined &&
-      object.packetAckSequences !== null
-    ) {
-      for (const e of object.packetAckSequences) {
-        message.packetAckSequences.push(e);
-      }
-    }
+    message.packetAckSequences = (object.packetAckSequences ?? []).map(
+      (e) => e
+    );
     return message;
   },
 };
@@ -2800,12 +2746,9 @@ export const QueryUnreceivedAcksResponse = {
     const message = {
       ...baseQueryUnreceivedAcksResponse,
     } as QueryUnreceivedAcksResponse;
-    message.sequences = [];
-    if (object.sequences !== undefined && object.sequences !== null) {
-      for (const e of object.sequences) {
-        message.sequences.push(Long.fromString(e));
-      }
-    }
+    message.sequences = (object.sequences ?? []).map((e: any) =>
+      Long.fromString(e)
+    );
     if (object.height !== undefined && object.height !== null) {
       message.height = Height.fromJSON(object.height);
     } else {
@@ -2834,12 +2777,7 @@ export const QueryUnreceivedAcksResponse = {
     const message = {
       ...baseQueryUnreceivedAcksResponse,
     } as QueryUnreceivedAcksResponse;
-    message.sequences = [];
-    if (object.sequences !== undefined && object.sequences !== null) {
-      for (const e of object.sequences) {
-        message.sequences.push(e);
-      }
-    }
+    message.sequences = (object.sequences ?? []).map((e) => e);
     if (object.height !== undefined && object.height !== null) {
       message.height = Height.fromPartial(object.height);
     } else {
@@ -2985,7 +2923,6 @@ export const QueryNextSequenceReceiveResponse = {
     const message = {
       ...baseQueryNextSequenceReceiveResponse,
     } as QueryNextSequenceReceiveResponse;
-    message.proof = new Uint8Array();
     if (
       object.nextSequenceReceive !== undefined &&
       object.nextSequenceReceive !== null
@@ -2996,6 +2933,8 @@ export const QueryNextSequenceReceiveResponse = {
     }
     if (object.proof !== undefined && object.proof !== null) {
       message.proof = bytesFromBase64(object.proof);
+    } else {
+      message.proof = new Uint8Array();
     }
     if (object.proofHeight !== undefined && object.proofHeight !== null) {
       message.proofHeight = Height.fromJSON(object.proofHeight);

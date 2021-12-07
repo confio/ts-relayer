@@ -289,20 +289,14 @@ export const ClientConsensusStates = {
 
   fromJSON(object: any): ClientConsensusStates {
     const message = { ...baseClientConsensusStates } as ClientConsensusStates;
-    message.consensusStates = [];
     if (object.clientId !== undefined && object.clientId !== null) {
       message.clientId = String(object.clientId);
     } else {
       message.clientId = '';
     }
-    if (
-      object.consensusStates !== undefined &&
-      object.consensusStates !== null
-    ) {
-      for (const e of object.consensusStates) {
-        message.consensusStates.push(ConsensusStateWithHeight.fromJSON(e));
-      }
-    }
+    message.consensusStates = (object.consensusStates ?? []).map((e: any) =>
+      ConsensusStateWithHeight.fromJSON(e)
+    );
     return message;
   },
 
@@ -324,15 +318,9 @@ export const ClientConsensusStates = {
   ): ClientConsensusStates {
     const message = { ...baseClientConsensusStates } as ClientConsensusStates;
     message.clientId = object.clientId ?? '';
-    message.consensusStates = [];
-    if (
-      object.consensusStates !== undefined &&
-      object.consensusStates !== null
-    ) {
-      for (const e of object.consensusStates) {
-        message.consensusStates.push(ConsensusStateWithHeight.fromPartial(e));
-      }
-    }
+    message.consensusStates = (object.consensusStates ?? []).map((e) =>
+      ConsensusStateWithHeight.fromPartial(e)
+    );
     return message;
   },
 };
@@ -557,12 +545,9 @@ export const Params = {
 
   fromJSON(object: any): Params {
     const message = { ...baseParams } as Params;
-    message.allowedClients = [];
-    if (object.allowedClients !== undefined && object.allowedClients !== null) {
-      for (const e of object.allowedClients) {
-        message.allowedClients.push(String(e));
-      }
-    }
+    message.allowedClients = (object.allowedClients ?? []).map((e: any) =>
+      String(e)
+    );
     return message;
   },
 
@@ -578,12 +563,7 @@ export const Params = {
 
   fromPartial(object: DeepPartial<Params>): Params {
     const message = { ...baseParams } as Params;
-    message.allowedClients = [];
-    if (object.allowedClients !== undefined && object.allowedClients !== null) {
-      for (const e of object.allowedClients) {
-        message.allowedClients.push(e);
-      }
-    }
+    message.allowedClients = (object.allowedClients ?? []).map((e) => e);
     return message;
   },
 };

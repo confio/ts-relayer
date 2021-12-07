@@ -239,7 +239,6 @@ export const QueryClientStateResponse = {
     const message = {
       ...baseQueryClientStateResponse,
     } as QueryClientStateResponse;
-    message.proof = new Uint8Array();
     if (object.clientState !== undefined && object.clientState !== null) {
       message.clientState = Any.fromJSON(object.clientState);
     } else {
@@ -247,6 +246,8 @@ export const QueryClientStateResponse = {
     }
     if (object.proof !== undefined && object.proof !== null) {
       message.proof = bytesFromBase64(object.proof);
+    } else {
+      message.proof = new Uint8Array();
     }
     if (object.proofHeight !== undefined && object.proofHeight !== null) {
       message.proofHeight = Height.fromJSON(object.proofHeight);
@@ -418,12 +419,9 @@ export const QueryClientStatesResponse = {
     const message = {
       ...baseQueryClientStatesResponse,
     } as QueryClientStatesResponse;
-    message.clientStates = [];
-    if (object.clientStates !== undefined && object.clientStates !== null) {
-      for (const e of object.clientStates) {
-        message.clientStates.push(IdentifiedClientState.fromJSON(e));
-      }
-    }
+    message.clientStates = (object.clientStates ?? []).map((e: any) =>
+      IdentifiedClientState.fromJSON(e)
+    );
     if (object.pagination !== undefined && object.pagination !== null) {
       message.pagination = PageResponse.fromJSON(object.pagination);
     } else {
@@ -454,12 +452,9 @@ export const QueryClientStatesResponse = {
     const message = {
       ...baseQueryClientStatesResponse,
     } as QueryClientStatesResponse;
-    message.clientStates = [];
-    if (object.clientStates !== undefined && object.clientStates !== null) {
-      for (const e of object.clientStates) {
-        message.clientStates.push(IdentifiedClientState.fromPartial(e));
-      }
-    }
+    message.clientStates = (object.clientStates ?? []).map((e) =>
+      IdentifiedClientState.fromPartial(e)
+    );
     if (object.pagination !== undefined && object.pagination !== null) {
       message.pagination = PageResponse.fromPartial(object.pagination);
     } else {
@@ -642,7 +637,6 @@ export const QueryConsensusStateResponse = {
     const message = {
       ...baseQueryConsensusStateResponse,
     } as QueryConsensusStateResponse;
-    message.proof = new Uint8Array();
     if (object.consensusState !== undefined && object.consensusState !== null) {
       message.consensusState = Any.fromJSON(object.consensusState);
     } else {
@@ -650,6 +644,8 @@ export const QueryConsensusStateResponse = {
     }
     if (object.proof !== undefined && object.proof !== null) {
       message.proof = bytesFromBase64(object.proof);
+    } else {
+      message.proof = new Uint8Array();
     }
     if (object.proofHeight !== undefined && object.proofHeight !== null) {
       message.proofHeight = Height.fromJSON(object.proofHeight);
@@ -834,15 +830,9 @@ export const QueryConsensusStatesResponse = {
     const message = {
       ...baseQueryConsensusStatesResponse,
     } as QueryConsensusStatesResponse;
-    message.consensusStates = [];
-    if (
-      object.consensusStates !== undefined &&
-      object.consensusStates !== null
-    ) {
-      for (const e of object.consensusStates) {
-        message.consensusStates.push(ConsensusStateWithHeight.fromJSON(e));
-      }
-    }
+    message.consensusStates = (object.consensusStates ?? []).map((e: any) =>
+      ConsensusStateWithHeight.fromJSON(e)
+    );
     if (object.pagination !== undefined && object.pagination !== null) {
       message.pagination = PageResponse.fromJSON(object.pagination);
     } else {
@@ -873,15 +863,9 @@ export const QueryConsensusStatesResponse = {
     const message = {
       ...baseQueryConsensusStatesResponse,
     } as QueryConsensusStatesResponse;
-    message.consensusStates = [];
-    if (
-      object.consensusStates !== undefined &&
-      object.consensusStates !== null
-    ) {
-      for (const e of object.consensusStates) {
-        message.consensusStates.push(ConsensusStateWithHeight.fromPartial(e));
-      }
-    }
+    message.consensusStates = (object.consensusStates ?? []).map((e) =>
+      ConsensusStateWithHeight.fromPartial(e)
+    );
     if (object.pagination !== undefined && object.pagination !== null) {
       message.pagination = PageResponse.fromPartial(object.pagination);
     } else {

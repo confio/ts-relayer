@@ -208,8 +208,6 @@ export const ClientState = {
 
   fromJSON(object: any): ClientState {
     const message = { ...baseClientState } as ClientState;
-    message.proofSpecs = [];
-    message.upgradePath = [];
     if (object.chainId !== undefined && object.chainId !== null) {
       message.chainId = String(object.chainId);
     } else {
@@ -248,16 +246,10 @@ export const ClientState = {
     } else {
       message.latestHeight = undefined;
     }
-    if (object.proofSpecs !== undefined && object.proofSpecs !== null) {
-      for (const e of object.proofSpecs) {
-        message.proofSpecs.push(ProofSpec.fromJSON(e));
-      }
-    }
-    if (object.upgradePath !== undefined && object.upgradePath !== null) {
-      for (const e of object.upgradePath) {
-        message.upgradePath.push(String(e));
-      }
-    }
+    message.proofSpecs = (object.proofSpecs ?? []).map((e: any) =>
+      ProofSpec.fromJSON(e)
+    );
+    message.upgradePath = (object.upgradePath ?? []).map((e: any) => String(e));
     if (
       object.allowUpdateAfterExpiry !== undefined &&
       object.allowUpdateAfterExpiry !== null
@@ -361,18 +353,10 @@ export const ClientState = {
     } else {
       message.latestHeight = undefined;
     }
-    message.proofSpecs = [];
-    if (object.proofSpecs !== undefined && object.proofSpecs !== null) {
-      for (const e of object.proofSpecs) {
-        message.proofSpecs.push(ProofSpec.fromPartial(e));
-      }
-    }
-    message.upgradePath = [];
-    if (object.upgradePath !== undefined && object.upgradePath !== null) {
-      for (const e of object.upgradePath) {
-        message.upgradePath.push(e);
-      }
-    }
+    message.proofSpecs = (object.proofSpecs ?? []).map((e) =>
+      ProofSpec.fromPartial(e)
+    );
+    message.upgradePath = (object.upgradePath ?? []).map((e) => e);
     message.allowUpdateAfterExpiry = object.allowUpdateAfterExpiry ?? false;
     message.allowUpdateAfterMisbehaviour =
       object.allowUpdateAfterMisbehaviour ?? false;
@@ -426,7 +410,6 @@ export const ConsensusState = {
 
   fromJSON(object: any): ConsensusState {
     const message = { ...baseConsensusState } as ConsensusState;
-    message.nextValidatorsHash = new Uint8Array();
     if (object.timestamp !== undefined && object.timestamp !== null) {
       message.timestamp = fromJsonTimestamp(object.timestamp);
     } else {
@@ -442,6 +425,8 @@ export const ConsensusState = {
       object.nextValidatorsHash !== null
     ) {
       message.nextValidatorsHash = bytesFromBase64(object.nextValidatorsHash);
+    } else {
+      message.nextValidatorsHash = new Uint8Array();
     }
     return message;
   },

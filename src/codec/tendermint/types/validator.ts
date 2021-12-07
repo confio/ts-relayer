@@ -69,12 +69,9 @@ export const ValidatorSet = {
 
   fromJSON(object: any): ValidatorSet {
     const message = { ...baseValidatorSet } as ValidatorSet;
-    message.validators = [];
-    if (object.validators !== undefined && object.validators !== null) {
-      for (const e of object.validators) {
-        message.validators.push(Validator.fromJSON(e));
-      }
-    }
+    message.validators = (object.validators ?? []).map((e: any) =>
+      Validator.fromJSON(e)
+    );
     if (object.proposer !== undefined && object.proposer !== null) {
       message.proposer = Validator.fromJSON(object.proposer);
     } else {
@@ -113,12 +110,9 @@ export const ValidatorSet = {
 
   fromPartial(object: DeepPartial<ValidatorSet>): ValidatorSet {
     const message = { ...baseValidatorSet } as ValidatorSet;
-    message.validators = [];
-    if (object.validators !== undefined && object.validators !== null) {
-      for (const e of object.validators) {
-        message.validators.push(Validator.fromPartial(e));
-      }
-    }
+    message.validators = (object.validators ?? []).map((e) =>
+      Validator.fromPartial(e)
+    );
     if (object.proposer !== undefined && object.proposer !== null) {
       message.proposer = Validator.fromPartial(object.proposer);
     } else {
@@ -191,9 +185,10 @@ export const Validator = {
 
   fromJSON(object: any): Validator {
     const message = { ...baseValidator } as Validator;
-    message.address = new Uint8Array();
     if (object.address !== undefined && object.address !== null) {
       message.address = bytesFromBase64(object.address);
+    } else {
+      message.address = new Uint8Array();
     }
     if (object.pubKey !== undefined && object.pubKey !== null) {
       message.pubKey = PublicKey.fromJSON(object.pubKey);

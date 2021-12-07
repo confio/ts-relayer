@@ -118,9 +118,10 @@ export const PageRequest = {
 
   fromJSON(object: any): PageRequest {
     const message = { ...basePageRequest } as PageRequest;
-    message.key = new Uint8Array();
     if (object.key !== undefined && object.key !== null) {
       message.key = bytesFromBase64(object.key);
+    } else {
+      message.key = new Uint8Array();
     }
     if (object.offset !== undefined && object.offset !== null) {
       message.offset = Long.fromString(object.offset);
@@ -212,9 +213,10 @@ export const PageResponse = {
 
   fromJSON(object: any): PageResponse {
     const message = { ...basePageResponse } as PageResponse;
-    message.nextKey = new Uint8Array();
     if (object.nextKey !== undefined && object.nextKey !== null) {
       message.nextKey = bytesFromBase64(object.nextKey);
+    } else {
+      message.nextKey = new Uint8Array();
     }
     if (object.total !== undefined && object.total !== null) {
       message.total = Long.fromString(object.total);

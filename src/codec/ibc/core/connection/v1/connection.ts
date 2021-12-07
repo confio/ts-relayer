@@ -213,17 +213,14 @@ export const ConnectionEnd = {
 
   fromJSON(object: any): ConnectionEnd {
     const message = { ...baseConnectionEnd } as ConnectionEnd;
-    message.versions = [];
     if (object.clientId !== undefined && object.clientId !== null) {
       message.clientId = String(object.clientId);
     } else {
       message.clientId = '';
     }
-    if (object.versions !== undefined && object.versions !== null) {
-      for (const e of object.versions) {
-        message.versions.push(Version.fromJSON(e));
-      }
-    }
+    message.versions = (object.versions ?? []).map((e: any) =>
+      Version.fromJSON(e)
+    );
     if (object.state !== undefined && object.state !== null) {
       message.state = stateFromJSON(object.state);
     } else {
@@ -265,12 +262,9 @@ export const ConnectionEnd = {
   fromPartial(object: DeepPartial<ConnectionEnd>): ConnectionEnd {
     const message = { ...baseConnectionEnd } as ConnectionEnd;
     message.clientId = object.clientId ?? '';
-    message.versions = [];
-    if (object.versions !== undefined && object.versions !== null) {
-      for (const e of object.versions) {
-        message.versions.push(Version.fromPartial(e));
-      }
-    }
+    message.versions = (object.versions ?? []).map((e) =>
+      Version.fromPartial(e)
+    );
     message.state = object.state ?? 0;
     if (object.counterparty !== undefined && object.counterparty !== null) {
       message.counterparty = Counterparty.fromPartial(object.counterparty);
@@ -361,7 +355,6 @@ export const IdentifiedConnection = {
 
   fromJSON(object: any): IdentifiedConnection {
     const message = { ...baseIdentifiedConnection } as IdentifiedConnection;
-    message.versions = [];
     if (object.id !== undefined && object.id !== null) {
       message.id = String(object.id);
     } else {
@@ -372,11 +365,9 @@ export const IdentifiedConnection = {
     } else {
       message.clientId = '';
     }
-    if (object.versions !== undefined && object.versions !== null) {
-      for (const e of object.versions) {
-        message.versions.push(Version.fromJSON(e));
-      }
-    }
+    message.versions = (object.versions ?? []).map((e: any) =>
+      Version.fromJSON(e)
+    );
     if (object.state !== undefined && object.state !== null) {
       message.state = stateFromJSON(object.state);
     } else {
@@ -420,12 +411,9 @@ export const IdentifiedConnection = {
     const message = { ...baseIdentifiedConnection } as IdentifiedConnection;
     message.id = object.id ?? '';
     message.clientId = object.clientId ?? '';
-    message.versions = [];
-    if (object.versions !== undefined && object.versions !== null) {
-      for (const e of object.versions) {
-        message.versions.push(Version.fromPartial(e));
-      }
-    }
+    message.versions = (object.versions ?? []).map((e) =>
+      Version.fromPartial(e)
+    );
     message.state = object.state ?? 0;
     if (object.counterparty !== undefined && object.counterparty !== null) {
       message.counterparty = Counterparty.fromPartial(object.counterparty);
@@ -563,12 +551,7 @@ export const ClientPaths = {
 
   fromJSON(object: any): ClientPaths {
     const message = { ...baseClientPaths } as ClientPaths;
-    message.paths = [];
-    if (object.paths !== undefined && object.paths !== null) {
-      for (const e of object.paths) {
-        message.paths.push(String(e));
-      }
-    }
+    message.paths = (object.paths ?? []).map((e: any) => String(e));
     return message;
   },
 
@@ -584,12 +567,7 @@ export const ClientPaths = {
 
   fromPartial(object: DeepPartial<ClientPaths>): ClientPaths {
     const message = { ...baseClientPaths } as ClientPaths;
-    message.paths = [];
-    if (object.paths !== undefined && object.paths !== null) {
-      for (const e of object.paths) {
-        message.paths.push(e);
-      }
-    }
+    message.paths = (object.paths ?? []).map((e) => e);
     return message;
   },
 };
@@ -634,17 +612,12 @@ export const ConnectionPaths = {
 
   fromJSON(object: any): ConnectionPaths {
     const message = { ...baseConnectionPaths } as ConnectionPaths;
-    message.paths = [];
     if (object.clientId !== undefined && object.clientId !== null) {
       message.clientId = String(object.clientId);
     } else {
       message.clientId = '';
     }
-    if (object.paths !== undefined && object.paths !== null) {
-      for (const e of object.paths) {
-        message.paths.push(String(e));
-      }
-    }
+    message.paths = (object.paths ?? []).map((e: any) => String(e));
     return message;
   },
 
@@ -662,12 +635,7 @@ export const ConnectionPaths = {
   fromPartial(object: DeepPartial<ConnectionPaths>): ConnectionPaths {
     const message = { ...baseConnectionPaths } as ConnectionPaths;
     message.clientId = object.clientId ?? '';
-    message.paths = [];
-    if (object.paths !== undefined && object.paths !== null) {
-      for (const e of object.paths) {
-        message.paths.push(e);
-      }
-    }
+    message.paths = (object.paths ?? []).map((e) => e);
     return message;
   },
 };
@@ -712,17 +680,12 @@ export const Version = {
 
   fromJSON(object: any): Version {
     const message = { ...baseVersion } as Version;
-    message.features = [];
     if (object.identifier !== undefined && object.identifier !== null) {
       message.identifier = String(object.identifier);
     } else {
       message.identifier = '';
     }
-    if (object.features !== undefined && object.features !== null) {
-      for (const e of object.features) {
-        message.features.push(String(e));
-      }
-    }
+    message.features = (object.features ?? []).map((e: any) => String(e));
     return message;
   },
 
@@ -740,12 +703,7 @@ export const Version = {
   fromPartial(object: DeepPartial<Version>): Version {
     const message = { ...baseVersion } as Version;
     message.identifier = object.identifier ?? '';
-    message.features = [];
-    if (object.features !== undefined && object.features !== null) {
-      for (const e of object.features) {
-        message.features.push(e);
-      }
-    }
+    message.features = (object.features ?? []).map((e) => e);
     return message;
   },
 };

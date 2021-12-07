@@ -312,12 +312,9 @@ export const QueryDenomTracesResponse = {
     const message = {
       ...baseQueryDenomTracesResponse,
     } as QueryDenomTracesResponse;
-    message.denomTraces = [];
-    if (object.denomTraces !== undefined && object.denomTraces !== null) {
-      for (const e of object.denomTraces) {
-        message.denomTraces.push(DenomTrace.fromJSON(e));
-      }
-    }
+    message.denomTraces = (object.denomTraces ?? []).map((e: any) =>
+      DenomTrace.fromJSON(e)
+    );
     if (object.pagination !== undefined && object.pagination !== null) {
       message.pagination = PageResponse.fromJSON(object.pagination);
     } else {
@@ -348,12 +345,9 @@ export const QueryDenomTracesResponse = {
     const message = {
       ...baseQueryDenomTracesResponse,
     } as QueryDenomTracesResponse;
-    message.denomTraces = [];
-    if (object.denomTraces !== undefined && object.denomTraces !== null) {
-      for (const e of object.denomTraces) {
-        message.denomTraces.push(DenomTrace.fromPartial(e));
-      }
-    }
+    message.denomTraces = (object.denomTraces ?? []).map((e) =>
+      DenomTrace.fromPartial(e)
+    );
     if (object.pagination !== undefined && object.pagination !== null) {
       message.pagination = PageResponse.fromPartial(object.pagination);
     } else {

@@ -263,7 +263,6 @@ export const PartSetHeader = {
 
   fromJSON(object: any): PartSetHeader {
     const message = { ...basePartSetHeader } as PartSetHeader;
-    message.hash = new Uint8Array();
     if (object.total !== undefined && object.total !== null) {
       message.total = Number(object.total);
     } else {
@@ -271,6 +270,8 @@ export const PartSetHeader = {
     }
     if (object.hash !== undefined && object.hash !== null) {
       message.hash = bytesFromBase64(object.hash);
+    } else {
+      message.hash = new Uint8Array();
     }
     return message;
   },
@@ -336,7 +337,6 @@ export const Part = {
 
   fromJSON(object: any): Part {
     const message = { ...basePart } as Part;
-    message.bytes = new Uint8Array();
     if (object.index !== undefined && object.index !== null) {
       message.index = Number(object.index);
     } else {
@@ -344,6 +344,8 @@ export const Part = {
     }
     if (object.bytes !== undefined && object.bytes !== null) {
       message.bytes = bytesFromBase64(object.bytes);
+    } else {
+      message.bytes = new Uint8Array();
     }
     if (object.proof !== undefined && object.proof !== null) {
       message.proof = Proof.fromJSON(object.proof);
@@ -421,9 +423,10 @@ export const BlockID = {
 
   fromJSON(object: any): BlockID {
     const message = { ...baseBlockID } as BlockID;
-    message.hash = new Uint8Array();
     if (object.hash !== undefined && object.hash !== null) {
       message.hash = bytesFromBase64(object.hash);
+    } else {
+      message.hash = new Uint8Array();
     }
     if (object.partSetHeader !== undefined && object.partSetHeader !== null) {
       message.partSetHeader = PartSetHeader.fromJSON(object.partSetHeader);
@@ -578,15 +581,6 @@ export const Header = {
 
   fromJSON(object: any): Header {
     const message = { ...baseHeader } as Header;
-    message.lastCommitHash = new Uint8Array();
-    message.dataHash = new Uint8Array();
-    message.validatorsHash = new Uint8Array();
-    message.nextValidatorsHash = new Uint8Array();
-    message.consensusHash = new Uint8Array();
-    message.appHash = new Uint8Array();
-    message.lastResultsHash = new Uint8Array();
-    message.evidenceHash = new Uint8Array();
-    message.proposerAddress = new Uint8Array();
     if (object.version !== undefined && object.version !== null) {
       message.version = Consensus.fromJSON(object.version);
     } else {
@@ -614,39 +608,57 @@ export const Header = {
     }
     if (object.lastCommitHash !== undefined && object.lastCommitHash !== null) {
       message.lastCommitHash = bytesFromBase64(object.lastCommitHash);
+    } else {
+      message.lastCommitHash = new Uint8Array();
     }
     if (object.dataHash !== undefined && object.dataHash !== null) {
       message.dataHash = bytesFromBase64(object.dataHash);
+    } else {
+      message.dataHash = new Uint8Array();
     }
     if (object.validatorsHash !== undefined && object.validatorsHash !== null) {
       message.validatorsHash = bytesFromBase64(object.validatorsHash);
+    } else {
+      message.validatorsHash = new Uint8Array();
     }
     if (
       object.nextValidatorsHash !== undefined &&
       object.nextValidatorsHash !== null
     ) {
       message.nextValidatorsHash = bytesFromBase64(object.nextValidatorsHash);
+    } else {
+      message.nextValidatorsHash = new Uint8Array();
     }
     if (object.consensusHash !== undefined && object.consensusHash !== null) {
       message.consensusHash = bytesFromBase64(object.consensusHash);
+    } else {
+      message.consensusHash = new Uint8Array();
     }
     if (object.appHash !== undefined && object.appHash !== null) {
       message.appHash = bytesFromBase64(object.appHash);
+    } else {
+      message.appHash = new Uint8Array();
     }
     if (
       object.lastResultsHash !== undefined &&
       object.lastResultsHash !== null
     ) {
       message.lastResultsHash = bytesFromBase64(object.lastResultsHash);
+    } else {
+      message.lastResultsHash = new Uint8Array();
     }
     if (object.evidenceHash !== undefined && object.evidenceHash !== null) {
       message.evidenceHash = bytesFromBase64(object.evidenceHash);
+    } else {
+      message.evidenceHash = new Uint8Array();
     }
     if (
       object.proposerAddress !== undefined &&
       object.proposerAddress !== null
     ) {
       message.proposerAddress = bytesFromBase64(object.proposerAddress);
+    } else {
+      message.proposerAddress = new Uint8Array();
     }
     return message;
   },
@@ -786,12 +798,7 @@ export const Data = {
 
   fromJSON(object: any): Data {
     const message = { ...baseData } as Data;
-    message.txs = [];
-    if (object.txs !== undefined && object.txs !== null) {
-      for (const e of object.txs) {
-        message.txs.push(bytesFromBase64(e));
-      }
-    }
+    message.txs = (object.txs ?? []).map((e: any) => bytesFromBase64(e));
     return message;
   },
 
@@ -809,12 +816,7 @@ export const Data = {
 
   fromPartial(object: DeepPartial<Data>): Data {
     const message = { ...baseData } as Data;
-    message.txs = [];
-    if (object.txs !== undefined && object.txs !== null) {
-      for (const e of object.txs) {
-        message.txs.push(e);
-      }
-    }
+    message.txs = (object.txs ?? []).map((e) => e);
     return message;
   },
 };
@@ -898,8 +900,6 @@ export const Vote = {
 
   fromJSON(object: any): Vote {
     const message = { ...baseVote } as Vote;
-    message.validatorAddress = new Uint8Array();
-    message.signature = new Uint8Array();
     if (object.type !== undefined && object.type !== null) {
       message.type = signedMsgTypeFromJSON(object.type);
     } else {
@@ -930,6 +930,8 @@ export const Vote = {
       object.validatorAddress !== null
     ) {
       message.validatorAddress = bytesFromBase64(object.validatorAddress);
+    } else {
+      message.validatorAddress = new Uint8Array();
     }
     if (object.validatorIndex !== undefined && object.validatorIndex !== null) {
       message.validatorIndex = Number(object.validatorIndex);
@@ -938,6 +940,8 @@ export const Vote = {
     }
     if (object.signature !== undefined && object.signature !== null) {
       message.signature = bytesFromBase64(object.signature);
+    } else {
+      message.signature = new Uint8Array();
     }
     return message;
   },
@@ -1048,7 +1052,6 @@ export const Commit = {
 
   fromJSON(object: any): Commit {
     const message = { ...baseCommit } as Commit;
-    message.signatures = [];
     if (object.height !== undefined && object.height !== null) {
       message.height = Long.fromString(object.height);
     } else {
@@ -1064,11 +1067,9 @@ export const Commit = {
     } else {
       message.blockId = undefined;
     }
-    if (object.signatures !== undefined && object.signatures !== null) {
-      for (const e of object.signatures) {
-        message.signatures.push(CommitSig.fromJSON(e));
-      }
-    }
+    message.signatures = (object.signatures ?? []).map((e: any) =>
+      CommitSig.fromJSON(e)
+    );
     return message;
   },
 
@@ -1104,12 +1105,9 @@ export const Commit = {
     } else {
       message.blockId = undefined;
     }
-    message.signatures = [];
-    if (object.signatures !== undefined && object.signatures !== null) {
-      for (const e of object.signatures) {
-        message.signatures.push(CommitSig.fromPartial(e));
-      }
-    }
+    message.signatures = (object.signatures ?? []).map((e) =>
+      CommitSig.fromPartial(e)
+    );
     return message;
   },
 };
@@ -1167,8 +1165,6 @@ export const CommitSig = {
 
   fromJSON(object: any): CommitSig {
     const message = { ...baseCommitSig } as CommitSig;
-    message.validatorAddress = new Uint8Array();
-    message.signature = new Uint8Array();
     if (object.blockIdFlag !== undefined && object.blockIdFlag !== null) {
       message.blockIdFlag = blockIDFlagFromJSON(object.blockIdFlag);
     } else {
@@ -1179,6 +1175,8 @@ export const CommitSig = {
       object.validatorAddress !== null
     ) {
       message.validatorAddress = bytesFromBase64(object.validatorAddress);
+    } else {
+      message.validatorAddress = new Uint8Array();
     }
     if (object.timestamp !== undefined && object.timestamp !== null) {
       message.timestamp = fromJsonTimestamp(object.timestamp);
@@ -1187,6 +1185,8 @@ export const CommitSig = {
     }
     if (object.signature !== undefined && object.signature !== null) {
       message.signature = bytesFromBase64(object.signature);
+    } else {
+      message.signature = new Uint8Array();
     }
     return message;
   },
@@ -1299,7 +1299,6 @@ export const Proposal = {
 
   fromJSON(object: any): Proposal {
     const message = { ...baseProposal } as Proposal;
-    message.signature = new Uint8Array();
     if (object.type !== undefined && object.type !== null) {
       message.type = signedMsgTypeFromJSON(object.type);
     } else {
@@ -1332,6 +1331,8 @@ export const Proposal = {
     }
     if (object.signature !== undefined && object.signature !== null) {
       message.signature = bytesFromBase64(object.signature);
+    } else {
+      message.signature = new Uint8Array();
     }
     return message;
   },
@@ -1708,13 +1709,15 @@ export const TxProof = {
 
   fromJSON(object: any): TxProof {
     const message = { ...baseTxProof } as TxProof;
-    message.rootHash = new Uint8Array();
-    message.data = new Uint8Array();
     if (object.rootHash !== undefined && object.rootHash !== null) {
       message.rootHash = bytesFromBase64(object.rootHash);
+    } else {
+      message.rootHash = new Uint8Array();
     }
     if (object.data !== undefined && object.data !== null) {
       message.data = bytesFromBase64(object.data);
+    } else {
+      message.data = new Uint8Array();
     }
     if (object.proof !== undefined && object.proof !== null) {
       message.proof = Proof.fromJSON(object.proof);

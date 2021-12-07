@@ -116,30 +116,15 @@ export const GenesisState = {
 
   fromJSON(object: any): GenesisState {
     const message = { ...baseGenesisState } as GenesisState;
-    message.clients = [];
-    message.clientsConsensus = [];
-    message.clientsMetadata = [];
-    if (object.clients !== undefined && object.clients !== null) {
-      for (const e of object.clients) {
-        message.clients.push(IdentifiedClientState.fromJSON(e));
-      }
-    }
-    if (
-      object.clientsConsensus !== undefined &&
-      object.clientsConsensus !== null
-    ) {
-      for (const e of object.clientsConsensus) {
-        message.clientsConsensus.push(ClientConsensusStates.fromJSON(e));
-      }
-    }
-    if (
-      object.clientsMetadata !== undefined &&
-      object.clientsMetadata !== null
-    ) {
-      for (const e of object.clientsMetadata) {
-        message.clientsMetadata.push(IdentifiedGenesisMetadata.fromJSON(e));
-      }
-    }
+    message.clients = (object.clients ?? []).map((e: any) =>
+      IdentifiedClientState.fromJSON(e)
+    );
+    message.clientsConsensus = (object.clientsConsensus ?? []).map((e: any) =>
+      ClientConsensusStates.fromJSON(e)
+    );
+    message.clientsMetadata = (object.clientsMetadata ?? []).map((e: any) =>
+      IdentifiedGenesisMetadata.fromJSON(e)
+    );
     if (object.params !== undefined && object.params !== null) {
       message.params = Params.fromJSON(object.params);
     } else {
@@ -200,30 +185,15 @@ export const GenesisState = {
 
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = { ...baseGenesisState } as GenesisState;
-    message.clients = [];
-    if (object.clients !== undefined && object.clients !== null) {
-      for (const e of object.clients) {
-        message.clients.push(IdentifiedClientState.fromPartial(e));
-      }
-    }
-    message.clientsConsensus = [];
-    if (
-      object.clientsConsensus !== undefined &&
-      object.clientsConsensus !== null
-    ) {
-      for (const e of object.clientsConsensus) {
-        message.clientsConsensus.push(ClientConsensusStates.fromPartial(e));
-      }
-    }
-    message.clientsMetadata = [];
-    if (
-      object.clientsMetadata !== undefined &&
-      object.clientsMetadata !== null
-    ) {
-      for (const e of object.clientsMetadata) {
-        message.clientsMetadata.push(IdentifiedGenesisMetadata.fromPartial(e));
-      }
-    }
+    message.clients = (object.clients ?? []).map((e) =>
+      IdentifiedClientState.fromPartial(e)
+    );
+    message.clientsConsensus = (object.clientsConsensus ?? []).map((e) =>
+      ClientConsensusStates.fromPartial(e)
+    );
+    message.clientsMetadata = (object.clientsMetadata ?? []).map((e) =>
+      IdentifiedGenesisMetadata.fromPartial(e)
+    );
     if (object.params !== undefined && object.params !== null) {
       message.params = Params.fromPartial(object.params);
     } else {
@@ -283,13 +253,15 @@ export const GenesisMetadata = {
 
   fromJSON(object: any): GenesisMetadata {
     const message = { ...baseGenesisMetadata } as GenesisMetadata;
-    message.key = new Uint8Array();
-    message.value = new Uint8Array();
     if (object.key !== undefined && object.key !== null) {
       message.key = bytesFromBase64(object.key);
+    } else {
+      message.key = new Uint8Array();
     }
     if (object.value !== undefined && object.value !== null) {
       message.value = bytesFromBase64(object.value);
+    } else {
+      message.value = new Uint8Array();
     }
     return message;
   },
@@ -364,17 +336,14 @@ export const IdentifiedGenesisMetadata = {
     const message = {
       ...baseIdentifiedGenesisMetadata,
     } as IdentifiedGenesisMetadata;
-    message.clientMetadata = [];
     if (object.clientId !== undefined && object.clientId !== null) {
       message.clientId = String(object.clientId);
     } else {
       message.clientId = '';
     }
-    if (object.clientMetadata !== undefined && object.clientMetadata !== null) {
-      for (const e of object.clientMetadata) {
-        message.clientMetadata.push(GenesisMetadata.fromJSON(e));
-      }
-    }
+    message.clientMetadata = (object.clientMetadata ?? []).map((e: any) =>
+      GenesisMetadata.fromJSON(e)
+    );
     return message;
   },
 
@@ -398,12 +367,9 @@ export const IdentifiedGenesisMetadata = {
       ...baseIdentifiedGenesisMetadata,
     } as IdentifiedGenesisMetadata;
     message.clientId = object.clientId ?? '';
-    message.clientMetadata = [];
-    if (object.clientMetadata !== undefined && object.clientMetadata !== null) {
-      for (const e of object.clientMetadata) {
-        message.clientMetadata.push(GenesisMetadata.fromPartial(e));
-      }
-    }
+    message.clientMetadata = (object.clientMetadata ?? []).map((e) =>
+      GenesisMetadata.fromPartial(e)
+    );
     return message;
   },
 };
