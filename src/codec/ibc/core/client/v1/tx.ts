@@ -92,7 +92,7 @@ export const MsgCreateClient = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): MsgCreateClient {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseMsgCreateClient } as MsgCreateClient;
     while (reader.pos < end) {
@@ -184,7 +184,7 @@ export const MsgCreateClientResponse = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): MsgCreateClientResponse {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseMsgCreateClientResponse,
@@ -242,7 +242,7 @@ export const MsgUpdateClient = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): MsgUpdateClient {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseMsgUpdateClient } as MsgUpdateClient;
     while (reader.pos < end) {
@@ -329,7 +329,7 @@ export const MsgUpdateClientResponse = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): MsgUpdateClientResponse {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseMsgUpdateClientResponse,
@@ -396,7 +396,7 @@ export const MsgUpgradeClient = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): MsgUpgradeClient {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseMsgUpgradeClient } as MsgUpgradeClient;
     message.proofUpgradeClient = new Uint8Array();
@@ -554,7 +554,7 @@ export const MsgUpgradeClientResponse = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): MsgUpgradeClientResponse {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseMsgUpgradeClientResponse,
@@ -615,7 +615,7 @@ export const MsgSubmitMisbehaviour = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): MsgSubmitMisbehaviour {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseMsgSubmitMisbehaviour } as MsgSubmitMisbehaviour;
     while (reader.pos < end) {
@@ -706,7 +706,7 @@ export const MsgSubmitMisbehaviourResponse = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): MsgSubmitMisbehaviourResponse {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseMsgSubmitMisbehaviourResponse,
@@ -762,6 +762,10 @@ export class MsgClientImpl implements Msg {
   private readonly rpc: Rpc;
   constructor(rpc: Rpc) {
     this.rpc = rpc;
+    this.CreateClient = this.CreateClient.bind(this);
+    this.UpdateClient = this.UpdateClient.bind(this);
+    this.UpgradeClient = this.UpgradeClient.bind(this);
+    this.SubmitMisbehaviour = this.SubmitMisbehaviour.bind(this);
   }
   CreateClient(request: MsgCreateClient): Promise<MsgCreateClientResponse> {
     const data = MsgCreateClient.encode(request).finish();
@@ -849,8 +853,8 @@ const btoa: (bin: string) => string =
   ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
 function base64FromBytes(arr: Uint8Array): string {
   const bin: string[] = [];
-  for (let i = 0; i < arr.byteLength; ++i) {
-    bin.push(String.fromCharCode(arr[i]));
+  for (const byte of arr) {
+    bin.push(String.fromCharCode(byte));
   }
   return btoa(bin.join(''));
 }
@@ -861,6 +865,7 @@ type Builtin =
   | Uint8Array
   | string
   | number
+  | boolean
   | undefined
   | Long;
 export type DeepPartial<T> = T extends Builtin

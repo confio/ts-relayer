@@ -95,7 +95,7 @@ export const IdentifiedClientState = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): IdentifiedClientState {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseIdentifiedClientState } as IdentifiedClientState;
     while (reader.pos < end) {
@@ -178,7 +178,7 @@ export const ConsensusStateWithHeight = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): ConsensusStateWithHeight {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseConsensusStateWithHeight,
@@ -268,7 +268,7 @@ export const ClientConsensusStates = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): ClientConsensusStates {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseClientConsensusStates } as ClientConsensusStates;
     message.consensusStates = [];
@@ -375,7 +375,7 @@ export const ClientUpdateProposal = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): ClientUpdateProposal {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseClientUpdateProposal } as ClientUpdateProposal;
     while (reader.pos < end) {
@@ -483,7 +483,7 @@ export const Height = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Height {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseHeight } as Height;
     while (reader.pos < end) {
@@ -557,7 +557,7 @@ export const Params = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Params {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseParams } as Params;
     message.allowedClients = [];
@@ -614,6 +614,7 @@ type Builtin =
   | Uint8Array
   | string
   | number
+  | boolean
   | undefined
   | Long;
 export type DeepPartial<T> = T extends Builtin

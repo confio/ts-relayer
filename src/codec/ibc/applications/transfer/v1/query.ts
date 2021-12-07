@@ -76,7 +76,7 @@ export const QueryDenomTraceRequest = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryDenomTraceRequest {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseQueryDenomTraceRequest } as QueryDenomTraceRequest;
     while (reader.pos < end) {
@@ -139,7 +139,7 @@ export const QueryDenomTraceResponse = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryDenomTraceResponse {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryDenomTraceResponse,
@@ -211,7 +211,7 @@ export const QueryDenomTracesRequest = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryDenomTracesRequest {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryDenomTracesRequest,
@@ -289,7 +289,7 @@ export const QueryDenomTracesResponse = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryDenomTracesResponse {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryDenomTracesResponse,
@@ -378,7 +378,7 @@ export const QueryParamsRequest = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): QueryParamsRequest {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseQueryParamsRequest } as QueryParamsRequest;
     while (reader.pos < end) {
@@ -422,7 +422,7 @@ export const QueryParamsResponse = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): QueryParamsResponse {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseQueryParamsResponse } as QueryParamsResponse;
     while (reader.pos < end) {
@@ -483,6 +483,9 @@ export class QueryClientImpl implements Query {
   private readonly rpc: Rpc;
   constructor(rpc: Rpc) {
     this.rpc = rpc;
+    this.DenomTrace = this.DenomTrace.bind(this);
+    this.DenomTraces = this.DenomTraces.bind(this);
+    this.Params = this.Params.bind(this);
   }
   DenomTrace(
     request: QueryDenomTraceRequest
@@ -539,6 +542,7 @@ type Builtin =
   | Uint8Array
   | string
   | number
+  | boolean
   | undefined
   | Long;
 export type DeepPartial<T> = T extends Builtin

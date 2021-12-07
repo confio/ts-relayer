@@ -134,7 +134,7 @@ export const MsgConnectionOpenInit = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): MsgConnectionOpenInit {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseMsgConnectionOpenInit } as MsgConnectionOpenInit;
     while (reader.pos < end) {
@@ -257,7 +257,7 @@ export const MsgConnectionOpenInitResponse = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): MsgConnectionOpenInitResponse {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseMsgConnectionOpenInitResponse,
@@ -353,7 +353,7 @@ export const MsgConnectionOpenTry = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): MsgConnectionOpenTry {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseMsgConnectionOpenTry } as MsgConnectionOpenTry;
     message.counterpartyVersions = [];
@@ -621,7 +621,7 @@ export const MsgConnectionOpenTryResponse = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): MsgConnectionOpenTryResponse {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseMsgConnectionOpenTryResponse,
@@ -707,7 +707,7 @@ export const MsgConnectionOpenAck = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): MsgConnectionOpenAck {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseMsgConnectionOpenAck } as MsgConnectionOpenAck;
     message.proofTry = new Uint8Array();
@@ -932,7 +932,7 @@ export const MsgConnectionOpenAckResponse = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): MsgConnectionOpenAckResponse {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseMsgConnectionOpenAckResponse,
@@ -996,7 +996,7 @@ export const MsgConnectionOpenConfirm = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): MsgConnectionOpenConfirm {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseMsgConnectionOpenConfirm,
@@ -1111,7 +1111,7 @@ export const MsgConnectionOpenConfirmResponse = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): MsgConnectionOpenConfirmResponse {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseMsgConnectionOpenConfirmResponse,
@@ -1173,6 +1173,10 @@ export class MsgClientImpl implements Msg {
   private readonly rpc: Rpc;
   constructor(rpc: Rpc) {
     this.rpc = rpc;
+    this.ConnectionOpenInit = this.ConnectionOpenInit.bind(this);
+    this.ConnectionOpenTry = this.ConnectionOpenTry.bind(this);
+    this.ConnectionOpenAck = this.ConnectionOpenAck.bind(this);
+    this.ConnectionOpenConfirm = this.ConnectionOpenConfirm.bind(this);
   }
   ConnectionOpenInit(
     request: MsgConnectionOpenInit
@@ -1266,8 +1270,8 @@ const btoa: (bin: string) => string =
   ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
 function base64FromBytes(arr: Uint8Array): string {
   const bin: string[] = [];
-  for (let i = 0; i < arr.byteLength; ++i) {
-    bin.push(String.fromCharCode(arr[i]));
+  for (const byte of arr) {
+    bin.push(String.fromCharCode(byte));
   }
   return btoa(bin.join(''));
 }
@@ -1278,6 +1282,7 @@ type Builtin =
   | Uint8Array
   | string
   | number
+  | boolean
   | undefined
   | Long;
 export type DeepPartial<T> = T extends Builtin

@@ -148,7 +148,7 @@ export const QueryConnectionRequest = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryConnectionRequest {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseQueryConnectionRequest } as QueryConnectionRequest;
     while (reader.pos < end) {
@@ -221,7 +221,7 @@ export const QueryConnectionResponse = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryConnectionResponse {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryConnectionResponse,
@@ -327,7 +327,7 @@ export const QueryConnectionsRequest = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryConnectionsRequest {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryConnectionsRequest,
@@ -408,7 +408,7 @@ export const QueryConnectionsResponse = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryConnectionsResponse {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryConnectionsResponse,
@@ -520,7 +520,7 @@ export const QueryClientConnectionsRequest = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryClientConnectionsRequest {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryClientConnectionsRequest,
@@ -595,7 +595,7 @@ export const QueryClientConnectionsResponse = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryClientConnectionsResponse {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryClientConnectionsResponse,
@@ -711,7 +711,7 @@ export const QueryConnectionClientStateRequest = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryConnectionClientStateRequest {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryConnectionClientStateRequest,
@@ -790,7 +790,7 @@ export const QueryConnectionClientStateResponse = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryConnectionClientStateResponse {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryConnectionClientStateResponse,
@@ -919,7 +919,7 @@ export const QueryConnectionConsensusStateRequest = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryConnectionConsensusStateRequest {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryConnectionConsensusStateRequest,
@@ -1028,7 +1028,7 @@ export const QueryConnectionConsensusStateResponse = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryConnectionConsensusStateResponse {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryConnectionConsensusStateResponse,
@@ -1166,6 +1166,11 @@ export class QueryClientImpl implements Query {
   private readonly rpc: Rpc;
   constructor(rpc: Rpc) {
     this.rpc = rpc;
+    this.Connection = this.Connection.bind(this);
+    this.Connections = this.Connections.bind(this);
+    this.ClientConnections = this.ClientConnections.bind(this);
+    this.ConnectionClientState = this.ConnectionClientState.bind(this);
+    this.ConnectionConsensusState = this.ConnectionConsensusState.bind(this);
   }
   Connection(
     request: QueryConnectionRequest
@@ -1273,8 +1278,8 @@ const btoa: (bin: string) => string =
   ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
 function base64FromBytes(arr: Uint8Array): string {
   const bin: string[] = [];
-  for (let i = 0; i < arr.byteLength; ++i) {
-    bin.push(String.fromCharCode(arr[i]));
+  for (const byte of arr) {
+    bin.push(String.fromCharCode(byte));
   }
   return btoa(bin.join(''));
 }
@@ -1285,6 +1290,7 @@ type Builtin =
   | Uint8Array
   | string
   | number
+  | boolean
   | undefined
   | Long;
 export type DeepPartial<T> = T extends Builtin

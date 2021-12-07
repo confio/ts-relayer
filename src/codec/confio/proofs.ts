@@ -361,7 +361,7 @@ export const ExistenceProof = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ExistenceProof {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseExistenceProof } as ExistenceProof;
     message.path = [];
@@ -481,7 +481,7 @@ export const NonExistenceProof = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): NonExistenceProof {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseNonExistenceProof } as NonExistenceProof;
     message.key = new Uint8Array();
@@ -591,7 +591,7 @@ export const CommitmentProof = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): CommitmentProof {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseCommitmentProof } as CommitmentProof;
     while (reader.pos < end) {
@@ -723,7 +723,7 @@ export const LeafOp = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): LeafOp {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseLeafOp } as LeafOp;
     message.prefix = new Uint8Array();
@@ -849,7 +849,7 @@ export const InnerOp = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): InnerOp {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseInnerOp } as InnerOp;
     message.prefix = new Uint8Array();
@@ -950,7 +950,7 @@ export const ProofSpec = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ProofSpec {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseProofSpec } as ProofSpec;
     while (reader.pos < end) {
@@ -1079,7 +1079,7 @@ export const InnerSpec = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): InnerSpec {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseInnerSpec } as InnerSpec;
     message.childOrder = [];
@@ -1238,7 +1238,7 @@ export const BatchProof = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): BatchProof {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseBatchProof } as BatchProof;
     message.entries = [];
@@ -1311,7 +1311,7 @@ export const BatchEntry = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): BatchEntry {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseBatchEntry } as BatchEntry;
     while (reader.pos < end) {
@@ -1395,7 +1395,7 @@ export const CompressedBatchProof = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): CompressedBatchProof {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseCompressedBatchProof } as CompressedBatchProof;
     message.entries = [];
@@ -1499,7 +1499,7 @@ export const CompressedBatchEntry = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): CompressedBatchEntry {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseCompressedBatchEntry } as CompressedBatchEntry;
     while (reader.pos < end) {
@@ -1599,7 +1599,7 @@ export const CompressedExistenceProof = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): CompressedExistenceProof {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseCompressedExistenceProof,
@@ -1743,7 +1743,7 @@ export const CompressedNonExistenceProof = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): CompressedNonExistenceProof {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseCompressedNonExistenceProof,
@@ -1865,8 +1865,8 @@ const btoa: (bin: string) => string =
   ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
 function base64FromBytes(arr: Uint8Array): string {
   const bin: string[] = [];
-  for (let i = 0; i < arr.byteLength; ++i) {
-    bin.push(String.fromCharCode(arr[i]));
+  for (const byte of arr) {
+    bin.push(String.fromCharCode(byte));
   }
   return btoa(bin.join(''));
 }
@@ -1877,6 +1877,7 @@ type Builtin =
   | Uint8Array
   | string
   | number
+  | boolean
   | undefined
   | Long;
 export type DeepPartial<T> = T extends Builtin

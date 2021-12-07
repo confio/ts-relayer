@@ -291,7 +291,7 @@ export const ClientState = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ClientState {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseClientState } as ClientState;
     while (reader.pos < end) {
@@ -416,7 +416,7 @@ export const ConsensusState = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ConsensusState {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseConsensusState } as ConsensusState;
     while (reader.pos < end) {
@@ -523,7 +523,7 @@ export const Header = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Header {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseHeader } as Header;
     message.signature = new Uint8Array();
@@ -661,7 +661,7 @@ export const Misbehaviour = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Misbehaviour {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseMisbehaviour } as Misbehaviour;
     while (reader.pos < end) {
@@ -783,7 +783,7 @@ export const SignatureAndData = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): SignatureAndData {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseSignatureAndData } as SignatureAndData;
     message.signature = new Uint8Array();
@@ -897,7 +897,7 @@ export const TimestampedSignatureData = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): TimestampedSignatureData {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseTimestampedSignatureData,
@@ -1000,7 +1000,7 @@ export const SignBytes = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): SignBytes {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseSignBytes } as SignBytes;
     message.data = new Uint8Array();
@@ -1124,7 +1124,7 @@ export const HeaderData = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): HeaderData {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseHeaderData } as HeaderData;
     while (reader.pos < end) {
@@ -1203,7 +1203,7 @@ export const ClientStateData = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ClientStateData {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseClientStateData } as ClientStateData;
     message.path = new Uint8Array();
@@ -1284,7 +1284,7 @@ export const ConsensusStateData = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ConsensusStateData {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseConsensusStateData } as ConsensusStateData;
     message.path = new Uint8Array();
@@ -1368,7 +1368,7 @@ export const ConnectionStateData = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ConnectionStateData {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseConnectionStateData } as ConnectionStateData;
     message.path = new Uint8Array();
@@ -1449,7 +1449,7 @@ export const ChannelStateData = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ChannelStateData {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseChannelStateData } as ChannelStateData;
     message.path = new Uint8Array();
@@ -1533,7 +1533,7 @@ export const PacketCommitmentData = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): PacketCommitmentData {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...basePacketCommitmentData } as PacketCommitmentData;
     message.path = new Uint8Array();
@@ -1617,7 +1617,7 @@ export const PacketAcknowledgementData = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): PacketAcknowledgementData {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...basePacketAcknowledgementData,
@@ -1714,7 +1714,7 @@ export const PacketReceiptAbsenceData = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): PacketReceiptAbsenceData {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...basePacketReceiptAbsenceData,
@@ -1789,7 +1789,7 @@ export const NextSequenceRecvData = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): NextSequenceRecvData {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseNextSequenceRecvData } as NextSequenceRecvData;
     message.path = new Uint8Array();
@@ -1878,8 +1878,8 @@ const btoa: (bin: string) => string =
   ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
 function base64FromBytes(arr: Uint8Array): string {
   const bin: string[] = [];
-  for (let i = 0; i < arr.byteLength; ++i) {
-    bin.push(String.fromCharCode(arr[i]));
+  for (const byte of arr) {
+    bin.push(String.fromCharCode(byte));
   }
   return btoa(bin.join(''));
 }
@@ -1890,6 +1890,7 @@ type Builtin =
   | Uint8Array
   | string
   | number
+  | boolean
   | undefined
   | Long;
 export type DeepPartial<T> = T extends Builtin

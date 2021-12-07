@@ -157,7 +157,7 @@ export const ClientState = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ClientState {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseClientState } as ClientState;
     message.proofSpecs = [];
@@ -418,7 +418,7 @@ export const ConsensusState = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ConsensusState {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseConsensusState } as ConsensusState;
     message.nextValidatorsHash = new Uint8Array();
@@ -467,10 +467,7 @@ export const ConsensusState = {
   toJSON(message: ConsensusState): unknown {
     const obj: any = {};
     message.timestamp !== undefined &&
-      (obj.timestamp =
-        message.timestamp !== undefined
-          ? fromTimestamp(message.timestamp).toISOString()
-          : null);
+      (obj.timestamp = fromTimestamp(message.timestamp).toISOString());
     message.root !== undefined &&
       (obj.root = message.root ? MerkleRoot.toJSON(message.root) : undefined);
     message.nextValidatorsHash !== undefined &&
@@ -526,7 +523,7 @@ export const Misbehaviour = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Misbehaviour {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseMisbehaviour } as Misbehaviour;
     while (reader.pos < end) {
@@ -636,7 +633,7 @@ export const Header = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Header {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseHeader } as Header;
     while (reader.pos < end) {
@@ -764,7 +761,7 @@ export const Fraction = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Fraction {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseFraction } as Fraction;
     while (reader.pos < end) {
@@ -851,8 +848,8 @@ const btoa: (bin: string) => string =
   ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
 function base64FromBytes(arr: Uint8Array): string {
   const bin: string[] = [];
-  for (let i = 0; i < arr.byteLength; ++i) {
-    bin.push(String.fromCharCode(arr[i]));
+  for (const byte of arr) {
+    bin.push(String.fromCharCode(byte));
   }
   return btoa(bin.join(''));
 }
@@ -863,6 +860,7 @@ type Builtin =
   | Uint8Array
   | string
   | number
+  | boolean
   | undefined
   | Long;
 export type DeepPartial<T> = T extends Builtin

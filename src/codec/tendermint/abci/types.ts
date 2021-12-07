@@ -628,7 +628,7 @@ export const Request = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Request {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseRequest } as Request;
     while (reader.pos < end) {
@@ -966,7 +966,7 @@ export const RequestEcho = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): RequestEcho {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseRequestEcho } as RequestEcho;
     while (reader.pos < end) {
@@ -1021,7 +1021,7 @@ export const RequestFlush = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): RequestFlush {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseRequestFlush } as RequestFlush;
     while (reader.pos < end) {
@@ -1075,7 +1075,7 @@ export const RequestInfo = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): RequestInfo {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseRequestInfo } as RequestInfo;
     while (reader.pos < end) {
@@ -1166,7 +1166,7 @@ export const RequestSetOption = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): RequestSetOption {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseRequestSetOption } as RequestSetOption;
     while (reader.pos < end) {
@@ -1256,7 +1256,7 @@ export const RequestInitChain = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): RequestInitChain {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseRequestInitChain } as RequestInitChain;
     message.validators = [];
@@ -1338,10 +1338,7 @@ export const RequestInitChain = {
   toJSON(message: RequestInitChain): unknown {
     const obj: any = {};
     message.time !== undefined &&
-      (obj.time =
-        message.time !== undefined
-          ? fromTimestamp(message.time).toISOString()
-          : null);
+      (obj.time = fromTimestamp(message.time).toISOString());
     message.chainId !== undefined && (obj.chainId = message.chainId);
     message.consensusParams !== undefined &&
       (obj.consensusParams = message.consensusParams
@@ -1430,7 +1427,7 @@ export const RequestQuery = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): RequestQuery {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseRequestQuery } as RequestQuery;
     message.data = new Uint8Array();
@@ -1546,7 +1543,7 @@ export const RequestBeginBlock = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): RequestBeginBlock {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseRequestBeginBlock } as RequestBeginBlock;
     message.byzantineValidators = [];
@@ -1678,7 +1675,7 @@ export const RequestCheckTx = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): RequestCheckTx {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseRequestCheckTx } as RequestCheckTx;
     message.tx = new Uint8Array();
@@ -1753,7 +1750,7 @@ export const RequestDeliverTx = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): RequestDeliverTx {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseRequestDeliverTx } as RequestDeliverTx;
     message.tx = new Uint8Array();
@@ -1814,7 +1811,7 @@ export const RequestEndBlock = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): RequestEndBlock {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseRequestEndBlock } as RequestEndBlock;
     while (reader.pos < end) {
@@ -1870,7 +1867,7 @@ export const RequestCommit = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): RequestCommit {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseRequestCommit } as RequestCommit;
     while (reader.pos < end) {
@@ -1914,7 +1911,7 @@ export const RequestListSnapshots = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): RequestListSnapshots {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseRequestListSnapshots } as RequestListSnapshots;
     while (reader.pos < end) {
@@ -1964,7 +1961,7 @@ export const RequestOfferSnapshot = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): RequestOfferSnapshot {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseRequestOfferSnapshot } as RequestOfferSnapshot;
     message.appHash = new Uint8Array();
@@ -2055,7 +2052,7 @@ export const RequestLoadSnapshotChunk = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): RequestLoadSnapshotChunk {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseRequestLoadSnapshotChunk,
@@ -2159,7 +2156,7 @@ export const RequestApplySnapshotChunk = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): RequestApplySnapshotChunk {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseRequestApplySnapshotChunk,
@@ -2334,7 +2331,7 @@ export const Response = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Response {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseResponse } as Response;
     while (reader.pos < end) {
@@ -2689,7 +2686,7 @@ export const ResponseException = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ResponseException {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseResponseException } as ResponseException;
     while (reader.pos < end) {
@@ -2747,7 +2744,7 @@ export const ResponseEcho = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ResponseEcho {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseResponseEcho } as ResponseEcho;
     while (reader.pos < end) {
@@ -2802,7 +2799,7 @@ export const ResponseFlush = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ResponseFlush {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseResponseFlush } as ResponseFlush;
     while (reader.pos < end) {
@@ -2863,7 +2860,7 @@ export const ResponseInfo = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ResponseInfo {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseResponseInfo } as ResponseInfo;
     message.lastBlockAppHash = new Uint8Array();
@@ -3002,7 +2999,7 @@ export const ResponseSetOption = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ResponseSetOption {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseResponseSetOption } as ResponseSetOption;
     while (reader.pos < end) {
@@ -3097,7 +3094,7 @@ export const ResponseInitChain = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ResponseInitChain {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseResponseInitChain } as ResponseInitChain;
     message.validators = [];
@@ -3244,7 +3241,7 @@ export const ResponseQuery = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ResponseQuery {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseResponseQuery } as ResponseQuery;
     message.key = new Uint8Array();
@@ -3425,7 +3422,7 @@ export const ResponseBeginBlock = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ResponseBeginBlock {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseResponseBeginBlock } as ResponseBeginBlock;
     message.events = [];
@@ -3518,7 +3515,7 @@ export const ResponseCheckTx = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ResponseCheckTx {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseResponseCheckTx } as ResponseCheckTx;
     message.events = [];
@@ -3714,7 +3711,7 @@ export const ResponseDeliverTx = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ResponseDeliverTx {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseResponseDeliverTx } as ResponseDeliverTx;
     message.events = [];
@@ -3891,7 +3888,7 @@ export const ResponseEndBlock = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ResponseEndBlock {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseResponseEndBlock } as ResponseEndBlock;
     message.validatorUpdates = [];
@@ -4020,7 +4017,7 @@ export const ResponseCommit = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ResponseCommit {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseResponseCommit } as ResponseCommit;
     message.data = new Uint8Array();
@@ -4099,7 +4096,7 @@ export const ResponseListSnapshots = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): ResponseListSnapshots {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseResponseListSnapshots } as ResponseListSnapshots;
     message.snapshots = [];
@@ -4171,7 +4168,7 @@ export const ResponseOfferSnapshot = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): ResponseOfferSnapshot {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseResponseOfferSnapshot } as ResponseOfferSnapshot;
     while (reader.pos < end) {
@@ -4235,7 +4232,7 @@ export const ResponseLoadSnapshotChunk = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): ResponseLoadSnapshotChunk {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseResponseLoadSnapshotChunk,
@@ -4319,7 +4316,7 @@ export const ResponseApplySnapshotChunk = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): ResponseApplySnapshotChunk {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseResponseApplySnapshotChunk,
@@ -4450,7 +4447,7 @@ export const ConsensusParams = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ConsensusParams {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseConsensusParams } as ConsensusParams;
     while (reader.pos < end) {
@@ -4565,7 +4562,7 @@ export const BlockParams = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): BlockParams {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseBlockParams } as BlockParams;
     while (reader.pos < end) {
@@ -4642,7 +4639,7 @@ export const LastCommitInfo = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): LastCommitInfo {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseLastCommitInfo } as LastCommitInfo;
     message.votes = [];
@@ -4723,7 +4720,7 @@ export const Event = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Event {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseEvent } as Event;
     message.attributes = [];
@@ -4812,7 +4809,7 @@ export const EventAttribute = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): EventAttribute {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseEventAttribute } as EventAttribute;
     message.key = new Uint8Array();
@@ -4916,7 +4913,7 @@ export const TxResult = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): TxResult {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseTxResult } as TxResult;
     message.tx = new Uint8Array();
@@ -5026,7 +5023,7 @@ export const Validator = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Validator {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseValidator } as Validator;
     message.address = new Uint8Array();
@@ -5105,7 +5102,7 @@ export const ValidatorUpdate = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ValidatorUpdate {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseValidatorUpdate } as ValidatorUpdate;
     while (reader.pos < end) {
@@ -5184,7 +5181,7 @@ export const VoteInfo = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): VoteInfo {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseVoteInfo } as VoteInfo;
     while (reader.pos < end) {
@@ -5282,7 +5279,7 @@ export const Evidence = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Evidence {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseEvidence } as Evidence;
     while (reader.pos < end) {
@@ -5354,10 +5351,7 @@ export const Evidence = {
     message.height !== undefined &&
       (obj.height = (message.height || Long.ZERO).toString());
     message.time !== undefined &&
-      (obj.time =
-        message.time !== undefined
-          ? fromTimestamp(message.time).toISOString()
-          : null);
+      (obj.time = fromTimestamp(message.time).toISOString());
     message.totalVotingPower !== undefined &&
       (obj.totalVotingPower = (
         message.totalVotingPower || Long.ZERO
@@ -5425,7 +5419,7 @@ export const Snapshot = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Snapshot {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseSnapshot } as Snapshot;
     message.hash = new Uint8Array();
@@ -5558,6 +5552,21 @@ export class ABCIApplicationClientImpl implements ABCIApplication {
   private readonly rpc: Rpc;
   constructor(rpc: Rpc) {
     this.rpc = rpc;
+    this.Echo = this.Echo.bind(this);
+    this.Flush = this.Flush.bind(this);
+    this.Info = this.Info.bind(this);
+    this.SetOption = this.SetOption.bind(this);
+    this.DeliverTx = this.DeliverTx.bind(this);
+    this.CheckTx = this.CheckTx.bind(this);
+    this.Query = this.Query.bind(this);
+    this.Commit = this.Commit.bind(this);
+    this.InitChain = this.InitChain.bind(this);
+    this.BeginBlock = this.BeginBlock.bind(this);
+    this.EndBlock = this.EndBlock.bind(this);
+    this.ListSnapshots = this.ListSnapshots.bind(this);
+    this.OfferSnapshot = this.OfferSnapshot.bind(this);
+    this.LoadSnapshotChunk = this.LoadSnapshotChunk.bind(this);
+    this.ApplySnapshotChunk = this.ApplySnapshotChunk.bind(this);
   }
   Echo(request: RequestEcho): Promise<ResponseEcho> {
     const data = RequestEcho.encode(request).finish();
@@ -5767,8 +5776,8 @@ const btoa: (bin: string) => string =
   ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
 function base64FromBytes(arr: Uint8Array): string {
   const bin: string[] = [];
-  for (let i = 0; i < arr.byteLength; ++i) {
-    bin.push(String.fromCharCode(arr[i]));
+  for (const byte of arr) {
+    bin.push(String.fromCharCode(byte));
   }
   return btoa(bin.join(''));
 }
@@ -5779,6 +5788,7 @@ type Builtin =
   | Uint8Array
   | string
   | number
+  | boolean
   | undefined
   | Long;
 export type DeepPartial<T> = T extends Builtin

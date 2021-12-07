@@ -240,7 +240,7 @@ export const PartSetHeader = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): PartSetHeader {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...basePartSetHeader } as PartSetHeader;
     message.hash = new Uint8Array();
@@ -318,7 +318,7 @@ export const Part = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Part {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...basePart } as Part;
     message.bytes = new Uint8Array();
@@ -414,7 +414,7 @@ export const BlockID = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): BlockID {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseBlockID } as BlockID;
     message.hash = new Uint8Array();
@@ -531,7 +531,7 @@ export const Header = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Header {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseHeader } as Header;
     message.lastCommitHash = new Uint8Array();
@@ -681,10 +681,7 @@ export const Header = {
     message.height !== undefined &&
       (obj.height = (message.height || Long.ZERO).toString());
     message.time !== undefined &&
-      (obj.time =
-        message.time !== undefined
-          ? fromTimestamp(message.time).toISOString()
-          : null);
+      (obj.time = fromTimestamp(message.time).toISOString());
     message.lastBlockId !== undefined &&
       (obj.lastBlockId = message.lastBlockId
         ? BlockID.toJSON(message.lastBlockId)
@@ -838,7 +835,7 @@ export const Data = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Data {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseData } as Data;
     message.txs = [];
@@ -928,7 +925,7 @@ export const Vote = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Vote {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseVote } as Vote;
     message.validatorAddress = new Uint8Array();
@@ -1026,10 +1023,7 @@ export const Vote = {
         ? BlockID.toJSON(message.blockId)
         : undefined);
     message.timestamp !== undefined &&
-      (obj.timestamp =
-        message.timestamp !== undefined
-          ? fromTimestamp(message.timestamp).toISOString()
-          : null);
+      (obj.timestamp = fromTimestamp(message.timestamp).toISOString());
     message.validatorAddress !== undefined &&
       (obj.validatorAddress = base64FromBytes(
         message.validatorAddress !== undefined
@@ -1117,7 +1111,7 @@ export const Commit = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Commit {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseCommit } as Commit;
     message.signatures = [];
@@ -1239,7 +1233,7 @@ export const CommitSig = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): CommitSig {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseCommitSig } as CommitSig;
     message.validatorAddress = new Uint8Array();
@@ -1304,10 +1298,7 @@ export const CommitSig = {
           : new Uint8Array()
       ));
     message.timestamp !== undefined &&
-      (obj.timestamp =
-        message.timestamp !== undefined
-          ? fromTimestamp(message.timestamp).toISOString()
-          : null);
+      (obj.timestamp = fromTimestamp(message.timestamp).toISOString());
     message.signature !== undefined &&
       (obj.signature = base64FromBytes(
         message.signature !== undefined ? message.signature : new Uint8Array()
@@ -1381,7 +1372,7 @@ export const Proposal = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Proposal {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseProposal } as Proposal;
     message.signature = new Uint8Array();
@@ -1469,10 +1460,7 @@ export const Proposal = {
         ? BlockID.toJSON(message.blockId)
         : undefined);
     message.timestamp !== undefined &&
-      (obj.timestamp =
-        message.timestamp !== undefined
-          ? fromTimestamp(message.timestamp).toISOString()
-          : null);
+      (obj.timestamp = fromTimestamp(message.timestamp).toISOString());
     message.signature !== undefined &&
       (obj.signature = base64FromBytes(
         message.signature !== undefined ? message.signature : new Uint8Array()
@@ -1538,7 +1526,7 @@ export const SignedHeader = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): SignedHeader {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseSignedHeader } as SignedHeader;
     while (reader.pos < end) {
@@ -1621,7 +1609,7 @@ export const LightBlock = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): LightBlock {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseLightBlock } as LightBlock;
     while (reader.pos < end) {
@@ -1708,7 +1696,7 @@ export const BlockMeta = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): BlockMeta {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseBlockMeta } as BlockMeta;
     while (reader.pos < end) {
@@ -1820,7 +1808,7 @@ export const TxProof = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): TxProof {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseTxProof } as TxProof;
     message.rootHash = new Uint8Array();
@@ -1926,8 +1914,8 @@ const btoa: (bin: string) => string =
   ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
 function base64FromBytes(arr: Uint8Array): string {
   const bin: string[] = [];
-  for (let i = 0; i < arr.byteLength; ++i) {
-    bin.push(String.fromCharCode(arr[i]));
+  for (const byte of arr) {
+    bin.push(String.fromCharCode(byte));
   }
   return btoa(bin.join(''));
 }
@@ -1938,6 +1926,7 @@ type Builtin =
   | Uint8Array
   | string
   | number
+  | boolean
   | undefined
   | Long;
 export type DeepPartial<T> = T extends Builtin

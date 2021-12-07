@@ -38,7 +38,7 @@ export const App = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): App {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseApp } as App;
     while (reader.pos < end) {
@@ -114,7 +114,7 @@ export const Consensus = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Consensus {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseConsensus } as Consensus;
     while (reader.pos < end) {
@@ -180,6 +180,7 @@ type Builtin =
   | Uint8Array
   | string
   | number
+  | boolean
   | undefined
   | Long;
 export type DeepPartial<T> = T extends Builtin

@@ -257,7 +257,7 @@ export const Channel = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Channel {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseChannel } as Channel;
     message.connectionHops = [];
@@ -410,7 +410,7 @@ export const IdentifiedChannel = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): IdentifiedChannel {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseIdentifiedChannel } as IdentifiedChannel;
     message.connectionHops = [];
@@ -566,7 +566,7 @@ export const Counterparty = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Counterparty {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseCounterparty } as Counterparty;
     while (reader.pos < end) {
@@ -666,7 +666,7 @@ export const Packet = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Packet {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...basePacket } as Packet;
     message.data = new Uint8Array();
@@ -866,7 +866,7 @@ export const PacketState = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): PacketState {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...basePacketState } as PacketState;
     message.data = new Uint8Array();
@@ -973,7 +973,7 @@ export const Acknowledgement = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Acknowledgement {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseAcknowledgement } as Acknowledgement;
     while (reader.pos < end) {
@@ -1060,8 +1060,8 @@ const btoa: (bin: string) => string =
   ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
 function base64FromBytes(arr: Uint8Array): string {
   const bin: string[] = [];
-  for (let i = 0; i < arr.byteLength; ++i) {
-    bin.push(String.fromCharCode(arr[i]));
+  for (const byte of arr) {
+    bin.push(String.fromCharCode(byte));
   }
   return btoa(bin.join(''));
 }
@@ -1072,6 +1072,7 @@ type Builtin =
   | Uint8Array
   | string
   | number
+  | boolean
   | undefined
   | Long;
 export type DeepPartial<T> = T extends Builtin

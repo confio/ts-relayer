@@ -181,7 +181,7 @@ export const ConnectionEnd = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ConnectionEnd {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseConnectionEnd } as ConnectionEnd;
     message.versions = [];
@@ -334,7 +334,7 @@ export const IdentifiedConnection = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): IdentifiedConnection {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseIdentifiedConnection } as IdentifiedConnection;
     message.versions = [];
@@ -481,7 +481,7 @@ export const Counterparty = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Counterparty {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseCounterparty } as Counterparty;
     while (reader.pos < end) {
@@ -571,7 +571,7 @@ export const ClientPaths = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ClientPaths {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseClientPaths } as ClientPaths;
     message.paths = [];
@@ -639,7 +639,7 @@ export const ConnectionPaths = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ConnectionPaths {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseConnectionPaths } as ConnectionPaths;
     message.paths = [];
@@ -721,7 +721,7 @@ export const Version = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Version {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseVersion } as Version;
     message.features = [];
@@ -792,6 +792,7 @@ type Builtin =
   | Uint8Array
   | string
   | number
+  | boolean
   | undefined
   | Long;
 export type DeepPartial<T> = T extends Builtin

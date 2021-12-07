@@ -138,7 +138,7 @@ export const QueryClientStateRequest = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryClientStateRequest {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryClientStateRequest,
@@ -213,7 +213,7 @@ export const QueryClientStateResponse = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryClientStateResponse {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryClientStateResponse,
@@ -319,7 +319,7 @@ export const QueryClientStatesRequest = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryClientStatesRequest {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryClientStatesRequest,
@@ -397,7 +397,7 @@ export const QueryClientStatesResponse = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryClientStatesResponse {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryClientStatesResponse,
@@ -508,7 +508,7 @@ export const QueryConsensusStateRequest = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryConsensusStateRequest {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryConsensusStateRequest,
@@ -628,7 +628,7 @@ export const QueryConsensusStateResponse = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryConsensusStateResponse {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryConsensusStateResponse,
@@ -737,7 +737,7 @@ export const QueryConsensusStatesRequest = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryConsensusStatesRequest {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryConsensusStatesRequest,
@@ -829,7 +829,7 @@ export const QueryConsensusStatesResponse = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryConsensusStatesResponse {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryConsensusStatesResponse,
@@ -929,7 +929,7 @@ export const QueryClientParamsRequest = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryClientParamsRequest {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryClientParamsRequest,
@@ -984,7 +984,7 @@ export const QueryClientParamsResponse = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryClientParamsResponse {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryClientParamsResponse,
@@ -1071,6 +1071,11 @@ export class QueryClientImpl implements Query {
   private readonly rpc: Rpc;
   constructor(rpc: Rpc) {
     this.rpc = rpc;
+    this.ClientState = this.ClientState.bind(this);
+    this.ClientStates = this.ClientStates.bind(this);
+    this.ConsensusState = this.ConsensusState.bind(this);
+    this.ConsensusStates = this.ConsensusStates.bind(this);
+    this.ClientParams = this.ClientParams.bind(this);
   }
   ClientState(
     request: QueryClientStateRequest
@@ -1178,8 +1183,8 @@ const btoa: (bin: string) => string =
   ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
 function base64FromBytes(arr: Uint8Array): string {
   const bin: string[] = [];
-  for (let i = 0; i < arr.byteLength; ++i) {
-    bin.push(String.fromCharCode(arr[i]));
+  for (const byte of arr) {
+    bin.push(String.fromCharCode(byte));
   }
   return btoa(bin.join(''));
 }
@@ -1190,6 +1195,7 @@ type Builtin =
   | Uint8Array
   | string
   | number
+  | boolean
   | undefined
   | Long;
 export type DeepPartial<T> = T extends Builtin

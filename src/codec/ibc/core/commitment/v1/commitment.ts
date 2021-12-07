@@ -56,7 +56,7 @@ export const MerkleRoot = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): MerkleRoot {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseMerkleRoot } as MerkleRoot;
     message.hash = new Uint8Array();
@@ -117,7 +117,7 @@ export const MerklePrefix = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): MerklePrefix {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseMerklePrefix } as MerklePrefix;
     message.keyPrefix = new Uint8Array();
@@ -178,7 +178,7 @@ export const MerklePath = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): MerklePath {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseMerklePath } as MerklePath;
     message.keyPath = [];
@@ -243,7 +243,7 @@ export const MerkleProof = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): MerkleProof {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseMerkleProof } as MerkleProof;
     message.proofs = [];
@@ -323,8 +323,8 @@ const btoa: (bin: string) => string =
   ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
 function base64FromBytes(arr: Uint8Array): string {
   const bin: string[] = [];
-  for (let i = 0; i < arr.byteLength; ++i) {
-    bin.push(String.fromCharCode(arr[i]));
+  for (const byte of arr) {
+    bin.push(String.fromCharCode(byte));
   }
   return btoa(bin.join(''));
 }
@@ -335,6 +335,7 @@ type Builtin =
   | Uint8Array
   | string
   | number
+  | boolean
   | undefined
   | Long;
 export type DeepPartial<T> = T extends Builtin
