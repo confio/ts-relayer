@@ -1,12 +1,12 @@
 /* eslint-disable */
 import Long from 'long';
+import _m0 from 'protobufjs/minimal';
 import { Duration } from '../../../../google/protobuf/duration';
 import { Height } from '../../../../ibc/core/client/v1/client';
 import { Timestamp } from '../../../../google/protobuf/timestamp';
 import { MerkleRoot } from '../../../../ibc/core/commitment/v1/commitment';
 import { SignedHeader } from '../../../../tendermint/types/types';
 import { ValidatorSet } from '../../../../tendermint/types/validator';
-import _m0 from 'protobufjs/minimal';
 import { ProofSpec } from '../../../../confio/proofs';
 
 export const protobufPackage = 'ibc.lightclients.tendermint.v1';
@@ -421,6 +421,7 @@ export const ConsensusState = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseConsensusState } as ConsensusState;
+    message.nextValidatorsHash = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -443,6 +444,7 @@ export const ConsensusState = {
 
   fromJSON(object: any): ConsensusState {
     const message = { ...baseConsensusState } as ConsensusState;
+    message.nextValidatorsHash = new Uint8Array();
     if (object.timestamp !== undefined && object.timestamp !== null) {
       message.timestamp = fromJsonTimestamp(object.timestamp);
     } else {

@@ -1,7 +1,7 @@
 /* eslint-disable */
 import Long from 'long';
-import { PublicKey } from '../../tendermint/crypto/keys';
 import _m0 from 'protobufjs/minimal';
+import { PublicKey } from '../../tendermint/crypto/keys';
 
 export const protobufPackage = 'tendermint.types';
 
@@ -165,6 +165,7 @@ export const Validator = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseValidator } as Validator;
+    message.address = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -190,6 +191,7 @@ export const Validator = {
 
   fromJSON(object: any): Validator {
     const message = { ...baseValidator } as Validator;
+    message.address = new Uint8Array();
     if (object.address !== undefined && object.address !== null) {
       message.address = bytesFromBase64(object.address);
     }

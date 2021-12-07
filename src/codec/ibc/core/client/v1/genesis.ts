@@ -1,11 +1,11 @@
 /* eslint-disable */
 import Long from 'long';
+import _m0 from 'protobufjs/minimal';
 import {
   Params,
   IdentifiedClientState,
   ClientConsensusStates,
 } from '../../../../ibc/core/client/v1/client';
-import _m0 from 'protobufjs/minimal';
 
 export const protobufPackage = 'ibc.core.client.v1';
 
@@ -269,6 +269,8 @@ export const GenesisMetadata = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseGenesisMetadata } as GenesisMetadata;
+    message.key = new Uint8Array();
+    message.value = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -288,6 +290,8 @@ export const GenesisMetadata = {
 
   fromJSON(object: any): GenesisMetadata {
     const message = { ...baseGenesisMetadata } as GenesisMetadata;
+    message.key = new Uint8Array();
+    message.value = new Uint8Array();
     if (object.key !== undefined && object.key !== null) {
       message.key = bytesFromBase64(object.key);
     }

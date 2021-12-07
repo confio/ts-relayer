@@ -1,12 +1,12 @@
 /* eslint-disable */
 import Long from 'long';
+import _m0 from 'protobufjs/minimal';
 import {
   Counterparty,
   Version,
 } from '../../../../ibc/core/connection/v1/connection';
 import { Any } from '../../../../google/protobuf/any';
 import { Height } from '../../../../ibc/core/client/v1/client';
-import _m0 from 'protobufjs/minimal';
 
 export const protobufPackage = 'ibc.core.connection.v1';
 
@@ -357,6 +357,9 @@ export const MsgConnectionOpenTry = {
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseMsgConnectionOpenTry } as MsgConnectionOpenTry;
     message.counterpartyVersions = [];
+    message.proofInit = new Uint8Array();
+    message.proofClient = new Uint8Array();
+    message.proofConsensus = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -409,6 +412,9 @@ export const MsgConnectionOpenTry = {
   fromJSON(object: any): MsgConnectionOpenTry {
     const message = { ...baseMsgConnectionOpenTry } as MsgConnectionOpenTry;
     message.counterpartyVersions = [];
+    message.proofInit = new Uint8Array();
+    message.proofClient = new Uint8Array();
+    message.proofConsensus = new Uint8Array();
     if (object.clientId !== undefined && object.clientId !== null) {
       message.clientId = String(object.clientId);
     } else {
@@ -704,6 +710,9 @@ export const MsgConnectionOpenAck = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseMsgConnectionOpenAck } as MsgConnectionOpenAck;
+    message.proofTry = new Uint8Array();
+    message.proofClient = new Uint8Array();
+    message.proofConsensus = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -747,6 +756,9 @@ export const MsgConnectionOpenAck = {
 
   fromJSON(object: any): MsgConnectionOpenAck {
     const message = { ...baseMsgConnectionOpenAck } as MsgConnectionOpenAck;
+    message.proofTry = new Uint8Array();
+    message.proofClient = new Uint8Array();
+    message.proofConsensus = new Uint8Array();
     if (object.connectionId !== undefined && object.connectionId !== null) {
       message.connectionId = String(object.connectionId);
     } else {
@@ -989,6 +1001,7 @@ export const MsgConnectionOpenConfirm = {
     const message = {
       ...baseMsgConnectionOpenConfirm,
     } as MsgConnectionOpenConfirm;
+    message.proofAck = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1016,6 +1029,7 @@ export const MsgConnectionOpenConfirm = {
     const message = {
       ...baseMsgConnectionOpenConfirm,
     } as MsgConnectionOpenConfirm;
+    message.proofAck = new Uint8Array();
     if (object.connectionId !== undefined && object.connectionId !== null) {
       message.connectionId = String(object.connectionId);
     } else {

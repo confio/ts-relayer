@@ -1,10 +1,10 @@
 /* eslint-disable */
 import Long from 'long';
+import _m0 from 'protobufjs/minimal';
 import { Proof } from '../../tendermint/crypto/proof';
 import { Consensus } from '../../tendermint/version/types';
 import { Timestamp } from '../../google/protobuf/timestamp';
 import { ValidatorSet } from '../../tendermint/types/validator';
-import _m0 from 'protobufjs/minimal';
 
 export const protobufPackage = 'tendermint.types';
 
@@ -243,6 +243,7 @@ export const PartSetHeader = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...basePartSetHeader } as PartSetHeader;
+    message.hash = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -262,6 +263,7 @@ export const PartSetHeader = {
 
   fromJSON(object: any): PartSetHeader {
     const message = { ...basePartSetHeader } as PartSetHeader;
+    message.hash = new Uint8Array();
     if (object.total !== undefined && object.total !== null) {
       message.total = Number(object.total);
     } else {
@@ -319,6 +321,7 @@ export const Part = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...basePart } as Part;
+    message.bytes = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -341,6 +344,7 @@ export const Part = {
 
   fromJSON(object: any): Part {
     const message = { ...basePart } as Part;
+    message.bytes = new Uint8Array();
     if (object.index !== undefined && object.index !== null) {
       message.index = Number(object.index);
     } else {
@@ -413,6 +417,7 @@ export const BlockID = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseBlockID } as BlockID;
+    message.hash = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -432,6 +437,7 @@ export const BlockID = {
 
   fromJSON(object: any): BlockID {
     const message = { ...baseBlockID } as BlockID;
+    message.hash = new Uint8Array();
     if (object.hash !== undefined && object.hash !== null) {
       message.hash = bytesFromBase64(object.hash);
     }
@@ -528,6 +534,15 @@ export const Header = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseHeader } as Header;
+    message.lastCommitHash = new Uint8Array();
+    message.dataHash = new Uint8Array();
+    message.validatorsHash = new Uint8Array();
+    message.nextValidatorsHash = new Uint8Array();
+    message.consensusHash = new Uint8Array();
+    message.appHash = new Uint8Array();
+    message.lastResultsHash = new Uint8Array();
+    message.evidenceHash = new Uint8Array();
+    message.proposerAddress = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -583,6 +598,15 @@ export const Header = {
 
   fromJSON(object: any): Header {
     const message = { ...baseHeader } as Header;
+    message.lastCommitHash = new Uint8Array();
+    message.dataHash = new Uint8Array();
+    message.validatorsHash = new Uint8Array();
+    message.nextValidatorsHash = new Uint8Array();
+    message.consensusHash = new Uint8Array();
+    message.appHash = new Uint8Array();
+    message.lastResultsHash = new Uint8Array();
+    message.evidenceHash = new Uint8Array();
+    message.proposerAddress = new Uint8Array();
     if (object.version !== undefined && object.version !== null) {
       message.version = Consensus.fromJSON(object.version);
     } else {
@@ -907,6 +931,8 @@ export const Vote = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseVote } as Vote;
+    message.validatorAddress = new Uint8Array();
+    message.signature = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -944,6 +970,8 @@ export const Vote = {
 
   fromJSON(object: any): Vote {
     const message = { ...baseVote } as Vote;
+    message.validatorAddress = new Uint8Array();
+    message.signature = new Uint8Array();
     if (object.type !== undefined && object.type !== null) {
       message.type = signedMsgTypeFromJSON(object.type);
     } else {
@@ -1214,6 +1242,8 @@ export const CommitSig = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseCommitSig } as CommitSig;
+    message.validatorAddress = new Uint8Array();
+    message.signature = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1239,6 +1269,8 @@ export const CommitSig = {
 
   fromJSON(object: any): CommitSig {
     const message = { ...baseCommitSig } as CommitSig;
+    message.validatorAddress = new Uint8Array();
+    message.signature = new Uint8Array();
     if (object.blockIdFlag !== undefined && object.blockIdFlag !== null) {
       message.blockIdFlag = blockIDFlagFromJSON(object.blockIdFlag);
     } else {
@@ -1352,6 +1384,7 @@ export const Proposal = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseProposal } as Proposal;
+    message.signature = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1386,6 +1419,7 @@ export const Proposal = {
 
   fromJSON(object: any): Proposal {
     const message = { ...baseProposal } as Proposal;
+    message.signature = new Uint8Array();
     if (object.type !== undefined && object.type !== null) {
       message.type = signedMsgTypeFromJSON(object.type);
     } else {
@@ -1789,6 +1823,8 @@ export const TxProof = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseTxProof } as TxProof;
+    message.rootHash = new Uint8Array();
+    message.data = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1811,6 +1847,8 @@ export const TxProof = {
 
   fromJSON(object: any): TxProof {
     const message = { ...baseTxProof } as TxProof;
+    message.rootHash = new Uint8Array();
+    message.data = new Uint8Array();
     if (object.rootHash !== undefined && object.rootHash !== null) {
       message.rootHash = bytesFromBase64(object.rootHash);
     }

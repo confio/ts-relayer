@@ -1,7 +1,7 @@
 /* eslint-disable */
 import Long from 'long';
-import { Any } from '../../../../google/protobuf/any';
 import _m0 from 'protobufjs/minimal';
+import { Any } from '../../../../google/protobuf/any';
 
 export const protobufPackage = 'ibc.core.client.v1';
 
@@ -399,6 +399,8 @@ export const MsgUpgradeClient = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseMsgUpgradeClient } as MsgUpgradeClient;
+    message.proofUpgradeClient = new Uint8Array();
+    message.proofUpgradeConsensusState = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -430,6 +432,8 @@ export const MsgUpgradeClient = {
 
   fromJSON(object: any): MsgUpgradeClient {
     const message = { ...baseMsgUpgradeClient } as MsgUpgradeClient;
+    message.proofUpgradeClient = new Uint8Array();
+    message.proofUpgradeConsensusState = new Uint8Array();
     if (object.clientId !== undefined && object.clientId !== null) {
       message.clientId = String(object.clientId);
     } else {

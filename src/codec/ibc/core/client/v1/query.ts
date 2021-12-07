@@ -1,5 +1,6 @@
 /* eslint-disable */
 import Long from 'long';
+import _m0 from 'protobufjs/minimal';
 import { Any } from '../../../../google/protobuf/any';
 import {
   Height,
@@ -11,7 +12,6 @@ import {
   PageRequest,
   PageResponse,
 } from '../../../../cosmos/base/query/v1beta1/pagination';
-import _m0 from 'protobufjs/minimal';
 
 export const protobufPackage = 'ibc.core.client.v1';
 
@@ -218,6 +218,7 @@ export const QueryClientStateResponse = {
     const message = {
       ...baseQueryClientStateResponse,
     } as QueryClientStateResponse;
+    message.proof = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -242,6 +243,7 @@ export const QueryClientStateResponse = {
     const message = {
       ...baseQueryClientStateResponse,
     } as QueryClientStateResponse;
+    message.proof = new Uint8Array();
     if (object.clientState !== undefined && object.clientState !== null) {
       message.clientState = Any.fromJSON(object.clientState);
     } else {
@@ -631,6 +633,7 @@ export const QueryConsensusStateResponse = {
     const message = {
       ...baseQueryConsensusStateResponse,
     } as QueryConsensusStateResponse;
+    message.proof = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -655,6 +658,7 @@ export const QueryConsensusStateResponse = {
     const message = {
       ...baseQueryConsensusStateResponse,
     } as QueryConsensusStateResponse;
+    message.proof = new Uint8Array();
     if (object.consensusState !== undefined && object.consensusState !== null) {
       message.consensusState = Any.fromJSON(object.consensusState);
     } else {

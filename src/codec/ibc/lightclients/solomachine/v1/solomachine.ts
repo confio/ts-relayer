@@ -1,9 +1,9 @@
 /* eslint-disable */
 import Long from 'long';
+import _m0 from 'protobufjs/minimal';
 import { Any } from '../../../../google/protobuf/any';
 import { ConnectionEnd } from '../../../../ibc/core/connection/v1/connection';
 import { Channel } from '../../../../ibc/core/channel/v1/channel';
-import _m0 from 'protobufjs/minimal';
 
 export const protobufPackage = 'ibc.lightclients.solomachine.v1';
 
@@ -526,6 +526,7 @@ export const Header = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseHeader } as Header;
+    message.signature = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -554,6 +555,7 @@ export const Header = {
 
   fromJSON(object: any): Header {
     const message = { ...baseHeader } as Header;
+    message.signature = new Uint8Array();
     if (object.sequence !== undefined && object.sequence !== null) {
       message.sequence = Long.fromString(object.sequence);
     } else {
@@ -784,6 +786,8 @@ export const SignatureAndData = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseSignatureAndData } as SignatureAndData;
+    message.signature = new Uint8Array();
+    message.data = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -809,6 +813,8 @@ export const SignatureAndData = {
 
   fromJSON(object: any): SignatureAndData {
     const message = { ...baseSignatureAndData } as SignatureAndData;
+    message.signature = new Uint8Array();
+    message.data = new Uint8Array();
     if (object.signature !== undefined && object.signature !== null) {
       message.signature = bytesFromBase64(object.signature);
     }
@@ -896,6 +902,7 @@ export const TimestampedSignatureData = {
     const message = {
       ...baseTimestampedSignatureData,
     } as TimestampedSignatureData;
+    message.signatureData = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -917,6 +924,7 @@ export const TimestampedSignatureData = {
     const message = {
       ...baseTimestampedSignatureData,
     } as TimestampedSignatureData;
+    message.signatureData = new Uint8Array();
     if (object.signatureData !== undefined && object.signatureData !== null) {
       message.signatureData = bytesFromBase64(object.signatureData);
     }
@@ -995,6 +1003,7 @@ export const SignBytes = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseSignBytes } as SignBytes;
+    message.data = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1023,6 +1032,7 @@ export const SignBytes = {
 
   fromJSON(object: any): SignBytes {
     const message = { ...baseSignBytes } as SignBytes;
+    message.data = new Uint8Array();
     if (object.sequence !== undefined && object.sequence !== null) {
       message.sequence = Long.fromString(object.sequence);
     } else {
@@ -1196,6 +1206,7 @@ export const ClientStateData = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseClientStateData } as ClientStateData;
+    message.path = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1215,6 +1226,7 @@ export const ClientStateData = {
 
   fromJSON(object: any): ClientStateData {
     const message = { ...baseClientStateData } as ClientStateData;
+    message.path = new Uint8Array();
     if (object.path !== undefined && object.path !== null) {
       message.path = bytesFromBase64(object.path);
     }
@@ -1275,6 +1287,7 @@ export const ConsensusStateData = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseConsensusStateData } as ConsensusStateData;
+    message.path = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1294,6 +1307,7 @@ export const ConsensusStateData = {
 
   fromJSON(object: any): ConsensusStateData {
     const message = { ...baseConsensusStateData } as ConsensusStateData;
+    message.path = new Uint8Array();
     if (object.path !== undefined && object.path !== null) {
       message.path = bytesFromBase64(object.path);
     }
@@ -1357,6 +1371,7 @@ export const ConnectionStateData = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseConnectionStateData } as ConnectionStateData;
+    message.path = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1376,6 +1391,7 @@ export const ConnectionStateData = {
 
   fromJSON(object: any): ConnectionStateData {
     const message = { ...baseConnectionStateData } as ConnectionStateData;
+    message.path = new Uint8Array();
     if (object.path !== undefined && object.path !== null) {
       message.path = bytesFromBase64(object.path);
     }
@@ -1436,6 +1452,7 @@ export const ChannelStateData = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseChannelStateData } as ChannelStateData;
+    message.path = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1455,6 +1472,7 @@ export const ChannelStateData = {
 
   fromJSON(object: any): ChannelStateData {
     const message = { ...baseChannelStateData } as ChannelStateData;
+    message.path = new Uint8Array();
     if (object.path !== undefined && object.path !== null) {
       message.path = bytesFromBase64(object.path);
     }
@@ -1518,6 +1536,8 @@ export const PacketCommitmentData = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...basePacketCommitmentData } as PacketCommitmentData;
+    message.path = new Uint8Array();
+    message.commitment = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1537,6 +1557,8 @@ export const PacketCommitmentData = {
 
   fromJSON(object: any): PacketCommitmentData {
     const message = { ...basePacketCommitmentData } as PacketCommitmentData;
+    message.path = new Uint8Array();
+    message.commitment = new Uint8Array();
     if (object.path !== undefined && object.path !== null) {
       message.path = bytesFromBase64(object.path);
     }
@@ -1600,6 +1622,8 @@ export const PacketAcknowledgementData = {
     const message = {
       ...basePacketAcknowledgementData,
     } as PacketAcknowledgementData;
+    message.path = new Uint8Array();
+    message.acknowledgement = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1621,6 +1645,8 @@ export const PacketAcknowledgementData = {
     const message = {
       ...basePacketAcknowledgementData,
     } as PacketAcknowledgementData;
+    message.path = new Uint8Array();
+    message.acknowledgement = new Uint8Array();
     if (object.path !== undefined && object.path !== null) {
       message.path = bytesFromBase64(object.path);
     }
@@ -1693,6 +1719,7 @@ export const PacketReceiptAbsenceData = {
     const message = {
       ...basePacketReceiptAbsenceData,
     } as PacketReceiptAbsenceData;
+    message.path = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1711,6 +1738,7 @@ export const PacketReceiptAbsenceData = {
     const message = {
       ...basePacketReceiptAbsenceData,
     } as PacketReceiptAbsenceData;
+    message.path = new Uint8Array();
     if (object.path !== undefined && object.path !== null) {
       message.path = bytesFromBase64(object.path);
     }
@@ -1764,6 +1792,7 @@ export const NextSequenceRecvData = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseNextSequenceRecvData } as NextSequenceRecvData;
+    message.path = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1783,6 +1812,7 @@ export const NextSequenceRecvData = {
 
   fromJSON(object: any): NextSequenceRecvData {
     const message = { ...baseNextSequenceRecvData } as NextSequenceRecvData;
+    message.path = new Uint8Array();
     if (object.path !== undefined && object.path !== null) {
       message.path = bytesFromBase64(object.path);
     }

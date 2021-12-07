@@ -1,8 +1,8 @@
 /* eslint-disable */
 import Long from 'long';
+import _m0 from 'protobufjs/minimal';
 import { Coin } from '../../../../cosmos/base/v1beta1/coin';
 import { Height } from '../../../../ibc/core/client/v1/client';
-import _m0 from 'protobufjs/minimal';
 
 export const protobufPackage = 'ibc.applications.transfer.v1';
 

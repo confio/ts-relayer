@@ -64,6 +64,7 @@ export const Proof = {
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseProof } as Proof;
     message.aunts = [];
+    message.leafHash = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -90,6 +91,7 @@ export const Proof = {
   fromJSON(object: any): Proof {
     const message = { ...baseProof } as Proof;
     message.aunts = [];
+    message.leafHash = new Uint8Array();
     if (object.total !== undefined && object.total !== null) {
       message.total = Long.fromString(object.total);
     } else {
@@ -178,6 +180,7 @@ export const ValueOp = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseValueOp } as ValueOp;
+    message.key = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -197,6 +200,7 @@ export const ValueOp = {
 
   fromJSON(object: any): ValueOp {
     const message = { ...baseValueOp } as ValueOp;
+    message.key = new Uint8Array();
     if (object.key !== undefined && object.key !== null) {
       message.key = bytesFromBase64(object.key);
     }
@@ -350,6 +354,8 @@ export const ProofOp = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseProofOp } as ProofOp;
+    message.key = new Uint8Array();
+    message.data = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -372,6 +378,8 @@ export const ProofOp = {
 
   fromJSON(object: any): ProofOp {
     const message = { ...baseProofOp } as ProofOp;
+    message.key = new Uint8Array();
+    message.data = new Uint8Array();
     if (object.type !== undefined && object.type !== null) {
       message.type = String(object.type);
     } else {

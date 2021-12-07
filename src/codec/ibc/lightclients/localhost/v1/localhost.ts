@@ -1,7 +1,7 @@
 /* eslint-disable */
 import Long from 'long';
-import { Height } from '../../../../ibc/core/client/v1/client';
 import _m0 from 'protobufjs/minimal';
+import { Height } from '../../../../ibc/core/client/v1/client';
 
 export const protobufPackage = 'ibc.lightclients.localhost.v1';
 

@@ -1,7 +1,7 @@
 /* eslint-disable */
 import Long from 'long';
-import { Height } from '../../../../ibc/core/client/v1/client';
 import _m0 from 'protobufjs/minimal';
+import { Height } from '../../../../ibc/core/client/v1/client';
 
 export const protobufPackage = 'ibc.core.channel.v1';
 
@@ -669,6 +669,7 @@ export const Packet = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...basePacket } as Packet;
+    message.data = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -706,6 +707,7 @@ export const Packet = {
 
   fromJSON(object: any): Packet {
     const message = { ...basePacket } as Packet;
+    message.data = new Uint8Array();
     if (object.sequence !== undefined && object.sequence !== null) {
       message.sequence = Long.fromString(object.sequence);
     } else {
@@ -867,6 +869,7 @@ export const PacketState = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...basePacketState } as PacketState;
+    message.data = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -892,6 +895,7 @@ export const PacketState = {
 
   fromJSON(object: any): PacketState {
     const message = { ...basePacketState } as PacketState;
+    message.data = new Uint8Array();
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = String(object.portId);
     } else {

@@ -92,6 +92,7 @@ export const PageRequest = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...basePageRequest } as PageRequest;
+    message.key = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -117,6 +118,7 @@ export const PageRequest = {
 
   fromJSON(object: any): PageRequest {
     const message = { ...basePageRequest } as PageRequest;
+    message.key = new Uint8Array();
     if (object.key !== undefined && object.key !== null) {
       message.key = bytesFromBase64(object.key);
     }
@@ -198,6 +200,7 @@ export const PageResponse = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...basePageResponse } as PageResponse;
+    message.nextKey = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -217,6 +220,7 @@ export const PageResponse = {
 
   fromJSON(object: any): PageResponse {
     const message = { ...basePageResponse } as PageResponse;
+    message.nextKey = new Uint8Array();
     if (object.nextKey !== undefined && object.nextKey !== null) {
       message.nextKey = bytesFromBase64(object.nextKey);
     }

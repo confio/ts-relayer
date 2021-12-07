@@ -1,8 +1,8 @@
 /* eslint-disable */
 import Long from 'long';
+import _m0 from 'protobufjs/minimal';
 import { Channel, Packet } from '../../../../ibc/core/channel/v1/channel';
 import { Height } from '../../../../ibc/core/client/v1/client';
-import _m0 from 'protobufjs/minimal';
 
 export const protobufPackage = 'ibc.core.channel.v1';
 
@@ -335,6 +335,7 @@ export const MsgChannelOpenTry = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseMsgChannelOpenTry } as MsgChannelOpenTry;
+    message.proofInit = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -369,6 +370,7 @@ export const MsgChannelOpenTry = {
 
   fromJSON(object: any): MsgChannelOpenTry {
     const message = { ...baseMsgChannelOpenTry } as MsgChannelOpenTry;
+    message.proofInit = new Uint8Array();
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = String(object.portId);
     } else {
@@ -574,6 +576,7 @@ export const MsgChannelOpenAck = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseMsgChannelOpenAck } as MsgChannelOpenAck;
+    message.proofTry = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -608,6 +611,7 @@ export const MsgChannelOpenAck = {
 
   fromJSON(object: any): MsgChannelOpenAck {
     const message = { ...baseMsgChannelOpenAck } as MsgChannelOpenAck;
+    message.proofTry = new Uint8Array();
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = String(object.portId);
     } else {
@@ -805,6 +809,7 @@ export const MsgChannelOpenConfirm = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseMsgChannelOpenConfirm } as MsgChannelOpenConfirm;
+    message.proofAck = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -833,6 +838,7 @@ export const MsgChannelOpenConfirm = {
 
   fromJSON(object: any): MsgChannelOpenConfirm {
     const message = { ...baseMsgChannelOpenConfirm } as MsgChannelOpenConfirm;
+    message.proofAck = new Uint8Array();
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = String(object.portId);
     } else {
@@ -1144,6 +1150,7 @@ export const MsgChannelCloseConfirm = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseMsgChannelCloseConfirm } as MsgChannelCloseConfirm;
+    message.proofInit = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1172,6 +1179,7 @@ export const MsgChannelCloseConfirm = {
 
   fromJSON(object: any): MsgChannelCloseConfirm {
     const message = { ...baseMsgChannelCloseConfirm } as MsgChannelCloseConfirm;
+    message.proofInit = new Uint8Array();
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = String(object.portId);
     } else {
@@ -1325,6 +1333,7 @@ export const MsgRecvPacket = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseMsgRecvPacket } as MsgRecvPacket;
+    message.proofCommitment = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1350,6 +1359,7 @@ export const MsgRecvPacket = {
 
   fromJSON(object: any): MsgRecvPacket {
     const message = { ...baseMsgRecvPacket } as MsgRecvPacket;
+    message.proofCommitment = new Uint8Array();
     if (object.packet !== undefined && object.packet !== null) {
       message.packet = Packet.fromJSON(object.packet);
     } else {
@@ -1494,6 +1504,7 @@ export const MsgTimeout = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseMsgTimeout } as MsgTimeout;
+    message.proofUnreceived = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1522,6 +1533,7 @@ export const MsgTimeout = {
 
   fromJSON(object: any): MsgTimeout {
     const message = { ...baseMsgTimeout } as MsgTimeout;
+    message.proofUnreceived = new Uint8Array();
     if (object.packet !== undefined && object.packet !== null) {
       message.packet = Packet.fromJSON(object.packet);
     } else {
@@ -1689,6 +1701,8 @@ export const MsgTimeoutOnClose = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseMsgTimeoutOnClose } as MsgTimeoutOnClose;
+    message.proofUnreceived = new Uint8Array();
+    message.proofClose = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1720,6 +1734,8 @@ export const MsgTimeoutOnClose = {
 
   fromJSON(object: any): MsgTimeoutOnClose {
     const message = { ...baseMsgTimeoutOnClose } as MsgTimeoutOnClose;
+    message.proofUnreceived = new Uint8Array();
+    message.proofClose = new Uint8Array();
     if (object.packet !== undefined && object.packet !== null) {
       message.packet = Packet.fromJSON(object.packet);
     } else {
@@ -1904,6 +1920,8 @@ export const MsgAcknowledgement = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseMsgAcknowledgement } as MsgAcknowledgement;
+    message.acknowledgement = new Uint8Array();
+    message.proofAcked = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1932,6 +1950,8 @@ export const MsgAcknowledgement = {
 
   fromJSON(object: any): MsgAcknowledgement {
     const message = { ...baseMsgAcknowledgement } as MsgAcknowledgement;
+    message.acknowledgement = new Uint8Array();
+    message.proofAcked = new Uint8Array();
     if (object.packet !== undefined && object.packet !== null) {
       message.packet = Packet.fromJSON(object.packet);
     } else {

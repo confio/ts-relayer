@@ -1,5 +1,6 @@
 /* eslint-disable */
 import Long from 'long';
+import _m0 from 'protobufjs/minimal';
 import { Timestamp } from '../../google/protobuf/timestamp';
 import { Header } from '../../tendermint/types/types';
 import { ProofOps } from '../../tendermint/crypto/proof';
@@ -9,7 +10,6 @@ import {
   VersionParams,
 } from '../../tendermint/types/params';
 import { PublicKey } from '../../tendermint/crypto/keys';
-import _m0 from 'protobufjs/minimal';
 
 export const protobufPackage = 'tendermint.abci';
 
@@ -1260,6 +1260,7 @@ export const RequestInitChain = {
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseRequestInitChain } as RequestInitChain;
     message.validators = [];
+    message.appStateBytes = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1297,6 +1298,7 @@ export const RequestInitChain = {
   fromJSON(object: any): RequestInitChain {
     const message = { ...baseRequestInitChain } as RequestInitChain;
     message.validators = [];
+    message.appStateBytes = new Uint8Array();
     if (object.time !== undefined && object.time !== null) {
       message.time = fromJsonTimestamp(object.time);
     } else {
@@ -1431,6 +1433,7 @@ export const RequestQuery = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseRequestQuery } as RequestQuery;
+    message.data = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1456,6 +1459,7 @@ export const RequestQuery = {
 
   fromJSON(object: any): RequestQuery {
     const message = { ...baseRequestQuery } as RequestQuery;
+    message.data = new Uint8Array();
     if (object.data !== undefined && object.data !== null) {
       message.data = bytesFromBase64(object.data);
     }
@@ -1546,6 +1550,7 @@ export const RequestBeginBlock = {
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseRequestBeginBlock } as RequestBeginBlock;
     message.byzantineValidators = [];
+    message.hash = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1577,6 +1582,7 @@ export const RequestBeginBlock = {
   fromJSON(object: any): RequestBeginBlock {
     const message = { ...baseRequestBeginBlock } as RequestBeginBlock;
     message.byzantineValidators = [];
+    message.hash = new Uint8Array();
     if (object.hash !== undefined && object.hash !== null) {
       message.hash = bytesFromBase64(object.hash);
     }
@@ -1675,6 +1681,7 @@ export const RequestCheckTx = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseRequestCheckTx } as RequestCheckTx;
+    message.tx = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1694,6 +1701,7 @@ export const RequestCheckTx = {
 
   fromJSON(object: any): RequestCheckTx {
     const message = { ...baseRequestCheckTx } as RequestCheckTx;
+    message.tx = new Uint8Array();
     if (object.tx !== undefined && object.tx !== null) {
       message.tx = bytesFromBase64(object.tx);
     }
@@ -1748,6 +1756,7 @@ export const RequestDeliverTx = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseRequestDeliverTx } as RequestDeliverTx;
+    message.tx = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1764,6 +1773,7 @@ export const RequestDeliverTx = {
 
   fromJSON(object: any): RequestDeliverTx {
     const message = { ...baseRequestDeliverTx } as RequestDeliverTx;
+    message.tx = new Uint8Array();
     if (object.tx !== undefined && object.tx !== null) {
       message.tx = bytesFromBase64(object.tx);
     }
@@ -1957,6 +1967,7 @@ export const RequestOfferSnapshot = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseRequestOfferSnapshot } as RequestOfferSnapshot;
+    message.appHash = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1976,6 +1987,7 @@ export const RequestOfferSnapshot = {
 
   fromJSON(object: any): RequestOfferSnapshot {
     const message = { ...baseRequestOfferSnapshot } as RequestOfferSnapshot;
+    message.appHash = new Uint8Array();
     if (object.snapshot !== undefined && object.snapshot !== null) {
       message.snapshot = Snapshot.fromJSON(object.snapshot);
     } else {
@@ -2152,6 +2164,7 @@ export const RequestApplySnapshotChunk = {
     const message = {
       ...baseRequestApplySnapshotChunk,
     } as RequestApplySnapshotChunk;
+    message.chunk = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -2176,6 +2189,7 @@ export const RequestApplySnapshotChunk = {
     const message = {
       ...baseRequestApplySnapshotChunk,
     } as RequestApplySnapshotChunk;
+    message.chunk = new Uint8Array();
     if (object.index !== undefined && object.index !== null) {
       message.index = Number(object.index);
     } else {
@@ -2852,6 +2866,7 @@ export const ResponseInfo = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseResponseInfo } as ResponseInfo;
+    message.lastBlockAppHash = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -2880,6 +2895,7 @@ export const ResponseInfo = {
 
   fromJSON(object: any): ResponseInfo {
     const message = { ...baseResponseInfo } as ResponseInfo;
+    message.lastBlockAppHash = new Uint8Array();
     if (object.data !== undefined && object.data !== null) {
       message.data = String(object.data);
     } else {
@@ -3085,6 +3101,7 @@ export const ResponseInitChain = {
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseResponseInitChain } as ResponseInitChain;
     message.validators = [];
+    message.appHash = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -3113,6 +3130,7 @@ export const ResponseInitChain = {
   fromJSON(object: any): ResponseInitChain {
     const message = { ...baseResponseInitChain } as ResponseInitChain;
     message.validators = [];
+    message.appHash = new Uint8Array();
     if (
       object.consensusParams !== undefined &&
       object.consensusParams !== null
@@ -3229,6 +3247,8 @@ export const ResponseQuery = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseResponseQuery } as ResponseQuery;
+    message.key = new Uint8Array();
+    message.value = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -3269,6 +3289,8 @@ export const ResponseQuery = {
 
   fromJSON(object: any): ResponseQuery {
     const message = { ...baseResponseQuery } as ResponseQuery;
+    message.key = new Uint8Array();
+    message.value = new Uint8Array();
     if (object.code !== undefined && object.code !== null) {
       message.code = Number(object.code);
     } else {
@@ -3500,6 +3522,7 @@ export const ResponseCheckTx = {
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseResponseCheckTx } as ResponseCheckTx;
     message.events = [];
+    message.data = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -3538,6 +3561,7 @@ export const ResponseCheckTx = {
   fromJSON(object: any): ResponseCheckTx {
     const message = { ...baseResponseCheckTx } as ResponseCheckTx;
     message.events = [];
+    message.data = new Uint8Array();
     if (object.code !== undefined && object.code !== null) {
       message.code = Number(object.code);
     } else {
@@ -3694,6 +3718,7 @@ export const ResponseDeliverTx = {
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseResponseDeliverTx } as ResponseDeliverTx;
     message.events = [];
+    message.data = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -3732,6 +3757,7 @@ export const ResponseDeliverTx = {
   fromJSON(object: any): ResponseDeliverTx {
     const message = { ...baseResponseDeliverTx } as ResponseDeliverTx;
     message.events = [];
+    message.data = new Uint8Array();
     if (object.code !== undefined && object.code !== null) {
       message.code = Number(object.code);
     } else {
@@ -3997,6 +4023,7 @@ export const ResponseCommit = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseResponseCommit } as ResponseCommit;
+    message.data = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -4016,6 +4043,7 @@ export const ResponseCommit = {
 
   fromJSON(object: any): ResponseCommit {
     const message = { ...baseResponseCommit } as ResponseCommit;
+    message.data = new Uint8Array();
     if (object.data !== undefined && object.data !== null) {
       message.data = bytesFromBase64(object.data);
     }
@@ -4212,6 +4240,7 @@ export const ResponseLoadSnapshotChunk = {
     const message = {
       ...baseResponseLoadSnapshotChunk,
     } as ResponseLoadSnapshotChunk;
+    message.chunk = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -4230,6 +4259,7 @@ export const ResponseLoadSnapshotChunk = {
     const message = {
       ...baseResponseLoadSnapshotChunk,
     } as ResponseLoadSnapshotChunk;
+    message.chunk = new Uint8Array();
     if (object.chunk !== undefined && object.chunk !== null) {
       message.chunk = bytesFromBase64(object.chunk);
     }
@@ -4785,6 +4815,8 @@ export const EventAttribute = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseEventAttribute } as EventAttribute;
+    message.key = new Uint8Array();
+    message.value = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -4807,6 +4839,8 @@ export const EventAttribute = {
 
   fromJSON(object: any): EventAttribute {
     const message = { ...baseEventAttribute } as EventAttribute;
+    message.key = new Uint8Array();
+    message.value = new Uint8Array();
     if (object.key !== undefined && object.key !== null) {
       message.key = bytesFromBase64(object.key);
     }
@@ -4885,6 +4919,7 @@ export const TxResult = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseTxResult } as TxResult;
+    message.tx = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -4910,6 +4945,7 @@ export const TxResult = {
 
   fromJSON(object: any): TxResult {
     const message = { ...baseTxResult } as TxResult;
+    message.tx = new Uint8Array();
     if (object.height !== undefined && object.height !== null) {
       message.height = Long.fromString(object.height);
     } else {
@@ -4993,6 +5029,7 @@ export const Validator = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseValidator } as Validator;
+    message.address = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -5012,6 +5049,7 @@ export const Validator = {
 
   fromJSON(object: any): Validator {
     const message = { ...baseValidator } as Validator;
+    message.address = new Uint8Array();
     if (object.address !== undefined && object.address !== null) {
       message.address = bytesFromBase64(object.address);
     }
@@ -5390,6 +5428,8 @@ export const Snapshot = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseSnapshot } as Snapshot;
+    message.hash = new Uint8Array();
+    message.metadata = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -5418,6 +5458,8 @@ export const Snapshot = {
 
   fromJSON(object: any): Snapshot {
     const message = { ...baseSnapshot } as Snapshot;
+    message.hash = new Uint8Array();
+    message.metadata = new Uint8Array();
     if (object.height !== undefined && object.height !== null) {
       message.height = Long.fromString(object.height);
     } else {

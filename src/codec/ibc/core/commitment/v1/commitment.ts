@@ -59,6 +59,7 @@ export const MerkleRoot = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseMerkleRoot } as MerkleRoot;
+    message.hash = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -75,6 +76,7 @@ export const MerkleRoot = {
 
   fromJSON(object: any): MerkleRoot {
     const message = { ...baseMerkleRoot } as MerkleRoot;
+    message.hash = new Uint8Array();
     if (object.hash !== undefined && object.hash !== null) {
       message.hash = bytesFromBase64(object.hash);
     }
@@ -118,6 +120,7 @@ export const MerklePrefix = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseMerklePrefix } as MerklePrefix;
+    message.keyPrefix = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -134,6 +137,7 @@ export const MerklePrefix = {
 
   fromJSON(object: any): MerklePrefix {
     const message = { ...baseMerklePrefix } as MerklePrefix;
+    message.keyPrefix = new Uint8Array();
     if (object.keyPrefix !== undefined && object.keyPrefix !== null) {
       message.keyPrefix = bytesFromBase64(object.keyPrefix);
     }

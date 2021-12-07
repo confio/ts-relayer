@@ -1,5 +1,6 @@
 /* eslint-disable */
 import Long from 'long';
+import _m0 from 'protobufjs/minimal';
 import {
   Channel,
   IdentifiedChannel,
@@ -14,7 +15,6 @@ import {
   PageResponse,
 } from '../../../../cosmos/base/query/v1beta1/pagination';
 import { Any } from '../../../../google/protobuf/any';
-import _m0 from 'protobufjs/minimal';
 
 export const protobufPackage = 'ibc.core.channel.v1';
 
@@ -438,6 +438,7 @@ export const QueryChannelResponse = {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseQueryChannelResponse } as QueryChannelResponse;
+    message.proof = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -460,6 +461,7 @@ export const QueryChannelResponse = {
 
   fromJSON(object: any): QueryChannelResponse {
     const message = { ...baseQueryChannelResponse } as QueryChannelResponse;
+    message.proof = new Uint8Array();
     if (object.channel !== undefined && object.channel !== null) {
       message.channel = Channel.fromJSON(object.channel);
     } else {
@@ -1023,6 +1025,7 @@ export const QueryChannelClientStateResponse = {
     const message = {
       ...baseQueryChannelClientStateResponse,
     } as QueryChannelClientStateResponse;
+    message.proof = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1050,6 +1053,7 @@ export const QueryChannelClientStateResponse = {
     const message = {
       ...baseQueryChannelClientStateResponse,
     } as QueryChannelClientStateResponse;
+    message.proof = new Uint8Array();
     if (
       object.identifiedClientState !== undefined &&
       object.identifiedClientState !== null
@@ -1276,6 +1280,7 @@ export const QueryChannelConsensusStateResponse = {
     const message = {
       ...baseQueryChannelConsensusStateResponse,
     } as QueryChannelConsensusStateResponse;
+    message.proof = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1303,6 +1308,7 @@ export const QueryChannelConsensusStateResponse = {
     const message = {
       ...baseQueryChannelConsensusStateResponse,
     } as QueryChannelConsensusStateResponse;
+    message.proof = new Uint8Array();
     if (object.consensusState !== undefined && object.consensusState !== null) {
       message.consensusState = Any.fromJSON(object.consensusState);
     } else {
@@ -1508,6 +1514,8 @@ export const QueryPacketCommitmentResponse = {
     const message = {
       ...baseQueryPacketCommitmentResponse,
     } as QueryPacketCommitmentResponse;
+    message.commitment = new Uint8Array();
+    message.proof = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1532,6 +1540,8 @@ export const QueryPacketCommitmentResponse = {
     const message = {
       ...baseQueryPacketCommitmentResponse,
     } as QueryPacketCommitmentResponse;
+    message.commitment = new Uint8Array();
+    message.proof = new Uint8Array();
     if (object.commitment !== undefined && object.commitment !== null) {
       message.commitment = bytesFromBase64(object.commitment);
     }
@@ -1949,6 +1959,7 @@ export const QueryPacketReceiptResponse = {
     const message = {
       ...baseQueryPacketReceiptResponse,
     } as QueryPacketReceiptResponse;
+    message.proof = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1973,6 +1984,7 @@ export const QueryPacketReceiptResponse = {
     const message = {
       ...baseQueryPacketReceiptResponse,
     } as QueryPacketReceiptResponse;
+    message.proof = new Uint8Array();
     if (object.received !== undefined && object.received !== null) {
       message.received = Boolean(object.received);
     } else {
@@ -2164,6 +2176,8 @@ export const QueryPacketAcknowledgementResponse = {
     const message = {
       ...baseQueryPacketAcknowledgementResponse,
     } as QueryPacketAcknowledgementResponse;
+    message.acknowledgement = new Uint8Array();
+    message.proof = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -2188,6 +2202,8 @@ export const QueryPacketAcknowledgementResponse = {
     const message = {
       ...baseQueryPacketAcknowledgementResponse,
     } as QueryPacketAcknowledgementResponse;
+    message.acknowledgement = new Uint8Array();
+    message.proof = new Uint8Array();
     if (
       object.acknowledgement !== undefined &&
       object.acknowledgement !== null
@@ -3079,6 +3095,7 @@ export const QueryNextSequenceReceiveResponse = {
     const message = {
       ...baseQueryNextSequenceReceiveResponse,
     } as QueryNextSequenceReceiveResponse;
+    message.proof = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -3103,6 +3120,7 @@ export const QueryNextSequenceReceiveResponse = {
     const message = {
       ...baseQueryNextSequenceReceiveResponse,
     } as QueryNextSequenceReceiveResponse;
+    message.proof = new Uint8Array();
     if (
       object.nextSequenceReceive !== undefined &&
       object.nextSequenceReceive !== null
