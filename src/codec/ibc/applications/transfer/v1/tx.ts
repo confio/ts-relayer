@@ -175,31 +175,15 @@ export const MsgTransfer = {
 
   fromPartial(object: DeepPartial<MsgTransfer>): MsgTransfer {
     const message = { ...baseMsgTransfer } as MsgTransfer;
-    if (object.sourcePort !== undefined && object.sourcePort !== null) {
-      message.sourcePort = object.sourcePort;
-    } else {
-      message.sourcePort = '';
-    }
-    if (object.sourceChannel !== undefined && object.sourceChannel !== null) {
-      message.sourceChannel = object.sourceChannel;
-    } else {
-      message.sourceChannel = '';
-    }
+    message.sourcePort = object.sourcePort ?? '';
+    message.sourceChannel = object.sourceChannel ?? '';
     if (object.token !== undefined && object.token !== null) {
       message.token = Coin.fromPartial(object.token);
     } else {
       message.token = undefined;
     }
-    if (object.sender !== undefined && object.sender !== null) {
-      message.sender = object.sender;
-    } else {
-      message.sender = '';
-    }
-    if (object.receiver !== undefined && object.receiver !== null) {
-      message.receiver = object.receiver;
-    } else {
-      message.receiver = '';
-    }
+    message.sender = object.sender ?? '';
+    message.receiver = object.receiver ?? '';
     if (object.timeoutHeight !== undefined && object.timeoutHeight !== null) {
       message.timeoutHeight = Height.fromPartial(object.timeoutHeight);
     } else {

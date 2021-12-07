@@ -88,11 +88,7 @@ export const App = {
     } else {
       message.protocol = Long.UZERO;
     }
-    if (object.software !== undefined && object.software !== null) {
-      message.software = object.software;
-    } else {
-      message.software = '';
-    }
+    message.software = object.software ?? '';
     return message;
   },
 };

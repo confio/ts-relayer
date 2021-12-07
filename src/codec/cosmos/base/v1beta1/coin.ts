@@ -94,16 +94,8 @@ export const Coin = {
 
   fromPartial(object: DeepPartial<Coin>): Coin {
     const message = { ...baseCoin } as Coin;
-    if (object.denom !== undefined && object.denom !== null) {
-      message.denom = object.denom;
-    } else {
-      message.denom = '';
-    }
-    if (object.amount !== undefined && object.amount !== null) {
-      message.amount = object.amount;
-    } else {
-      message.amount = '';
-    }
+    message.denom = object.denom ?? '';
+    message.amount = object.amount ?? '';
     return message;
   },
 };
@@ -169,16 +161,8 @@ export const DecCoin = {
 
   fromPartial(object: DeepPartial<DecCoin>): DecCoin {
     const message = { ...baseDecCoin } as DecCoin;
-    if (object.denom !== undefined && object.denom !== null) {
-      message.denom = object.denom;
-    } else {
-      message.denom = '';
-    }
-    if (object.amount !== undefined && object.amount !== null) {
-      message.amount = object.amount;
-    } else {
-      message.amount = '';
-    }
+    message.denom = object.denom ?? '';
+    message.amount = object.amount ?? '';
     return message;
   },
 };
@@ -232,11 +216,7 @@ export const IntProto = {
 
   fromPartial(object: DeepPartial<IntProto>): IntProto {
     const message = { ...baseIntProto } as IntProto;
-    if (object.int !== undefined && object.int !== null) {
-      message.int = object.int;
-    } else {
-      message.int = '';
-    }
+    message.int = object.int ?? '';
     return message;
   },
 };
@@ -290,11 +270,7 @@ export const DecProto = {
 
   fromPartial(object: DeepPartial<DecProto>): DecProto {
     const message = { ...baseDecProto } as DecProto;
-    if (object.dec !== undefined && object.dec !== null) {
-      message.dec = object.dec;
-    } else {
-      message.dec = '';
-    }
+    message.dec = object.dec ?? '';
     return message;
   },
 };

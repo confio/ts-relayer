@@ -327,13 +327,7 @@ export const ClientState = {
 
   fromPartial(object: DeepPartial<ClientState>): ClientState {
     const message = { ...baseClientState } as ClientState;
-    message.proofSpecs = [];
-    message.upgradePath = [];
-    if (object.chainId !== undefined && object.chainId !== null) {
-      message.chainId = object.chainId;
-    } else {
-      message.chainId = '';
-    }
+    message.chainId = object.chainId ?? '';
     if (object.trustLevel !== undefined && object.trustLevel !== null) {
       message.trustLevel = Fraction.fromPartial(object.trustLevel);
     } else {
@@ -367,33 +361,21 @@ export const ClientState = {
     } else {
       message.latestHeight = undefined;
     }
+    message.proofSpecs = [];
     if (object.proofSpecs !== undefined && object.proofSpecs !== null) {
       for (const e of object.proofSpecs) {
         message.proofSpecs.push(ProofSpec.fromPartial(e));
       }
     }
+    message.upgradePath = [];
     if (object.upgradePath !== undefined && object.upgradePath !== null) {
       for (const e of object.upgradePath) {
         message.upgradePath.push(e);
       }
     }
-    if (
-      object.allowUpdateAfterExpiry !== undefined &&
-      object.allowUpdateAfterExpiry !== null
-    ) {
-      message.allowUpdateAfterExpiry = object.allowUpdateAfterExpiry;
-    } else {
-      message.allowUpdateAfterExpiry = false;
-    }
-    if (
-      object.allowUpdateAfterMisbehaviour !== undefined &&
-      object.allowUpdateAfterMisbehaviour !== null
-    ) {
-      message.allowUpdateAfterMisbehaviour =
-        object.allowUpdateAfterMisbehaviour;
-    } else {
-      message.allowUpdateAfterMisbehaviour = false;
-    }
+    message.allowUpdateAfterExpiry = object.allowUpdateAfterExpiry ?? false;
+    message.allowUpdateAfterMisbehaviour =
+      object.allowUpdateAfterMisbehaviour ?? false;
     return message;
   },
 };
@@ -491,14 +473,7 @@ export const ConsensusState = {
     } else {
       message.root = undefined;
     }
-    if (
-      object.nextValidatorsHash !== undefined &&
-      object.nextValidatorsHash !== null
-    ) {
-      message.nextValidatorsHash = object.nextValidatorsHash;
-    } else {
-      message.nextValidatorsHash = new Uint8Array();
-    }
+    message.nextValidatorsHash = object.nextValidatorsHash ?? new Uint8Array();
     return message;
   },
 };
@@ -582,11 +557,7 @@ export const Misbehaviour = {
 
   fromPartial(object: DeepPartial<Misbehaviour>): Misbehaviour {
     const message = { ...baseMisbehaviour } as Misbehaviour;
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = object.clientId;
-    } else {
-      message.clientId = '';
-    }
+    message.clientId = object.clientId ?? '';
     if (object.header1 !== undefined && object.header1 !== null) {
       message.header1 = Header.fromPartial(object.header1);
     } else {

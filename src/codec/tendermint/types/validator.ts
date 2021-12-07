@@ -237,11 +237,7 @@ export const Validator = {
 
   fromPartial(object: DeepPartial<Validator>): Validator {
     const message = { ...baseValidator } as Validator;
-    if (object.address !== undefined && object.address !== null) {
-      message.address = object.address;
-    } else {
-      message.address = new Uint8Array();
-    }
+    message.address = object.address ?? new Uint8Array();
     if (object.pubKey !== undefined && object.pubKey !== null) {
       message.pubKey = PublicKey.fromPartial(object.pubKey);
     } else {

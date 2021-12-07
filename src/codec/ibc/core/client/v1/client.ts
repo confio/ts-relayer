@@ -144,11 +144,7 @@ export const IdentifiedClientState = {
     object: DeepPartial<IdentifiedClientState>
   ): IdentifiedClientState {
     const message = { ...baseIdentifiedClientState } as IdentifiedClientState;
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = object.clientId;
-    } else {
-      message.clientId = '';
-    }
+    message.clientId = object.clientId ?? '';
     if (object.clientState !== undefined && object.clientState !== null) {
       message.clientState = Any.fromPartial(object.clientState);
     } else {
@@ -327,12 +323,8 @@ export const ClientConsensusStates = {
     object: DeepPartial<ClientConsensusStates>
   ): ClientConsensusStates {
     const message = { ...baseClientConsensusStates } as ClientConsensusStates;
+    message.clientId = object.clientId ?? '';
     message.consensusStates = [];
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = object.clientId;
-    } else {
-      message.clientId = '';
-    }
     if (
       object.consensusStates !== undefined &&
       object.consensusStates !== null
@@ -439,21 +431,9 @@ export const ClientUpdateProposal = {
 
   fromPartial(object: DeepPartial<ClientUpdateProposal>): ClientUpdateProposal {
     const message = { ...baseClientUpdateProposal } as ClientUpdateProposal;
-    if (object.title !== undefined && object.title !== null) {
-      message.title = object.title;
-    } else {
-      message.title = '';
-    }
-    if (object.description !== undefined && object.description !== null) {
-      message.description = object.description;
-    } else {
-      message.description = '';
-    }
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = object.clientId;
-    } else {
-      message.clientId = '';
-    }
+    message.title = object.title ?? '';
+    message.description = object.description ?? '';
+    message.clientId = object.clientId ?? '';
     if (object.header !== undefined && object.header !== null) {
       message.header = Any.fromPartial(object.header);
     } else {

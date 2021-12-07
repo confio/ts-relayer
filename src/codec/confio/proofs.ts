@@ -436,22 +436,14 @@ export const ExistenceProof = {
 
   fromPartial(object: DeepPartial<ExistenceProof>): ExistenceProof {
     const message = { ...baseExistenceProof } as ExistenceProof;
-    message.path = [];
-    if (object.key !== undefined && object.key !== null) {
-      message.key = object.key;
-    } else {
-      message.key = new Uint8Array();
-    }
-    if (object.value !== undefined && object.value !== null) {
-      message.value = object.value;
-    } else {
-      message.value = new Uint8Array();
-    }
+    message.key = object.key ?? new Uint8Array();
+    message.value = object.value ?? new Uint8Array();
     if (object.leaf !== undefined && object.leaf !== null) {
       message.leaf = LeafOp.fromPartial(object.leaf);
     } else {
       message.leaf = undefined;
     }
+    message.path = [];
     if (object.path !== undefined && object.path !== null) {
       for (const e of object.path) {
         message.path.push(InnerOp.fromPartial(e));
@@ -543,11 +535,7 @@ export const NonExistenceProof = {
 
   fromPartial(object: DeepPartial<NonExistenceProof>): NonExistenceProof {
     const message = { ...baseNonExistenceProof } as NonExistenceProof;
-    if (object.key !== undefined && object.key !== null) {
-      message.key = object.key;
-    } else {
-      message.key = new Uint8Array();
-    }
+    message.key = object.key ?? new Uint8Array();
     if (object.left !== undefined && object.left !== null) {
       message.left = ExistenceProof.fromPartial(object.left);
     } else {
@@ -800,31 +788,11 @@ export const LeafOp = {
 
   fromPartial(object: DeepPartial<LeafOp>): LeafOp {
     const message = { ...baseLeafOp } as LeafOp;
-    if (object.hash !== undefined && object.hash !== null) {
-      message.hash = object.hash;
-    } else {
-      message.hash = 0;
-    }
-    if (object.prehashKey !== undefined && object.prehashKey !== null) {
-      message.prehashKey = object.prehashKey;
-    } else {
-      message.prehashKey = 0;
-    }
-    if (object.prehashValue !== undefined && object.prehashValue !== null) {
-      message.prehashValue = object.prehashValue;
-    } else {
-      message.prehashValue = 0;
-    }
-    if (object.length !== undefined && object.length !== null) {
-      message.length = object.length;
-    } else {
-      message.length = 0;
-    }
-    if (object.prefix !== undefined && object.prefix !== null) {
-      message.prefix = object.prefix;
-    } else {
-      message.prefix = new Uint8Array();
-    }
+    message.hash = object.hash ?? 0;
+    message.prehashKey = object.prehashKey ?? 0;
+    message.prehashValue = object.prehashValue ?? 0;
+    message.length = object.length ?? 0;
+    message.prefix = object.prefix ?? new Uint8Array();
     return message;
   },
 };
@@ -908,21 +876,9 @@ export const InnerOp = {
 
   fromPartial(object: DeepPartial<InnerOp>): InnerOp {
     const message = { ...baseInnerOp } as InnerOp;
-    if (object.hash !== undefined && object.hash !== null) {
-      message.hash = object.hash;
-    } else {
-      message.hash = 0;
-    }
-    if (object.prefix !== undefined && object.prefix !== null) {
-      message.prefix = object.prefix;
-    } else {
-      message.prefix = new Uint8Array();
-    }
-    if (object.suffix !== undefined && object.suffix !== null) {
-      message.suffix = object.suffix;
-    } else {
-      message.suffix = new Uint8Array();
-    }
+    message.hash = object.hash ?? 0;
+    message.prefix = object.prefix ?? new Uint8Array();
+    message.suffix = object.suffix ?? new Uint8Array();
     return message;
   },
 };
@@ -1028,16 +984,8 @@ export const ProofSpec = {
     } else {
       message.innerSpec = undefined;
     }
-    if (object.maxDepth !== undefined && object.maxDepth !== null) {
-      message.maxDepth = object.maxDepth;
-    } else {
-      message.maxDepth = 0;
-    }
-    if (object.minDepth !== undefined && object.minDepth !== null) {
-      message.minDepth = object.minDepth;
-    } else {
-      message.minDepth = 0;
-    }
+    message.maxDepth = object.maxDepth ?? 0;
+    message.minDepth = object.minDepth ?? 0;
     return message;
   },
 };
@@ -1189,37 +1137,11 @@ export const InnerSpec = {
         message.childOrder.push(e);
       }
     }
-    if (object.childSize !== undefined && object.childSize !== null) {
-      message.childSize = object.childSize;
-    } else {
-      message.childSize = 0;
-    }
-    if (
-      object.minPrefixLength !== undefined &&
-      object.minPrefixLength !== null
-    ) {
-      message.minPrefixLength = object.minPrefixLength;
-    } else {
-      message.minPrefixLength = 0;
-    }
-    if (
-      object.maxPrefixLength !== undefined &&
-      object.maxPrefixLength !== null
-    ) {
-      message.maxPrefixLength = object.maxPrefixLength;
-    } else {
-      message.maxPrefixLength = 0;
-    }
-    if (object.emptyChild !== undefined && object.emptyChild !== null) {
-      message.emptyChild = object.emptyChild;
-    } else {
-      message.emptyChild = new Uint8Array();
-    }
-    if (object.hash !== undefined && object.hash !== null) {
-      message.hash = object.hash;
-    } else {
-      message.hash = 0;
-    }
+    message.childSize = object.childSize ?? 0;
+    message.minPrefixLength = object.minPrefixLength ?? 0;
+    message.maxPrefixLength = object.maxPrefixLength ?? 0;
+    message.emptyChild = object.emptyChild ?? new Uint8Array();
+    message.hash = object.hash ?? 0;
     return message;
   },
 };
@@ -1458,12 +1380,12 @@ export const CompressedBatchProof = {
   fromPartial(object: DeepPartial<CompressedBatchProof>): CompressedBatchProof {
     const message = { ...baseCompressedBatchProof } as CompressedBatchProof;
     message.entries = [];
-    message.lookupInners = [];
     if (object.entries !== undefined && object.entries !== null) {
       for (const e of object.entries) {
         message.entries.push(CompressedBatchEntry.fromPartial(e));
       }
     }
+    message.lookupInners = [];
     if (object.lookupInners !== undefined && object.lookupInners !== null) {
       for (const e of object.lookupInners) {
         message.lookupInners.push(InnerOp.fromPartial(e));
@@ -1689,22 +1611,14 @@ export const CompressedExistenceProof = {
     const message = {
       ...baseCompressedExistenceProof,
     } as CompressedExistenceProof;
-    message.path = [];
-    if (object.key !== undefined && object.key !== null) {
-      message.key = object.key;
-    } else {
-      message.key = new Uint8Array();
-    }
-    if (object.value !== undefined && object.value !== null) {
-      message.value = object.value;
-    } else {
-      message.value = new Uint8Array();
-    }
+    message.key = object.key ?? new Uint8Array();
+    message.value = object.value ?? new Uint8Array();
     if (object.leaf !== undefined && object.leaf !== null) {
       message.leaf = LeafOp.fromPartial(object.leaf);
     } else {
       message.leaf = undefined;
     }
+    message.path = [];
     if (object.path !== undefined && object.path !== null) {
       for (const e of object.path) {
         message.path.push(e);
@@ -1819,11 +1733,7 @@ export const CompressedNonExistenceProof = {
     const message = {
       ...baseCompressedNonExistenceProof,
     } as CompressedNonExistenceProof;
-    if (object.key !== undefined && object.key !== null) {
-      message.key = object.key;
-    } else {
-      message.key = new Uint8Array();
-    }
+    message.key = object.key ?? new Uint8Array();
     if (object.left !== undefined && object.left !== null) {
       message.left = CompressedExistenceProof.fromPartial(object.left);
     } else {

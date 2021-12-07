@@ -78,11 +78,7 @@ export const ClientState = {
 
   fromPartial(object: DeepPartial<ClientState>): ClientState {
     const message = { ...baseClientState } as ClientState;
-    if (object.chainId !== undefined && object.chainId !== null) {
-      message.chainId = object.chainId;
-    } else {
-      message.chainId = '';
-    }
+    message.chainId = object.chainId ?? '';
     if (object.height !== undefined && object.height !== null) {
       message.height = Height.fromPartial(object.height);
     } else {

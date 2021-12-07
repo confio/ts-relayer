@@ -86,12 +86,12 @@ export const BitArray = {
 
   fromPartial(object: DeepPartial<BitArray>): BitArray {
     const message = { ...baseBitArray } as BitArray;
-    message.elems = [];
     if (object.bits !== undefined && object.bits !== null) {
       message.bits = object.bits as Long;
     } else {
       message.bits = Long.ZERO;
     }
+    message.elems = [];
     if (object.elems !== undefined && object.elems !== null) {
       for (const e of object.elems) {
         message.elems.push(e);

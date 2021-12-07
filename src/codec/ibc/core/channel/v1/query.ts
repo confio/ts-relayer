@@ -398,16 +398,8 @@ export const QueryChannelRequest = {
 
   fromPartial(object: DeepPartial<QueryChannelRequest>): QueryChannelRequest {
     const message = { ...baseQueryChannelRequest } as QueryChannelRequest;
-    if (object.portId !== undefined && object.portId !== null) {
-      message.portId = object.portId;
-    } else {
-      message.portId = '';
-    }
-    if (object.channelId !== undefined && object.channelId !== null) {
-      message.channelId = object.channelId;
-    } else {
-      message.channelId = '';
-    }
+    message.portId = object.portId ?? '';
+    message.channelId = object.channelId ?? '';
     return message;
   },
 };
@@ -502,11 +494,7 @@ export const QueryChannelResponse = {
     } else {
       message.channel = undefined;
     }
-    if (object.proof !== undefined && object.proof !== null) {
-      message.proof = object.proof;
-    } else {
-      message.proof = new Uint8Array();
-    }
+    message.proof = object.proof ?? new Uint8Array();
     if (object.proofHeight !== undefined && object.proofHeight !== null) {
       message.proofHeight = Height.fromPartial(object.proofHeight);
     } else {
@@ -770,11 +758,7 @@ export const QueryConnectionChannelsRequest = {
     const message = {
       ...baseQueryConnectionChannelsRequest,
     } as QueryConnectionChannelsRequest;
-    if (object.connection !== undefined && object.connection !== null) {
-      message.connection = object.connection;
-    } else {
-      message.connection = '';
-    }
+    message.connection = object.connection ?? '';
     if (object.pagination !== undefined && object.pagination !== null) {
       message.pagination = PageRequest.fromPartial(object.pagination);
     } else {
@@ -980,16 +964,8 @@ export const QueryChannelClientStateRequest = {
     const message = {
       ...baseQueryChannelClientStateRequest,
     } as QueryChannelClientStateRequest;
-    if (object.portId !== undefined && object.portId !== null) {
-      message.portId = object.portId;
-    } else {
-      message.portId = '';
-    }
-    if (object.channelId !== undefined && object.channelId !== null) {
-      message.channelId = object.channelId;
-    } else {
-      message.channelId = '';
-    }
+    message.portId = object.portId ?? '';
+    message.channelId = object.channelId ?? '';
     return message;
   },
 };
@@ -1108,11 +1084,7 @@ export const QueryChannelClientStateResponse = {
     } else {
       message.identifiedClientState = undefined;
     }
-    if (object.proof !== undefined && object.proof !== null) {
-      message.proof = object.proof;
-    } else {
-      message.proof = new Uint8Array();
-    }
+    message.proof = object.proof ?? new Uint8Array();
     if (object.proofHeight !== undefined && object.proofHeight !== null) {
       message.proofHeight = Height.fromPartial(object.proofHeight);
     } else {
@@ -1225,16 +1197,8 @@ export const QueryChannelConsensusStateRequest = {
     const message = {
       ...baseQueryChannelConsensusStateRequest,
     } as QueryChannelConsensusStateRequest;
-    if (object.portId !== undefined && object.portId !== null) {
-      message.portId = object.portId;
-    } else {
-      message.portId = '';
-    }
-    if (object.channelId !== undefined && object.channelId !== null) {
-      message.channelId = object.channelId;
-    } else {
-      message.channelId = '';
-    }
+    message.portId = object.portId ?? '';
+    message.channelId = object.channelId ?? '';
     if (object.revisionNumber !== undefined && object.revisionNumber !== null) {
       message.revisionNumber = object.revisionNumber as Long;
     } else {
@@ -1359,16 +1323,8 @@ export const QueryChannelConsensusStateResponse = {
     } else {
       message.consensusState = undefined;
     }
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = object.clientId;
-    } else {
-      message.clientId = '';
-    }
-    if (object.proof !== undefined && object.proof !== null) {
-      message.proof = object.proof;
-    } else {
-      message.proof = new Uint8Array();
-    }
+    message.clientId = object.clientId ?? '';
+    message.proof = object.proof ?? new Uint8Array();
     if (object.proofHeight !== undefined && object.proofHeight !== null) {
       message.proofHeight = Height.fromPartial(object.proofHeight);
     } else {
@@ -1467,16 +1423,8 @@ export const QueryPacketCommitmentRequest = {
     const message = {
       ...baseQueryPacketCommitmentRequest,
     } as QueryPacketCommitmentRequest;
-    if (object.portId !== undefined && object.portId !== null) {
-      message.portId = object.portId;
-    } else {
-      message.portId = '';
-    }
-    if (object.channelId !== undefined && object.channelId !== null) {
-      message.channelId = object.channelId;
-    } else {
-      message.channelId = '';
-    }
+    message.portId = object.portId ?? '';
+    message.channelId = object.channelId ?? '';
     if (object.sequence !== undefined && object.sequence !== null) {
       message.sequence = object.sequence as Long;
     } else {
@@ -1579,16 +1527,8 @@ export const QueryPacketCommitmentResponse = {
     const message = {
       ...baseQueryPacketCommitmentResponse,
     } as QueryPacketCommitmentResponse;
-    if (object.commitment !== undefined && object.commitment !== null) {
-      message.commitment = object.commitment;
-    } else {
-      message.commitment = new Uint8Array();
-    }
-    if (object.proof !== undefined && object.proof !== null) {
-      message.proof = object.proof;
-    } else {
-      message.proof = new Uint8Array();
-    }
+    message.commitment = object.commitment ?? new Uint8Array();
+    message.proof = object.proof ?? new Uint8Array();
     if (object.proofHeight !== undefined && object.proofHeight !== null) {
       message.proofHeight = Height.fromPartial(object.proofHeight);
     } else {
@@ -1685,16 +1625,8 @@ export const QueryPacketCommitmentsRequest = {
     const message = {
       ...baseQueryPacketCommitmentsRequest,
     } as QueryPacketCommitmentsRequest;
-    if (object.portId !== undefined && object.portId !== null) {
-      message.portId = object.portId;
-    } else {
-      message.portId = '';
-    }
-    if (object.channelId !== undefined && object.channelId !== null) {
-      message.channelId = object.channelId;
-    } else {
-      message.channelId = '';
-    }
+    message.portId = object.portId ?? '';
+    message.channelId = object.channelId ?? '';
     if (object.pagination !== undefined && object.pagination !== null) {
       message.pagination = PageRequest.fromPartial(object.pagination);
     } else {
@@ -1912,16 +1844,8 @@ export const QueryPacketReceiptRequest = {
     const message = {
       ...baseQueryPacketReceiptRequest,
     } as QueryPacketReceiptRequest;
-    if (object.portId !== undefined && object.portId !== null) {
-      message.portId = object.portId;
-    } else {
-      message.portId = '';
-    }
-    if (object.channelId !== undefined && object.channelId !== null) {
-      message.channelId = object.channelId;
-    } else {
-      message.channelId = '';
-    }
+    message.portId = object.portId ?? '';
+    message.channelId = object.channelId ?? '';
     if (object.sequence !== undefined && object.sequence !== null) {
       message.sequence = object.sequence as Long;
     } else {
@@ -2021,16 +1945,8 @@ export const QueryPacketReceiptResponse = {
     const message = {
       ...baseQueryPacketReceiptResponse,
     } as QueryPacketReceiptResponse;
-    if (object.received !== undefined && object.received !== null) {
-      message.received = object.received;
-    } else {
-      message.received = false;
-    }
-    if (object.proof !== undefined && object.proof !== null) {
-      message.proof = object.proof;
-    } else {
-      message.proof = new Uint8Array();
-    }
+    message.received = object.received ?? false;
+    message.proof = object.proof ?? new Uint8Array();
     if (object.proofHeight !== undefined && object.proofHeight !== null) {
       message.proofHeight = Height.fromPartial(object.proofHeight);
     } else {
@@ -2129,16 +2045,8 @@ export const QueryPacketAcknowledgementRequest = {
     const message = {
       ...baseQueryPacketAcknowledgementRequest,
     } as QueryPacketAcknowledgementRequest;
-    if (object.portId !== undefined && object.portId !== null) {
-      message.portId = object.portId;
-    } else {
-      message.portId = '';
-    }
-    if (object.channelId !== undefined && object.channelId !== null) {
-      message.channelId = object.channelId;
-    } else {
-      message.channelId = '';
-    }
+    message.portId = object.portId ?? '';
+    message.channelId = object.channelId ?? '';
     if (object.sequence !== undefined && object.sequence !== null) {
       message.sequence = object.sequence as Long;
     } else {
@@ -2246,19 +2154,8 @@ export const QueryPacketAcknowledgementResponse = {
     const message = {
       ...baseQueryPacketAcknowledgementResponse,
     } as QueryPacketAcknowledgementResponse;
-    if (
-      object.acknowledgement !== undefined &&
-      object.acknowledgement !== null
-    ) {
-      message.acknowledgement = object.acknowledgement;
-    } else {
-      message.acknowledgement = new Uint8Array();
-    }
-    if (object.proof !== undefined && object.proof !== null) {
-      message.proof = object.proof;
-    } else {
-      message.proof = new Uint8Array();
-    }
+    message.acknowledgement = object.acknowledgement ?? new Uint8Array();
+    message.proof = object.proof ?? new Uint8Array();
     if (object.proofHeight !== undefined && object.proofHeight !== null) {
       message.proofHeight = Height.fromPartial(object.proofHeight);
     } else {
@@ -2358,16 +2255,8 @@ export const QueryPacketAcknowledgementsRequest = {
     const message = {
       ...baseQueryPacketAcknowledgementsRequest,
     } as QueryPacketAcknowledgementsRequest;
-    if (object.portId !== undefined && object.portId !== null) {
-      message.portId = object.portId;
-    } else {
-      message.portId = '';
-    }
-    if (object.channelId !== undefined && object.channelId !== null) {
-      message.channelId = object.channelId;
-    } else {
-      message.channelId = '';
-    }
+    message.portId = object.portId ?? '';
+    message.channelId = object.channelId ?? '';
     if (object.pagination !== undefined && object.pagination !== null) {
       message.pagination = PageRequest.fromPartial(object.pagination);
     } else {
@@ -2612,17 +2501,9 @@ export const QueryUnreceivedPacketsRequest = {
     const message = {
       ...baseQueryUnreceivedPacketsRequest,
     } as QueryUnreceivedPacketsRequest;
+    message.portId = object.portId ?? '';
+    message.channelId = object.channelId ?? '';
     message.packetCommitmentSequences = [];
-    if (object.portId !== undefined && object.portId !== null) {
-      message.portId = object.portId;
-    } else {
-      message.portId = '';
-    }
-    if (object.channelId !== undefined && object.channelId !== null) {
-      message.channelId = object.channelId;
-    } else {
-      message.channelId = '';
-    }
     if (
       object.packetCommitmentSequences !== undefined &&
       object.packetCommitmentSequences !== null
@@ -2848,17 +2729,9 @@ export const QueryUnreceivedAcksRequest = {
     const message = {
       ...baseQueryUnreceivedAcksRequest,
     } as QueryUnreceivedAcksRequest;
+    message.portId = object.portId ?? '';
+    message.channelId = object.channelId ?? '';
     message.packetAckSequences = [];
-    if (object.portId !== undefined && object.portId !== null) {
-      message.portId = object.portId;
-    } else {
-      message.portId = '';
-    }
-    if (object.channelId !== undefined && object.channelId !== null) {
-      message.channelId = object.channelId;
-    } else {
-      message.channelId = '';
-    }
     if (
       object.packetAckSequences !== undefined &&
       object.packetAckSequences !== null
@@ -3051,16 +2924,8 @@ export const QueryNextSequenceReceiveRequest = {
     const message = {
       ...baseQueryNextSequenceReceiveRequest,
     } as QueryNextSequenceReceiveRequest;
-    if (object.portId !== undefined && object.portId !== null) {
-      message.portId = object.portId;
-    } else {
-      message.portId = '';
-    }
-    if (object.channelId !== undefined && object.channelId !== null) {
-      message.channelId = object.channelId;
-    } else {
-      message.channelId = '';
-    }
+    message.portId = object.portId ?? '';
+    message.channelId = object.channelId ?? '';
     return message;
   },
 };
@@ -3171,11 +3036,7 @@ export const QueryNextSequenceReceiveResponse = {
     } else {
       message.nextSequenceReceive = Long.UZERO;
     }
-    if (object.proof !== undefined && object.proof !== null) {
-      message.proof = object.proof;
-    } else {
-      message.proof = new Uint8Array();
-    }
+    message.proof = object.proof ?? new Uint8Array();
     if (object.proofHeight !== undefined && object.proofHeight !== null) {
       message.proofHeight = Height.fromPartial(object.proofHeight);
     } else {

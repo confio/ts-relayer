@@ -135,7 +135,6 @@ export const Proof = {
 
   fromPartial(object: DeepPartial<Proof>): Proof {
     const message = { ...baseProof } as Proof;
-    message.aunts = [];
     if (object.total !== undefined && object.total !== null) {
       message.total = object.total as Long;
     } else {
@@ -146,11 +145,8 @@ export const Proof = {
     } else {
       message.index = Long.ZERO;
     }
-    if (object.leafHash !== undefined && object.leafHash !== null) {
-      message.leafHash = object.leafHash;
-    } else {
-      message.leafHash = new Uint8Array();
-    }
+    message.leafHash = object.leafHash ?? new Uint8Array();
+    message.aunts = [];
     if (object.aunts !== undefined && object.aunts !== null) {
       for (const e of object.aunts) {
         message.aunts.push(e);
@@ -225,11 +221,7 @@ export const ValueOp = {
 
   fromPartial(object: DeepPartial<ValueOp>): ValueOp {
     const message = { ...baseValueOp } as ValueOp;
-    if (object.key !== undefined && object.key !== null) {
-      message.key = object.key;
-    } else {
-      message.key = new Uint8Array();
-    }
+    message.key = object.key ?? new Uint8Array();
     if (object.proof !== undefined && object.proof !== null) {
       message.proof = Proof.fromPartial(object.proof);
     } else {
@@ -312,21 +304,9 @@ export const DominoOp = {
 
   fromPartial(object: DeepPartial<DominoOp>): DominoOp {
     const message = { ...baseDominoOp } as DominoOp;
-    if (object.key !== undefined && object.key !== null) {
-      message.key = object.key;
-    } else {
-      message.key = '';
-    }
-    if (object.input !== undefined && object.input !== null) {
-      message.input = object.input;
-    } else {
-      message.input = '';
-    }
-    if (object.output !== undefined && object.output !== null) {
-      message.output = object.output;
-    } else {
-      message.output = '';
-    }
+    message.key = object.key ?? '';
+    message.input = object.input ?? '';
+    message.output = object.output ?? '';
     return message;
   },
 };
@@ -410,21 +390,9 @@ export const ProofOp = {
 
   fromPartial(object: DeepPartial<ProofOp>): ProofOp {
     const message = { ...baseProofOp } as ProofOp;
-    if (object.type !== undefined && object.type !== null) {
-      message.type = object.type;
-    } else {
-      message.type = '';
-    }
-    if (object.key !== undefined && object.key !== null) {
-      message.key = object.key;
-    } else {
-      message.key = new Uint8Array();
-    }
-    if (object.data !== undefined && object.data !== null) {
-      message.data = object.data;
-    } else {
-      message.data = new Uint8Array();
-    }
+    message.type = object.type ?? '';
+    message.key = object.key ?? new Uint8Array();
+    message.data = object.data ?? new Uint8Array();
     return message;
   },
 };

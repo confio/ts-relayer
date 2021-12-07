@@ -155,26 +155,14 @@ export const FungibleTokenPacketData = {
     const message = {
       ...baseFungibleTokenPacketData,
     } as FungibleTokenPacketData;
-    if (object.denom !== undefined && object.denom !== null) {
-      message.denom = object.denom;
-    } else {
-      message.denom = '';
-    }
+    message.denom = object.denom ?? '';
     if (object.amount !== undefined && object.amount !== null) {
       message.amount = object.amount as Long;
     } else {
       message.amount = Long.UZERO;
     }
-    if (object.sender !== undefined && object.sender !== null) {
-      message.sender = object.sender;
-    } else {
-      message.sender = '';
-    }
-    if (object.receiver !== undefined && object.receiver !== null) {
-      message.receiver = object.receiver;
-    } else {
-      message.receiver = '';
-    }
+    message.sender = object.sender ?? '';
+    message.receiver = object.receiver ?? '';
     return message;
   },
 };
@@ -240,16 +228,8 @@ export const DenomTrace = {
 
   fromPartial(object: DeepPartial<DenomTrace>): DenomTrace {
     const message = { ...baseDenomTrace } as DenomTrace;
-    if (object.path !== undefined && object.path !== null) {
-      message.path = object.path;
-    } else {
-      message.path = '';
-    }
-    if (object.baseDenom !== undefined && object.baseDenom !== null) {
-      message.baseDenom = object.baseDenom;
-    } else {
-      message.baseDenom = '';
-    }
+    message.path = object.path ?? '';
+    message.baseDenom = object.baseDenom ?? '';
     return message;
   },
 };
@@ -317,16 +297,8 @@ export const Params = {
 
   fromPartial(object: DeepPartial<Params>): Params {
     const message = { ...baseParams } as Params;
-    if (object.sendEnabled !== undefined && object.sendEnabled !== null) {
-      message.sendEnabled = object.sendEnabled;
-    } else {
-      message.sendEnabled = false;
-    }
-    if (object.receiveEnabled !== undefined && object.receiveEnabled !== null) {
-      message.receiveEnabled = object.receiveEnabled;
-    } else {
-      message.receiveEnabled = false;
-    }
+    message.sendEnabled = object.sendEnabled ?? false;
+    message.receiveEnabled = object.receiveEnabled ?? false;
     return message;
   },
 };

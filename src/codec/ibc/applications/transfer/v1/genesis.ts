@@ -97,12 +97,8 @@ export const GenesisState = {
 
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = { ...baseGenesisState } as GenesisState;
+    message.portId = object.portId ?? '';
     message.denomTraces = [];
-    if (object.portId !== undefined && object.portId !== null) {
-      message.portId = object.portId;
-    } else {
-      message.portId = '';
-    }
     if (object.denomTraces !== undefined && object.denomTraces !== null) {
       for (const e of object.denomTraces) {
         message.denomTraces.push(DenomTrace.fromPartial(e));

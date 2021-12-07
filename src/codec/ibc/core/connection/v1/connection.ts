@@ -264,22 +264,14 @@ export const ConnectionEnd = {
 
   fromPartial(object: DeepPartial<ConnectionEnd>): ConnectionEnd {
     const message = { ...baseConnectionEnd } as ConnectionEnd;
+    message.clientId = object.clientId ?? '';
     message.versions = [];
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = object.clientId;
-    } else {
-      message.clientId = '';
-    }
     if (object.versions !== undefined && object.versions !== null) {
       for (const e of object.versions) {
         message.versions.push(Version.fromPartial(e));
       }
     }
-    if (object.state !== undefined && object.state !== null) {
-      message.state = object.state;
-    } else {
-      message.state = 0;
-    }
+    message.state = object.state ?? 0;
     if (object.counterparty !== undefined && object.counterparty !== null) {
       message.counterparty = Counterparty.fromPartial(object.counterparty);
     } else {
@@ -426,27 +418,15 @@ export const IdentifiedConnection = {
 
   fromPartial(object: DeepPartial<IdentifiedConnection>): IdentifiedConnection {
     const message = { ...baseIdentifiedConnection } as IdentifiedConnection;
+    message.id = object.id ?? '';
+    message.clientId = object.clientId ?? '';
     message.versions = [];
-    if (object.id !== undefined && object.id !== null) {
-      message.id = object.id;
-    } else {
-      message.id = '';
-    }
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = object.clientId;
-    } else {
-      message.clientId = '';
-    }
     if (object.versions !== undefined && object.versions !== null) {
       for (const e of object.versions) {
         message.versions.push(Version.fromPartial(e));
       }
     }
-    if (object.state !== undefined && object.state !== null) {
-      message.state = object.state;
-    } else {
-      message.state = 0;
-    }
+    message.state = object.state ?? 0;
     if (object.counterparty !== undefined && object.counterparty !== null) {
       message.counterparty = Counterparty.fromPartial(object.counterparty);
     } else {
@@ -538,16 +518,8 @@ export const Counterparty = {
 
   fromPartial(object: DeepPartial<Counterparty>): Counterparty {
     const message = { ...baseCounterparty } as Counterparty;
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = object.clientId;
-    } else {
-      message.clientId = '';
-    }
-    if (object.connectionId !== undefined && object.connectionId !== null) {
-      message.connectionId = object.connectionId;
-    } else {
-      message.connectionId = '';
-    }
+    message.clientId = object.clientId ?? '';
+    message.connectionId = object.connectionId ?? '';
     if (object.prefix !== undefined && object.prefix !== null) {
       message.prefix = MerklePrefix.fromPartial(object.prefix);
     } else {
@@ -689,12 +661,8 @@ export const ConnectionPaths = {
 
   fromPartial(object: DeepPartial<ConnectionPaths>): ConnectionPaths {
     const message = { ...baseConnectionPaths } as ConnectionPaths;
+    message.clientId = object.clientId ?? '';
     message.paths = [];
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = object.clientId;
-    } else {
-      message.clientId = '';
-    }
     if (object.paths !== undefined && object.paths !== null) {
       for (const e of object.paths) {
         message.paths.push(e);
@@ -771,12 +739,8 @@ export const Version = {
 
   fromPartial(object: DeepPartial<Version>): Version {
     const message = { ...baseVersion } as Version;
+    message.identifier = object.identifier ?? '';
     message.features = [];
-    if (object.identifier !== undefined && object.identifier !== null) {
-      message.identifier = object.identifier;
-    } else {
-      message.identifier = '';
-    }
     if (object.features !== undefined && object.features !== null) {
       for (const e of object.features) {
         message.features.push(e);

@@ -240,17 +240,12 @@ export const GenesisState = {
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = { ...baseGenesisState } as GenesisState;
     message.channels = [];
-    message.acknowledgements = [];
-    message.commitments = [];
-    message.receipts = [];
-    message.sendSequences = [];
-    message.recvSequences = [];
-    message.ackSequences = [];
     if (object.channels !== undefined && object.channels !== null) {
       for (const e of object.channels) {
         message.channels.push(IdentifiedChannel.fromPartial(e));
       }
     }
+    message.acknowledgements = [];
     if (
       object.acknowledgements !== undefined &&
       object.acknowledgements !== null
@@ -259,26 +254,31 @@ export const GenesisState = {
         message.acknowledgements.push(PacketState.fromPartial(e));
       }
     }
+    message.commitments = [];
     if (object.commitments !== undefined && object.commitments !== null) {
       for (const e of object.commitments) {
         message.commitments.push(PacketState.fromPartial(e));
       }
     }
+    message.receipts = [];
     if (object.receipts !== undefined && object.receipts !== null) {
       for (const e of object.receipts) {
         message.receipts.push(PacketState.fromPartial(e));
       }
     }
+    message.sendSequences = [];
     if (object.sendSequences !== undefined && object.sendSequences !== null) {
       for (const e of object.sendSequences) {
         message.sendSequences.push(PacketSequence.fromPartial(e));
       }
     }
+    message.recvSequences = [];
     if (object.recvSequences !== undefined && object.recvSequences !== null) {
       for (const e of object.recvSequences) {
         message.recvSequences.push(PacketSequence.fromPartial(e));
       }
     }
+    message.ackSequences = [];
     if (object.ackSequences !== undefined && object.ackSequences !== null) {
       for (const e of object.ackSequences) {
         message.ackSequences.push(PacketSequence.fromPartial(e));
@@ -374,16 +374,8 @@ export const PacketSequence = {
 
   fromPartial(object: DeepPartial<PacketSequence>): PacketSequence {
     const message = { ...basePacketSequence } as PacketSequence;
-    if (object.portId !== undefined && object.portId !== null) {
-      message.portId = object.portId;
-    } else {
-      message.portId = '';
-    }
-    if (object.channelId !== undefined && object.channelId !== null) {
-      message.channelId = object.channelId;
-    } else {
-      message.channelId = '';
-    }
+    message.portId = object.portId ?? '';
+    message.channelId = object.channelId ?? '';
     if (object.sequence !== undefined && object.sequence !== null) {
       message.sequence = object.sequence as Long;
     } else {

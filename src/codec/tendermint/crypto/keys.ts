@@ -75,16 +75,8 @@ export const PublicKey = {
 
   fromPartial(object: DeepPartial<PublicKey>): PublicKey {
     const message = { ...basePublicKey } as PublicKey;
-    if (object.ed25519 !== undefined && object.ed25519 !== null) {
-      message.ed25519 = object.ed25519;
-    } else {
-      message.ed25519 = undefined;
-    }
-    if (object.secp256k1 !== undefined && object.secp256k1 !== null) {
-      message.secp256k1 = object.secp256k1;
-    } else {
-      message.secp256k1 = undefined;
-    }
+    message.ed25519 = object.ed25519 ?? undefined;
+    message.secp256k1 = object.secp256k1 ?? undefined;
     return message;
   },
 };
