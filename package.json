@@ -77,9 +77,6 @@
     "ts-proto": "~1.92.0",
     "typescript": "^4.0.2"
   },
-  "resolutions": {
-    "ts-proto-descriptors": "1.2.1"
-  },
   "files": [
     "build/**/*.js",
     "build/**/*.d.ts",
