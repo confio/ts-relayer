@@ -3195,12 +3195,12 @@ export const ResponseCheckTx = {
         ? String(object.info)
         : '';
     message.gasWanted =
-      object.gasWanted !== undefined && object.gasWanted !== null
-        ? Long.fromString(object.gasWanted)
+      object.gas_wanted !== undefined && object.gas_wanted !== null
+        ? Long.fromString(object.gas_wanted)
         : Long.ZERO;
     message.gasUsed =
-      object.gasUsed !== undefined && object.gasUsed !== null
-        ? Long.fromString(object.gasUsed)
+      object.gas_used !== undefined && object.gas_used !== null
+        ? Long.fromString(object.gas_used)
         : Long.ZERO;
     message.events = (object.events ?? []).map((e: any) => Event.fromJSON(e));
     message.codespace =
@@ -3220,9 +3220,9 @@ export const ResponseCheckTx = {
     message.log !== undefined && (obj.log = message.log);
     message.info !== undefined && (obj.info = message.info);
     message.gasWanted !== undefined &&
-      (obj.gasWanted = (message.gasWanted || Long.ZERO).toString());
+      (obj.gas_wanted = (message.gasWanted || Long.ZERO).toString());
     message.gasUsed !== undefined &&
-      (obj.gasUsed = (message.gasUsed || Long.ZERO).toString());
+      (obj.gas_used = (message.gasUsed || Long.ZERO).toString());
     if (message.events) {
       obj.events = message.events.map((e) => (e ? Event.toJSON(e) : undefined));
     } else {
@@ -3351,12 +3351,12 @@ export const ResponseDeliverTx = {
         ? String(object.info)
         : '';
     message.gasWanted =
-      object.gasWanted !== undefined && object.gasWanted !== null
-        ? Long.fromString(object.gasWanted)
+      object.gas_wanted !== undefined && object.gas_wanted !== null
+        ? Long.fromString(object.gas_wanted)
         : Long.ZERO;
     message.gasUsed =
-      object.gasUsed !== undefined && object.gasUsed !== null
-        ? Long.fromString(object.gasUsed)
+      object.gas_used !== undefined && object.gas_used !== null
+        ? Long.fromString(object.gas_used)
         : Long.ZERO;
     message.events = (object.events ?? []).map((e: any) => Event.fromJSON(e));
     message.codespace =
@@ -3376,9 +3376,9 @@ export const ResponseDeliverTx = {
     message.log !== undefined && (obj.log = message.log);
     message.info !== undefined && (obj.info = message.info);
     message.gasWanted !== undefined &&
-      (obj.gasWanted = (message.gasWanted || Long.ZERO).toString());
+      (obj.gas_wanted = (message.gasWanted || Long.ZERO).toString());
     message.gasUsed !== undefined &&
-      (obj.gasUsed = (message.gasUsed || Long.ZERO).toString());
+      (obj.gas_used = (message.gasUsed || Long.ZERO).toString());
     if (message.events) {
       obj.events = message.events.map((e) => (e ? Event.toJSON(e) : undefined));
     } else {
