@@ -95,11 +95,10 @@ export const QueryDenomTraceRequest = {
 
   fromJSON(object: any): QueryDenomTraceRequest {
     const message = { ...baseQueryDenomTraceRequest } as QueryDenomTraceRequest;
-    if (object.hash !== undefined && object.hash !== null) {
-      message.hash = String(object.hash);
-    } else {
-      message.hash = '';
-    }
+    message.hash =
+      object.hash !== undefined && object.hash !== null
+        ? String(object.hash)
+        : '';
     return message;
   },
 
@@ -158,11 +157,10 @@ export const QueryDenomTraceResponse = {
     const message = {
       ...baseQueryDenomTraceResponse,
     } as QueryDenomTraceResponse;
-    if (object.denomTrace !== undefined && object.denomTrace !== null) {
-      message.denomTrace = DenomTrace.fromJSON(object.denomTrace);
-    } else {
-      message.denomTrace = undefined;
-    }
+    message.denomTrace =
+      object.denomTrace !== undefined && object.denomTrace !== null
+        ? DenomTrace.fromJSON(object.denomTrace)
+        : undefined;
     return message;
   },
 
@@ -181,11 +179,10 @@ export const QueryDenomTraceResponse = {
     const message = {
       ...baseQueryDenomTraceResponse,
     } as QueryDenomTraceResponse;
-    if (object.denomTrace !== undefined && object.denomTrace !== null) {
-      message.denomTrace = DenomTrace.fromPartial(object.denomTrace);
-    } else {
-      message.denomTrace = undefined;
-    }
+    message.denomTrace =
+      object.denomTrace !== undefined && object.denomTrace !== null
+        ? DenomTrace.fromPartial(object.denomTrace)
+        : undefined;
     return message;
   },
 };
@@ -230,11 +227,10 @@ export const QueryDenomTracesRequest = {
     const message = {
       ...baseQueryDenomTracesRequest,
     } as QueryDenomTracesRequest;
-    if (object.pagination !== undefined && object.pagination !== null) {
-      message.pagination = PageRequest.fromJSON(object.pagination);
-    } else {
-      message.pagination = undefined;
-    }
+    message.pagination =
+      object.pagination !== undefined && object.pagination !== null
+        ? PageRequest.fromJSON(object.pagination)
+        : undefined;
     return message;
   },
 
@@ -253,11 +249,10 @@ export const QueryDenomTracesRequest = {
     const message = {
       ...baseQueryDenomTracesRequest,
     } as QueryDenomTracesRequest;
-    if (object.pagination !== undefined && object.pagination !== null) {
-      message.pagination = PageRequest.fromPartial(object.pagination);
-    } else {
-      message.pagination = undefined;
-    }
+    message.pagination =
+      object.pagination !== undefined && object.pagination !== null
+        ? PageRequest.fromPartial(object.pagination)
+        : undefined;
     return message;
   },
 };
@@ -315,11 +310,10 @@ export const QueryDenomTracesResponse = {
     message.denomTraces = (object.denomTraces ?? []).map((e: any) =>
       DenomTrace.fromJSON(e)
     );
-    if (object.pagination !== undefined && object.pagination !== null) {
-      message.pagination = PageResponse.fromJSON(object.pagination);
-    } else {
-      message.pagination = undefined;
-    }
+    message.pagination =
+      object.pagination !== undefined && object.pagination !== null
+        ? PageResponse.fromJSON(object.pagination)
+        : undefined;
     return message;
   },
 
@@ -348,11 +342,10 @@ export const QueryDenomTracesResponse = {
     message.denomTraces = (object.denomTraces ?? []).map((e) =>
       DenomTrace.fromPartial(e)
     );
-    if (object.pagination !== undefined && object.pagination !== null) {
-      message.pagination = PageResponse.fromPartial(object.pagination);
-    } else {
-      message.pagination = undefined;
-    }
+    message.pagination =
+      object.pagination !== undefined && object.pagination !== null
+        ? PageResponse.fromPartial(object.pagination)
+        : undefined;
     return message;
   },
 };
@@ -431,11 +424,10 @@ export const QueryParamsResponse = {
 
   fromJSON(object: any): QueryParamsResponse {
     const message = { ...baseQueryParamsResponse } as QueryParamsResponse;
-    if (object.params !== undefined && object.params !== null) {
-      message.params = Params.fromJSON(object.params);
-    } else {
-      message.params = undefined;
-    }
+    message.params =
+      object.params !== undefined && object.params !== null
+        ? Params.fromJSON(object.params)
+        : undefined;
     return message;
   },
 
@@ -448,11 +440,10 @@ export const QueryParamsResponse = {
 
   fromPartial(object: DeepPartial<QueryParamsResponse>): QueryParamsResponse {
     const message = { ...baseQueryParamsResponse } as QueryParamsResponse;
-    if (object.params !== undefined && object.params !== null) {
-      message.params = Params.fromPartial(object.params);
-    } else {
-      message.params = undefined;
-    }
+    message.params =
+      object.params !== undefined && object.params !== null
+        ? Params.fromPartial(object.params)
+        : undefined;
     return message;
   },
 };
@@ -533,10 +524,11 @@ type Builtin =
   | string
   | number
   | boolean
-  | undefined
-  | Long;
+  | undefined;
 export type DeepPartial<T> = T extends Builtin
   ? T
+  : T extends Long
+  ? string | number | Long
   : T extends Array<infer U>
   ? Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U>

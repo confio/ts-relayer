@@ -61,19 +61,17 @@ export const GenesisState = {
 
   fromJSON(object: any): GenesisState {
     const message = { ...baseGenesisState } as GenesisState;
-    if (object.portId !== undefined && object.portId !== null) {
-      message.portId = String(object.portId);
-    } else {
-      message.portId = '';
-    }
+    message.portId =
+      object.portId !== undefined && object.portId !== null
+        ? String(object.portId)
+        : '';
     message.denomTraces = (object.denomTraces ?? []).map((e: any) =>
       DenomTrace.fromJSON(e)
     );
-    if (object.params !== undefined && object.params !== null) {
-      message.params = Params.fromJSON(object.params);
-    } else {
-      message.params = undefined;
-    }
+    message.params =
+      object.params !== undefined && object.params !== null
+        ? Params.fromJSON(object.params)
+        : undefined;
     return message;
   },
 
@@ -98,11 +96,10 @@ export const GenesisState = {
     message.denomTraces = (object.denomTraces ?? []).map((e) =>
       DenomTrace.fromPartial(e)
     );
-    if (object.params !== undefined && object.params !== null) {
-      message.params = Params.fromPartial(object.params);
-    } else {
-      message.params = undefined;
-    }
+    message.params =
+      object.params !== undefined && object.params !== null
+        ? Params.fromPartial(object.params)
+        : undefined;
     return message;
   },
 };
@@ -114,10 +111,11 @@ type Builtin =
   | string
   | number
   | boolean
-  | undefined
-  | Long;
+  | undefined;
 export type DeepPartial<T> = T extends Builtin
   ? T
+  : T extends Long
+  ? string | number | Long
   : T extends Array<infer U>
   ? Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U>

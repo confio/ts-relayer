@@ -90,21 +90,18 @@ export const Proof = {
 
   fromJSON(object: any): Proof {
     const message = { ...baseProof } as Proof;
-    if (object.total !== undefined && object.total !== null) {
-      message.total = Long.fromString(object.total);
-    } else {
-      message.total = Long.ZERO;
-    }
-    if (object.index !== undefined && object.index !== null) {
-      message.index = Long.fromString(object.index);
-    } else {
-      message.index = Long.ZERO;
-    }
-    if (object.leafHash !== undefined && object.leafHash !== null) {
-      message.leafHash = bytesFromBase64(object.leafHash);
-    } else {
-      message.leafHash = new Uint8Array();
-    }
+    message.total =
+      object.total !== undefined && object.total !== null
+        ? Long.fromString(object.total)
+        : Long.ZERO;
+    message.index =
+      object.index !== undefined && object.index !== null
+        ? Long.fromString(object.index)
+        : Long.ZERO;
+    message.leafHash =
+      object.leafHash !== undefined && object.leafHash !== null
+        ? bytesFromBase64(object.leafHash)
+        : new Uint8Array();
     message.aunts = (object.aunts ?? []).map((e: any) => bytesFromBase64(e));
     return message;
   },
@@ -131,16 +128,14 @@ export const Proof = {
 
   fromPartial(object: DeepPartial<Proof>): Proof {
     const message = { ...baseProof } as Proof;
-    if (object.total !== undefined && object.total !== null) {
-      message.total = object.total as Long;
-    } else {
-      message.total = Long.ZERO;
-    }
-    if (object.index !== undefined && object.index !== null) {
-      message.index = object.index as Long;
-    } else {
-      message.index = Long.ZERO;
-    }
+    message.total =
+      object.total !== undefined && object.total !== null
+        ? Long.fromValue(object.total)
+        : Long.ZERO;
+    message.index =
+      object.index !== undefined && object.index !== null
+        ? Long.fromValue(object.index)
+        : Long.ZERO;
     message.leafHash = object.leafHash ?? new Uint8Array();
     message.aunts = (object.aunts ?? []).map((e) => e);
     return message;
@@ -187,16 +182,14 @@ export const ValueOp = {
 
   fromJSON(object: any): ValueOp {
     const message = { ...baseValueOp } as ValueOp;
-    if (object.key !== undefined && object.key !== null) {
-      message.key = bytesFromBase64(object.key);
-    } else {
-      message.key = new Uint8Array();
-    }
-    if (object.proof !== undefined && object.proof !== null) {
-      message.proof = Proof.fromJSON(object.proof);
-    } else {
-      message.proof = undefined;
-    }
+    message.key =
+      object.key !== undefined && object.key !== null
+        ? bytesFromBase64(object.key)
+        : new Uint8Array();
+    message.proof =
+      object.proof !== undefined && object.proof !== null
+        ? Proof.fromJSON(object.proof)
+        : undefined;
     return message;
   },
 
@@ -214,11 +207,10 @@ export const ValueOp = {
   fromPartial(object: DeepPartial<ValueOp>): ValueOp {
     const message = { ...baseValueOp } as ValueOp;
     message.key = object.key ?? new Uint8Array();
-    if (object.proof !== undefined && object.proof !== null) {
-      message.proof = Proof.fromPartial(object.proof);
-    } else {
-      message.proof = undefined;
-    }
+    message.proof =
+      object.proof !== undefined && object.proof !== null
+        ? Proof.fromPartial(object.proof)
+        : undefined;
     return message;
   },
 };
@@ -268,21 +260,16 @@ export const DominoOp = {
 
   fromJSON(object: any): DominoOp {
     const message = { ...baseDominoOp } as DominoOp;
-    if (object.key !== undefined && object.key !== null) {
-      message.key = String(object.key);
-    } else {
-      message.key = '';
-    }
-    if (object.input !== undefined && object.input !== null) {
-      message.input = String(object.input);
-    } else {
-      message.input = '';
-    }
-    if (object.output !== undefined && object.output !== null) {
-      message.output = String(object.output);
-    } else {
-      message.output = '';
-    }
+    message.key =
+      object.key !== undefined && object.key !== null ? String(object.key) : '';
+    message.input =
+      object.input !== undefined && object.input !== null
+        ? String(object.input)
+        : '';
+    message.output =
+      object.output !== undefined && object.output !== null
+        ? String(object.output)
+        : '';
     return message;
   },
 
@@ -350,21 +337,18 @@ export const ProofOp = {
 
   fromJSON(object: any): ProofOp {
     const message = { ...baseProofOp } as ProofOp;
-    if (object.type !== undefined && object.type !== null) {
-      message.type = String(object.type);
-    } else {
-      message.type = '';
-    }
-    if (object.key !== undefined && object.key !== null) {
-      message.key = bytesFromBase64(object.key);
-    } else {
-      message.key = new Uint8Array();
-    }
-    if (object.data !== undefined && object.data !== null) {
-      message.data = bytesFromBase64(object.data);
-    } else {
-      message.data = new Uint8Array();
-    }
+    message.type =
+      object.type !== undefined && object.type !== null
+        ? String(object.type)
+        : '';
+    message.key =
+      object.key !== undefined && object.key !== null
+        ? bytesFromBase64(object.key)
+        : new Uint8Array();
+    message.data =
+      object.data !== undefined && object.data !== null
+        ? bytesFromBase64(object.data)
+        : new Uint8Array();
     return message;
   },
 
@@ -487,10 +471,11 @@ type Builtin =
   | string
   | number
   | boolean
-  | undefined
-  | Long;
+  | undefined;
 export type DeepPartial<T> = T extends Builtin
   ? T
+  : T extends Long
+  ? string | number | Long
   : T extends Array<infer U>
   ? Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U>

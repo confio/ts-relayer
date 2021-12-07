@@ -167,11 +167,10 @@ export const QueryConnectionRequest = {
 
   fromJSON(object: any): QueryConnectionRequest {
     const message = { ...baseQueryConnectionRequest } as QueryConnectionRequest;
-    if (object.connectionId !== undefined && object.connectionId !== null) {
-      message.connectionId = String(object.connectionId);
-    } else {
-      message.connectionId = '';
-    }
+    message.connectionId =
+      object.connectionId !== undefined && object.connectionId !== null
+        ? String(object.connectionId)
+        : '';
     return message;
   },
 
@@ -247,21 +246,18 @@ export const QueryConnectionResponse = {
     const message = {
       ...baseQueryConnectionResponse,
     } as QueryConnectionResponse;
-    if (object.connection !== undefined && object.connection !== null) {
-      message.connection = ConnectionEnd.fromJSON(object.connection);
-    } else {
-      message.connection = undefined;
-    }
-    if (object.proof !== undefined && object.proof !== null) {
-      message.proof = bytesFromBase64(object.proof);
-    } else {
-      message.proof = new Uint8Array();
-    }
-    if (object.proofHeight !== undefined && object.proofHeight !== null) {
-      message.proofHeight = Height.fromJSON(object.proofHeight);
-    } else {
-      message.proofHeight = undefined;
-    }
+    message.connection =
+      object.connection !== undefined && object.connection !== null
+        ? ConnectionEnd.fromJSON(object.connection)
+        : undefined;
+    message.proof =
+      object.proof !== undefined && object.proof !== null
+        ? bytesFromBase64(object.proof)
+        : new Uint8Array();
+    message.proofHeight =
+      object.proofHeight !== undefined && object.proofHeight !== null
+        ? Height.fromJSON(object.proofHeight)
+        : undefined;
     return message;
   },
 
@@ -288,17 +284,15 @@ export const QueryConnectionResponse = {
     const message = {
       ...baseQueryConnectionResponse,
     } as QueryConnectionResponse;
-    if (object.connection !== undefined && object.connection !== null) {
-      message.connection = ConnectionEnd.fromPartial(object.connection);
-    } else {
-      message.connection = undefined;
-    }
+    message.connection =
+      object.connection !== undefined && object.connection !== null
+        ? ConnectionEnd.fromPartial(object.connection)
+        : undefined;
     message.proof = object.proof ?? new Uint8Array();
-    if (object.proofHeight !== undefined && object.proofHeight !== null) {
-      message.proofHeight = Height.fromPartial(object.proofHeight);
-    } else {
-      message.proofHeight = undefined;
-    }
+    message.proofHeight =
+      object.proofHeight !== undefined && object.proofHeight !== null
+        ? Height.fromPartial(object.proofHeight)
+        : undefined;
     return message;
   },
 };
@@ -343,11 +337,10 @@ export const QueryConnectionsRequest = {
     const message = {
       ...baseQueryConnectionsRequest,
     } as QueryConnectionsRequest;
-    if (object.pagination !== undefined && object.pagination !== null) {
-      message.pagination = PageRequest.fromJSON(object.pagination);
-    } else {
-      message.pagination = undefined;
-    }
+    message.pagination =
+      object.pagination !== undefined && object.pagination !== null
+        ? PageRequest.fromJSON(object.pagination)
+        : undefined;
     return message;
   },
 
@@ -366,11 +359,10 @@ export const QueryConnectionsRequest = {
     const message = {
       ...baseQueryConnectionsRequest,
     } as QueryConnectionsRequest;
-    if (object.pagination !== undefined && object.pagination !== null) {
-      message.pagination = PageRequest.fromPartial(object.pagination);
-    } else {
-      message.pagination = undefined;
-    }
+    message.pagination =
+      object.pagination !== undefined && object.pagination !== null
+        ? PageRequest.fromPartial(object.pagination)
+        : undefined;
     return message;
   },
 };
@@ -436,16 +428,14 @@ export const QueryConnectionsResponse = {
     message.connections = (object.connections ?? []).map((e: any) =>
       IdentifiedConnection.fromJSON(e)
     );
-    if (object.pagination !== undefined && object.pagination !== null) {
-      message.pagination = PageResponse.fromJSON(object.pagination);
-    } else {
-      message.pagination = undefined;
-    }
-    if (object.height !== undefined && object.height !== null) {
-      message.height = Height.fromJSON(object.height);
-    } else {
-      message.height = undefined;
-    }
+    message.pagination =
+      object.pagination !== undefined && object.pagination !== null
+        ? PageResponse.fromJSON(object.pagination)
+        : undefined;
+    message.height =
+      object.height !== undefined && object.height !== null
+        ? Height.fromJSON(object.height)
+        : undefined;
     return message;
   },
 
@@ -476,16 +466,14 @@ export const QueryConnectionsResponse = {
     message.connections = (object.connections ?? []).map((e) =>
       IdentifiedConnection.fromPartial(e)
     );
-    if (object.pagination !== undefined && object.pagination !== null) {
-      message.pagination = PageResponse.fromPartial(object.pagination);
-    } else {
-      message.pagination = undefined;
-    }
-    if (object.height !== undefined && object.height !== null) {
-      message.height = Height.fromPartial(object.height);
-    } else {
-      message.height = undefined;
-    }
+    message.pagination =
+      object.pagination !== undefined && object.pagination !== null
+        ? PageResponse.fromPartial(object.pagination)
+        : undefined;
+    message.height =
+      object.height !== undefined && object.height !== null
+        ? Height.fromPartial(object.height)
+        : undefined;
     return message;
   },
 };
@@ -530,11 +518,10 @@ export const QueryClientConnectionsRequest = {
     const message = {
       ...baseQueryClientConnectionsRequest,
     } as QueryClientConnectionsRequest;
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = String(object.clientId);
-    } else {
-      message.clientId = '';
-    }
+    message.clientId =
+      object.clientId !== undefined && object.clientId !== null
+        ? String(object.clientId)
+        : '';
     return message;
   },
 
@@ -612,16 +599,14 @@ export const QueryClientConnectionsResponse = {
     message.connectionPaths = (object.connectionPaths ?? []).map((e: any) =>
       String(e)
     );
-    if (object.proof !== undefined && object.proof !== null) {
-      message.proof = bytesFromBase64(object.proof);
-    } else {
-      message.proof = new Uint8Array();
-    }
-    if (object.proofHeight !== undefined && object.proofHeight !== null) {
-      message.proofHeight = Height.fromJSON(object.proofHeight);
-    } else {
-      message.proofHeight = undefined;
-    }
+    message.proof =
+      object.proof !== undefined && object.proof !== null
+        ? bytesFromBase64(object.proof)
+        : new Uint8Array();
+    message.proofHeight =
+      object.proofHeight !== undefined && object.proofHeight !== null
+        ? Height.fromJSON(object.proofHeight)
+        : undefined;
     return message;
   },
 
@@ -651,11 +636,10 @@ export const QueryClientConnectionsResponse = {
     } as QueryClientConnectionsResponse;
     message.connectionPaths = (object.connectionPaths ?? []).map((e) => e);
     message.proof = object.proof ?? new Uint8Array();
-    if (object.proofHeight !== undefined && object.proofHeight !== null) {
-      message.proofHeight = Height.fromPartial(object.proofHeight);
-    } else {
-      message.proofHeight = undefined;
-    }
+    message.proofHeight =
+      object.proofHeight !== undefined && object.proofHeight !== null
+        ? Height.fromPartial(object.proofHeight)
+        : undefined;
     return message;
   },
 };
@@ -700,11 +684,10 @@ export const QueryConnectionClientStateRequest = {
     const message = {
       ...baseQueryConnectionClientStateRequest,
     } as QueryConnectionClientStateRequest;
-    if (object.connectionId !== undefined && object.connectionId !== null) {
-      message.connectionId = String(object.connectionId);
-    } else {
-      message.connectionId = '';
-    }
+    message.connectionId =
+      object.connectionId !== undefined && object.connectionId !== null
+        ? String(object.connectionId)
+        : '';
     return message;
   },
 
@@ -785,26 +768,19 @@ export const QueryConnectionClientStateResponse = {
     const message = {
       ...baseQueryConnectionClientStateResponse,
     } as QueryConnectionClientStateResponse;
-    if (
+    message.identifiedClientState =
       object.identifiedClientState !== undefined &&
       object.identifiedClientState !== null
-    ) {
-      message.identifiedClientState = IdentifiedClientState.fromJSON(
-        object.identifiedClientState
-      );
-    } else {
-      message.identifiedClientState = undefined;
-    }
-    if (object.proof !== undefined && object.proof !== null) {
-      message.proof = bytesFromBase64(object.proof);
-    } else {
-      message.proof = new Uint8Array();
-    }
-    if (object.proofHeight !== undefined && object.proofHeight !== null) {
-      message.proofHeight = Height.fromJSON(object.proofHeight);
-    } else {
-      message.proofHeight = undefined;
-    }
+        ? IdentifiedClientState.fromJSON(object.identifiedClientState)
+        : undefined;
+    message.proof =
+      object.proof !== undefined && object.proof !== null
+        ? bytesFromBase64(object.proof)
+        : new Uint8Array();
+    message.proofHeight =
+      object.proofHeight !== undefined && object.proofHeight !== null
+        ? Height.fromJSON(object.proofHeight)
+        : undefined;
     return message;
   },
 
@@ -831,22 +807,16 @@ export const QueryConnectionClientStateResponse = {
     const message = {
       ...baseQueryConnectionClientStateResponse,
     } as QueryConnectionClientStateResponse;
-    if (
+    message.identifiedClientState =
       object.identifiedClientState !== undefined &&
       object.identifiedClientState !== null
-    ) {
-      message.identifiedClientState = IdentifiedClientState.fromPartial(
-        object.identifiedClientState
-      );
-    } else {
-      message.identifiedClientState = undefined;
-    }
+        ? IdentifiedClientState.fromPartial(object.identifiedClientState)
+        : undefined;
     message.proof = object.proof ?? new Uint8Array();
-    if (object.proofHeight !== undefined && object.proofHeight !== null) {
-      message.proofHeight = Height.fromPartial(object.proofHeight);
-    } else {
-      message.proofHeight = undefined;
-    }
+    message.proofHeight =
+      object.proofHeight !== undefined && object.proofHeight !== null
+        ? Height.fromPartial(object.proofHeight)
+        : undefined;
     return message;
   },
 };
@@ -907,21 +877,18 @@ export const QueryConnectionConsensusStateRequest = {
     const message = {
       ...baseQueryConnectionConsensusStateRequest,
     } as QueryConnectionConsensusStateRequest;
-    if (object.connectionId !== undefined && object.connectionId !== null) {
-      message.connectionId = String(object.connectionId);
-    } else {
-      message.connectionId = '';
-    }
-    if (object.revisionNumber !== undefined && object.revisionNumber !== null) {
-      message.revisionNumber = Long.fromString(object.revisionNumber);
-    } else {
-      message.revisionNumber = Long.UZERO;
-    }
-    if (object.revisionHeight !== undefined && object.revisionHeight !== null) {
-      message.revisionHeight = Long.fromString(object.revisionHeight);
-    } else {
-      message.revisionHeight = Long.UZERO;
-    }
+    message.connectionId =
+      object.connectionId !== undefined && object.connectionId !== null
+        ? String(object.connectionId)
+        : '';
+    message.revisionNumber =
+      object.revisionNumber !== undefined && object.revisionNumber !== null
+        ? Long.fromString(object.revisionNumber)
+        : Long.UZERO;
+    message.revisionHeight =
+      object.revisionHeight !== undefined && object.revisionHeight !== null
+        ? Long.fromString(object.revisionHeight)
+        : Long.UZERO;
     return message;
   },
 
@@ -943,16 +910,14 @@ export const QueryConnectionConsensusStateRequest = {
       ...baseQueryConnectionConsensusStateRequest,
     } as QueryConnectionConsensusStateRequest;
     message.connectionId = object.connectionId ?? '';
-    if (object.revisionNumber !== undefined && object.revisionNumber !== null) {
-      message.revisionNumber = object.revisionNumber as Long;
-    } else {
-      message.revisionNumber = Long.UZERO;
-    }
-    if (object.revisionHeight !== undefined && object.revisionHeight !== null) {
-      message.revisionHeight = object.revisionHeight as Long;
-    } else {
-      message.revisionHeight = Long.UZERO;
-    }
+    message.revisionNumber =
+      object.revisionNumber !== undefined && object.revisionNumber !== null
+        ? Long.fromValue(object.revisionNumber)
+        : Long.UZERO;
+    message.revisionHeight =
+      object.revisionHeight !== undefined && object.revisionHeight !== null
+        ? Long.fromValue(object.revisionHeight)
+        : Long.UZERO;
     return message;
   },
 };
@@ -1016,26 +981,22 @@ export const QueryConnectionConsensusStateResponse = {
     const message = {
       ...baseQueryConnectionConsensusStateResponse,
     } as QueryConnectionConsensusStateResponse;
-    if (object.consensusState !== undefined && object.consensusState !== null) {
-      message.consensusState = Any.fromJSON(object.consensusState);
-    } else {
-      message.consensusState = undefined;
-    }
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = String(object.clientId);
-    } else {
-      message.clientId = '';
-    }
-    if (object.proof !== undefined && object.proof !== null) {
-      message.proof = bytesFromBase64(object.proof);
-    } else {
-      message.proof = new Uint8Array();
-    }
-    if (object.proofHeight !== undefined && object.proofHeight !== null) {
-      message.proofHeight = Height.fromJSON(object.proofHeight);
-    } else {
-      message.proofHeight = undefined;
-    }
+    message.consensusState =
+      object.consensusState !== undefined && object.consensusState !== null
+        ? Any.fromJSON(object.consensusState)
+        : undefined;
+    message.clientId =
+      object.clientId !== undefined && object.clientId !== null
+        ? String(object.clientId)
+        : '';
+    message.proof =
+      object.proof !== undefined && object.proof !== null
+        ? bytesFromBase64(object.proof)
+        : new Uint8Array();
+    message.proofHeight =
+      object.proofHeight !== undefined && object.proofHeight !== null
+        ? Height.fromJSON(object.proofHeight)
+        : undefined;
     return message;
   },
 
@@ -1063,18 +1024,16 @@ export const QueryConnectionConsensusStateResponse = {
     const message = {
       ...baseQueryConnectionConsensusStateResponse,
     } as QueryConnectionConsensusStateResponse;
-    if (object.consensusState !== undefined && object.consensusState !== null) {
-      message.consensusState = Any.fromPartial(object.consensusState);
-    } else {
-      message.consensusState = undefined;
-    }
+    message.consensusState =
+      object.consensusState !== undefined && object.consensusState !== null
+        ? Any.fromPartial(object.consensusState)
+        : undefined;
     message.clientId = object.clientId ?? '';
     message.proof = object.proof ?? new Uint8Array();
-    if (object.proofHeight !== undefined && object.proofHeight !== null) {
-      message.proofHeight = Height.fromPartial(object.proofHeight);
-    } else {
-      message.proofHeight = undefined;
-    }
+    message.proofHeight =
+      object.proofHeight !== undefined && object.proofHeight !== null
+        ? Height.fromPartial(object.proofHeight)
+        : undefined;
     return message;
   },
 };
@@ -1240,10 +1199,11 @@ type Builtin =
   | string
   | number
   | boolean
-  | undefined
-  | Long;
+  | undefined;
 export type DeepPartial<T> = T extends Builtin
   ? T
+  : T extends Long
+  ? string | number | Long
   : T extends Array<infer U>
   ? Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U>

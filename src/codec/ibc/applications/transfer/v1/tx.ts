@@ -112,44 +112,34 @@ export const MsgTransfer = {
 
   fromJSON(object: any): MsgTransfer {
     const message = { ...baseMsgTransfer } as MsgTransfer;
-    if (object.sourcePort !== undefined && object.sourcePort !== null) {
-      message.sourcePort = String(object.sourcePort);
-    } else {
-      message.sourcePort = '';
-    }
-    if (object.sourceChannel !== undefined && object.sourceChannel !== null) {
-      message.sourceChannel = String(object.sourceChannel);
-    } else {
-      message.sourceChannel = '';
-    }
-    if (object.token !== undefined && object.token !== null) {
-      message.token = Coin.fromJSON(object.token);
-    } else {
-      message.token = undefined;
-    }
-    if (object.sender !== undefined && object.sender !== null) {
-      message.sender = String(object.sender);
-    } else {
-      message.sender = '';
-    }
-    if (object.receiver !== undefined && object.receiver !== null) {
-      message.receiver = String(object.receiver);
-    } else {
-      message.receiver = '';
-    }
-    if (object.timeoutHeight !== undefined && object.timeoutHeight !== null) {
-      message.timeoutHeight = Height.fromJSON(object.timeoutHeight);
-    } else {
-      message.timeoutHeight = undefined;
-    }
-    if (
-      object.timeoutTimestamp !== undefined &&
-      object.timeoutTimestamp !== null
-    ) {
-      message.timeoutTimestamp = Long.fromString(object.timeoutTimestamp);
-    } else {
-      message.timeoutTimestamp = Long.UZERO;
-    }
+    message.sourcePort =
+      object.sourcePort !== undefined && object.sourcePort !== null
+        ? String(object.sourcePort)
+        : '';
+    message.sourceChannel =
+      object.sourceChannel !== undefined && object.sourceChannel !== null
+        ? String(object.sourceChannel)
+        : '';
+    message.token =
+      object.token !== undefined && object.token !== null
+        ? Coin.fromJSON(object.token)
+        : undefined;
+    message.sender =
+      object.sender !== undefined && object.sender !== null
+        ? String(object.sender)
+        : '';
+    message.receiver =
+      object.receiver !== undefined && object.receiver !== null
+        ? String(object.receiver)
+        : '';
+    message.timeoutHeight =
+      object.timeoutHeight !== undefined && object.timeoutHeight !== null
+        ? Height.fromJSON(object.timeoutHeight)
+        : undefined;
+    message.timeoutTimestamp =
+      object.timeoutTimestamp !== undefined && object.timeoutTimestamp !== null
+        ? Long.fromString(object.timeoutTimestamp)
+        : Long.UZERO;
     return message;
   },
 
@@ -177,26 +167,20 @@ export const MsgTransfer = {
     const message = { ...baseMsgTransfer } as MsgTransfer;
     message.sourcePort = object.sourcePort ?? '';
     message.sourceChannel = object.sourceChannel ?? '';
-    if (object.token !== undefined && object.token !== null) {
-      message.token = Coin.fromPartial(object.token);
-    } else {
-      message.token = undefined;
-    }
+    message.token =
+      object.token !== undefined && object.token !== null
+        ? Coin.fromPartial(object.token)
+        : undefined;
     message.sender = object.sender ?? '';
     message.receiver = object.receiver ?? '';
-    if (object.timeoutHeight !== undefined && object.timeoutHeight !== null) {
-      message.timeoutHeight = Height.fromPartial(object.timeoutHeight);
-    } else {
-      message.timeoutHeight = undefined;
-    }
-    if (
-      object.timeoutTimestamp !== undefined &&
-      object.timeoutTimestamp !== null
-    ) {
-      message.timeoutTimestamp = object.timeoutTimestamp as Long;
-    } else {
-      message.timeoutTimestamp = Long.UZERO;
-    }
+    message.timeoutHeight =
+      object.timeoutHeight !== undefined && object.timeoutHeight !== null
+        ? Height.fromPartial(object.timeoutHeight)
+        : undefined;
+    message.timeoutTimestamp =
+      object.timeoutTimestamp !== undefined && object.timeoutTimestamp !== null
+        ? Long.fromValue(object.timeoutTimestamp)
+        : Long.UZERO;
     return message;
   },
 };
@@ -282,10 +266,11 @@ type Builtin =
   | string
   | number
   | boolean
-  | undefined
-  | Long;
+  | undefined;
 export type DeepPartial<T> = T extends Builtin
   ? T
+  : T extends Long
+  ? string | number | Long
   : T extends Array<infer U>
   ? Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U>

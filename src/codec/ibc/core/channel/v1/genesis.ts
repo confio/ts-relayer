@@ -144,14 +144,11 @@ export const GenesisState = {
     message.ackSequences = (object.ackSequences ?? []).map((e: any) =>
       PacketSequence.fromJSON(e)
     );
-    if (
+    message.nextChannelSequence =
       object.nextChannelSequence !== undefined &&
       object.nextChannelSequence !== null
-    ) {
-      message.nextChannelSequence = Long.fromString(object.nextChannelSequence);
-    } else {
-      message.nextChannelSequence = Long.UZERO;
-    }
+        ? Long.fromString(object.nextChannelSequence)
+        : Long.UZERO;
     return message;
   },
 
@@ -236,14 +233,11 @@ export const GenesisState = {
     message.ackSequences = (object.ackSequences ?? []).map((e) =>
       PacketSequence.fromPartial(e)
     );
-    if (
+    message.nextChannelSequence =
       object.nextChannelSequence !== undefined &&
       object.nextChannelSequence !== null
-    ) {
-      message.nextChannelSequence = object.nextChannelSequence as Long;
-    } else {
-      message.nextChannelSequence = Long.UZERO;
-    }
+        ? Long.fromValue(object.nextChannelSequence)
+        : Long.UZERO;
     return message;
   },
 };
@@ -297,21 +291,18 @@ export const PacketSequence = {
 
   fromJSON(object: any): PacketSequence {
     const message = { ...basePacketSequence } as PacketSequence;
-    if (object.portId !== undefined && object.portId !== null) {
-      message.portId = String(object.portId);
-    } else {
-      message.portId = '';
-    }
-    if (object.channelId !== undefined && object.channelId !== null) {
-      message.channelId = String(object.channelId);
-    } else {
-      message.channelId = '';
-    }
-    if (object.sequence !== undefined && object.sequence !== null) {
-      message.sequence = Long.fromString(object.sequence);
-    } else {
-      message.sequence = Long.UZERO;
-    }
+    message.portId =
+      object.portId !== undefined && object.portId !== null
+        ? String(object.portId)
+        : '';
+    message.channelId =
+      object.channelId !== undefined && object.channelId !== null
+        ? String(object.channelId)
+        : '';
+    message.sequence =
+      object.sequence !== undefined && object.sequence !== null
+        ? Long.fromString(object.sequence)
+        : Long.UZERO;
     return message;
   },
 
@@ -328,11 +319,10 @@ export const PacketSequence = {
     const message = { ...basePacketSequence } as PacketSequence;
     message.portId = object.portId ?? '';
     message.channelId = object.channelId ?? '';
-    if (object.sequence !== undefined && object.sequence !== null) {
-      message.sequence = object.sequence as Long;
-    } else {
-      message.sequence = Long.UZERO;
-    }
+    message.sequence =
+      object.sequence !== undefined && object.sequence !== null
+        ? Long.fromValue(object.sequence)
+        : Long.UZERO;
     return message;
   },
 };
@@ -344,10 +334,11 @@ type Builtin =
   | string
   | number
   | boolean
-  | undefined
-  | Long;
+  | undefined;
 export type DeepPartial<T> = T extends Builtin
   ? T
+  : T extends Long
+  ? string | number | Long
   : T extends Array<infer U>
   ? Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U>

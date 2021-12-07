@@ -152,16 +152,14 @@ export const Timestamp = {
 
   fromJSON(object: any): Timestamp {
     const message = { ...baseTimestamp } as Timestamp;
-    if (object.seconds !== undefined && object.seconds !== null) {
-      message.seconds = Long.fromString(object.seconds);
-    } else {
-      message.seconds = Long.ZERO;
-    }
-    if (object.nanos !== undefined && object.nanos !== null) {
-      message.nanos = Number(object.nanos);
-    } else {
-      message.nanos = 0;
-    }
+    message.seconds =
+      object.seconds !== undefined && object.seconds !== null
+        ? Long.fromString(object.seconds)
+        : Long.ZERO;
+    message.nanos =
+      object.nanos !== undefined && object.nanos !== null
+        ? Number(object.nanos)
+        : 0;
     return message;
   },
 
@@ -175,11 +173,10 @@ export const Timestamp = {
 
   fromPartial(object: DeepPartial<Timestamp>): Timestamp {
     const message = { ...baseTimestamp } as Timestamp;
-    if (object.seconds !== undefined && object.seconds !== null) {
-      message.seconds = object.seconds as Long;
-    } else {
-      message.seconds = Long.ZERO;
-    }
+    message.seconds =
+      object.seconds !== undefined && object.seconds !== null
+        ? Long.fromValue(object.seconds)
+        : Long.ZERO;
     message.nanos = object.nanos ?? 0;
     return message;
   },
@@ -192,10 +189,11 @@ type Builtin =
   | string
   | number
   | boolean
-  | undefined
-  | Long;
+  | undefined;
 export type DeepPartial<T> = T extends Builtin
   ? T
+  : T extends Long
+  ? string | number | Long
   : T extends Array<infer U>
   ? Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U>

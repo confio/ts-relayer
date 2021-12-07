@@ -76,11 +76,10 @@ export const MerkleRoot = {
 
   fromJSON(object: any): MerkleRoot {
     const message = { ...baseMerkleRoot } as MerkleRoot;
-    if (object.hash !== undefined && object.hash !== null) {
-      message.hash = bytesFromBase64(object.hash);
-    } else {
-      message.hash = new Uint8Array();
-    }
+    message.hash =
+      object.hash !== undefined && object.hash !== null
+        ? bytesFromBase64(object.hash)
+        : new Uint8Array();
     return message;
   },
 
@@ -134,11 +133,10 @@ export const MerklePrefix = {
 
   fromJSON(object: any): MerklePrefix {
     const message = { ...baseMerklePrefix } as MerklePrefix;
-    if (object.keyPrefix !== undefined && object.keyPrefix !== null) {
-      message.keyPrefix = bytesFromBase64(object.keyPrefix);
-    } else {
-      message.keyPrefix = new Uint8Array();
-    }
+    message.keyPrefix =
+      object.keyPrefix !== undefined && object.keyPrefix !== null
+        ? bytesFromBase64(object.keyPrefix)
+        : new Uint8Array();
     return message;
   },
 
@@ -315,10 +313,11 @@ type Builtin =
   | string
   | number
   | boolean
-  | undefined
-  | Long;
+  | undefined;
 export type DeepPartial<T> = T extends Builtin
   ? T
+  : T extends Long
+  ? string | number | Long
   : T extends Array<infer U>
   ? Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U>

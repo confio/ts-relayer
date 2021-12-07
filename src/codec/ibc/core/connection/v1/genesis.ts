@@ -73,16 +73,11 @@ export const GenesisState = {
     message.clientConnectionPaths = (object.clientConnectionPaths ?? []).map(
       (e: any) => ConnectionPaths.fromJSON(e)
     );
-    if (
+    message.nextConnectionSequence =
       object.nextConnectionSequence !== undefined &&
       object.nextConnectionSequence !== null
-    ) {
-      message.nextConnectionSequence = Long.fromString(
-        object.nextConnectionSequence
-      );
-    } else {
-      message.nextConnectionSequence = Long.UZERO;
-    }
+        ? Long.fromString(object.nextConnectionSequence)
+        : Long.UZERO;
     return message;
   },
 
@@ -117,14 +112,11 @@ export const GenesisState = {
     message.clientConnectionPaths = (object.clientConnectionPaths ?? []).map(
       (e) => ConnectionPaths.fromPartial(e)
     );
-    if (
+    message.nextConnectionSequence =
       object.nextConnectionSequence !== undefined &&
       object.nextConnectionSequence !== null
-    ) {
-      message.nextConnectionSequence = object.nextConnectionSequence as Long;
-    } else {
-      message.nextConnectionSequence = Long.UZERO;
-    }
+        ? Long.fromValue(object.nextConnectionSequence)
+        : Long.UZERO;
     return message;
   },
 };
@@ -136,10 +128,11 @@ type Builtin =
   | string
   | number
   | boolean
-  | undefined
-  | Long;
+  | undefined;
 export type DeepPartial<T> = T extends Builtin
   ? T
+  : T extends Long
+  ? string | number | Long
   : T extends Array<infer U>
   ? Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U>

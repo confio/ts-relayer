@@ -125,27 +125,19 @@ export const GenesisState = {
     message.clientsMetadata = (object.clientsMetadata ?? []).map((e: any) =>
       IdentifiedGenesisMetadata.fromJSON(e)
     );
-    if (object.params !== undefined && object.params !== null) {
-      message.params = Params.fromJSON(object.params);
-    } else {
-      message.params = undefined;
-    }
-    if (
-      object.createLocalhost !== undefined &&
-      object.createLocalhost !== null
-    ) {
-      message.createLocalhost = Boolean(object.createLocalhost);
-    } else {
-      message.createLocalhost = false;
-    }
-    if (
+    message.params =
+      object.params !== undefined && object.params !== null
+        ? Params.fromJSON(object.params)
+        : undefined;
+    message.createLocalhost =
+      object.createLocalhost !== undefined && object.createLocalhost !== null
+        ? Boolean(object.createLocalhost)
+        : false;
+    message.nextClientSequence =
       object.nextClientSequence !== undefined &&
       object.nextClientSequence !== null
-    ) {
-      message.nextClientSequence = Long.fromString(object.nextClientSequence);
-    } else {
-      message.nextClientSequence = Long.UZERO;
-    }
+        ? Long.fromString(object.nextClientSequence)
+        : Long.UZERO;
     return message;
   },
 
@@ -194,20 +186,16 @@ export const GenesisState = {
     message.clientsMetadata = (object.clientsMetadata ?? []).map((e) =>
       IdentifiedGenesisMetadata.fromPartial(e)
     );
-    if (object.params !== undefined && object.params !== null) {
-      message.params = Params.fromPartial(object.params);
-    } else {
-      message.params = undefined;
-    }
+    message.params =
+      object.params !== undefined && object.params !== null
+        ? Params.fromPartial(object.params)
+        : undefined;
     message.createLocalhost = object.createLocalhost ?? false;
-    if (
+    message.nextClientSequence =
       object.nextClientSequence !== undefined &&
       object.nextClientSequence !== null
-    ) {
-      message.nextClientSequence = object.nextClientSequence as Long;
-    } else {
-      message.nextClientSequence = Long.UZERO;
-    }
+        ? Long.fromValue(object.nextClientSequence)
+        : Long.UZERO;
     return message;
   },
 };
@@ -253,16 +241,14 @@ export const GenesisMetadata = {
 
   fromJSON(object: any): GenesisMetadata {
     const message = { ...baseGenesisMetadata } as GenesisMetadata;
-    if (object.key !== undefined && object.key !== null) {
-      message.key = bytesFromBase64(object.key);
-    } else {
-      message.key = new Uint8Array();
-    }
-    if (object.value !== undefined && object.value !== null) {
-      message.value = bytesFromBase64(object.value);
-    } else {
-      message.value = new Uint8Array();
-    }
+    message.key =
+      object.key !== undefined && object.key !== null
+        ? bytesFromBase64(object.key)
+        : new Uint8Array();
+    message.value =
+      object.value !== undefined && object.value !== null
+        ? bytesFromBase64(object.value)
+        : new Uint8Array();
     return message;
   },
 
@@ -336,11 +322,10 @@ export const IdentifiedGenesisMetadata = {
     const message = {
       ...baseIdentifiedGenesisMetadata,
     } as IdentifiedGenesisMetadata;
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = String(object.clientId);
-    } else {
-      message.clientId = '';
-    }
+    message.clientId =
+      object.clientId !== undefined && object.clientId !== null
+        ? String(object.clientId)
+        : '';
     message.clientMetadata = (object.clientMetadata ?? []).map((e: any) =>
       GenesisMetadata.fromJSON(e)
     );
@@ -415,10 +400,11 @@ type Builtin =
   | string
   | number
   | boolean
-  | undefined
-  | Long;
+  | undefined;
 export type DeepPartial<T> = T extends Builtin
   ? T
+  : T extends Long
+  ? string | number | Long
   : T extends Array<infer U>
   ? Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U>

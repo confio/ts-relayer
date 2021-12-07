@@ -213,29 +213,25 @@ export const ConnectionEnd = {
 
   fromJSON(object: any): ConnectionEnd {
     const message = { ...baseConnectionEnd } as ConnectionEnd;
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = String(object.clientId);
-    } else {
-      message.clientId = '';
-    }
+    message.clientId =
+      object.clientId !== undefined && object.clientId !== null
+        ? String(object.clientId)
+        : '';
     message.versions = (object.versions ?? []).map((e: any) =>
       Version.fromJSON(e)
     );
-    if (object.state !== undefined && object.state !== null) {
-      message.state = stateFromJSON(object.state);
-    } else {
-      message.state = 0;
-    }
-    if (object.counterparty !== undefined && object.counterparty !== null) {
-      message.counterparty = Counterparty.fromJSON(object.counterparty);
-    } else {
-      message.counterparty = undefined;
-    }
-    if (object.delayPeriod !== undefined && object.delayPeriod !== null) {
-      message.delayPeriod = Long.fromString(object.delayPeriod);
-    } else {
-      message.delayPeriod = Long.UZERO;
-    }
+    message.state =
+      object.state !== undefined && object.state !== null
+        ? stateFromJSON(object.state)
+        : 0;
+    message.counterparty =
+      object.counterparty !== undefined && object.counterparty !== null
+        ? Counterparty.fromJSON(object.counterparty)
+        : undefined;
+    message.delayPeriod =
+      object.delayPeriod !== undefined && object.delayPeriod !== null
+        ? Long.fromString(object.delayPeriod)
+        : Long.UZERO;
     return message;
   },
 
@@ -266,16 +262,14 @@ export const ConnectionEnd = {
       Version.fromPartial(e)
     );
     message.state = object.state ?? 0;
-    if (object.counterparty !== undefined && object.counterparty !== null) {
-      message.counterparty = Counterparty.fromPartial(object.counterparty);
-    } else {
-      message.counterparty = undefined;
-    }
-    if (object.delayPeriod !== undefined && object.delayPeriod !== null) {
-      message.delayPeriod = object.delayPeriod as Long;
-    } else {
-      message.delayPeriod = Long.UZERO;
-    }
+    message.counterparty =
+      object.counterparty !== undefined && object.counterparty !== null
+        ? Counterparty.fromPartial(object.counterparty)
+        : undefined;
+    message.delayPeriod =
+      object.delayPeriod !== undefined && object.delayPeriod !== null
+        ? Long.fromValue(object.delayPeriod)
+        : Long.UZERO;
     return message;
   },
 };
@@ -355,34 +349,27 @@ export const IdentifiedConnection = {
 
   fromJSON(object: any): IdentifiedConnection {
     const message = { ...baseIdentifiedConnection } as IdentifiedConnection;
-    if (object.id !== undefined && object.id !== null) {
-      message.id = String(object.id);
-    } else {
-      message.id = '';
-    }
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = String(object.clientId);
-    } else {
-      message.clientId = '';
-    }
+    message.id =
+      object.id !== undefined && object.id !== null ? String(object.id) : '';
+    message.clientId =
+      object.clientId !== undefined && object.clientId !== null
+        ? String(object.clientId)
+        : '';
     message.versions = (object.versions ?? []).map((e: any) =>
       Version.fromJSON(e)
     );
-    if (object.state !== undefined && object.state !== null) {
-      message.state = stateFromJSON(object.state);
-    } else {
-      message.state = 0;
-    }
-    if (object.counterparty !== undefined && object.counterparty !== null) {
-      message.counterparty = Counterparty.fromJSON(object.counterparty);
-    } else {
-      message.counterparty = undefined;
-    }
-    if (object.delayPeriod !== undefined && object.delayPeriod !== null) {
-      message.delayPeriod = Long.fromString(object.delayPeriod);
-    } else {
-      message.delayPeriod = Long.UZERO;
-    }
+    message.state =
+      object.state !== undefined && object.state !== null
+        ? stateFromJSON(object.state)
+        : 0;
+    message.counterparty =
+      object.counterparty !== undefined && object.counterparty !== null
+        ? Counterparty.fromJSON(object.counterparty)
+        : undefined;
+    message.delayPeriod =
+      object.delayPeriod !== undefined && object.delayPeriod !== null
+        ? Long.fromString(object.delayPeriod)
+        : Long.UZERO;
     return message;
   },
 
@@ -415,16 +402,14 @@ export const IdentifiedConnection = {
       Version.fromPartial(e)
     );
     message.state = object.state ?? 0;
-    if (object.counterparty !== undefined && object.counterparty !== null) {
-      message.counterparty = Counterparty.fromPartial(object.counterparty);
-    } else {
-      message.counterparty = undefined;
-    }
-    if (object.delayPeriod !== undefined && object.delayPeriod !== null) {
-      message.delayPeriod = object.delayPeriod as Long;
-    } else {
-      message.delayPeriod = Long.UZERO;
-    }
+    message.counterparty =
+      object.counterparty !== undefined && object.counterparty !== null
+        ? Counterparty.fromPartial(object.counterparty)
+        : undefined;
+    message.delayPeriod =
+      object.delayPeriod !== undefined && object.delayPeriod !== null
+        ? Long.fromValue(object.delayPeriod)
+        : Long.UZERO;
     return message;
   },
 };
@@ -474,21 +459,18 @@ export const Counterparty = {
 
   fromJSON(object: any): Counterparty {
     const message = { ...baseCounterparty } as Counterparty;
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = String(object.clientId);
-    } else {
-      message.clientId = '';
-    }
-    if (object.connectionId !== undefined && object.connectionId !== null) {
-      message.connectionId = String(object.connectionId);
-    } else {
-      message.connectionId = '';
-    }
-    if (object.prefix !== undefined && object.prefix !== null) {
-      message.prefix = MerklePrefix.fromJSON(object.prefix);
-    } else {
-      message.prefix = undefined;
-    }
+    message.clientId =
+      object.clientId !== undefined && object.clientId !== null
+        ? String(object.clientId)
+        : '';
+    message.connectionId =
+      object.connectionId !== undefined && object.connectionId !== null
+        ? String(object.connectionId)
+        : '';
+    message.prefix =
+      object.prefix !== undefined && object.prefix !== null
+        ? MerklePrefix.fromJSON(object.prefix)
+        : undefined;
     return message;
   },
 
@@ -508,11 +490,10 @@ export const Counterparty = {
     const message = { ...baseCounterparty } as Counterparty;
     message.clientId = object.clientId ?? '';
     message.connectionId = object.connectionId ?? '';
-    if (object.prefix !== undefined && object.prefix !== null) {
-      message.prefix = MerklePrefix.fromPartial(object.prefix);
-    } else {
-      message.prefix = undefined;
-    }
+    message.prefix =
+      object.prefix !== undefined && object.prefix !== null
+        ? MerklePrefix.fromPartial(object.prefix)
+        : undefined;
     return message;
   },
 };
@@ -612,11 +593,10 @@ export const ConnectionPaths = {
 
   fromJSON(object: any): ConnectionPaths {
     const message = { ...baseConnectionPaths } as ConnectionPaths;
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = String(object.clientId);
-    } else {
-      message.clientId = '';
-    }
+    message.clientId =
+      object.clientId !== undefined && object.clientId !== null
+        ? String(object.clientId)
+        : '';
     message.paths = (object.paths ?? []).map((e: any) => String(e));
     return message;
   },
@@ -680,11 +660,10 @@ export const Version = {
 
   fromJSON(object: any): Version {
     const message = { ...baseVersion } as Version;
-    if (object.identifier !== undefined && object.identifier !== null) {
-      message.identifier = String(object.identifier);
-    } else {
-      message.identifier = '';
-    }
+    message.identifier =
+      object.identifier !== undefined && object.identifier !== null
+        ? String(object.identifier)
+        : '';
     message.features = (object.features ?? []).map((e: any) => String(e));
     return message;
   },
@@ -715,10 +694,11 @@ type Builtin =
   | string
   | number
   | boolean
-  | undefined
-  | Long;
+  | undefined;
 export type DeepPartial<T> = T extends Builtin
   ? T
+  : T extends Long
+  ? string | number | Long
   : T extends Array<infer U>
   ? Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U>

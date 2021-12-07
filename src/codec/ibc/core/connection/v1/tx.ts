@@ -165,31 +165,26 @@ export const MsgConnectionOpenInit = {
 
   fromJSON(object: any): MsgConnectionOpenInit {
     const message = { ...baseMsgConnectionOpenInit } as MsgConnectionOpenInit;
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = String(object.clientId);
-    } else {
-      message.clientId = '';
-    }
-    if (object.counterparty !== undefined && object.counterparty !== null) {
-      message.counterparty = Counterparty.fromJSON(object.counterparty);
-    } else {
-      message.counterparty = undefined;
-    }
-    if (object.version !== undefined && object.version !== null) {
-      message.version = Version.fromJSON(object.version);
-    } else {
-      message.version = undefined;
-    }
-    if (object.delayPeriod !== undefined && object.delayPeriod !== null) {
-      message.delayPeriod = Long.fromString(object.delayPeriod);
-    } else {
-      message.delayPeriod = Long.UZERO;
-    }
-    if (object.signer !== undefined && object.signer !== null) {
-      message.signer = String(object.signer);
-    } else {
-      message.signer = '';
-    }
+    message.clientId =
+      object.clientId !== undefined && object.clientId !== null
+        ? String(object.clientId)
+        : '';
+    message.counterparty =
+      object.counterparty !== undefined && object.counterparty !== null
+        ? Counterparty.fromJSON(object.counterparty)
+        : undefined;
+    message.version =
+      object.version !== undefined && object.version !== null
+        ? Version.fromJSON(object.version)
+        : undefined;
+    message.delayPeriod =
+      object.delayPeriod !== undefined && object.delayPeriod !== null
+        ? Long.fromString(object.delayPeriod)
+        : Long.UZERO;
+    message.signer =
+      object.signer !== undefined && object.signer !== null
+        ? String(object.signer)
+        : '';
     return message;
   },
 
@@ -215,21 +210,18 @@ export const MsgConnectionOpenInit = {
   ): MsgConnectionOpenInit {
     const message = { ...baseMsgConnectionOpenInit } as MsgConnectionOpenInit;
     message.clientId = object.clientId ?? '';
-    if (object.counterparty !== undefined && object.counterparty !== null) {
-      message.counterparty = Counterparty.fromPartial(object.counterparty);
-    } else {
-      message.counterparty = undefined;
-    }
-    if (object.version !== undefined && object.version !== null) {
-      message.version = Version.fromPartial(object.version);
-    } else {
-      message.version = undefined;
-    }
-    if (object.delayPeriod !== undefined && object.delayPeriod !== null) {
-      message.delayPeriod = object.delayPeriod as Long;
-    } else {
-      message.delayPeriod = Long.UZERO;
-    }
+    message.counterparty =
+      object.counterparty !== undefined && object.counterparty !== null
+        ? Counterparty.fromPartial(object.counterparty)
+        : undefined;
+    message.version =
+      object.version !== undefined && object.version !== null
+        ? Version.fromPartial(object.version)
+        : undefined;
+    message.delayPeriod =
+      object.delayPeriod !== undefined && object.delayPeriod !== null
+        ? Long.fromValue(object.delayPeriod)
+        : Long.UZERO;
     message.signer = object.signer ?? '';
     return message;
   },
@@ -403,70 +395,54 @@ export const MsgConnectionOpenTry = {
 
   fromJSON(object: any): MsgConnectionOpenTry {
     const message = { ...baseMsgConnectionOpenTry } as MsgConnectionOpenTry;
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = String(object.clientId);
-    } else {
-      message.clientId = '';
-    }
-    if (
+    message.clientId =
+      object.clientId !== undefined && object.clientId !== null
+        ? String(object.clientId)
+        : '';
+    message.previousConnectionId =
       object.previousConnectionId !== undefined &&
       object.previousConnectionId !== null
-    ) {
-      message.previousConnectionId = String(object.previousConnectionId);
-    } else {
-      message.previousConnectionId = '';
-    }
-    if (object.clientState !== undefined && object.clientState !== null) {
-      message.clientState = Any.fromJSON(object.clientState);
-    } else {
-      message.clientState = undefined;
-    }
-    if (object.counterparty !== undefined && object.counterparty !== null) {
-      message.counterparty = Counterparty.fromJSON(object.counterparty);
-    } else {
-      message.counterparty = undefined;
-    }
-    if (object.delayPeriod !== undefined && object.delayPeriod !== null) {
-      message.delayPeriod = Long.fromString(object.delayPeriod);
-    } else {
-      message.delayPeriod = Long.UZERO;
-    }
+        ? String(object.previousConnectionId)
+        : '';
+    message.clientState =
+      object.clientState !== undefined && object.clientState !== null
+        ? Any.fromJSON(object.clientState)
+        : undefined;
+    message.counterparty =
+      object.counterparty !== undefined && object.counterparty !== null
+        ? Counterparty.fromJSON(object.counterparty)
+        : undefined;
+    message.delayPeriod =
+      object.delayPeriod !== undefined && object.delayPeriod !== null
+        ? Long.fromString(object.delayPeriod)
+        : Long.UZERO;
     message.counterpartyVersions = (object.counterpartyVersions ?? []).map(
       (e: any) => Version.fromJSON(e)
     );
-    if (object.proofHeight !== undefined && object.proofHeight !== null) {
-      message.proofHeight = Height.fromJSON(object.proofHeight);
-    } else {
-      message.proofHeight = undefined;
-    }
-    if (object.proofInit !== undefined && object.proofInit !== null) {
-      message.proofInit = bytesFromBase64(object.proofInit);
-    } else {
-      message.proofInit = new Uint8Array();
-    }
-    if (object.proofClient !== undefined && object.proofClient !== null) {
-      message.proofClient = bytesFromBase64(object.proofClient);
-    } else {
-      message.proofClient = new Uint8Array();
-    }
-    if (object.proofConsensus !== undefined && object.proofConsensus !== null) {
-      message.proofConsensus = bytesFromBase64(object.proofConsensus);
-    } else {
-      message.proofConsensus = new Uint8Array();
-    }
-    if (
-      object.consensusHeight !== undefined &&
-      object.consensusHeight !== null
-    ) {
-      message.consensusHeight = Height.fromJSON(object.consensusHeight);
-    } else {
-      message.consensusHeight = undefined;
-    }
-    if (object.signer !== undefined && object.signer !== null) {
-      message.signer = String(object.signer);
-    } else {
-      message.signer = '';
-    }
+    message.proofHeight =
+      object.proofHeight !== undefined && object.proofHeight !== null
+        ? Height.fromJSON(object.proofHeight)
+        : undefined;
+    message.proofInit =
+      object.proofInit !== undefined && object.proofInit !== null
+        ? bytesFromBase64(object.proofInit)
+        : new Uint8Array();
+    message.proofClient =
+      object.proofClient !== undefined && object.proofClient !== null
+        ? bytesFromBase64(object.proofClient)
+        : new Uint8Array();
+    message.proofConsensus =
+      object.proofConsensus !== undefined && object.proofConsensus !== null
+        ? bytesFromBase64(object.proofConsensus)
+        : new Uint8Array();
+    message.consensusHeight =
+      object.consensusHeight !== undefined && object.consensusHeight !== null
+        ? Height.fromJSON(object.consensusHeight)
+        : undefined;
+    message.signer =
+      object.signer !== undefined && object.signer !== null
+        ? String(object.signer)
+        : '';
     return message;
   },
 
@@ -524,40 +500,32 @@ export const MsgConnectionOpenTry = {
     const message = { ...baseMsgConnectionOpenTry } as MsgConnectionOpenTry;
     message.clientId = object.clientId ?? '';
     message.previousConnectionId = object.previousConnectionId ?? '';
-    if (object.clientState !== undefined && object.clientState !== null) {
-      message.clientState = Any.fromPartial(object.clientState);
-    } else {
-      message.clientState = undefined;
-    }
-    if (object.counterparty !== undefined && object.counterparty !== null) {
-      message.counterparty = Counterparty.fromPartial(object.counterparty);
-    } else {
-      message.counterparty = undefined;
-    }
-    if (object.delayPeriod !== undefined && object.delayPeriod !== null) {
-      message.delayPeriod = object.delayPeriod as Long;
-    } else {
-      message.delayPeriod = Long.UZERO;
-    }
+    message.clientState =
+      object.clientState !== undefined && object.clientState !== null
+        ? Any.fromPartial(object.clientState)
+        : undefined;
+    message.counterparty =
+      object.counterparty !== undefined && object.counterparty !== null
+        ? Counterparty.fromPartial(object.counterparty)
+        : undefined;
+    message.delayPeriod =
+      object.delayPeriod !== undefined && object.delayPeriod !== null
+        ? Long.fromValue(object.delayPeriod)
+        : Long.UZERO;
     message.counterpartyVersions = (object.counterpartyVersions ?? []).map(
       (e) => Version.fromPartial(e)
     );
-    if (object.proofHeight !== undefined && object.proofHeight !== null) {
-      message.proofHeight = Height.fromPartial(object.proofHeight);
-    } else {
-      message.proofHeight = undefined;
-    }
+    message.proofHeight =
+      object.proofHeight !== undefined && object.proofHeight !== null
+        ? Height.fromPartial(object.proofHeight)
+        : undefined;
     message.proofInit = object.proofInit ?? new Uint8Array();
     message.proofClient = object.proofClient ?? new Uint8Array();
     message.proofConsensus = object.proofConsensus ?? new Uint8Array();
-    if (
-      object.consensusHeight !== undefined &&
-      object.consensusHeight !== null
-    ) {
-      message.consensusHeight = Height.fromPartial(object.consensusHeight);
-    } else {
-      message.consensusHeight = undefined;
-    }
+    message.consensusHeight =
+      object.consensusHeight !== undefined && object.consensusHeight !== null
+        ? Height.fromPartial(object.consensusHeight)
+        : undefined;
     message.signer = object.signer ?? '';
     return message;
   },
@@ -712,64 +680,47 @@ export const MsgConnectionOpenAck = {
 
   fromJSON(object: any): MsgConnectionOpenAck {
     const message = { ...baseMsgConnectionOpenAck } as MsgConnectionOpenAck;
-    if (object.connectionId !== undefined && object.connectionId !== null) {
-      message.connectionId = String(object.connectionId);
-    } else {
-      message.connectionId = '';
-    }
-    if (
+    message.connectionId =
+      object.connectionId !== undefined && object.connectionId !== null
+        ? String(object.connectionId)
+        : '';
+    message.counterpartyConnectionId =
       object.counterpartyConnectionId !== undefined &&
       object.counterpartyConnectionId !== null
-    ) {
-      message.counterpartyConnectionId = String(
-        object.counterpartyConnectionId
-      );
-    } else {
-      message.counterpartyConnectionId = '';
-    }
-    if (object.version !== undefined && object.version !== null) {
-      message.version = Version.fromJSON(object.version);
-    } else {
-      message.version = undefined;
-    }
-    if (object.clientState !== undefined && object.clientState !== null) {
-      message.clientState = Any.fromJSON(object.clientState);
-    } else {
-      message.clientState = undefined;
-    }
-    if (object.proofHeight !== undefined && object.proofHeight !== null) {
-      message.proofHeight = Height.fromJSON(object.proofHeight);
-    } else {
-      message.proofHeight = undefined;
-    }
-    if (object.proofTry !== undefined && object.proofTry !== null) {
-      message.proofTry = bytesFromBase64(object.proofTry);
-    } else {
-      message.proofTry = new Uint8Array();
-    }
-    if (object.proofClient !== undefined && object.proofClient !== null) {
-      message.proofClient = bytesFromBase64(object.proofClient);
-    } else {
-      message.proofClient = new Uint8Array();
-    }
-    if (object.proofConsensus !== undefined && object.proofConsensus !== null) {
-      message.proofConsensus = bytesFromBase64(object.proofConsensus);
-    } else {
-      message.proofConsensus = new Uint8Array();
-    }
-    if (
-      object.consensusHeight !== undefined &&
-      object.consensusHeight !== null
-    ) {
-      message.consensusHeight = Height.fromJSON(object.consensusHeight);
-    } else {
-      message.consensusHeight = undefined;
-    }
-    if (object.signer !== undefined && object.signer !== null) {
-      message.signer = String(object.signer);
-    } else {
-      message.signer = '';
-    }
+        ? String(object.counterpartyConnectionId)
+        : '';
+    message.version =
+      object.version !== undefined && object.version !== null
+        ? Version.fromJSON(object.version)
+        : undefined;
+    message.clientState =
+      object.clientState !== undefined && object.clientState !== null
+        ? Any.fromJSON(object.clientState)
+        : undefined;
+    message.proofHeight =
+      object.proofHeight !== undefined && object.proofHeight !== null
+        ? Height.fromJSON(object.proofHeight)
+        : undefined;
+    message.proofTry =
+      object.proofTry !== undefined && object.proofTry !== null
+        ? bytesFromBase64(object.proofTry)
+        : new Uint8Array();
+    message.proofClient =
+      object.proofClient !== undefined && object.proofClient !== null
+        ? bytesFromBase64(object.proofClient)
+        : new Uint8Array();
+    message.proofConsensus =
+      object.proofConsensus !== undefined && object.proofConsensus !== null
+        ? bytesFromBase64(object.proofConsensus)
+        : new Uint8Array();
+    message.consensusHeight =
+      object.consensusHeight !== undefined && object.consensusHeight !== null
+        ? Height.fromJSON(object.consensusHeight)
+        : undefined;
+    message.signer =
+      object.signer !== undefined && object.signer !== null
+        ? String(object.signer)
+        : '';
     return message;
   },
 
@@ -819,32 +770,25 @@ export const MsgConnectionOpenAck = {
     const message = { ...baseMsgConnectionOpenAck } as MsgConnectionOpenAck;
     message.connectionId = object.connectionId ?? '';
     message.counterpartyConnectionId = object.counterpartyConnectionId ?? '';
-    if (object.version !== undefined && object.version !== null) {
-      message.version = Version.fromPartial(object.version);
-    } else {
-      message.version = undefined;
-    }
-    if (object.clientState !== undefined && object.clientState !== null) {
-      message.clientState = Any.fromPartial(object.clientState);
-    } else {
-      message.clientState = undefined;
-    }
-    if (object.proofHeight !== undefined && object.proofHeight !== null) {
-      message.proofHeight = Height.fromPartial(object.proofHeight);
-    } else {
-      message.proofHeight = undefined;
-    }
+    message.version =
+      object.version !== undefined && object.version !== null
+        ? Version.fromPartial(object.version)
+        : undefined;
+    message.clientState =
+      object.clientState !== undefined && object.clientState !== null
+        ? Any.fromPartial(object.clientState)
+        : undefined;
+    message.proofHeight =
+      object.proofHeight !== undefined && object.proofHeight !== null
+        ? Height.fromPartial(object.proofHeight)
+        : undefined;
     message.proofTry = object.proofTry ?? new Uint8Array();
     message.proofClient = object.proofClient ?? new Uint8Array();
     message.proofConsensus = object.proofConsensus ?? new Uint8Array();
-    if (
-      object.consensusHeight !== undefined &&
-      object.consensusHeight !== null
-    ) {
-      message.consensusHeight = Height.fromPartial(object.consensusHeight);
-    } else {
-      message.consensusHeight = undefined;
-    }
+    message.consensusHeight =
+      object.consensusHeight !== undefined && object.consensusHeight !== null
+        ? Height.fromPartial(object.consensusHeight)
+        : undefined;
     message.signer = object.signer ?? '';
     return message;
   },
@@ -961,26 +905,22 @@ export const MsgConnectionOpenConfirm = {
     const message = {
       ...baseMsgConnectionOpenConfirm,
     } as MsgConnectionOpenConfirm;
-    if (object.connectionId !== undefined && object.connectionId !== null) {
-      message.connectionId = String(object.connectionId);
-    } else {
-      message.connectionId = '';
-    }
-    if (object.proofAck !== undefined && object.proofAck !== null) {
-      message.proofAck = bytesFromBase64(object.proofAck);
-    } else {
-      message.proofAck = new Uint8Array();
-    }
-    if (object.proofHeight !== undefined && object.proofHeight !== null) {
-      message.proofHeight = Height.fromJSON(object.proofHeight);
-    } else {
-      message.proofHeight = undefined;
-    }
-    if (object.signer !== undefined && object.signer !== null) {
-      message.signer = String(object.signer);
-    } else {
-      message.signer = '';
-    }
+    message.connectionId =
+      object.connectionId !== undefined && object.connectionId !== null
+        ? String(object.connectionId)
+        : '';
+    message.proofAck =
+      object.proofAck !== undefined && object.proofAck !== null
+        ? bytesFromBase64(object.proofAck)
+        : new Uint8Array();
+    message.proofHeight =
+      object.proofHeight !== undefined && object.proofHeight !== null
+        ? Height.fromJSON(object.proofHeight)
+        : undefined;
+    message.signer =
+      object.signer !== undefined && object.signer !== null
+        ? String(object.signer)
+        : '';
     return message;
   },
 
@@ -1008,11 +948,10 @@ export const MsgConnectionOpenConfirm = {
     } as MsgConnectionOpenConfirm;
     message.connectionId = object.connectionId ?? '';
     message.proofAck = object.proofAck ?? new Uint8Array();
-    if (object.proofHeight !== undefined && object.proofHeight !== null) {
-      message.proofHeight = Height.fromPartial(object.proofHeight);
-    } else {
-      message.proofHeight = undefined;
-    }
+    message.proofHeight =
+      object.proofHeight !== undefined && object.proofHeight !== null
+        ? Height.fromPartial(object.proofHeight)
+        : undefined;
     message.signer = object.signer ?? '';
     return message;
   },
@@ -1205,10 +1144,11 @@ type Builtin =
   | string
   | number
   | boolean
-  | undefined
-  | Long;
+  | undefined;
 export type DeepPartial<T> = T extends Builtin
   ? T
+  : T extends Long
+  ? string | number | Long
   : T extends Array<infer U>
   ? Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U>

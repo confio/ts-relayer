@@ -117,16 +117,14 @@ export const IdentifiedClientState = {
 
   fromJSON(object: any): IdentifiedClientState {
     const message = { ...baseIdentifiedClientState } as IdentifiedClientState;
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = String(object.clientId);
-    } else {
-      message.clientId = '';
-    }
-    if (object.clientState !== undefined && object.clientState !== null) {
-      message.clientState = Any.fromJSON(object.clientState);
-    } else {
-      message.clientState = undefined;
-    }
+    message.clientId =
+      object.clientId !== undefined && object.clientId !== null
+        ? String(object.clientId)
+        : '';
+    message.clientState =
+      object.clientState !== undefined && object.clientState !== null
+        ? Any.fromJSON(object.clientState)
+        : undefined;
     return message;
   },
 
@@ -145,11 +143,10 @@ export const IdentifiedClientState = {
   ): IdentifiedClientState {
     const message = { ...baseIdentifiedClientState } as IdentifiedClientState;
     message.clientId = object.clientId ?? '';
-    if (object.clientState !== undefined && object.clientState !== null) {
-      message.clientState = Any.fromPartial(object.clientState);
-    } else {
-      message.clientState = undefined;
-    }
+    message.clientState =
+      object.clientState !== undefined && object.clientState !== null
+        ? Any.fromPartial(object.clientState)
+        : undefined;
     return message;
   },
 };
@@ -200,16 +197,14 @@ export const ConsensusStateWithHeight = {
     const message = {
       ...baseConsensusStateWithHeight,
     } as ConsensusStateWithHeight;
-    if (object.height !== undefined && object.height !== null) {
-      message.height = Height.fromJSON(object.height);
-    } else {
-      message.height = undefined;
-    }
-    if (object.consensusState !== undefined && object.consensusState !== null) {
-      message.consensusState = Any.fromJSON(object.consensusState);
-    } else {
-      message.consensusState = undefined;
-    }
+    message.height =
+      object.height !== undefined && object.height !== null
+        ? Height.fromJSON(object.height)
+        : undefined;
+    message.consensusState =
+      object.consensusState !== undefined && object.consensusState !== null
+        ? Any.fromJSON(object.consensusState)
+        : undefined;
     return message;
   },
 
@@ -230,16 +225,14 @@ export const ConsensusStateWithHeight = {
     const message = {
       ...baseConsensusStateWithHeight,
     } as ConsensusStateWithHeight;
-    if (object.height !== undefined && object.height !== null) {
-      message.height = Height.fromPartial(object.height);
-    } else {
-      message.height = undefined;
-    }
-    if (object.consensusState !== undefined && object.consensusState !== null) {
-      message.consensusState = Any.fromPartial(object.consensusState);
-    } else {
-      message.consensusState = undefined;
-    }
+    message.height =
+      object.height !== undefined && object.height !== null
+        ? Height.fromPartial(object.height)
+        : undefined;
+    message.consensusState =
+      object.consensusState !== undefined && object.consensusState !== null
+        ? Any.fromPartial(object.consensusState)
+        : undefined;
     return message;
   },
 };
@@ -289,11 +282,10 @@ export const ClientConsensusStates = {
 
   fromJSON(object: any): ClientConsensusStates {
     const message = { ...baseClientConsensusStates } as ClientConsensusStates;
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = String(object.clientId);
-    } else {
-      message.clientId = '';
-    }
+    message.clientId =
+      object.clientId !== undefined && object.clientId !== null
+        ? String(object.clientId)
+        : '';
     message.consensusStates = (object.consensusStates ?? []).map((e: any) =>
       ConsensusStateWithHeight.fromJSON(e)
     );
@@ -383,26 +375,22 @@ export const ClientUpdateProposal = {
 
   fromJSON(object: any): ClientUpdateProposal {
     const message = { ...baseClientUpdateProposal } as ClientUpdateProposal;
-    if (object.title !== undefined && object.title !== null) {
-      message.title = String(object.title);
-    } else {
-      message.title = '';
-    }
-    if (object.description !== undefined && object.description !== null) {
-      message.description = String(object.description);
-    } else {
-      message.description = '';
-    }
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = String(object.clientId);
-    } else {
-      message.clientId = '';
-    }
-    if (object.header !== undefined && object.header !== null) {
-      message.header = Any.fromJSON(object.header);
-    } else {
-      message.header = undefined;
-    }
+    message.title =
+      object.title !== undefined && object.title !== null
+        ? String(object.title)
+        : '';
+    message.description =
+      object.description !== undefined && object.description !== null
+        ? String(object.description)
+        : '';
+    message.clientId =
+      object.clientId !== undefined && object.clientId !== null
+        ? String(object.clientId)
+        : '';
+    message.header =
+      object.header !== undefined && object.header !== null
+        ? Any.fromJSON(object.header)
+        : undefined;
     return message;
   },
 
@@ -422,11 +410,10 @@ export const ClientUpdateProposal = {
     message.title = object.title ?? '';
     message.description = object.description ?? '';
     message.clientId = object.clientId ?? '';
-    if (object.header !== undefined && object.header !== null) {
-      message.header = Any.fromPartial(object.header);
-    } else {
-      message.header = undefined;
-    }
+    message.header =
+      object.header !== undefined && object.header !== null
+        ? Any.fromPartial(object.header)
+        : undefined;
     return message;
   },
 };
@@ -473,16 +460,14 @@ export const Height = {
 
   fromJSON(object: any): Height {
     const message = { ...baseHeight } as Height;
-    if (object.revisionNumber !== undefined && object.revisionNumber !== null) {
-      message.revisionNumber = Long.fromString(object.revisionNumber);
-    } else {
-      message.revisionNumber = Long.UZERO;
-    }
-    if (object.revisionHeight !== undefined && object.revisionHeight !== null) {
-      message.revisionHeight = Long.fromString(object.revisionHeight);
-    } else {
-      message.revisionHeight = Long.UZERO;
-    }
+    message.revisionNumber =
+      object.revisionNumber !== undefined && object.revisionNumber !== null
+        ? Long.fromString(object.revisionNumber)
+        : Long.UZERO;
+    message.revisionHeight =
+      object.revisionHeight !== undefined && object.revisionHeight !== null
+        ? Long.fromString(object.revisionHeight)
+        : Long.UZERO;
     return message;
   },
 
@@ -497,16 +482,14 @@ export const Height = {
 
   fromPartial(object: DeepPartial<Height>): Height {
     const message = { ...baseHeight } as Height;
-    if (object.revisionNumber !== undefined && object.revisionNumber !== null) {
-      message.revisionNumber = object.revisionNumber as Long;
-    } else {
-      message.revisionNumber = Long.UZERO;
-    }
-    if (object.revisionHeight !== undefined && object.revisionHeight !== null) {
-      message.revisionHeight = object.revisionHeight as Long;
-    } else {
-      message.revisionHeight = Long.UZERO;
-    }
+    message.revisionNumber =
+      object.revisionNumber !== undefined && object.revisionNumber !== null
+        ? Long.fromValue(object.revisionNumber)
+        : Long.UZERO;
+    message.revisionHeight =
+      object.revisionHeight !== undefined && object.revisionHeight !== null
+        ? Long.fromValue(object.revisionHeight)
+        : Long.UZERO;
     return message;
   },
 };
@@ -575,10 +558,11 @@ type Builtin =
   | string
   | number
   | boolean
-  | undefined
-  | Long;
+  | undefined;
 export type DeepPartial<T> = T extends Builtin
   ? T
+  : T extends Long
+  ? string | number | Long
   : T extends Array<infer U>
   ? Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U>

@@ -58,11 +58,10 @@ export const BitArray = {
 
   fromJSON(object: any): BitArray {
     const message = { ...baseBitArray } as BitArray;
-    if (object.bits !== undefined && object.bits !== null) {
-      message.bits = Long.fromString(object.bits);
-    } else {
-      message.bits = Long.ZERO;
-    }
+    message.bits =
+      object.bits !== undefined && object.bits !== null
+        ? Long.fromString(object.bits)
+        : Long.ZERO;
     message.elems = (object.elems ?? []).map((e: any) => Long.fromString(e));
     return message;
   },
@@ -81,12 +80,11 @@ export const BitArray = {
 
   fromPartial(object: DeepPartial<BitArray>): BitArray {
     const message = { ...baseBitArray } as BitArray;
-    if (object.bits !== undefined && object.bits !== null) {
-      message.bits = object.bits as Long;
-    } else {
-      message.bits = Long.ZERO;
-    }
-    message.elems = (object.elems ?? []).map((e) => e);
+    message.bits =
+      object.bits !== undefined && object.bits !== null
+        ? Long.fromValue(object.bits)
+        : Long.ZERO;
+    message.elems = (object.elems ?? []).map((e) => Long.fromValue(e));
     return message;
   },
 };
@@ -98,10 +96,11 @@ type Builtin =
   | string
   | number
   | boolean
-  | undefined
-  | Long;
+  | undefined;
 export type DeepPartial<T> = T extends Builtin
   ? T
+  : T extends Long
+  ? string | number | Long
   : T extends Array<infer U>
   ? Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U>
