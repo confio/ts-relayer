@@ -38,7 +38,7 @@ export const App = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): App {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseApp } as App;
     while (reader.pos < end) {
@@ -60,16 +60,14 @@ export const App = {
 
   fromJSON(object: any): App {
     const message = { ...baseApp } as App;
-    if (object.protocol !== undefined && object.protocol !== null) {
-      message.protocol = Long.fromString(object.protocol);
-    } else {
-      message.protocol = Long.UZERO;
-    }
-    if (object.software !== undefined && object.software !== null) {
-      message.software = String(object.software);
-    } else {
-      message.software = '';
-    }
+    message.protocol =
+      object.protocol !== undefined && object.protocol !== null
+        ? Long.fromString(object.protocol)
+        : Long.UZERO;
+    message.software =
+      object.software !== undefined && object.software !== null
+        ? String(object.software)
+        : '';
     return message;
   },
 
@@ -81,18 +79,13 @@ export const App = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<App>): App {
+  fromPartial<I extends Exact<DeepPartial<App>, I>>(object: I): App {
     const message = { ...baseApp } as App;
-    if (object.protocol !== undefined && object.protocol !== null) {
-      message.protocol = object.protocol as Long;
-    } else {
-      message.protocol = Long.UZERO;
-    }
-    if (object.software !== undefined && object.software !== null) {
-      message.software = object.software;
-    } else {
-      message.software = '';
-    }
+    message.protocol =
+      object.protocol !== undefined && object.protocol !== null
+        ? Long.fromValue(object.protocol)
+        : Long.UZERO;
+    message.software = object.software ?? '';
     return message;
   },
 };
@@ -114,7 +107,7 @@ export const Consensus = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Consensus {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseConsensus } as Consensus;
     while (reader.pos < end) {
@@ -136,16 +129,14 @@ export const Consensus = {
 
   fromJSON(object: any): Consensus {
     const message = { ...baseConsensus } as Consensus;
-    if (object.block !== undefined && object.block !== null) {
-      message.block = Long.fromString(object.block);
-    } else {
-      message.block = Long.UZERO;
-    }
-    if (object.app !== undefined && object.app !== null) {
-      message.app = Long.fromString(object.app);
-    } else {
-      message.app = Long.UZERO;
-    }
+    message.block =
+      object.block !== undefined && object.block !== null
+        ? Long.fromString(object.block)
+        : Long.UZERO;
+    message.app =
+      object.app !== undefined && object.app !== null
+        ? Long.fromString(object.app)
+        : Long.UZERO;
     return message;
   },
 
@@ -158,18 +149,18 @@ export const Consensus = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<Consensus>): Consensus {
+  fromPartial<I extends Exact<DeepPartial<Consensus>, I>>(
+    object: I
+  ): Consensus {
     const message = { ...baseConsensus } as Consensus;
-    if (object.block !== undefined && object.block !== null) {
-      message.block = object.block as Long;
-    } else {
-      message.block = Long.UZERO;
-    }
-    if (object.app !== undefined && object.app !== null) {
-      message.app = object.app as Long;
-    } else {
-      message.app = Long.UZERO;
-    }
+    message.block =
+      object.block !== undefined && object.block !== null
+        ? Long.fromValue(object.block)
+        : Long.UZERO;
+    message.app =
+      object.app !== undefined && object.app !== null
+        ? Long.fromValue(object.app)
+        : Long.UZERO;
     return message;
   },
 };
@@ -180,10 +171,13 @@ type Builtin =
   | Uint8Array
   | string
   | number
-  | undefined
-  | Long;
+  | boolean
+  | undefined;
+
 export type DeepPartial<T> = T extends Builtin
   ? T
+  : T extends Long
+  ? string | number | Long
   : T extends Array<infer U>
   ? Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U>
@@ -191,3 +185,16 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+type KeysOfUnion<T> = T extends T ? keyof T : never;
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<
+        Exclude<keyof I, KeysOfUnion<P>>,
+        never
+      >;
+
+if (_m0.util.Long !== Long) {
+  _m0.util.Long = Long as any;
+  _m0.configure();
+}

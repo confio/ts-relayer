@@ -1,4 +1,6 @@
 /* eslint-disable */
+import Long from 'long';
+import _m0 from 'protobufjs/minimal';
 import { Any } from '../../../../google/protobuf/any';
 import {
   Height,
@@ -10,8 +12,6 @@ import {
   PageRequest,
   PageResponse,
 } from '../../../../cosmos/base/query/v1beta1/pagination';
-import Long from 'long';
-import _m0 from 'protobufjs/minimal';
 
 export const protobufPackage = 'ibc.core.client.v1';
 
@@ -138,7 +138,7 @@ export const QueryClientStateRequest = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryClientStateRequest {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryClientStateRequest,
@@ -161,11 +161,10 @@ export const QueryClientStateRequest = {
     const message = {
       ...baseQueryClientStateRequest,
     } as QueryClientStateRequest;
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = String(object.clientId);
-    } else {
-      message.clientId = '';
-    }
+    message.clientId =
+      object.clientId !== undefined && object.clientId !== null
+        ? String(object.clientId)
+        : '';
     return message;
   },
 
@@ -175,17 +174,13 @@ export const QueryClientStateRequest = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<QueryClientStateRequest>
+  fromPartial<I extends Exact<DeepPartial<QueryClientStateRequest>, I>>(
+    object: I
   ): QueryClientStateRequest {
     const message = {
       ...baseQueryClientStateRequest,
     } as QueryClientStateRequest;
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = object.clientId;
-    } else {
-      message.clientId = '';
-    }
+    message.clientId = object.clientId ?? '';
     return message;
   },
 };
@@ -213,11 +208,12 @@ export const QueryClientStateResponse = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryClientStateResponse {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryClientStateResponse,
     } as QueryClientStateResponse;
+    message.proof = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -242,19 +238,18 @@ export const QueryClientStateResponse = {
     const message = {
       ...baseQueryClientStateResponse,
     } as QueryClientStateResponse;
-    if (object.clientState !== undefined && object.clientState !== null) {
-      message.clientState = Any.fromJSON(object.clientState);
-    } else {
-      message.clientState = undefined;
-    }
-    if (object.proof !== undefined && object.proof !== null) {
-      message.proof = bytesFromBase64(object.proof);
-    }
-    if (object.proofHeight !== undefined && object.proofHeight !== null) {
-      message.proofHeight = Height.fromJSON(object.proofHeight);
-    } else {
-      message.proofHeight = undefined;
-    }
+    message.clientState =
+      object.clientState !== undefined && object.clientState !== null
+        ? Any.fromJSON(object.clientState)
+        : undefined;
+    message.proof =
+      object.proof !== undefined && object.proof !== null
+        ? bytesFromBase64(object.proof)
+        : new Uint8Array();
+    message.proofHeight =
+      object.proofHeight !== undefined && object.proofHeight !== null
+        ? Height.fromJSON(object.proofHeight)
+        : undefined;
     return message;
   },
 
@@ -275,27 +270,21 @@ export const QueryClientStateResponse = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<QueryClientStateResponse>
+  fromPartial<I extends Exact<DeepPartial<QueryClientStateResponse>, I>>(
+    object: I
   ): QueryClientStateResponse {
     const message = {
       ...baseQueryClientStateResponse,
     } as QueryClientStateResponse;
-    if (object.clientState !== undefined && object.clientState !== null) {
-      message.clientState = Any.fromPartial(object.clientState);
-    } else {
-      message.clientState = undefined;
-    }
-    if (object.proof !== undefined && object.proof !== null) {
-      message.proof = object.proof;
-    } else {
-      message.proof = new Uint8Array();
-    }
-    if (object.proofHeight !== undefined && object.proofHeight !== null) {
-      message.proofHeight = Height.fromPartial(object.proofHeight);
-    } else {
-      message.proofHeight = undefined;
-    }
+    message.clientState =
+      object.clientState !== undefined && object.clientState !== null
+        ? Any.fromPartial(object.clientState)
+        : undefined;
+    message.proof = object.proof ?? new Uint8Array();
+    message.proofHeight =
+      object.proofHeight !== undefined && object.proofHeight !== null
+        ? Height.fromPartial(object.proofHeight)
+        : undefined;
     return message;
   },
 };
@@ -317,7 +306,7 @@ export const QueryClientStatesRequest = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryClientStatesRequest {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryClientStatesRequest,
@@ -340,11 +329,10 @@ export const QueryClientStatesRequest = {
     const message = {
       ...baseQueryClientStatesRequest,
     } as QueryClientStatesRequest;
-    if (object.pagination !== undefined && object.pagination !== null) {
-      message.pagination = PageRequest.fromJSON(object.pagination);
-    } else {
-      message.pagination = undefined;
-    }
+    message.pagination =
+      object.pagination !== undefined && object.pagination !== null
+        ? PageRequest.fromJSON(object.pagination)
+        : undefined;
     return message;
   },
 
@@ -357,17 +345,16 @@ export const QueryClientStatesRequest = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<QueryClientStatesRequest>
+  fromPartial<I extends Exact<DeepPartial<QueryClientStatesRequest>, I>>(
+    object: I
   ): QueryClientStatesRequest {
     const message = {
       ...baseQueryClientStatesRequest,
     } as QueryClientStatesRequest;
-    if (object.pagination !== undefined && object.pagination !== null) {
-      message.pagination = PageRequest.fromPartial(object.pagination);
-    } else {
-      message.pagination = undefined;
-    }
+    message.pagination =
+      object.pagination !== undefined && object.pagination !== null
+        ? PageRequest.fromPartial(object.pagination)
+        : undefined;
     return message;
   },
 };
@@ -395,7 +382,7 @@ export const QueryClientStatesResponse = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryClientStatesResponse {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryClientStatesResponse,
@@ -424,17 +411,13 @@ export const QueryClientStatesResponse = {
     const message = {
       ...baseQueryClientStatesResponse,
     } as QueryClientStatesResponse;
-    message.clientStates = [];
-    if (object.clientStates !== undefined && object.clientStates !== null) {
-      for (const e of object.clientStates) {
-        message.clientStates.push(IdentifiedClientState.fromJSON(e));
-      }
-    }
-    if (object.pagination !== undefined && object.pagination !== null) {
-      message.pagination = PageResponse.fromJSON(object.pagination);
-    } else {
-      message.pagination = undefined;
-    }
+    message.clientStates = (object.clientStates ?? []).map((e: any) =>
+      IdentifiedClientState.fromJSON(e)
+    );
+    message.pagination =
+      object.pagination !== undefined && object.pagination !== null
+        ? PageResponse.fromJSON(object.pagination)
+        : undefined;
     return message;
   },
 
@@ -454,23 +437,19 @@ export const QueryClientStatesResponse = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<QueryClientStatesResponse>
+  fromPartial<I extends Exact<DeepPartial<QueryClientStatesResponse>, I>>(
+    object: I
   ): QueryClientStatesResponse {
     const message = {
       ...baseQueryClientStatesResponse,
     } as QueryClientStatesResponse;
-    message.clientStates = [];
-    if (object.clientStates !== undefined && object.clientStates !== null) {
-      for (const e of object.clientStates) {
-        message.clientStates.push(IdentifiedClientState.fromPartial(e));
-      }
-    }
-    if (object.pagination !== undefined && object.pagination !== null) {
-      message.pagination = PageResponse.fromPartial(object.pagination);
-    } else {
-      message.pagination = undefined;
-    }
+    message.clientStates =
+      object.clientStates?.map((e) => IdentifiedClientState.fromPartial(e)) ||
+      [];
+    message.pagination =
+      object.pagination !== undefined && object.pagination !== null
+        ? PageResponse.fromPartial(object.pagination)
+        : undefined;
     return message;
   },
 };
@@ -506,7 +485,7 @@ export const QueryConsensusStateRequest = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryConsensusStateRequest {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryConsensusStateRequest,
@@ -538,26 +517,22 @@ export const QueryConsensusStateRequest = {
     const message = {
       ...baseQueryConsensusStateRequest,
     } as QueryConsensusStateRequest;
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = String(object.clientId);
-    } else {
-      message.clientId = '';
-    }
-    if (object.revisionNumber !== undefined && object.revisionNumber !== null) {
-      message.revisionNumber = Long.fromString(object.revisionNumber);
-    } else {
-      message.revisionNumber = Long.UZERO;
-    }
-    if (object.revisionHeight !== undefined && object.revisionHeight !== null) {
-      message.revisionHeight = Long.fromString(object.revisionHeight);
-    } else {
-      message.revisionHeight = Long.UZERO;
-    }
-    if (object.latestHeight !== undefined && object.latestHeight !== null) {
-      message.latestHeight = Boolean(object.latestHeight);
-    } else {
-      message.latestHeight = false;
-    }
+    message.clientId =
+      object.clientId !== undefined && object.clientId !== null
+        ? String(object.clientId)
+        : '';
+    message.revisionNumber =
+      object.revisionNumber !== undefined && object.revisionNumber !== null
+        ? Long.fromString(object.revisionNumber)
+        : Long.UZERO;
+    message.revisionHeight =
+      object.revisionHeight !== undefined && object.revisionHeight !== null
+        ? Long.fromString(object.revisionHeight)
+        : Long.UZERO;
+    message.latestHeight =
+      object.latestHeight !== undefined && object.latestHeight !== null
+        ? Boolean(object.latestHeight)
+        : false;
     return message;
   },
 
@@ -573,32 +548,22 @@ export const QueryConsensusStateRequest = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<QueryConsensusStateRequest>
+  fromPartial<I extends Exact<DeepPartial<QueryConsensusStateRequest>, I>>(
+    object: I
   ): QueryConsensusStateRequest {
     const message = {
       ...baseQueryConsensusStateRequest,
     } as QueryConsensusStateRequest;
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = object.clientId;
-    } else {
-      message.clientId = '';
-    }
-    if (object.revisionNumber !== undefined && object.revisionNumber !== null) {
-      message.revisionNumber = object.revisionNumber as Long;
-    } else {
-      message.revisionNumber = Long.UZERO;
-    }
-    if (object.revisionHeight !== undefined && object.revisionHeight !== null) {
-      message.revisionHeight = object.revisionHeight as Long;
-    } else {
-      message.revisionHeight = Long.UZERO;
-    }
-    if (object.latestHeight !== undefined && object.latestHeight !== null) {
-      message.latestHeight = object.latestHeight;
-    } else {
-      message.latestHeight = false;
-    }
+    message.clientId = object.clientId ?? '';
+    message.revisionNumber =
+      object.revisionNumber !== undefined && object.revisionNumber !== null
+        ? Long.fromValue(object.revisionNumber)
+        : Long.UZERO;
+    message.revisionHeight =
+      object.revisionHeight !== undefined && object.revisionHeight !== null
+        ? Long.fromValue(object.revisionHeight)
+        : Long.UZERO;
+    message.latestHeight = object.latestHeight ?? false;
     return message;
   },
 };
@@ -626,11 +591,12 @@ export const QueryConsensusStateResponse = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryConsensusStateResponse {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryConsensusStateResponse,
     } as QueryConsensusStateResponse;
+    message.proof = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -655,19 +621,18 @@ export const QueryConsensusStateResponse = {
     const message = {
       ...baseQueryConsensusStateResponse,
     } as QueryConsensusStateResponse;
-    if (object.consensusState !== undefined && object.consensusState !== null) {
-      message.consensusState = Any.fromJSON(object.consensusState);
-    } else {
-      message.consensusState = undefined;
-    }
-    if (object.proof !== undefined && object.proof !== null) {
-      message.proof = bytesFromBase64(object.proof);
-    }
-    if (object.proofHeight !== undefined && object.proofHeight !== null) {
-      message.proofHeight = Height.fromJSON(object.proofHeight);
-    } else {
-      message.proofHeight = undefined;
-    }
+    message.consensusState =
+      object.consensusState !== undefined && object.consensusState !== null
+        ? Any.fromJSON(object.consensusState)
+        : undefined;
+    message.proof =
+      object.proof !== undefined && object.proof !== null
+        ? bytesFromBase64(object.proof)
+        : new Uint8Array();
+    message.proofHeight =
+      object.proofHeight !== undefined && object.proofHeight !== null
+        ? Height.fromJSON(object.proofHeight)
+        : undefined;
     return message;
   },
 
@@ -688,27 +653,21 @@ export const QueryConsensusStateResponse = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<QueryConsensusStateResponse>
+  fromPartial<I extends Exact<DeepPartial<QueryConsensusStateResponse>, I>>(
+    object: I
   ): QueryConsensusStateResponse {
     const message = {
       ...baseQueryConsensusStateResponse,
     } as QueryConsensusStateResponse;
-    if (object.consensusState !== undefined && object.consensusState !== null) {
-      message.consensusState = Any.fromPartial(object.consensusState);
-    } else {
-      message.consensusState = undefined;
-    }
-    if (object.proof !== undefined && object.proof !== null) {
-      message.proof = object.proof;
-    } else {
-      message.proof = new Uint8Array();
-    }
-    if (object.proofHeight !== undefined && object.proofHeight !== null) {
-      message.proofHeight = Height.fromPartial(object.proofHeight);
-    } else {
-      message.proofHeight = undefined;
-    }
+    message.consensusState =
+      object.consensusState !== undefined && object.consensusState !== null
+        ? Any.fromPartial(object.consensusState)
+        : undefined;
+    message.proof = object.proof ?? new Uint8Array();
+    message.proofHeight =
+      object.proofHeight !== undefined && object.proofHeight !== null
+        ? Height.fromPartial(object.proofHeight)
+        : undefined;
     return message;
   },
 };
@@ -733,7 +692,7 @@ export const QueryConsensusStatesRequest = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryConsensusStatesRequest {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryConsensusStatesRequest,
@@ -759,16 +718,14 @@ export const QueryConsensusStatesRequest = {
     const message = {
       ...baseQueryConsensusStatesRequest,
     } as QueryConsensusStatesRequest;
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = String(object.clientId);
-    } else {
-      message.clientId = '';
-    }
-    if (object.pagination !== undefined && object.pagination !== null) {
-      message.pagination = PageRequest.fromJSON(object.pagination);
-    } else {
-      message.pagination = undefined;
-    }
+    message.clientId =
+      object.clientId !== undefined && object.clientId !== null
+        ? String(object.clientId)
+        : '';
+    message.pagination =
+      object.pagination !== undefined && object.pagination !== null
+        ? PageRequest.fromJSON(object.pagination)
+        : undefined;
     return message;
   },
 
@@ -782,22 +739,17 @@ export const QueryConsensusStatesRequest = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<QueryConsensusStatesRequest>
+  fromPartial<I extends Exact<DeepPartial<QueryConsensusStatesRequest>, I>>(
+    object: I
   ): QueryConsensusStatesRequest {
     const message = {
       ...baseQueryConsensusStatesRequest,
     } as QueryConsensusStatesRequest;
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = object.clientId;
-    } else {
-      message.clientId = '';
-    }
-    if (object.pagination !== undefined && object.pagination !== null) {
-      message.pagination = PageRequest.fromPartial(object.pagination);
-    } else {
-      message.pagination = undefined;
-    }
+    message.clientId = object.clientId ?? '';
+    message.pagination =
+      object.pagination !== undefined && object.pagination !== null
+        ? PageRequest.fromPartial(object.pagination)
+        : undefined;
     return message;
   },
 };
@@ -825,7 +777,7 @@ export const QueryConsensusStatesResponse = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryConsensusStatesResponse {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryConsensusStatesResponse,
@@ -854,20 +806,13 @@ export const QueryConsensusStatesResponse = {
     const message = {
       ...baseQueryConsensusStatesResponse,
     } as QueryConsensusStatesResponse;
-    message.consensusStates = [];
-    if (
-      object.consensusStates !== undefined &&
-      object.consensusStates !== null
-    ) {
-      for (const e of object.consensusStates) {
-        message.consensusStates.push(ConsensusStateWithHeight.fromJSON(e));
-      }
-    }
-    if (object.pagination !== undefined && object.pagination !== null) {
-      message.pagination = PageResponse.fromJSON(object.pagination);
-    } else {
-      message.pagination = undefined;
-    }
+    message.consensusStates = (object.consensusStates ?? []).map((e: any) =>
+      ConsensusStateWithHeight.fromJSON(e)
+    );
+    message.pagination =
+      object.pagination !== undefined && object.pagination !== null
+        ? PageResponse.fromJSON(object.pagination)
+        : undefined;
     return message;
   },
 
@@ -887,26 +832,20 @@ export const QueryConsensusStatesResponse = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<QueryConsensusStatesResponse>
+  fromPartial<I extends Exact<DeepPartial<QueryConsensusStatesResponse>, I>>(
+    object: I
   ): QueryConsensusStatesResponse {
     const message = {
       ...baseQueryConsensusStatesResponse,
     } as QueryConsensusStatesResponse;
-    message.consensusStates = [];
-    if (
-      object.consensusStates !== undefined &&
-      object.consensusStates !== null
-    ) {
-      for (const e of object.consensusStates) {
-        message.consensusStates.push(ConsensusStateWithHeight.fromPartial(e));
-      }
-    }
-    if (object.pagination !== undefined && object.pagination !== null) {
-      message.pagination = PageResponse.fromPartial(object.pagination);
-    } else {
-      message.pagination = undefined;
-    }
+    message.consensusStates =
+      object.consensusStates?.map((e) =>
+        ConsensusStateWithHeight.fromPartial(e)
+      ) || [];
+    message.pagination =
+      object.pagination !== undefined && object.pagination !== null
+        ? PageResponse.fromPartial(object.pagination)
+        : undefined;
     return message;
   },
 };
@@ -925,7 +864,7 @@ export const QueryClientParamsRequest = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryClientParamsRequest {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryClientParamsRequest,
@@ -953,8 +892,8 @@ export const QueryClientParamsRequest = {
     return obj;
   },
 
-  fromPartial(
-    _: DeepPartial<QueryClientParamsRequest>
+  fromPartial<I extends Exact<DeepPartial<QueryClientParamsRequest>, I>>(
+    _: I
   ): QueryClientParamsRequest {
     const message = {
       ...baseQueryClientParamsRequest,
@@ -980,7 +919,7 @@ export const QueryClientParamsResponse = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): QueryClientParamsResponse {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseQueryClientParamsResponse,
@@ -1003,11 +942,10 @@ export const QueryClientParamsResponse = {
     const message = {
       ...baseQueryClientParamsResponse,
     } as QueryClientParamsResponse;
-    if (object.params !== undefined && object.params !== null) {
-      message.params = Params.fromJSON(object.params);
-    } else {
-      message.params = undefined;
-    }
+    message.params =
+      object.params !== undefined && object.params !== null
+        ? Params.fromJSON(object.params)
+        : undefined;
     return message;
   },
 
@@ -1018,17 +956,16 @@ export const QueryClientParamsResponse = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<QueryClientParamsResponse>
+  fromPartial<I extends Exact<DeepPartial<QueryClientParamsResponse>, I>>(
+    object: I
   ): QueryClientParamsResponse {
     const message = {
       ...baseQueryClientParamsResponse,
     } as QueryClientParamsResponse;
-    if (object.params !== undefined && object.params !== null) {
-      message.params = Params.fromPartial(object.params);
-    } else {
-      message.params = undefined;
-    }
+    message.params =
+      object.params !== undefined && object.params !== null
+        ? Params.fromPartial(object.params)
+        : undefined;
     return message;
   },
 };
@@ -1067,6 +1004,11 @@ export class QueryClientImpl implements Query {
   private readonly rpc: Rpc;
   constructor(rpc: Rpc) {
     this.rpc = rpc;
+    this.ClientState = this.ClientState.bind(this);
+    this.ClientStates = this.ClientStates.bind(this);
+    this.ConsensusState = this.ConsensusState.bind(this);
+    this.ConsensusStates = this.ConsensusStates.bind(this);
+    this.ClientParams = this.ClientParams.bind(this);
   }
   ClientState(
     request: QueryClientStateRequest
@@ -1149,6 +1091,7 @@ interface Rpc {
 
 declare var self: any | undefined;
 declare var window: any | undefined;
+declare var global: any | undefined;
 var globalThis: any = (() => {
   if (typeof globalThis !== 'undefined') return globalThis;
   if (typeof self !== 'undefined') return self;
@@ -1174,8 +1117,8 @@ const btoa: (bin: string) => string =
   ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
 function base64FromBytes(arr: Uint8Array): string {
   const bin: string[] = [];
-  for (let i = 0; i < arr.byteLength; ++i) {
-    bin.push(String.fromCharCode(arr[i]));
+  for (const byte of arr) {
+    bin.push(String.fromCharCode(byte));
   }
   return btoa(bin.join(''));
 }
@@ -1186,10 +1129,13 @@ type Builtin =
   | Uint8Array
   | string
   | number
-  | undefined
-  | Long;
+  | boolean
+  | undefined;
+
 export type DeepPartial<T> = T extends Builtin
   ? T
+  : T extends Long
+  ? string | number | Long
   : T extends Array<infer U>
   ? Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U>
@@ -1197,3 +1143,16 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+type KeysOfUnion<T> = T extends T ? keyof T : never;
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<
+        Exclude<keyof I, KeysOfUnion<P>>,
+        never
+      >;
+
+if (_m0.util.Long !== Long) {
+  _m0.util.Long = Long as any;
+  _m0.configure();
+}

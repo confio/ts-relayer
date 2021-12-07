@@ -1,7 +1,7 @@
 /* eslint-disable */
-import { Any } from '../../../../google/protobuf/any';
 import Long from 'long';
 import _m0 from 'protobufjs/minimal';
+import { Any } from '../../../../google/protobuf/any';
 
 export const protobufPackage = 'ibc.core.client.v1';
 
@@ -95,7 +95,7 @@ export const IdentifiedClientState = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): IdentifiedClientState {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseIdentifiedClientState } as IdentifiedClientState;
     while (reader.pos < end) {
@@ -117,16 +117,14 @@ export const IdentifiedClientState = {
 
   fromJSON(object: any): IdentifiedClientState {
     const message = { ...baseIdentifiedClientState } as IdentifiedClientState;
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = String(object.clientId);
-    } else {
-      message.clientId = '';
-    }
-    if (object.clientState !== undefined && object.clientState !== null) {
-      message.clientState = Any.fromJSON(object.clientState);
-    } else {
-      message.clientState = undefined;
-    }
+    message.clientId =
+      object.clientId !== undefined && object.clientId !== null
+        ? String(object.clientId)
+        : '';
+    message.clientState =
+      object.clientState !== undefined && object.clientState !== null
+        ? Any.fromJSON(object.clientState)
+        : undefined;
     return message;
   },
 
@@ -140,20 +138,15 @@ export const IdentifiedClientState = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<IdentifiedClientState>
+  fromPartial<I extends Exact<DeepPartial<IdentifiedClientState>, I>>(
+    object: I
   ): IdentifiedClientState {
     const message = { ...baseIdentifiedClientState } as IdentifiedClientState;
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = object.clientId;
-    } else {
-      message.clientId = '';
-    }
-    if (object.clientState !== undefined && object.clientState !== null) {
-      message.clientState = Any.fromPartial(object.clientState);
-    } else {
-      message.clientState = undefined;
-    }
+    message.clientId = object.clientId ?? '';
+    message.clientState =
+      object.clientState !== undefined && object.clientState !== null
+        ? Any.fromPartial(object.clientState)
+        : undefined;
     return message;
   },
 };
@@ -178,7 +171,7 @@ export const ConsensusStateWithHeight = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): ConsensusStateWithHeight {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseConsensusStateWithHeight,
@@ -204,16 +197,14 @@ export const ConsensusStateWithHeight = {
     const message = {
       ...baseConsensusStateWithHeight,
     } as ConsensusStateWithHeight;
-    if (object.height !== undefined && object.height !== null) {
-      message.height = Height.fromJSON(object.height);
-    } else {
-      message.height = undefined;
-    }
-    if (object.consensusState !== undefined && object.consensusState !== null) {
-      message.consensusState = Any.fromJSON(object.consensusState);
-    } else {
-      message.consensusState = undefined;
-    }
+    message.height =
+      object.height !== undefined && object.height !== null
+        ? Height.fromJSON(object.height)
+        : undefined;
+    message.consensusState =
+      object.consensusState !== undefined && object.consensusState !== null
+        ? Any.fromJSON(object.consensusState)
+        : undefined;
     return message;
   },
 
@@ -228,22 +219,20 @@ export const ConsensusStateWithHeight = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<ConsensusStateWithHeight>
+  fromPartial<I extends Exact<DeepPartial<ConsensusStateWithHeight>, I>>(
+    object: I
   ): ConsensusStateWithHeight {
     const message = {
       ...baseConsensusStateWithHeight,
     } as ConsensusStateWithHeight;
-    if (object.height !== undefined && object.height !== null) {
-      message.height = Height.fromPartial(object.height);
-    } else {
-      message.height = undefined;
-    }
-    if (object.consensusState !== undefined && object.consensusState !== null) {
-      message.consensusState = Any.fromPartial(object.consensusState);
-    } else {
-      message.consensusState = undefined;
-    }
+    message.height =
+      object.height !== undefined && object.height !== null
+        ? Height.fromPartial(object.height)
+        : undefined;
+    message.consensusState =
+      object.consensusState !== undefined && object.consensusState !== null
+        ? Any.fromPartial(object.consensusState)
+        : undefined;
     return message;
   },
 };
@@ -268,7 +257,7 @@ export const ClientConsensusStates = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): ClientConsensusStates {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseClientConsensusStates } as ClientConsensusStates;
     message.consensusStates = [];
@@ -293,20 +282,13 @@ export const ClientConsensusStates = {
 
   fromJSON(object: any): ClientConsensusStates {
     const message = { ...baseClientConsensusStates } as ClientConsensusStates;
-    message.consensusStates = [];
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = String(object.clientId);
-    } else {
-      message.clientId = '';
-    }
-    if (
-      object.consensusStates !== undefined &&
-      object.consensusStates !== null
-    ) {
-      for (const e of object.consensusStates) {
-        message.consensusStates.push(ConsensusStateWithHeight.fromJSON(e));
-      }
-    }
+    message.clientId =
+      object.clientId !== undefined && object.clientId !== null
+        ? String(object.clientId)
+        : '';
+    message.consensusStates = (object.consensusStates ?? []).map((e: any) =>
+      ConsensusStateWithHeight.fromJSON(e)
+    );
     return message;
   },
 
@@ -323,24 +305,15 @@ export const ClientConsensusStates = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<ClientConsensusStates>
+  fromPartial<I extends Exact<DeepPartial<ClientConsensusStates>, I>>(
+    object: I
   ): ClientConsensusStates {
     const message = { ...baseClientConsensusStates } as ClientConsensusStates;
-    message.consensusStates = [];
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = object.clientId;
-    } else {
-      message.clientId = '';
-    }
-    if (
-      object.consensusStates !== undefined &&
-      object.consensusStates !== null
-    ) {
-      for (const e of object.consensusStates) {
-        message.consensusStates.push(ConsensusStateWithHeight.fromPartial(e));
-      }
-    }
+    message.clientId = object.clientId ?? '';
+    message.consensusStates =
+      object.consensusStates?.map((e) =>
+        ConsensusStateWithHeight.fromPartial(e)
+      ) || [];
     return message;
   },
 };
@@ -375,7 +348,7 @@ export const ClientUpdateProposal = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): ClientUpdateProposal {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseClientUpdateProposal } as ClientUpdateProposal;
     while (reader.pos < end) {
@@ -403,26 +376,22 @@ export const ClientUpdateProposal = {
 
   fromJSON(object: any): ClientUpdateProposal {
     const message = { ...baseClientUpdateProposal } as ClientUpdateProposal;
-    if (object.title !== undefined && object.title !== null) {
-      message.title = String(object.title);
-    } else {
-      message.title = '';
-    }
-    if (object.description !== undefined && object.description !== null) {
-      message.description = String(object.description);
-    } else {
-      message.description = '';
-    }
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = String(object.clientId);
-    } else {
-      message.clientId = '';
-    }
-    if (object.header !== undefined && object.header !== null) {
-      message.header = Any.fromJSON(object.header);
-    } else {
-      message.header = undefined;
-    }
+    message.title =
+      object.title !== undefined && object.title !== null
+        ? String(object.title)
+        : '';
+    message.description =
+      object.description !== undefined && object.description !== null
+        ? String(object.description)
+        : '';
+    message.clientId =
+      object.clientId !== undefined && object.clientId !== null
+        ? String(object.clientId)
+        : '';
+    message.header =
+      object.header !== undefined && object.header !== null
+        ? Any.fromJSON(object.header)
+        : undefined;
     return message;
   },
 
@@ -437,28 +406,17 @@ export const ClientUpdateProposal = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<ClientUpdateProposal>): ClientUpdateProposal {
+  fromPartial<I extends Exact<DeepPartial<ClientUpdateProposal>, I>>(
+    object: I
+  ): ClientUpdateProposal {
     const message = { ...baseClientUpdateProposal } as ClientUpdateProposal;
-    if (object.title !== undefined && object.title !== null) {
-      message.title = object.title;
-    } else {
-      message.title = '';
-    }
-    if (object.description !== undefined && object.description !== null) {
-      message.description = object.description;
-    } else {
-      message.description = '';
-    }
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = object.clientId;
-    } else {
-      message.clientId = '';
-    }
-    if (object.header !== undefined && object.header !== null) {
-      message.header = Any.fromPartial(object.header);
-    } else {
-      message.header = undefined;
-    }
+    message.title = object.title ?? '';
+    message.description = object.description ?? '';
+    message.clientId = object.clientId ?? '';
+    message.header =
+      object.header !== undefined && object.header !== null
+        ? Any.fromPartial(object.header)
+        : undefined;
     return message;
   },
 };
@@ -483,7 +441,7 @@ export const Height = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Height {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseHeight } as Height;
     while (reader.pos < end) {
@@ -505,16 +463,14 @@ export const Height = {
 
   fromJSON(object: any): Height {
     const message = { ...baseHeight } as Height;
-    if (object.revisionNumber !== undefined && object.revisionNumber !== null) {
-      message.revisionNumber = Long.fromString(object.revisionNumber);
-    } else {
-      message.revisionNumber = Long.UZERO;
-    }
-    if (object.revisionHeight !== undefined && object.revisionHeight !== null) {
-      message.revisionHeight = Long.fromString(object.revisionHeight);
-    } else {
-      message.revisionHeight = Long.UZERO;
-    }
+    message.revisionNumber =
+      object.revisionNumber !== undefined && object.revisionNumber !== null
+        ? Long.fromString(object.revisionNumber)
+        : Long.UZERO;
+    message.revisionHeight =
+      object.revisionHeight !== undefined && object.revisionHeight !== null
+        ? Long.fromString(object.revisionHeight)
+        : Long.UZERO;
     return message;
   },
 
@@ -527,18 +483,16 @@ export const Height = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<Height>): Height {
+  fromPartial<I extends Exact<DeepPartial<Height>, I>>(object: I): Height {
     const message = { ...baseHeight } as Height;
-    if (object.revisionNumber !== undefined && object.revisionNumber !== null) {
-      message.revisionNumber = object.revisionNumber as Long;
-    } else {
-      message.revisionNumber = Long.UZERO;
-    }
-    if (object.revisionHeight !== undefined && object.revisionHeight !== null) {
-      message.revisionHeight = object.revisionHeight as Long;
-    } else {
-      message.revisionHeight = Long.UZERO;
-    }
+    message.revisionNumber =
+      object.revisionNumber !== undefined && object.revisionNumber !== null
+        ? Long.fromValue(object.revisionNumber)
+        : Long.UZERO;
+    message.revisionHeight =
+      object.revisionHeight !== undefined && object.revisionHeight !== null
+        ? Long.fromValue(object.revisionHeight)
+        : Long.UZERO;
     return message;
   },
 };
@@ -557,7 +511,7 @@ export const Params = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Params {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseParams } as Params;
     message.allowedClients = [];
@@ -577,12 +531,9 @@ export const Params = {
 
   fromJSON(object: any): Params {
     const message = { ...baseParams } as Params;
-    message.allowedClients = [];
-    if (object.allowedClients !== undefined && object.allowedClients !== null) {
-      for (const e of object.allowedClients) {
-        message.allowedClients.push(String(e));
-      }
-    }
+    message.allowedClients = (object.allowedClients ?? []).map((e: any) =>
+      String(e)
+    );
     return message;
   },
 
@@ -596,14 +547,9 @@ export const Params = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<Params>): Params {
+  fromPartial<I extends Exact<DeepPartial<Params>, I>>(object: I): Params {
     const message = { ...baseParams } as Params;
-    message.allowedClients = [];
-    if (object.allowedClients !== undefined && object.allowedClients !== null) {
-      for (const e of object.allowedClients) {
-        message.allowedClients.push(e);
-      }
-    }
+    message.allowedClients = object.allowedClients?.map((e) => e) || [];
     return message;
   },
 };
@@ -614,10 +560,13 @@ type Builtin =
   | Uint8Array
   | string
   | number
-  | undefined
-  | Long;
+  | boolean
+  | undefined;
+
 export type DeepPartial<T> = T extends Builtin
   ? T
+  : T extends Long
+  ? string | number | Long
   : T extends Array<infer U>
   ? Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U>
@@ -625,3 +574,16 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+type KeysOfUnion<T> = T extends T ? keyof T : never;
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<
+        Exclude<keyof I, KeysOfUnion<P>>,
+        never
+      >;
+
+if (_m0.util.Long !== Long) {
+  _m0.util.Long = Long as any;
+  _m0.configure();
+}

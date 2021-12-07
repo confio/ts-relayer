@@ -84,7 +84,7 @@ export const FungibleTokenPacketData = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): FungibleTokenPacketData {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
       ...baseFungibleTokenPacketData,
@@ -116,26 +116,22 @@ export const FungibleTokenPacketData = {
     const message = {
       ...baseFungibleTokenPacketData,
     } as FungibleTokenPacketData;
-    if (object.denom !== undefined && object.denom !== null) {
-      message.denom = String(object.denom);
-    } else {
-      message.denom = '';
-    }
-    if (object.amount !== undefined && object.amount !== null) {
-      message.amount = Long.fromString(object.amount);
-    } else {
-      message.amount = Long.UZERO;
-    }
-    if (object.sender !== undefined && object.sender !== null) {
-      message.sender = String(object.sender);
-    } else {
-      message.sender = '';
-    }
-    if (object.receiver !== undefined && object.receiver !== null) {
-      message.receiver = String(object.receiver);
-    } else {
-      message.receiver = '';
-    }
+    message.denom =
+      object.denom !== undefined && object.denom !== null
+        ? String(object.denom)
+        : '';
+    message.amount =
+      object.amount !== undefined && object.amount !== null
+        ? Long.fromString(object.amount)
+        : Long.UZERO;
+    message.sender =
+      object.sender !== undefined && object.sender !== null
+        ? String(object.sender)
+        : '';
+    message.receiver =
+      object.receiver !== undefined && object.receiver !== null
+        ? String(object.receiver)
+        : '';
     return message;
   },
 
@@ -149,32 +145,19 @@ export const FungibleTokenPacketData = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<FungibleTokenPacketData>
+  fromPartial<I extends Exact<DeepPartial<FungibleTokenPacketData>, I>>(
+    object: I
   ): FungibleTokenPacketData {
     const message = {
       ...baseFungibleTokenPacketData,
     } as FungibleTokenPacketData;
-    if (object.denom !== undefined && object.denom !== null) {
-      message.denom = object.denom;
-    } else {
-      message.denom = '';
-    }
-    if (object.amount !== undefined && object.amount !== null) {
-      message.amount = object.amount as Long;
-    } else {
-      message.amount = Long.UZERO;
-    }
-    if (object.sender !== undefined && object.sender !== null) {
-      message.sender = object.sender;
-    } else {
-      message.sender = '';
-    }
-    if (object.receiver !== undefined && object.receiver !== null) {
-      message.receiver = object.receiver;
-    } else {
-      message.receiver = '';
-    }
+    message.denom = object.denom ?? '';
+    message.amount =
+      object.amount !== undefined && object.amount !== null
+        ? Long.fromValue(object.amount)
+        : Long.UZERO;
+    message.sender = object.sender ?? '';
+    message.receiver = object.receiver ?? '';
     return message;
   },
 };
@@ -196,7 +179,7 @@ export const DenomTrace = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): DenomTrace {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseDenomTrace } as DenomTrace;
     while (reader.pos < end) {
@@ -218,16 +201,14 @@ export const DenomTrace = {
 
   fromJSON(object: any): DenomTrace {
     const message = { ...baseDenomTrace } as DenomTrace;
-    if (object.path !== undefined && object.path !== null) {
-      message.path = String(object.path);
-    } else {
-      message.path = '';
-    }
-    if (object.baseDenom !== undefined && object.baseDenom !== null) {
-      message.baseDenom = String(object.baseDenom);
-    } else {
-      message.baseDenom = '';
-    }
+    message.path =
+      object.path !== undefined && object.path !== null
+        ? String(object.path)
+        : '';
+    message.baseDenom =
+      object.baseDenom !== undefined && object.baseDenom !== null
+        ? String(object.baseDenom)
+        : '';
     return message;
   },
 
@@ -238,18 +219,12 @@ export const DenomTrace = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<DenomTrace>): DenomTrace {
+  fromPartial<I extends Exact<DeepPartial<DenomTrace>, I>>(
+    object: I
+  ): DenomTrace {
     const message = { ...baseDenomTrace } as DenomTrace;
-    if (object.path !== undefined && object.path !== null) {
-      message.path = object.path;
-    } else {
-      message.path = '';
-    }
-    if (object.baseDenom !== undefined && object.baseDenom !== null) {
-      message.baseDenom = object.baseDenom;
-    } else {
-      message.baseDenom = '';
-    }
+    message.path = object.path ?? '';
+    message.baseDenom = object.baseDenom ?? '';
     return message;
   },
 };
@@ -271,7 +246,7 @@ export const Params = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Params {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseParams } as Params;
     while (reader.pos < end) {
@@ -293,16 +268,14 @@ export const Params = {
 
   fromJSON(object: any): Params {
     const message = { ...baseParams } as Params;
-    if (object.sendEnabled !== undefined && object.sendEnabled !== null) {
-      message.sendEnabled = Boolean(object.sendEnabled);
-    } else {
-      message.sendEnabled = false;
-    }
-    if (object.receiveEnabled !== undefined && object.receiveEnabled !== null) {
-      message.receiveEnabled = Boolean(object.receiveEnabled);
-    } else {
-      message.receiveEnabled = false;
-    }
+    message.sendEnabled =
+      object.sendEnabled !== undefined && object.sendEnabled !== null
+        ? Boolean(object.sendEnabled)
+        : false;
+    message.receiveEnabled =
+      object.receiveEnabled !== undefined && object.receiveEnabled !== null
+        ? Boolean(object.receiveEnabled)
+        : false;
     return message;
   },
 
@@ -315,18 +288,10 @@ export const Params = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<Params>): Params {
+  fromPartial<I extends Exact<DeepPartial<Params>, I>>(object: I): Params {
     const message = { ...baseParams } as Params;
-    if (object.sendEnabled !== undefined && object.sendEnabled !== null) {
-      message.sendEnabled = object.sendEnabled;
-    } else {
-      message.sendEnabled = false;
-    }
-    if (object.receiveEnabled !== undefined && object.receiveEnabled !== null) {
-      message.receiveEnabled = object.receiveEnabled;
-    } else {
-      message.receiveEnabled = false;
-    }
+    message.sendEnabled = object.sendEnabled ?? false;
+    message.receiveEnabled = object.receiveEnabled ?? false;
     return message;
   },
 };
@@ -337,10 +302,13 @@ type Builtin =
   | Uint8Array
   | string
   | number
-  | undefined
-  | Long;
+  | boolean
+  | undefined;
+
 export type DeepPartial<T> = T extends Builtin
   ? T
+  : T extends Long
+  ? string | number | Long
   : T extends Array<infer U>
   ? Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U>
@@ -348,3 +316,16 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+type KeysOfUnion<T> = T extends T ? keyof T : never;
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<
+        Exclude<keyof I, KeysOfUnion<P>>,
+        never
+      >;
+
+if (_m0.util.Long !== Long) {
+  _m0.util.Long = Long as any;
+  _m0.configure();
+}

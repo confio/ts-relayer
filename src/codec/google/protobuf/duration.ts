@@ -99,7 +99,7 @@ export const Duration = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Duration {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseDuration } as Duration;
     while (reader.pos < end) {
@@ -121,16 +121,14 @@ export const Duration = {
 
   fromJSON(object: any): Duration {
     const message = { ...baseDuration } as Duration;
-    if (object.seconds !== undefined && object.seconds !== null) {
-      message.seconds = Long.fromString(object.seconds);
-    } else {
-      message.seconds = Long.ZERO;
-    }
-    if (object.nanos !== undefined && object.nanos !== null) {
-      message.nanos = Number(object.nanos);
-    } else {
-      message.nanos = 0;
-    }
+    message.seconds =
+      object.seconds !== undefined && object.seconds !== null
+        ? Long.fromString(object.seconds)
+        : Long.ZERO;
+    message.nanos =
+      object.nanos !== undefined && object.nanos !== null
+        ? Number(object.nanos)
+        : 0;
     return message;
   },
 
@@ -142,18 +140,13 @@ export const Duration = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<Duration>): Duration {
+  fromPartial<I extends Exact<DeepPartial<Duration>, I>>(object: I): Duration {
     const message = { ...baseDuration } as Duration;
-    if (object.seconds !== undefined && object.seconds !== null) {
-      message.seconds = object.seconds as Long;
-    } else {
-      message.seconds = Long.ZERO;
-    }
-    if (object.nanos !== undefined && object.nanos !== null) {
-      message.nanos = object.nanos;
-    } else {
-      message.nanos = 0;
-    }
+    message.seconds =
+      object.seconds !== undefined && object.seconds !== null
+        ? Long.fromValue(object.seconds)
+        : Long.ZERO;
+    message.nanos = object.nanos ?? 0;
     return message;
   },
 };
@@ -164,10 +157,13 @@ type Builtin =
   | Uint8Array
   | string
   | number
-  | undefined
-  | Long;
+  | boolean
+  | undefined;
+
 export type DeepPartial<T> = T extends Builtin
   ? T
+  : T extends Long
+  ? string | number | Long
   : T extends Array<infer U>
   ? Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U>
@@ -175,3 +171,16 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+type KeysOfUnion<T> = T extends T ? keyof T : never;
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<
+        Exclude<keyof I, KeysOfUnion<P>>,
+        never
+      >;
+
+if (_m0.util.Long !== Long) {
+  _m0.util.Long = Long as any;
+  _m0.configure();
+}

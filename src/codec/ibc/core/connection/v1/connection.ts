@@ -1,7 +1,7 @@
 /* eslint-disable */
 import Long from 'long';
-import { MerklePrefix } from '../../../../ibc/core/commitment/v1/commitment';
 import _m0 from 'protobufjs/minimal';
+import { MerklePrefix } from '../../../../ibc/core/commitment/v1/commitment';
 
 export const protobufPackage = 'ibc.core.connection.v1';
 
@@ -181,7 +181,7 @@ export const ConnectionEnd = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ConnectionEnd {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseConnectionEnd } as ConnectionEnd;
     message.versions = [];
@@ -213,32 +213,25 @@ export const ConnectionEnd = {
 
   fromJSON(object: any): ConnectionEnd {
     const message = { ...baseConnectionEnd } as ConnectionEnd;
-    message.versions = [];
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = String(object.clientId);
-    } else {
-      message.clientId = '';
-    }
-    if (object.versions !== undefined && object.versions !== null) {
-      for (const e of object.versions) {
-        message.versions.push(Version.fromJSON(e));
-      }
-    }
-    if (object.state !== undefined && object.state !== null) {
-      message.state = stateFromJSON(object.state);
-    } else {
-      message.state = 0;
-    }
-    if (object.counterparty !== undefined && object.counterparty !== null) {
-      message.counterparty = Counterparty.fromJSON(object.counterparty);
-    } else {
-      message.counterparty = undefined;
-    }
-    if (object.delayPeriod !== undefined && object.delayPeriod !== null) {
-      message.delayPeriod = Long.fromString(object.delayPeriod);
-    } else {
-      message.delayPeriod = Long.UZERO;
-    }
+    message.clientId =
+      object.clientId !== undefined && object.clientId !== null
+        ? String(object.clientId)
+        : '';
+    message.versions = (object.versions ?? []).map((e: any) =>
+      Version.fromJSON(e)
+    );
+    message.state =
+      object.state !== undefined && object.state !== null
+        ? stateFromJSON(object.state)
+        : 0;
+    message.counterparty =
+      object.counterparty !== undefined && object.counterparty !== null
+        ? Counterparty.fromJSON(object.counterparty)
+        : undefined;
+    message.delayPeriod =
+      object.delayPeriod !== undefined && object.delayPeriod !== null
+        ? Long.fromString(object.delayPeriod)
+        : Long.UZERO;
     return message;
   },
 
@@ -262,34 +255,22 @@ export const ConnectionEnd = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<ConnectionEnd>): ConnectionEnd {
+  fromPartial<I extends Exact<DeepPartial<ConnectionEnd>, I>>(
+    object: I
+  ): ConnectionEnd {
     const message = { ...baseConnectionEnd } as ConnectionEnd;
-    message.versions = [];
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = object.clientId;
-    } else {
-      message.clientId = '';
-    }
-    if (object.versions !== undefined && object.versions !== null) {
-      for (const e of object.versions) {
-        message.versions.push(Version.fromPartial(e));
-      }
-    }
-    if (object.state !== undefined && object.state !== null) {
-      message.state = object.state;
-    } else {
-      message.state = 0;
-    }
-    if (object.counterparty !== undefined && object.counterparty !== null) {
-      message.counterparty = Counterparty.fromPartial(object.counterparty);
-    } else {
-      message.counterparty = undefined;
-    }
-    if (object.delayPeriod !== undefined && object.delayPeriod !== null) {
-      message.delayPeriod = object.delayPeriod as Long;
-    } else {
-      message.delayPeriod = Long.UZERO;
-    }
+    message.clientId = object.clientId ?? '';
+    message.versions =
+      object.versions?.map((e) => Version.fromPartial(e)) || [];
+    message.state = object.state ?? 0;
+    message.counterparty =
+      object.counterparty !== undefined && object.counterparty !== null
+        ? Counterparty.fromPartial(object.counterparty)
+        : undefined;
+    message.delayPeriod =
+      object.delayPeriod !== undefined && object.delayPeriod !== null
+        ? Long.fromValue(object.delayPeriod)
+        : Long.UZERO;
     return message;
   },
 };
@@ -334,7 +315,7 @@ export const IdentifiedConnection = {
     input: _m0.Reader | Uint8Array,
     length?: number
   ): IdentifiedConnection {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseIdentifiedConnection } as IdentifiedConnection;
     message.versions = [];
@@ -369,37 +350,27 @@ export const IdentifiedConnection = {
 
   fromJSON(object: any): IdentifiedConnection {
     const message = { ...baseIdentifiedConnection } as IdentifiedConnection;
-    message.versions = [];
-    if (object.id !== undefined && object.id !== null) {
-      message.id = String(object.id);
-    } else {
-      message.id = '';
-    }
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = String(object.clientId);
-    } else {
-      message.clientId = '';
-    }
-    if (object.versions !== undefined && object.versions !== null) {
-      for (const e of object.versions) {
-        message.versions.push(Version.fromJSON(e));
-      }
-    }
-    if (object.state !== undefined && object.state !== null) {
-      message.state = stateFromJSON(object.state);
-    } else {
-      message.state = 0;
-    }
-    if (object.counterparty !== undefined && object.counterparty !== null) {
-      message.counterparty = Counterparty.fromJSON(object.counterparty);
-    } else {
-      message.counterparty = undefined;
-    }
-    if (object.delayPeriod !== undefined && object.delayPeriod !== null) {
-      message.delayPeriod = Long.fromString(object.delayPeriod);
-    } else {
-      message.delayPeriod = Long.UZERO;
-    }
+    message.id =
+      object.id !== undefined && object.id !== null ? String(object.id) : '';
+    message.clientId =
+      object.clientId !== undefined && object.clientId !== null
+        ? String(object.clientId)
+        : '';
+    message.versions = (object.versions ?? []).map((e: any) =>
+      Version.fromJSON(e)
+    );
+    message.state =
+      object.state !== undefined && object.state !== null
+        ? stateFromJSON(object.state)
+        : 0;
+    message.counterparty =
+      object.counterparty !== undefined && object.counterparty !== null
+        ? Counterparty.fromJSON(object.counterparty)
+        : undefined;
+    message.delayPeriod =
+      object.delayPeriod !== undefined && object.delayPeriod !== null
+        ? Long.fromString(object.delayPeriod)
+        : Long.UZERO;
     return message;
   },
 
@@ -424,39 +395,23 @@ export const IdentifiedConnection = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<IdentifiedConnection>): IdentifiedConnection {
+  fromPartial<I extends Exact<DeepPartial<IdentifiedConnection>, I>>(
+    object: I
+  ): IdentifiedConnection {
     const message = { ...baseIdentifiedConnection } as IdentifiedConnection;
-    message.versions = [];
-    if (object.id !== undefined && object.id !== null) {
-      message.id = object.id;
-    } else {
-      message.id = '';
-    }
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = object.clientId;
-    } else {
-      message.clientId = '';
-    }
-    if (object.versions !== undefined && object.versions !== null) {
-      for (const e of object.versions) {
-        message.versions.push(Version.fromPartial(e));
-      }
-    }
-    if (object.state !== undefined && object.state !== null) {
-      message.state = object.state;
-    } else {
-      message.state = 0;
-    }
-    if (object.counterparty !== undefined && object.counterparty !== null) {
-      message.counterparty = Counterparty.fromPartial(object.counterparty);
-    } else {
-      message.counterparty = undefined;
-    }
-    if (object.delayPeriod !== undefined && object.delayPeriod !== null) {
-      message.delayPeriod = object.delayPeriod as Long;
-    } else {
-      message.delayPeriod = Long.UZERO;
-    }
+    message.id = object.id ?? '';
+    message.clientId = object.clientId ?? '';
+    message.versions =
+      object.versions?.map((e) => Version.fromPartial(e)) || [];
+    message.state = object.state ?? 0;
+    message.counterparty =
+      object.counterparty !== undefined && object.counterparty !== null
+        ? Counterparty.fromPartial(object.counterparty)
+        : undefined;
+    message.delayPeriod =
+      object.delayPeriod !== undefined && object.delayPeriod !== null
+        ? Long.fromValue(object.delayPeriod)
+        : Long.UZERO;
     return message;
   },
 };
@@ -481,7 +436,7 @@ export const Counterparty = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Counterparty {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseCounterparty } as Counterparty;
     while (reader.pos < end) {
@@ -506,21 +461,18 @@ export const Counterparty = {
 
   fromJSON(object: any): Counterparty {
     const message = { ...baseCounterparty } as Counterparty;
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = String(object.clientId);
-    } else {
-      message.clientId = '';
-    }
-    if (object.connectionId !== undefined && object.connectionId !== null) {
-      message.connectionId = String(object.connectionId);
-    } else {
-      message.connectionId = '';
-    }
-    if (object.prefix !== undefined && object.prefix !== null) {
-      message.prefix = MerklePrefix.fromJSON(object.prefix);
-    } else {
-      message.prefix = undefined;
-    }
+    message.clientId =
+      object.clientId !== undefined && object.clientId !== null
+        ? String(object.clientId)
+        : '';
+    message.connectionId =
+      object.connectionId !== undefined && object.connectionId !== null
+        ? String(object.connectionId)
+        : '';
+    message.prefix =
+      object.prefix !== undefined && object.prefix !== null
+        ? MerklePrefix.fromJSON(object.prefix)
+        : undefined;
     return message;
   },
 
@@ -536,23 +488,16 @@ export const Counterparty = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<Counterparty>): Counterparty {
+  fromPartial<I extends Exact<DeepPartial<Counterparty>, I>>(
+    object: I
+  ): Counterparty {
     const message = { ...baseCounterparty } as Counterparty;
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = object.clientId;
-    } else {
-      message.clientId = '';
-    }
-    if (object.connectionId !== undefined && object.connectionId !== null) {
-      message.connectionId = object.connectionId;
-    } else {
-      message.connectionId = '';
-    }
-    if (object.prefix !== undefined && object.prefix !== null) {
-      message.prefix = MerklePrefix.fromPartial(object.prefix);
-    } else {
-      message.prefix = undefined;
-    }
+    message.clientId = object.clientId ?? '';
+    message.connectionId = object.connectionId ?? '';
+    message.prefix =
+      object.prefix !== undefined && object.prefix !== null
+        ? MerklePrefix.fromPartial(object.prefix)
+        : undefined;
     return message;
   },
 };
@@ -571,7 +516,7 @@ export const ClientPaths = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ClientPaths {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseClientPaths } as ClientPaths;
     message.paths = [];
@@ -591,12 +536,7 @@ export const ClientPaths = {
 
   fromJSON(object: any): ClientPaths {
     const message = { ...baseClientPaths } as ClientPaths;
-    message.paths = [];
-    if (object.paths !== undefined && object.paths !== null) {
-      for (const e of object.paths) {
-        message.paths.push(String(e));
-      }
-    }
+    message.paths = (object.paths ?? []).map((e: any) => String(e));
     return message;
   },
 
@@ -610,14 +550,11 @@ export const ClientPaths = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<ClientPaths>): ClientPaths {
+  fromPartial<I extends Exact<DeepPartial<ClientPaths>, I>>(
+    object: I
+  ): ClientPaths {
     const message = { ...baseClientPaths } as ClientPaths;
-    message.paths = [];
-    if (object.paths !== undefined && object.paths !== null) {
-      for (const e of object.paths) {
-        message.paths.push(e);
-      }
-    }
+    message.paths = object.paths?.map((e) => e) || [];
     return message;
   },
 };
@@ -639,7 +576,7 @@ export const ConnectionPaths = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ConnectionPaths {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseConnectionPaths } as ConnectionPaths;
     message.paths = [];
@@ -662,17 +599,11 @@ export const ConnectionPaths = {
 
   fromJSON(object: any): ConnectionPaths {
     const message = { ...baseConnectionPaths } as ConnectionPaths;
-    message.paths = [];
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = String(object.clientId);
-    } else {
-      message.clientId = '';
-    }
-    if (object.paths !== undefined && object.paths !== null) {
-      for (const e of object.paths) {
-        message.paths.push(String(e));
-      }
-    }
+    message.clientId =
+      object.clientId !== undefined && object.clientId !== null
+        ? String(object.clientId)
+        : '';
+    message.paths = (object.paths ?? []).map((e: any) => String(e));
     return message;
   },
 
@@ -687,19 +618,12 @@ export const ConnectionPaths = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<ConnectionPaths>): ConnectionPaths {
+  fromPartial<I extends Exact<DeepPartial<ConnectionPaths>, I>>(
+    object: I
+  ): ConnectionPaths {
     const message = { ...baseConnectionPaths } as ConnectionPaths;
-    message.paths = [];
-    if (object.clientId !== undefined && object.clientId !== null) {
-      message.clientId = object.clientId;
-    } else {
-      message.clientId = '';
-    }
-    if (object.paths !== undefined && object.paths !== null) {
-      for (const e of object.paths) {
-        message.paths.push(e);
-      }
-    }
+    message.clientId = object.clientId ?? '';
+    message.paths = object.paths?.map((e) => e) || [];
     return message;
   },
 };
@@ -721,7 +645,7 @@ export const Version = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Version {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseVersion } as Version;
     message.features = [];
@@ -744,17 +668,11 @@ export const Version = {
 
   fromJSON(object: any): Version {
     const message = { ...baseVersion } as Version;
-    message.features = [];
-    if (object.identifier !== undefined && object.identifier !== null) {
-      message.identifier = String(object.identifier);
-    } else {
-      message.identifier = '';
-    }
-    if (object.features !== undefined && object.features !== null) {
-      for (const e of object.features) {
-        message.features.push(String(e));
-      }
-    }
+    message.identifier =
+      object.identifier !== undefined && object.identifier !== null
+        ? String(object.identifier)
+        : '';
+    message.features = (object.features ?? []).map((e: any) => String(e));
     return message;
   },
 
@@ -769,19 +687,10 @@ export const Version = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<Version>): Version {
+  fromPartial<I extends Exact<DeepPartial<Version>, I>>(object: I): Version {
     const message = { ...baseVersion } as Version;
-    message.features = [];
-    if (object.identifier !== undefined && object.identifier !== null) {
-      message.identifier = object.identifier;
-    } else {
-      message.identifier = '';
-    }
-    if (object.features !== undefined && object.features !== null) {
-      for (const e of object.features) {
-        message.features.push(e);
-      }
-    }
+    message.identifier = object.identifier ?? '';
+    message.features = object.features?.map((e) => e) || [];
     return message;
   },
 };
@@ -792,10 +701,13 @@ type Builtin =
   | Uint8Array
   | string
   | number
-  | undefined
-  | Long;
+  | boolean
+  | undefined;
+
 export type DeepPartial<T> = T extends Builtin
   ? T
+  : T extends Long
+  ? string | number | Long
   : T extends Array<infer U>
   ? Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U>
@@ -803,3 +715,16 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+type KeysOfUnion<T> = T extends T ? keyof T : never;
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<
+        Exclude<keyof I, KeysOfUnion<P>>,
+        never
+      >;
+
+if (_m0.util.Long !== Long) {
+  _m0.util.Long = Long as any;
+  _m0.configure();
+}

@@ -1,7 +1,7 @@
 /* eslint-disable */
-import { CommitmentProof } from '../../../../confio/proofs';
 import Long from 'long';
 import _m0 from 'protobufjs/minimal';
+import { CommitmentProof } from '../../../../confio/proofs';
 
 export const protobufPackage = 'ibc.core.commitment.v1';
 
@@ -56,9 +56,10 @@ export const MerkleRoot = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): MerkleRoot {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseMerkleRoot } as MerkleRoot;
+    message.hash = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -75,9 +76,10 @@ export const MerkleRoot = {
 
   fromJSON(object: any): MerkleRoot {
     const message = { ...baseMerkleRoot } as MerkleRoot;
-    if (object.hash !== undefined && object.hash !== null) {
-      message.hash = bytesFromBase64(object.hash);
-    }
+    message.hash =
+      object.hash !== undefined && object.hash !== null
+        ? bytesFromBase64(object.hash)
+        : new Uint8Array();
     return message;
   },
 
@@ -90,13 +92,11 @@ export const MerkleRoot = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<MerkleRoot>): MerkleRoot {
+  fromPartial<I extends Exact<DeepPartial<MerkleRoot>, I>>(
+    object: I
+  ): MerkleRoot {
     const message = { ...baseMerkleRoot } as MerkleRoot;
-    if (object.hash !== undefined && object.hash !== null) {
-      message.hash = object.hash;
-    } else {
-      message.hash = new Uint8Array();
-    }
+    message.hash = object.hash ?? new Uint8Array();
     return message;
   },
 };
@@ -115,9 +115,10 @@ export const MerklePrefix = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): MerklePrefix {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseMerklePrefix } as MerklePrefix;
+    message.keyPrefix = new Uint8Array();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -134,9 +135,10 @@ export const MerklePrefix = {
 
   fromJSON(object: any): MerklePrefix {
     const message = { ...baseMerklePrefix } as MerklePrefix;
-    if (object.keyPrefix !== undefined && object.keyPrefix !== null) {
-      message.keyPrefix = bytesFromBase64(object.keyPrefix);
-    }
+    message.keyPrefix =
+      object.keyPrefix !== undefined && object.keyPrefix !== null
+        ? bytesFromBase64(object.keyPrefix)
+        : new Uint8Array();
     return message;
   },
 
@@ -149,13 +151,11 @@ export const MerklePrefix = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<MerklePrefix>): MerklePrefix {
+  fromPartial<I extends Exact<DeepPartial<MerklePrefix>, I>>(
+    object: I
+  ): MerklePrefix {
     const message = { ...baseMerklePrefix } as MerklePrefix;
-    if (object.keyPrefix !== undefined && object.keyPrefix !== null) {
-      message.keyPrefix = object.keyPrefix;
-    } else {
-      message.keyPrefix = new Uint8Array();
-    }
+    message.keyPrefix = object.keyPrefix ?? new Uint8Array();
     return message;
   },
 };
@@ -174,7 +174,7 @@ export const MerklePath = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): MerklePath {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseMerklePath } as MerklePath;
     message.keyPath = [];
@@ -194,12 +194,7 @@ export const MerklePath = {
 
   fromJSON(object: any): MerklePath {
     const message = { ...baseMerklePath } as MerklePath;
-    message.keyPath = [];
-    if (object.keyPath !== undefined && object.keyPath !== null) {
-      for (const e of object.keyPath) {
-        message.keyPath.push(String(e));
-      }
-    }
+    message.keyPath = (object.keyPath ?? []).map((e: any) => String(e));
     return message;
   },
 
@@ -213,14 +208,11 @@ export const MerklePath = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<MerklePath>): MerklePath {
+  fromPartial<I extends Exact<DeepPartial<MerklePath>, I>>(
+    object: I
+  ): MerklePath {
     const message = { ...baseMerklePath } as MerklePath;
-    message.keyPath = [];
-    if (object.keyPath !== undefined && object.keyPath !== null) {
-      for (const e of object.keyPath) {
-        message.keyPath.push(e);
-      }
-    }
+    message.keyPath = object.keyPath?.map((e) => e) || [];
     return message;
   },
 };
@@ -239,7 +231,7 @@ export const MerkleProof = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): MerkleProof {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseMerkleProof } as MerkleProof;
     message.proofs = [];
@@ -259,12 +251,9 @@ export const MerkleProof = {
 
   fromJSON(object: any): MerkleProof {
     const message = { ...baseMerkleProof } as MerkleProof;
-    message.proofs = [];
-    if (object.proofs !== undefined && object.proofs !== null) {
-      for (const e of object.proofs) {
-        message.proofs.push(CommitmentProof.fromJSON(e));
-      }
-    }
+    message.proofs = (object.proofs ?? []).map((e: any) =>
+      CommitmentProof.fromJSON(e)
+    );
     return message;
   },
 
@@ -280,20 +269,19 @@ export const MerkleProof = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<MerkleProof>): MerkleProof {
+  fromPartial<I extends Exact<DeepPartial<MerkleProof>, I>>(
+    object: I
+  ): MerkleProof {
     const message = { ...baseMerkleProof } as MerkleProof;
-    message.proofs = [];
-    if (object.proofs !== undefined && object.proofs !== null) {
-      for (const e of object.proofs) {
-        message.proofs.push(CommitmentProof.fromPartial(e));
-      }
-    }
+    message.proofs =
+      object.proofs?.map((e) => CommitmentProof.fromPartial(e)) || [];
     return message;
   },
 };
 
 declare var self: any | undefined;
 declare var window: any | undefined;
+declare var global: any | undefined;
 var globalThis: any = (() => {
   if (typeof globalThis !== 'undefined') return globalThis;
   if (typeof self !== 'undefined') return self;
@@ -319,8 +307,8 @@ const btoa: (bin: string) => string =
   ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
 function base64FromBytes(arr: Uint8Array): string {
   const bin: string[] = [];
-  for (let i = 0; i < arr.byteLength; ++i) {
-    bin.push(String.fromCharCode(arr[i]));
+  for (const byte of arr) {
+    bin.push(String.fromCharCode(byte));
   }
   return btoa(bin.join(''));
 }
@@ -331,10 +319,13 @@ type Builtin =
   | Uint8Array
   | string
   | number
-  | undefined
-  | Long;
+  | boolean
+  | undefined;
+
 export type DeepPartial<T> = T extends Builtin
   ? T
+  : T extends Long
+  ? string | number | Long
   : T extends Array<infer U>
   ? Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U>
@@ -342,3 +333,16 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+type KeysOfUnion<T> = T extends T ? keyof T : never;
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<
+        Exclude<keyof I, KeysOfUnion<P>>,
+        never
+      >;
+
+if (_m0.util.Long !== Long) {
+  _m0.util.Long = Long as any;
+  _m0.configure();
+}

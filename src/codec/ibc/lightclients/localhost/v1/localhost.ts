@@ -1,7 +1,7 @@
 /* eslint-disable */
-import { Height } from '../../../../ibc/core/client/v1/client';
 import Long from 'long';
 import _m0 from 'protobufjs/minimal';
+import { Height } from '../../../../ibc/core/client/v1/client';
 
 export const protobufPackage = 'ibc.lightclients.localhost.v1';
 
@@ -33,7 +33,7 @@ export const ClientState = {
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): ClientState {
-    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseClientState } as ClientState;
     while (reader.pos < end) {
@@ -55,16 +55,14 @@ export const ClientState = {
 
   fromJSON(object: any): ClientState {
     const message = { ...baseClientState } as ClientState;
-    if (object.chainId !== undefined && object.chainId !== null) {
-      message.chainId = String(object.chainId);
-    } else {
-      message.chainId = '';
-    }
-    if (object.height !== undefined && object.height !== null) {
-      message.height = Height.fromJSON(object.height);
-    } else {
-      message.height = undefined;
-    }
+    message.chainId =
+      object.chainId !== undefined && object.chainId !== null
+        ? String(object.chainId)
+        : '';
+    message.height =
+      object.height !== undefined && object.height !== null
+        ? Height.fromJSON(object.height)
+        : undefined;
     return message;
   },
 
@@ -76,18 +74,15 @@ export const ClientState = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<ClientState>): ClientState {
+  fromPartial<I extends Exact<DeepPartial<ClientState>, I>>(
+    object: I
+  ): ClientState {
     const message = { ...baseClientState } as ClientState;
-    if (object.chainId !== undefined && object.chainId !== null) {
-      message.chainId = object.chainId;
-    } else {
-      message.chainId = '';
-    }
-    if (object.height !== undefined && object.height !== null) {
-      message.height = Height.fromPartial(object.height);
-    } else {
-      message.height = undefined;
-    }
+    message.chainId = object.chainId ?? '';
+    message.height =
+      object.height !== undefined && object.height !== null
+        ? Height.fromPartial(object.height)
+        : undefined;
     return message;
   },
 };
@@ -98,10 +93,13 @@ type Builtin =
   | Uint8Array
   | string
   | number
-  | undefined
-  | Long;
+  | boolean
+  | undefined;
+
 export type DeepPartial<T> = T extends Builtin
   ? T
+  : T extends Long
+  ? string | number | Long
   : T extends Array<infer U>
   ? Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U>
@@ -109,3 +107,16 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+type KeysOfUnion<T> = T extends T ? keyof T : never;
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<
+        Exclude<keyof I, KeysOfUnion<P>>,
+        never
+      >;
+
+if (_m0.util.Long !== Long) {
+  _m0.util.Long = Long as any;
+  _m0.configure();
+}
