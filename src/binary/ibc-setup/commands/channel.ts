@@ -1,7 +1,8 @@
 import os from 'os';
 import path from 'path';
 
-import { Order } from '../../../codec/ibc/core/channel/v1/channel';
+import { Order } from 'cosmjs-types/ibc/core/channel/v1/channel';
+
 import { Link } from '../../../lib/link';
 import { appFile, registryFile } from '../../constants';
 import { Logger } from '../../create-logger';

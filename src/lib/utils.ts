@@ -7,17 +7,16 @@ import {
   ValidatorPubkey as RpcPubKey,
   tendermint34,
 } from '@cosmjs/tendermint-rpc';
-import Long from 'long';
-
-import { HashOp, LengthOp } from '../codec/confio/proofs';
-import { Timestamp } from '../codec/google/protobuf/timestamp';
-import { Packet } from '../codec/ibc/core/channel/v1/channel';
-import { Height } from '../codec/ibc/core/client/v1/client';
+import { HashOp, LengthOp } from 'cosmjs-types/confio/proofs';
+import { Timestamp } from 'cosmjs-types/google/protobuf/timestamp';
+import { Packet } from 'cosmjs-types/ibc/core/channel/v1/channel';
+import { Height } from 'cosmjs-types/ibc/core/client/v1/client';
 import {
   ClientState as TendermintClientState,
   ConsensusState as TendermintConsensusState,
-} from '../codec/ibc/lightclients/tendermint/v1/tendermint';
-import { PublicKey as ProtoPubKey } from '../codec/tendermint/crypto/keys';
+} from 'cosmjs-types/ibc/lightclients/tendermint/v1/tendermint';
+import { PublicKey as ProtoPubKey } from 'cosmjs-types/tendermint/crypto/keys';
+import Long from 'long';
 
 import { PacketWithMetadata } from './endpoint';
 

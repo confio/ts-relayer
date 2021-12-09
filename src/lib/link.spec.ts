@@ -1,7 +1,6 @@
 import { assert, sleep } from '@cosmjs/utils';
 import test from 'ava';
-
-import { State } from '../codec/ibc/core/channel/v1/channel';
+import { State } from 'cosmjs-types/ibc/core/channel/v1/channel';
 
 import { prepareChannelHandshake } from './ibcclient';
 import { Link, RelayedHeights } from './link';

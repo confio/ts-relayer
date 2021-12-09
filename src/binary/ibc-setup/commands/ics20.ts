@@ -2,9 +2,9 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 
+import { Order } from 'cosmjs-types/ibc/core/channel/v1/channel';
 import yaml from 'js-yaml';
 
-import { Order } from '../../../codec/ibc/core/channel/v1/channel';
 import { IbcClient } from '../../../lib/ibcclient';
 import { Link } from '../../../lib/link';
 import { appFile, registryFile } from '../../constants';

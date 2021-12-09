@@ -1,7 +1,6 @@
 import { arrayContentEquals } from '@cosmjs/utils';
-
-import { Order, Packet, State } from '../codec/ibc/core/channel/v1/channel';
-import { Height } from '../codec/ibc/core/client/v1/client';
+import { Order, Packet, State } from 'cosmjs-types/ibc/core/channel/v1/channel';
+import { Height } from 'cosmjs-types/ibc/core/client/v1/client';
 
 import {
   AckWithMetadata,
