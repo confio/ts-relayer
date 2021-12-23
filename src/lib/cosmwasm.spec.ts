@@ -47,7 +47,7 @@ test.before(async (t) => {
     const receipt = await cosmwasm.sign.upload(
       cosmwasm.senderAddress,
       wasm,
-      calculateFee(1750000, testingGasPrice),
+      calculateFee(2_000_000, testingGasPrice),
       `Upload ${name}`
     );
     console.debug(`Upload ${name} with CodeID: ${receipt.codeId}`);
