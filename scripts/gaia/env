@@ -1,5 +1,5 @@
 # Choose from https://hub.docker.com/r/confio/gaia/tags
-REPOSITORY="confio/gaia"
+REPOSITORY="cephalopodequipment/gaiad"
 # Handbuilt from https://github.com/cosmos/gaia Dockerfile with USER changes
-VERSION="4.2.1-root"
+VERSION="6.0.0"
 CONTAINER_NAME="gaia"

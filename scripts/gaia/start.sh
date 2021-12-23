@@ -20,11 +20,12 @@ docker pull "$REPOSITORY:$VERSION"
 echo "starting gaiad running on http://localhost:$TENDERMINT_PORT_HOST"
 
 docker run --rm \
+  --user=root \
   --name "$CONTAINER_NAME" \
   -p "$TENDERMINT_PORT_HOST":"$TENDERMINT_PORT_GUEST" \
   -p "$API_PORT_HOST":"$API_PORT_GUEST" \
   --mount type=bind,source="$SCRIPT_DIR/template",target=/template \
   --mount type=volume,source=gaia_data,target=/root \
   "$REPOSITORY:$VERSION" \
-  /template/run_gaiad.sh \
-  2>&1 | grep 'executed block'
+  /template/run_gaiad.sh 
+  # 2>&1 | grep 'executed block'

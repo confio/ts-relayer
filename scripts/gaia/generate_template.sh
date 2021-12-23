@@ -16,6 +16,7 @@ chmod +x "$SCRIPT_DIR/template/run_gaiad.sh"
 
 # The usage of the accounts below is documented in README.md of this directory
 docker run --rm \
+  --user=root \
   -e PASSWORD=my-secret-password \
   -e STAKE_TOKEN=uatom \
   --mount type=bind,source="$SCRIPT_DIR/template",target=/gaia \
