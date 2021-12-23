@@ -21,12 +21,12 @@ const contracts = [
   {
     name: 'cw20-base',
     wasmUrl:
-      'https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.8.0/cw20_base.wasm',
+      'https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.11.0/cw20_base.wasm',
   },
   {
     name: 'cw20-ics20',
     wasmUrl:
-      'https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.8.0/cw20_ics20.wasm',
+      'https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.11.0/cw20_ics20.wasm',
   },
 ];
 
@@ -47,9 +47,6 @@ async function main() {
   const options = {
     prefix: config.bech32prefix,
     gasPrice: config.gasPrice,
-    gasLimits: {
-      upload: 1750000,
-    },
   };
   const client = await SigningCosmWasmClient.connectWithSigner(
     config.endpoint,
@@ -64,7 +61,7 @@ async function main() {
     const receipt = await client.upload(
       address,
       wasm,
-      contract.codeMeta,
+      "auto",
       `Upload ${contract.name}`
     );
     console.debug(`Upload succeeded. Receipt: ${JSON.stringify(receipt)}`);
