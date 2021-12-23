@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.4.0
+
+### Minor Changes
+
+- af6f99a: Use cosmjs-types for the IBC types
+- 8d2d1ba: Update to CosmJS 0.27
+- 93087da: Auto-calculate gas for all transactions, remove gas_limit config field
+
+### Patch Changes
+
+- f15b498: Update gaiad to v6.0.0 in CI
+- c48b87c: Upgrade ts-proto, regenerate codec and fix handling of pagination keys
+- af6f99a: Update CI to test wasmd 0.21
+
 ## 0.3.1
 
 ### Patch Changes
