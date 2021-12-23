@@ -3,7 +3,6 @@ import { EncodeObject, OfflineSigner, Registry } from '@cosmjs/proto-signing';
 import {
   AuthExtension,
   BankExtension,
-  calculateFee,
   Coin,
   defaultRegistryTypes,
   GasPrice,
@@ -658,7 +657,7 @@ export class IbcClient {
       this.senderAddress,
       recipientAddress,
       transferAmount,
-      calculateFee(this.limits.bankSend, this.gasPrice),
+      'auto',
       memo
     );
     if (isDeliverTxFailure(result)) {
@@ -683,8 +682,11 @@ export class IbcClient {
       gasLimit,
     });
     const senderAddress = this.senderAddress;
-    const fee = calculateFee(gasLimit, this.gasPrice);
-    const result = await this.sign.signAndBroadcast(senderAddress, msgs, fee);
+    const result = await this.sign.signAndBroadcast(
+      senderAddress,
+      msgs,
+      'auto'
+    );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
     }
@@ -721,7 +723,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [createMsg],
-      calculateFee(this.limits.initClient, this.gasPrice)
+      'auto'
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -773,7 +775,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [updateMsg],
-      calculateFee(this.limits.updateClient, this.gasPrice)
+      'auto'
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -810,7 +812,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      calculateFee(this.limits.initConnection, this.gasPrice)
+      'auto'
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -884,7 +886,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      calculateFee(this.limits.connectionHandshake, this.gasPrice)
+      'auto'
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -954,7 +956,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      calculateFee(this.limits.connectionHandshake, this.gasPrice)
+      'auto'
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -993,7 +995,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      calculateFee(this.limits.connectionHandshake, this.gasPrice)
+      'auto'
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -1038,7 +1040,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      calculateFee(this.limits.initChannel, this.gasPrice)
+      'auto'
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -1099,7 +1101,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      calculateFee(this.limits.channelHandshake, this.gasPrice)
+      'auto'
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -1155,7 +1157,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      calculateFee(this.limits.channelHandshake, this.gasPrice)
+      'auto'
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -1198,7 +1200,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      calculateFee(this.limits.channelHandshake, this.gasPrice)
+      'auto'
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -1272,7 +1274,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       msgs,
-      calculateFee(this.limits.receivePacket * msgs.length, this.gasPrice)
+      'auto'
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -1355,7 +1357,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       msgs,
-      calculateFee(this.limits.ackPacket * msgs.length, this.gasPrice)
+      'auto'
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -1438,7 +1440,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       msgs,
-      calculateFee(this.limits.timeoutPacket * msgs.length, this.gasPrice)
+      'auto'
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -1469,7 +1471,7 @@ export class IbcClient {
       sourceChannel,
       timeoutHeight,
       timeoutTime,
-      calculateFee(this.limits.transfer, this.gasPrice)
+      'auto'
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));

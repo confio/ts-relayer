@@ -202,6 +202,7 @@ export async function signingCosmWasmClient(
 
   const options: SigningCosmWasmClientOptions = {
     prefix: opts.prefix,
+    gasPrice: GasPrice.fromString(opts.minFee),
     // This is just for tests - don't add this in production code
     broadcastPollIntervalMs: 300,
     broadcastTimeoutMs: 2000,

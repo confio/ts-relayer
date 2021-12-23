@@ -32,4 +32,4 @@ docker run --rm \
   --mount type=volume,source=simapp_data,target=/root \
   "$REPOSITORY:$VERSION" \
   /template/run_simd.sh \
-  2>&1 | grep 'Executed block'
+  2>&1 | grep -i 'Executed block'
