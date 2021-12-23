@@ -3,7 +3,6 @@ import { EncodeObject, OfflineSigner, Registry } from '@cosmjs/proto-signing';
 import {
   AuthExtension,
   BankExtension,
-  calculateFee,
   Coin,
   defaultRegistryTypes,
   GasPrice,
@@ -181,44 +180,13 @@ export interface ChannelInfo {
   readonly channelId: string;
 }
 
-export interface IbcGasLimits {
-  readonly bankSend: number;
-  readonly initClient: number;
-  readonly updateClient: number;
-  readonly initConnection: number;
-  readonly connectionHandshake: number;
-  readonly initChannel: number;
-  readonly channelHandshake: number;
-  readonly receivePacket: number;
-  readonly ackPacket: number;
-  readonly timeoutPacket: number;
-  readonly transfer: number;
-}
-
 export type IbcClientOptions = SigningStargateClientOptions & {
-  gasLimits?: Partial<IbcGasLimits>;
   logger?: Logger;
-  gasPrice?: GasPrice;
-};
-
-const defaultGasPrice = GasPrice.fromString('0.025ucosm');
-const defaultGasLimits: IbcGasLimits = {
-  bankSend: 200000,
-  initClient: 150000,
-  updateClient: 600000,
-  initConnection: 150000,
-  connectionHandshake: 300000,
-  initChannel: 150000,
-  channelHandshake: 300000,
-  receivePacket: 300000,
-  ackPacket: 300000,
-  timeoutPacket: 300000,
-  transfer: 180000,
+  gasPrice: GasPrice;
 };
 
 export class IbcClient {
   public readonly gasPrice: GasPrice;
-  public readonly limits: IbcGasLimits;
   public readonly sign: SigningStargateClient;
   public readonly query: QueryClient &
     AuthExtension &
@@ -236,7 +204,7 @@ export class IbcClient {
     endpoint: string,
     signer: OfflineSigner,
     senderAddress: string,
-    options: IbcClientOptions = {}
+    options: IbcClientOptions
   ): Promise<IbcClient> {
     // override any registry setup, use the other options
     const mergedOptions = {
@@ -279,27 +247,8 @@ export class IbcClient {
     this.chainId = chainId;
     this.revisionNumber = parseRevisionNumber(chainId);
 
-    const { gasPrice = defaultGasPrice, gasLimits = {}, logger } = options;
+    const { gasPrice, logger } = options;
     this.gasPrice = gasPrice;
-    // we must do this explicitly, not
-    //   this.limits = { ...defaultGasLimits, ...gasLimits };
-    // so undefined in gasLimits don't overwrite defaults
-    this.limits = {
-      bankSend: gasLimits.bankSend || defaultGasLimits.bankSend,
-      initClient: gasLimits.initClient || defaultGasLimits.initClient,
-      updateClient: gasLimits.updateClient || defaultGasLimits.updateClient,
-      initConnection:
-        gasLimits.initConnection || defaultGasLimits.initConnection,
-      connectionHandshake:
-        gasLimits.connectionHandshake || defaultGasLimits.connectionHandshake,
-      initChannel: gasLimits.initChannel || defaultGasLimits.initChannel,
-      channelHandshake:
-        gasLimits.channelHandshake || defaultGasLimits.channelHandshake,
-      receivePacket: gasLimits.receivePacket || defaultGasLimits.receivePacket,
-      ackPacket: gasLimits.ackPacket || defaultGasLimits.ackPacket,
-      timeoutPacket: gasLimits.timeoutPacket || defaultGasLimits.timeoutPacket,
-      transfer: gasLimits.transfer || defaultGasLimits.transfer,
-    };
     this.logger = logger ?? new NoopLogger();
   }
 
@@ -658,7 +607,7 @@ export class IbcClient {
       this.senderAddress,
       recipientAddress,
       transferAmount,
-      calculateFee(this.limits.bankSend, this.gasPrice),
+      'auto',
       memo
     );
     if (isDeliverTxFailure(result)) {
@@ -673,18 +622,17 @@ export class IbcClient {
   }
 
   /* Send any number of messages, you are responsible for encoding them */
-  public async sendMultiMsg(
-    msgs: EncodeObject[],
-    gasLimit: number
-  ): Promise<MsgResult> {
+  public async sendMultiMsg(msgs: EncodeObject[]): Promise<MsgResult> {
     this.logger.verbose(`Broadcast multiple msgs`);
     this.logger.debug(`Multiple msgs:`, {
       msgs,
-      gasLimit,
     });
     const senderAddress = this.senderAddress;
-    const fee = calculateFee(gasLimit, this.gasPrice);
-    const result = await this.sign.signAndBroadcast(senderAddress, msgs, fee);
+    const result = await this.sign.signAndBroadcast(
+      senderAddress,
+      msgs,
+      'auto'
+    );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
     }
@@ -721,7 +669,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [createMsg],
-      calculateFee(this.limits.initClient, this.gasPrice)
+      'auto'
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -773,7 +721,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [updateMsg],
-      calculateFee(this.limits.updateClient, this.gasPrice)
+      'auto'
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -810,7 +758,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      calculateFee(this.limits.initConnection, this.gasPrice)
+      'auto'
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -884,7 +832,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      calculateFee(this.limits.connectionHandshake, this.gasPrice)
+      'auto'
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -954,7 +902,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      calculateFee(this.limits.connectionHandshake, this.gasPrice)
+      'auto'
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -993,7 +941,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      calculateFee(this.limits.connectionHandshake, this.gasPrice)
+      'auto'
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -1038,7 +986,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      calculateFee(this.limits.initChannel, this.gasPrice)
+      'auto'
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -1099,7 +1047,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      calculateFee(this.limits.channelHandshake, this.gasPrice)
+      'auto'
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -1155,7 +1103,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      calculateFee(this.limits.channelHandshake, this.gasPrice)
+      'auto'
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -1198,7 +1146,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      calculateFee(this.limits.channelHandshake, this.gasPrice)
+      'auto'
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -1272,7 +1220,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       msgs,
-      calculateFee(this.limits.receivePacket * msgs.length, this.gasPrice)
+      'auto'
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -1355,7 +1303,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       msgs,
-      calculateFee(this.limits.ackPacket * msgs.length, this.gasPrice)
+      'auto'
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -1438,7 +1386,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       msgs,
-      calculateFee(this.limits.timeoutPacket * msgs.length, this.gasPrice)
+      'auto'
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -1469,7 +1417,7 @@ export class IbcClient {
       sourceChannel,
       timeoutHeight,
       timeoutTime,
-      calculateFee(this.limits.transfer, this.gasPrice)
+      'auto'
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));

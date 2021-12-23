@@ -44,16 +44,14 @@ chains:
   local_wasm:
     chain_id: testing
     prefix: wasm
-    gas_price: 0.025ucosm
+    gas_price: 0.001ucosm
     rpc:
       - http://localhost:26659
   local_simapp:
     chain_id: simd-testing
     prefix: cosmos
-    gas_price: 0.025umuon
-    gas_limits:
-      # this will fail
-      init_connection: 40000
+    # this will fail
+    gas_price: 0.001umuon
     rpc:
       - http://localhost:26658`;
 
@@ -64,16 +62,13 @@ chains:
   local_wasm:
     chain_id: testing
     prefix: wasm
-    gas_price: 0.025ucosm
+    gas_price: 0.075ucosm
     rpc:
       - http://localhost:26659
   local_simapp:
     chain_id: simd-testing
     prefix: cosmos
-    gas_price: 0.025umuon
-    gas_limits:
-      # this will succeed
-      init_connection: 808000
+    gas_price: 0.075umuon
     rpc:
       - http://localhost:26658`;
 
