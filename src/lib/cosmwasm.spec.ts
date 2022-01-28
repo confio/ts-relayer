@@ -18,11 +18,11 @@ interface WasmData {
 const contracts: Record<string, WasmData> = {
   cw20: {
     wasmUrl:
-      'https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.11.0/cw20_base.wasm',
+      'https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.12.0-alpha1/cw20_base.wasm',
   },
   ics20: {
     wasmUrl:
-      'https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.11.0/cw20_ics20.wasm',
+      'https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.12.0-alpha1/cw20_ics20.wasm',
   },
 };
 
@@ -105,6 +105,13 @@ test.serial('successfully instantiate contracts', async (t) => {
   // instantiate ics20
   const ics20Msg = {
     default_timeout: 3600,
+    gov_contract: cosmwasm.senderAddress,
+    allowlist: [
+      {
+        contract: cw20Addr,
+        gas_limit: 250000,
+      },
+    ],
   };
   const { contractAddress: ics20Addr } = await cosmwasm.sign.instantiate(
     cosmwasm.senderAddress,
@@ -122,6 +129,8 @@ test.serial('set up channel with ics20 contract', async (t) => {
   // instantiate ics20
   const ics20Msg = {
     default_timeout: 3600,
+    gov_contract: cosmwasm.senderAddress,
+    allowlist: [],
   };
   const { contractAddress: ics20Addr } = await cosmwasm.sign.instantiate(
     cosmwasm.senderAddress,
@@ -165,6 +174,13 @@ test.serial('send packets with ics20 contract', async (t) => {
   // instantiate ics20
   const ics20Msg = {
     default_timeout: 3600,
+    gov_contract: cosmwasm.senderAddress,
+    allowlist: [
+      {
+        contract: cw20Addr,
+        gas_limit: 250000,
+      },
+    ],
   };
   const { contractAddress: ics20Addr } = await cosmwasm.sign.instantiate(
     cosmwasm.senderAddress,
