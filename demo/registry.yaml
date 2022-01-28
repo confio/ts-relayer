@@ -79,10 +79,18 @@ chains:
     rpc:
       - http://34.80.202.172:26657/
   juno:
-    chain_id: lucina
+    chain_id: juno-1
     prefix: juno
     gas_price: 0.1ujuno
     hd_path: m/44'/118'/0'/0/0
     ics20_port: 'transfer'
     rpc:
       - https://rpc-juno.itastakers.com:443
+  osmosis:
+    chain_id: osmosis-1
+    prefix: osmo
+    gas_price: 0uosmo
+    hd_path: m/44'/118'/0'/0/0
+    ics20_port: 'transfer'
+    rpc:
+      - https://rpc-osmosis.blockapsis.com:443
