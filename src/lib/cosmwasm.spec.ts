@@ -141,8 +141,9 @@ test.serial('set up channel with ics20 contract', async (t) => {
   );
   t.truthy(ics20Addr);
 
-  // FIXME: query this when https://github.com/cosmos/cosmjs/issues/836 is resolved
-  const wasmPort = `wasm.${ics20Addr}`;
+  const { ibcPortId: wasmPort } = await cosmwasm.sign.getContract(ics20Addr);
+  console.log(`Ibc Port: ${wasmPort}`);
+  assert(wasmPort);
 
   const [src, dest] = await setup();
   const link = await Link.createWithNewConnections(src, dest);
