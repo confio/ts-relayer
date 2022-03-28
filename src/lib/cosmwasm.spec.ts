@@ -18,11 +18,11 @@ interface WasmData {
 const contracts: Record<string, WasmData> = {
   cw20: {
     wasmUrl:
-      'https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.12.0-alpha1/cw20_base.wasm',
+      'https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.13.1/cw20_base.wasm',
   },
   ics20: {
     wasmUrl:
-      'https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.12.0-alpha1/cw20_ics20.wasm',
+      'https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.13.1/cw20_ics20.wasm',
   },
 };
 
