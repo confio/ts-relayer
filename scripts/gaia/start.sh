@@ -15,7 +15,8 @@ source "$SCRIPT_DIR"/env
 
 # Use a fresh volume for every start
 docker volume rm -f gaia_data
-docker pull "$REPOSITORY:$VERSION"
+# only pull if we don't have it
+(docker images | grep "$REPOSITORY" | grep -q "$VERSION") || docker pull "$REPOSITORY:$VERSION"
 
 echo "starting gaiad running on http://localhost:$TENDERMINT_PORT_HOST"
 
