@@ -12,13 +12,13 @@ chains:
     # It is recommended practice to use a different hd_path than those commonly used for user accounts.
     hd_path: m/44'/1234'/0'/1'
     # If you include an optional faucet, it will load the relayer with tokens in `ibc-setup init`
-    faucet: https://faucet.malaga-420.cosmwasm.com
+    faucet: https://faucet.malaga-420.cosmwasm.com:443
     # You can optionally define a default ics20_port that will be used instead of transfer if no flags set
     ics20_port: 'transfer'
     # You can include multiple RPC endpoints and it will rotate through them if
     # one is down (TODO)
     rpc:
-      - https://rpc.malaga-420.cosmwasm.com
+      - https://rpc.malaga-420.cosmwasm.com:443
     # you can optionally override the gas limits for this chain
     # the most important ones here are `receive_packet` and `ack_packet` for custom protocols
     # this can be deprecated after https://github.com/confio/ts-relayer/issues/198 is closed
@@ -64,11 +64,21 @@ chains:
   juno:
     chain_id: juno-1
     prefix: juno
-    gas_price: 0.1ujuno
+    gas_price: 0.005ujuno
     hd_path: m/44'/118'/0'/0/0
     ics20_port: 'transfer'
     rpc:
       - https://rpc-juno.itastakers.com:443
+  uni:
+    chain_id: uni-3
+    prefix: juno
+    gas_price: 0.025ujunox
+    hd_path: m/44'/118'/0'/0/0
+    ics20_port: 'transfer'
+    # request in juno faucet channel https://discord.gg/TfsuB6yd
+    # faucet: https://faucet.uni.juno.deuslabs.fi
+    rpc:
+      - https://rpc.uni.juno.deuslabs.fi:443
   osmosis:
     chain_id: osmosis-1
     prefix: osmo
