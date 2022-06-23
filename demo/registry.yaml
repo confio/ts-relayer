@@ -57,6 +57,13 @@ chains:
     hd_path: m/44'/1234'/0'/3'
     rpc:
       - http://localhost:26655
+  local_osmo:
+    chain_id: osmo-testing
+    prefix: osmo
+    gas_price: 0uosmo
+    hd_path: m/44'/1234'/0'/4'
+    rpc:
+      - http://localhost:26653
   cosmoshub-4:
     chain_id: cosmoshub-4
     prefix: cosmos
