@@ -6,7 +6,7 @@
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
           "account_number": "0",
-          "address": "wasm1fruqqm6t87kdz2h5kxrrxxrpzx00e979vrtat9",
+          "address": "wasm1gv9qj8sk904lgmk73lkc0wz2nd5ntk5tt6e5rx",
           "pub_key": null,
           "sequence": "0"
         },
@@ -215,6 +215,9 @@
         "tx_size_cost_per_byte": "10"
       }
     },
+    "authz": {
+      "authorization": []
+    },
     "bank": {
       "balances": [
         {
@@ -335,7 +338,7 @@
           ]
         },
         {
-          "address": "wasm1fruqqm6t87kdz2h5kxrrxxrpzx00e979vrtat9",
+          "address": "wasm1gv9qj8sk904lgmk73lkc0wz2nd5ntk5tt6e5rx",
           "coins": [
             {
               "amount": "1000000000",
@@ -600,7 +603,16 @@
         "default_send_enabled": true,
         "send_enabled": []
       },
-      "supply": []
+      "supply": [
+        {
+          "amount": "29000000000",
+          "denom": "ucosm"
+        },
+        {
+          "amount": "29000000000",
+          "denom": "ustake"
+        }
+      ]
     },
     "capability": {
       "index": "1",
@@ -634,6 +646,9 @@
     "evidence": {
       "evidence": []
     },
+    "feegrant": {
+      "allowances": []
+    },
     "genutil": {
       "gen_txs": [
         {
@@ -653,7 +668,7 @@
                 },
                 "public_key": {
                   "@type": "/cosmos.crypto.secp256k1.PubKey",
-                  "key": "AmLwbyN+bZbvJBK+OUkxhiEe7crnTGboX2mt59I9BJxk"
+                  "key": "A3sW2NFsDRyLBY/eOmPU3JtIWYBb+gfaIOCywyqVyGWm"
                 },
                 "sequence": "0"
               }
@@ -661,7 +676,7 @@
           },
           "body": {
             "extension_options": [],
-            "memo": "223486d74b7095ad678a1cdc6f343d7c98cec9d2@172.17.0.3:26656",
+            "memo": "a009485d056129a48e077984194b1c40287695c2@172.17.0.2:26656",
             "messages": [
               {
                 "@type": "/cosmos.staking.v1beta1.MsgCreateValidator",
@@ -670,7 +685,7 @@
                   "max_rate": "0.200000000000000000",
                   "rate": "0.100000000000000000"
                 },
-                "delegator_address": "wasm1fruqqm6t87kdz2h5kxrrxxrpzx00e979vrtat9",
+                "delegator_address": "wasm1gv9qj8sk904lgmk73lkc0wz2nd5ntk5tt6e5rx",
                 "description": {
                   "details": "",
                   "identity": "",
@@ -681,9 +696,9 @@
                 "min_self_delegation": "1",
                 "pubkey": {
                   "@type": "/cosmos.crypto.ed25519.PubKey",
-                  "key": "kkRh/LhgYjgkD7NrsnOCqB9llaf9OOWvYDFUpW+4cSY="
+                  "key": "wFEyH90yX1i+JyrdL+LMHczZjl3tbksy6XgSWc0uGD0="
                 },
-                "validator_address": "wasmvaloper1fruqqm6t87kdz2h5kxrrxxrpzx00e979el7p9l",
+                "validator_address": "wasmvaloper1gv9qj8sk904lgmk73lkc0wz2nd5ntk5t7xvgdu",
                 "value": {
                   "amount": "250000000",
                   "denom": "ustake"
@@ -694,7 +709,7 @@
             "timeout_height": "0"
           },
           "signatures": [
-            "PlTt6F/5GIlYKl8cQ4Vq8eZd123j6J/VOWv2SYrX4KRLrnnxO7paTFmI3bYdiLpCmiVoZ1EOxcwfTRY8di+uYg=="
+            "6uqUufK+KesslHCu1RWvI0jL25Ym4XUCxxDjBMkF6WB9hahwknkhlhwWTtMDLwNGsvlpyRLuAttkahRYWb346Q=="
           ]
         }
       ]
@@ -749,9 +764,32 @@
       "connection_genesis": {
         "client_connection_paths": [],
         "connections": [],
-        "next_connection_sequence": "0"
+        "next_connection_sequence": "0",
+        "params": {
+          "max_expected_time_per_block": "30000000000"
+        }
       }
     },
+    "interchainaccounts": {
+      "controller_genesis_state": {
+        "active_channels": [],
+        "interchain_accounts": [],
+        "params": {
+          "controller_enabled": true
+        },
+        "ports": []
+      },
+      "host_genesis_state": {
+        "active_channels": [],
+        "interchain_accounts": [],
+        "params": {
+          "allow_messages": [],
+          "host_enabled": true
+        },
+        "port": "icahost"
+      }
+    },
+    "intertx": null,
     "mint": {
       "minter": {
         "annual_provisions": "0.000000000000000000",
@@ -813,8 +851,7 @@
           "address": "",
           "permission": "Everybody"
         },
-        "instantiate_default_permission": "Everybody",
-        "max_wasm_code_size": "614400"
+        "instantiate_default_permission": "Everybody"
       },
       "sequences": []
     }
@@ -838,6 +875,6 @@
     },
     "version": {}
   },
-  "genesis_time": "2021-03-10T15:54:53.773607451Z",
+  "genesis_time": "2022-06-23T18:31:26.759456881Z",
   "initial_height": "1"
 }

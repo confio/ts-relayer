@@ -57,7 +57,7 @@ The Cosmos test network is initialised with a validator (see
 `.gaiad/config/genesis.json`). This validator has the following mnemonic:
 
 ```
-economy stock theory fatal elder harbor betray wasp final emotion task crumble siren bottom lizard educate guess current outdoor pair theory focus wife stone
+cause turn maximum barely board hungry brief citizen remind raw laundry move into copy domain kingdom behind laptop whale visit protect olive top kitten
 ```
 
 To add the validator key to your local keybase run the following, choose an
@@ -73,12 +73,10 @@ You should get output matching the following:
 ```
 - name: validator
   type: local
-  address: cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6
-  pubkey: cosmospub1addwnpepqd8sgxq7aw348ydctp3n5ajufgxp395hksxjzc6565yfp56scupfqhlgyg5
+  address: wasm1gv9qj8sk904lgmk73lkc0wz2nd5ntk5tt6e5rx
+  pubkey: '{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"A3sW2NFsDRyLBY/eOmPU3JtIWYBb+gfaIOCywyqVyGWm"}'
   mnemonic: ""
-  threshold: 0
-  pubkeys: []
-```
+  ```
 
 ## Preset accounts
 
