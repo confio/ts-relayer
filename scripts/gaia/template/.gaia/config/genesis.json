@@ -555,7 +555,7 @@
         "receive_enabled": true,
         "send_enabled": true
       },
-      "port_id": "transfer"
+      "port_id": "custom"
     },
     "upgrade": {},
     "vesting": {}

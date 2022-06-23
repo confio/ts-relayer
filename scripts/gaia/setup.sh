@@ -8,6 +8,7 @@ MONIKER=${MONIKER:-gaia-moniker}
 
 # The staking and the fee tokens. The supply of the staking token is low compared to the fee token (factor 100).
 STAKE=${STAKE_TOKEN:-uatom}
+TRANSFER_PORT=${TRANSFER_PORT:-custom}
 
 # 1000 ATOM
 START_BALANCE="1000000000$STAKE"
@@ -15,6 +16,8 @@ START_BALANCE="1000000000$STAKE"
 echo "Creating genesis ..."
 gaiad init --chain-id "$CHAIN_ID" "$MONIKER"
 sed -i "s/\"stake\"/\"$STAKE\"/" "$HOME"/.gaia/config/genesis.json # staking/governance token is hardcoded in config, change this
+sed -i "s/\"port_id\": *\"transfer\"/\"port_id\": \"$TRANSFER_PORT\"/" "$HOME"/.gaia/config/genesis.json # allow custom ibc transfer port
+
 # this is essential for sub-1s block times (or header times go crazy)
 sed -i 's/"time_iota_ms": "1000"/"time_iota_ms": "10"/' "$HOME"/.gaia/config/genesis.json
 
