@@ -71,13 +71,13 @@ Reads the configuration and starts relaying packets.
 1. Init the configuration
 
    ```sh
-   ibc-setup init --src oysternet --dest nyancat
+   ibc-setup init --src malaga --dest nyancat
    ```
 
    - creates relayer's home directory at `~/.ibc-setup`
    - creates `app.yaml` inside relayer's home with `src`, `dest` and newly generated `mnemonic`
    - pulls default `registry.yaml` to relayer's home
-   - funds addresses on `oysternet` so relayer can pay the fee while relaying packets
+   - funds addresses on `malaga` so relayer can pay the fee while relaying packets
 
    > **NOTE:** Both testnets are running in the public. You do not need to start any blockchain locally to complete the quick start guide.
 
@@ -89,7 +89,7 @@ Reads the configuration and starts relaying packets.
    - Join IRISnet discord with [this invite link](https://discord.gg/X6dZZxs3#nyncat-faucet)
    - Go to the `nyancat-faucet` channel
    - Request tokens at this address in the above channel: `$faucet iaa1fxmqew9dgg44jdf3l34zwa8rx7tcf42wz8ehjk`
-   - Check you have tokens on oysternet and nyancat via `ibc-setup balances`
+   - Check you have tokens on malaga and nyancat via `ibc-setup balances`
 
    [Original Instructions from IRISnet](https://github.com/irisnet/testnets/tree/master/nyancat#faucet)
 
@@ -139,7 +139,7 @@ Reads the configuration and starts relaying packets.
    ```sh
    wasmd keys add sender
    JSON=$(jq -n --arg addr $(wasmd keys show -a sender) '{"denom":"usponge","address":$addr}')
-   curl -X POST --header "Content-Type: application/json" --data "$JSON" https://faucet.oysternet.cosmwasm.com/credit
+   curl -X POST --header "Content-Type: application/json" --data "$JSON" https://faucet.malaga.cosmwasm.com/credit
    ```
 
 4. Create a valid IRISnet address to send tokens to
@@ -148,16 +148,16 @@ Reads the configuration and starts relaying packets.
    iris keys add receiver
    ```
 
-   [Get testnet tokens](https://github.com/irisnet/testnets/tree/master/nyancat#faucet) if you want to send tokens to `oysternet`.
+   [Get testnet tokens](https://github.com/irisnet/testnets/tree/master/nyancat#faucet) if you want to send tokens to `malaga`.
 
 5. Send tokens
    ```sh
-   wasmd tx ibc-transfer transfer transfer <channel-id> $(iris keys show -a receiver) 200usponge --from $(wasmd keys show -a sender) --node http://rpc.oysternet.cosmwasm.com:80 --chain-id oysternet-1 --fees 2000usponge --packet-timeout-height 0-0
+   wasmd tx ibc-transfer transfer transfer <channel-id> $(iris keys show -a receiver) 200usponge --from $(wasmd keys show -a sender) --node http://rpc.malaga.cosmwasm.com:80 --chain-id malaga-1 --fees 2000usponge --packet-timeout-height 0-0
    ```
    - replace `<channel-id>` with the channel id obtained while configuring the relayer (2nd point)
    - if you cleared out the terminal, query the channel
      ```sh
-     ibc-setup channels --chain oysternet
+     ibc-setup channels --chain malaga
      ```
 6. Observe the relayer output
 
