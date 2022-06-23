@@ -33,7 +33,7 @@ chains:
   local_gaia:
     chain_id: gaia-testing
     prefix: cosmos
-    gas_price: 0.025umuon
+    gas_price: 0.025uatom
     rpc:
       - http://localhost:26655`;
 
