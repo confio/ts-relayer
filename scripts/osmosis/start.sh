@@ -27,6 +27,6 @@ docker run --rm \
   -p "$API_PORT_HOST":"$API_PORT_GUEST" \
   --mount type=bind,source="$SCRIPT_DIR/template",target=/template \
   --mount type=volume,source=osmosis_data,target=/root \
+  --entrypoint /template/run_osmosisd.sh \
   "$REPOSITORY:$VERSION" \
-  /template/run_osmosisd.sh \
   2>&1 | grep 'executed block'

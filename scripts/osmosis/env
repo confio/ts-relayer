@@ -1,5 +1,4 @@
-# TODO: find proper repo or publish (basically make docker-build-debug)
-# REPOSITORY="cephalopodequipment/gaiad"
-# Choose from https://hub.docker.com/r/cephalopodequipment/gaiad/tags
+REPOSITORY="cephalopodequipment/osmosisd"
+# Choose from https://hub.docker.com/r/cephalopodequipment/osmosisd/tags
 VERSION="9.0.0"
 CONTAINER_NAME="osmosis"

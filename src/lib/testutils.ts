@@ -144,26 +144,24 @@ export const osmosis: ChainDefinition = {
   minFee: '0uosmo',
   blockTime: 250, // ms
   faucet: {
-    // TODO: generate new facuet
     mnemonic:
-      'enlist hip relief stomach skate base shallow young switch frequent cry park',
+      'remain fragile remove stamp quiz bus country dress critic mammal office need',
     pubkey0: {
       type: 'tendermint/PubKeySecp256k1',
-      value: 'A9cXhWb8ZpqCzkA8dQCPV29KdeRLV3rUYxrkHudLbQtS',
+      value: 'A0d/GxY+UALE+miWJP0qyq4/EayG1G6tsg24v+cbD6By',
     },
-    address0: 'wasm14qemq0vw6y3gc3u3e0aty2e764u4gs5lndxgyk',
+    address0: 'osmo1lvrwcvrqlc5ktzp2c4t22xgkx29q3y83hdcc5d',
   },
   unused: {
     pubkey: {
       type: 'tendermint/PubKeySecp256k1',
       value: 'ArkCaFUJ/IH+vKBmNRCdUVl3mCAhbopk9jjW4Ko4OfRQ',
     },
-    // TODO: make osmos
-    address: 'wasm1cjsxept9rkggzxztslae9ndgpdyt240842kpxh',
+    address: 'osmo1cjsxept9rkggzxztslae9ndgpdyt2408hd5yew',
     accountNumber: 16,
     sequence: 0,
-    balanceStaking: '10000000', // 10 STAKE
-    balanceFee: '1000000000', // 1000 COSM
+    balanceStaking: '1000000000', // 1000 OSMO
+    balanceFee: '1000000000', // 1000 OSMO
   },
   ics20Port: 'transfer',
 };
