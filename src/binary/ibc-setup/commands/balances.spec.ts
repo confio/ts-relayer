@@ -129,7 +129,7 @@ test('omits chains with zero balance', async (t) => {
       new RegExp(
         [
           'musselnet\\s+1musselnetdenom\\s+',
-          'local_gaia\\s+gaiadenom\\s+',
+          'local_gaia\\s+3gaiadenom\\s+',
         ].join(os.EOL)
       )
     )

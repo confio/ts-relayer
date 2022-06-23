@@ -241,7 +241,7 @@ test.serial('send packets with ics20 contract', async (t) => {
   // check source balance
   const preBalance = await src.sign.getAllBalances(src.senderAddress);
   t.is(1, preBalance.length);
-  t.is('umuon', preBalance[0].denom);
+  t.is('uatom', preBalance[0].denom);
 
   // ensure the packet moves
   const packets = await link.getPendingPackets('B');
@@ -263,7 +263,7 @@ test.serial('send packets with ics20 contract', async (t) => {
   // check source balances increased
   const relayedBalance = await src.sign.getAllBalances(src.senderAddress);
   t.is(2, relayedBalance.length);
-  const ibcCoin = relayedBalance.find((d) => d.denom !== 'umuon');
+  const ibcCoin = relayedBalance.find((d) => d.denom !== 'uatom');
   assert(ibcCoin);
   t.is('456789000', ibcCoin.amount);
   console.log(ibcCoin);
@@ -297,7 +297,7 @@ test.serial('send packets with ics20 contract', async (t) => {
   // send native token over channel (from dest -> cosmwasm chain)
   const timeoutHeight2 = await dest.timeoutHeight(500);
   const nativeCoin = {
-    denom: 'umuon',
+    denom: 'uatom',
     amount: '111111',
   };
   await src.transferTokens(
