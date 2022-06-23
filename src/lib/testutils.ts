@@ -40,38 +40,6 @@ export class TestLogger implements Logger {
   }
 }
 
-export const simapp = {
-  tendermintUrlWs: 'ws://localhost:26658',
-  tendermintUrlHttp: 'http://localhost:26658',
-  chainId: 'simd-testing',
-  prefix: 'cosmos',
-  denomStaking: 'umoo',
-  denomFee: 'umuon',
-  minFee: '0.025umuon',
-  blockTime: 250, // ms
-  faucet: {
-    mnemonic:
-      'economy stock theory fatal elder harbor betray wasp final emotion task crumble siren bottom lizard educate guess current outdoor pair theory focus wife stone',
-    pubkey0: {
-      type: 'tendermint/PubKeySecp256k1',
-      value: 'A08EGB7ro1ORuFhjOnZcSgwYlpe0DSFjVNUIkNNQxwKQ',
-    },
-    address0: 'cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6',
-  },
-  /** Unused account */
-  unused: {
-    pubkey: {
-      type: 'tendermint/PubKeySecp256k1',
-      value: 'ArkCaFUJ/IH+vKBmNRCdUVl3mCAhbopk9jjW4Ko4OfRQ',
-    },
-    address: 'cosmos1cjsxept9rkggzxztslae9ndgpdyt2408lk850u',
-    accountNumber: 16,
-    sequence: 0,
-    balanceStaking: '10000000', // 10 STAKE
-    balanceFee: '1000000000', // 1000 COSM
-  },
-};
-
 export const gaia = {
   tendermintUrlWs: 'ws://localhost:26655',
   tendermintUrlHttp: 'http://localhost:26655',
@@ -214,17 +182,6 @@ export async function signingCosmWasmClient(
   );
 
   return { sign, senderAddress };
-}
-
-// This is simapp -> wasm
-export async function setup(logger?: Logger): Promise<IbcClient[]> {
-  // create apps and fund an account
-  const mnemonic = generateMnemonic();
-  const src = await signingClient(simapp, mnemonic, logger);
-  const dest = await signingClient(wasmd, mnemonic, logger);
-  await fundAccount(wasmd, dest.senderAddress, '4000000');
-  await fundAccount(simapp, src.senderAddress, '4000000');
-  return [src, dest];
 }
 
 export async function setupGaiaWasm(logger?: Logger): Promise<IbcClient[]> {

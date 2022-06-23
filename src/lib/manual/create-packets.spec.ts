@@ -12,20 +12,26 @@ yarn build && yarn test:unit ./src/lib/manual/create-packets.spec.ts
 
 import test from 'ava';
 
-import { setup, simapp, TestLogger, transferTokens, wasmd } from '../testutils';
+import {
+  gaia,
+  setupGaiaWasm,
+  TestLogger,
+  transferTokens,
+  wasmd,
+} from '../testutils';
 
 import { channels } from './consts';
 
 test.serial.skip('send valid packets on existing channel', async (t) => {
   // create the basic clients
   const logger = new TestLogger();
-  const [src, dest] = await setup(logger);
+  const [src, dest] = await setupGaiaWasm(logger);
 
   // send some from src to dest
   const srcAmounts = [1200, 32222, 3456];
   const srcPackets = await transferTokens(
     src,
-    simapp.denomFee,
+    gaia.denomFee,
     dest,
     wasmd.prefix,
     channels.src,
@@ -39,7 +45,7 @@ test.serial.skip('send valid packets on existing channel', async (t) => {
     dest,
     wasmd.denomFee,
     src,
-    simapp.prefix,
+    gaia.prefix,
     channels.dest,
     destAmounts
   );

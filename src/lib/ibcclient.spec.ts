@@ -5,10 +5,10 @@ import { MsgTransfer } from 'cosmjs-types/ibc/applications/transfer/v1/tx';
 import { buildCreateClientArgs, prepareConnectionHandshake } from './ibcclient';
 import { Link } from './link';
 import {
+  gaia,
   ics20,
   randomAddress,
-  setup,
-  simapp,
+  setupGaiaWasm,
   TestLogger,
   wasmd,
 } from './testutils';
@@ -19,9 +19,9 @@ import {
   parsePacketsFromLogs,
 } from './utils';
 
-test.serial('create simapp client on wasmd', async (t) => {
+test.serial('create gaia client on wasmd', async (t) => {
   const logger = new TestLogger();
-  const [src, dest] = await setup(logger);
+  const [src, dest] = await setupGaiaWasm(logger);
 
   const preClients = await dest.query.ibc.client.allStates();
   const preLen = preClients.clientStates.length;
@@ -43,8 +43,8 @@ test.serial('create simapp client on wasmd', async (t) => {
   t.is(postClients.clientStates.length, preLen + 1);
 });
 
-test.serial('create and update wasmd client on simapp', async (t) => {
-  const [src, dest] = await setup();
+test.serial('create and update wasmd client on gaia', async (t) => {
+  const [src, dest] = await setupGaiaWasm();
 
   const header = await src.latestHeader();
 
@@ -88,7 +88,7 @@ function sameLong(a?: Long, b?: Long) {
 
 // make 2 clients, and try to establish a connection
 test.serial('perform connection handshake', async (t) => {
-  const [src, dest] = await setup();
+  const [src, dest] = await setupGaiaWasm();
 
   // client on dest -> src
   const args = await buildCreateClientArgs(src, 5000);
@@ -152,7 +152,7 @@ test.serial('perform connection handshake', async (t) => {
 test.serial('transfer message and send packets', async (t) => {
   const logger = new TestLogger();
   // set up ics20 channel
-  const [nodeA, nodeB] = await setup();
+  const [nodeA, nodeB] = await setupGaiaWasm();
   const link = await Link.createWithNewConnections(nodeA, nodeB, logger);
   const channels = await link.createChannel(
     'A',
@@ -170,7 +170,7 @@ test.serial('transfer message and send packets', async (t) => {
 
   // submit a transfer message
   const destHeight = await nodeB.timeoutHeight(500); // valid for 500 blocks
-  const token = { amount: '12345', denom: simapp.denomFee };
+  const token = { amount: '12345', denom: gaia.denomFee };
   const transferResult = await nodeA.transferTokens(
     channels.src.portId,
     channels.src.channelId,
@@ -214,7 +214,7 @@ test.serial('transfer message and send packets', async (t) => {
 test.serial('tests parsing with multi-message', async (t) => {
   const logger = new TestLogger();
   // set up ics20 channel
-  const [nodeA, nodeB] = await setup(logger);
+  const [nodeA, nodeB] = await setupGaiaWasm(logger);
   const link = await Link.createWithNewConnections(nodeA, nodeB, logger);
   const channels = await link.createChannel(
     'A',
@@ -226,11 +226,11 @@ test.serial('tests parsing with multi-message', async (t) => {
 
   // make an account on remote chain for testing
   const destAddr = randomAddress(wasmd.prefix);
-  const srcAddr = randomAddress(simapp.prefix);
+  const srcAddr = randomAddress(gaia.prefix);
 
   // submit a send message - no events
   const { logs: sendLogs } = await nodeA.sendTokens(srcAddr, [
-    { amount: '5000', denom: simapp.denomFee },
+    { amount: '5000', denom: gaia.denomFee },
   ]);
   t.assert(
     logger.verbose.calledWithMatch(/Send tokens to/),
@@ -255,7 +255,7 @@ test.serial('tests parsing with multi-message', async (t) => {
       sourcePort: channels.src.portId,
       sourceChannel: channels.src.channelId,
       sender: nodeA.senderAddress,
-      token: { amount: '6000', denom: simapp.denomFee },
+      token: { amount: '6000', denom: gaia.denomFee },
       receiver: destAddr,
       timeoutHeight,
     }),
@@ -266,7 +266,7 @@ test.serial('tests parsing with multi-message', async (t) => {
       sourcePort: channels.src.portId,
       sourceChannel: channels.src.channelId,
       sender: nodeA.senderAddress,
-      token: { amount: '9000', denom: simapp.denomFee },
+      token: { amount: '9000', denom: gaia.denomFee },
       receiver: destAddr,
       timeoutHeight,
     }),

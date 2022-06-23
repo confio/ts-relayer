@@ -5,10 +5,10 @@ import { State } from 'cosmjs-types/ibc/core/channel/v1/channel';
 import { prepareChannelHandshake } from './ibcclient';
 import { Link, RelayedHeights } from './link';
 import {
+  gaia,
   ics20,
   randomAddress,
-  setup,
-  simapp,
+  setupGaiaWasm,
   TestLogger,
   transferTokens,
   wasmd,
@@ -17,7 +17,7 @@ import { secondsFromDateNanos, splitPendingPackets } from './utils';
 
 test.serial('establish new client-connection', async (t) => {
   const logger = new TestLogger();
-  const [src, dest] = await setup();
+  const [src, dest] = await setupGaiaWasm();
 
   const link = await Link.createWithNewConnections(src, dest, logger);
   // ensure the data makes sense (TODO: more?)
@@ -34,7 +34,7 @@ test.serial('establish new client-connection', async (t) => {
 });
 
 test.serial('initialized connection and start channel handshake', async (t) => {
-  const [src, dest] = await setup();
+  const [src, dest] = await setupGaiaWasm();
   const link = await Link.createWithNewConnections(src, dest);
 
   // reject channels with invalid ports
@@ -77,7 +77,7 @@ test.serial('initialized connection and start channel handshake', async (t) => {
 test.serial(
   'automated channel handshake on initialized connection',
   async (t) => {
-    const [nodeA, nodeB] = await setup();
+    const [nodeA, nodeB] = await setupGaiaWasm();
     const link = await Link.createWithNewConnections(nodeA, nodeB);
 
     // increment the channel sequence on src, to guarantee unique ids
@@ -118,7 +118,7 @@ test.serial(
 // createWithExistingConnections
 
 test.serial('reuse existing connections', async (t) => {
-  const [src, dest] = await setup();
+  const [src, dest] = await setupGaiaWasm();
 
   const oldLink = await Link.createWithNewConnections(src, dest);
   const connA = oldLink.endA.connectionID;
@@ -169,7 +169,7 @@ test.serial('reuse existing connections', async (t) => {
 test.serial(
   'reuse existing connections with partially open channel',
   async (t) => {
-    const [src, dest] = await setup();
+    const [src, dest] = await setupGaiaWasm();
 
     const oldLink = await Link.createWithNewConnections(src, dest);
     const connA = oldLink.endA.connectionID;
@@ -238,7 +238,7 @@ test.serial(
 );
 
 test.serial('errors when reusing an invalid connection', async (t) => {
-  const [src, dest] = await setup();
+  const [src, dest] = await setupGaiaWasm();
 
   // Make sure valid connections do exist
   await Link.createWithNewConnections(src, dest);
@@ -251,7 +251,7 @@ test.serial('errors when reusing an invalid connection', async (t) => {
 });
 
 test.serial(`errors when reusing connections on the same node`, async (t) => {
-  const [src, dest] = await setup();
+  const [src, dest] = await setupGaiaWasm();
 
   const oldLink = await Link.createWithNewConnections(src, dest);
   const connA = oldLink.endA.connectionID;
@@ -262,7 +262,7 @@ test.serial(`errors when reusing connections on the same node`, async (t) => {
 });
 
 test.serial(`errors when reusing connections which don’t match`, async (t) => {
-  const [src, dest] = await setup();
+  const [src, dest] = await setupGaiaWasm();
 
   const oldLink1 = await Link.createWithNewConnections(src, dest);
   const connA = oldLink1.endA.connectionID;
@@ -276,7 +276,7 @@ test.serial(`errors when reusing connections which don’t match`, async (t) => 
 
 test.serial('submit multiple tx, get unreceived packets', async (t) => {
   // setup a channel
-  const [nodeA, nodeB] = await setup();
+  const [nodeA, nodeB] = await setupGaiaWasm();
   const link = await Link.createWithNewConnections(nodeA, nodeB);
   const channels = await link.createChannel(
     'A',
@@ -294,7 +294,7 @@ test.serial('submit multiple tx, get unreceived packets', async (t) => {
   const amounts = [1000, 2222, 3456];
   const txHeights = await transferTokens(
     nodeA,
-    simapp.denomFee,
+    gaia.denomFee,
     nodeB,
     wasmd.prefix,
     channels.src,
@@ -357,7 +357,7 @@ test.serial(
   async (t) => {
     const logger = new TestLogger();
     // setup a channel
-    const [nodeA, nodeB] = await setup(logger);
+    const [nodeA, nodeB] = await setupGaiaWasm(logger);
     const link = await Link.createWithNewConnections(nodeA, nodeB, logger);
     const channels1 = await link.createChannel(
       'A',
@@ -383,7 +383,7 @@ test.serial(
     const amounts = [1000, 2222, 3456];
     const tx1 = await transferTokens(
       nodeA,
-      simapp.denomFee,
+      gaia.denomFee,
       nodeB,
       wasmd.prefix,
       channels1.src,
@@ -391,7 +391,7 @@ test.serial(
     );
     const tx2 = await transferTokens(
       nodeA,
-      simapp.denomFee,
+      gaia.denomFee,
       nodeB,
       wasmd.prefix,
       channels2.src,
@@ -469,7 +469,7 @@ test.serial(
   async (t) => {
     // setup
     const logger = new TestLogger();
-    const [nodeA, nodeB] = await setup(logger);
+    const [nodeA, nodeB] = await setupGaiaWasm(logger);
     const link = await Link.createWithNewConnections(nodeA, nodeB, logger);
 
     // height before waiting
@@ -499,7 +499,7 @@ test.serial(
   'checkAndRelayPacketsAndAcks relays packets properly',
   async (t) => {
     const logger = new TestLogger();
-    const [nodeA, nodeB] = await setup(logger);
+    const [nodeA, nodeB] = await setupGaiaWasm(logger);
 
     const link = await Link.createWithNewConnections(nodeA, nodeB, logger);
     const channels = await link.createChannel(
@@ -537,7 +537,7 @@ test.serial(
     const amountsA = [1000, 2222, 3456];
     const txHeightsA = await transferTokens(
       nodeA,
-      simapp.denomFee,
+      gaia.denomFee,
       nodeB,
       wasmd.prefix,
       channels.src,
@@ -550,7 +550,7 @@ test.serial(
       nodeB,
       wasmd.denomFee,
       nodeA,
-      simapp.prefix,
+      gaia.prefix,
       channels.dest,
       amountsB,
       5000 // never time out
@@ -597,7 +597,7 @@ test.serial(
 
 test.serial('timeout expired packets', async (t) => {
   const logger = new TestLogger();
-  const [nodeA, nodeB] = await setup(logger);
+  const [nodeA, nodeB] = await setupGaiaWasm(logger);
 
   const link = await Link.createWithNewConnections(nodeA, nodeB, logger);
   const channels = await link.createChannel(
@@ -631,7 +631,7 @@ test.serial('timeout expired packets', async (t) => {
   // let's make 3 transfer tx at different heights
   const txHeights = [];
   for (let i = 0; i < amounts.length; ++i) {
-    const token = { amount: amounts[i].toString(), denom: simapp.denomFee };
+    const token = { amount: amounts[i].toString(), denom: gaia.denomFee };
     const { height } = await nodeA.transferTokens(
       channels.src.portId,
       channels.src.channelId,

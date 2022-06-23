@@ -4,7 +4,12 @@ import test from 'ava';
 import axios from 'axios';
 
 import { Link } from './link';
-import { CosmWasmSigner, ics20, setup, setupWasmClient } from './testutils';
+import {
+  CosmWasmSigner,
+  ics20,
+  setupGaiaWasm,
+  setupWasmClient,
+} from './testutils';
 
 const codeIds: Record<string, number> = {
   cw20: 0,
@@ -145,7 +150,7 @@ test.serial('set up channel with ics20 contract', async (t) => {
   console.log(`Ibc Port: ${wasmPort}`);
   assert(wasmPort);
 
-  const [src, dest] = await setup();
+  const [src, dest] = await setupGaiaWasm();
   const link = await Link.createWithNewConnections(src, dest);
   await link.createChannel(
     'A',
@@ -196,7 +201,7 @@ test.serial('send packets with ics20 contract', async (t) => {
   console.log(`Ibc Port: ${wasmPort}`);
   assert(wasmPort);
 
-  const [src, dest] = await setup();
+  const [src, dest] = await setupGaiaWasm();
   const link = await Link.createWithNewConnections(src, dest);
   const channels = await link.createChannel(
     'A',
