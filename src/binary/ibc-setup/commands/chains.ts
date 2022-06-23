@@ -1,10 +1,10 @@
 /** This is info for tests **/
 
-export const simappChain = {
+export const gaiaChain = {
   prefix: 'cosmos',
-  chain_id: 'simd-testing',
-  gas_price: '0.025umuon',
-  rpc: ['http://localhost:26658'],
+  chain_id: 'gaia-testing',
+  gas_price: '0.025uatom',
+  rpc: ['http://localhost:26655'],
 };
 
 export const wasmdChain = {

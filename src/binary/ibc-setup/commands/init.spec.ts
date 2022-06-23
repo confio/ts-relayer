@@ -37,13 +37,13 @@ chains:
     hd_path: m/44'/108'/0'/2'
     rpc:
       - http://localhost:26659
-  local_simapp:
-    chain_id: simd-testing
+  local_gaia:
+    chain_id: gaia-testing
     prefix: cosmos
-    gas_price: 0.025umuon
+    gas_price: 0.025uatom
     hd_path: m/44'/108'/0'/3'
     rpc:
-      - http://localhost:26658`;
+      - http://localhost:26655`;
 
 test.beforeEach(() => {
   sinon.reset();
@@ -53,7 +53,7 @@ test('creates app.yaml', async (t) => {
   const options: Options = {
     home: '/home/user',
     src: 'local_wasm',
-    dest: 'local_simapp',
+    dest: 'local_gaia',
     registryFrom: null,
   };
   const appPath = path.join(options.home, 'app.yaml');
@@ -96,7 +96,7 @@ test.only('initialize home directory, pull registry.yaml and create app.yaml', a
   const options: Options = {
     home: '/home/user',
     src: 'local_wasm',
-    dest: 'local_simapp',
+    dest: 'local_gaia',
     registryFrom: null,
   };
   const appPath = path.join(options.home, 'app.yaml');
@@ -142,7 +142,7 @@ test('throws when cannot fetch registry.yaml from remote', async (t) => {
   const options: Options = {
     home: '/home/user',
     src: 'local_wasm',
-    dest: 'local_simapp',
+    dest: 'local_gaia',
     registryFrom: null,
   };
 
@@ -165,7 +165,7 @@ test('returns early if app.yaml exists', async (t) => {
   const options: Options = {
     home: '/home/user',
     src: 'local_wasm',
-    dest: 'local_simapp',
+    dest: 'local_gaia',
     registryFrom: null,
   };
 
@@ -182,7 +182,7 @@ test('throws if provided chain does not exist in the registry', async (t) => {
   const options: Options = {
     home: '/home/user',
     src: 'chain_that_does_not_exist',
-    dest: 'local_simapp',
+    dest: 'local_gaia',
     registryFrom: null,
   };
   const registryPath = path.join(options.home, 'registry.yaml');
@@ -213,7 +213,7 @@ test('copies existing registry', async (t) => {
   const options: Options = {
     home: '/home/user',
     src: 'local_wasm',
-    dest: 'local_simapp',
+    dest: 'local_gaia',
     registryFrom: '/home/user/.relayer-home',
   };
   const appPath = path.join(options.home, 'app.yaml');

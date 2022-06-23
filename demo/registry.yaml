@@ -50,6 +50,13 @@ chains:
     hd_path: m/44'/1234'/0'/2'
     rpc:
       - http://localhost:26659
+  local_gaia:
+    chain_id: gaia-testing
+    prefix: cosmos
+    gas_price: 0.025uatom
+    hd_path: m/44'/1234'/0'/3'
+    rpc:
+      - http://localhost:26655
   cosmoshub-4:
     chain_id: cosmoshub-4
     prefix: cosmos

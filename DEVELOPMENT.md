@@ -9,17 +9,14 @@ These are long-living commands and will keep running indefinitely
 
 ```sh
 # in one console
-./scripts/simapp/start.sh
-# in another console
 ./scripts/wasmd/start.sh
-# in yet another console
+# in another console
 ./scripts/gaia/start.sh
 ```
 
 When you are done running tests, you can run the following in any console to shut down the chains:
 
 ```sh
-./scripts/simapp/stop.sh
 ./scripts/wasmd/stop.sh
 ./scripts/gaia/stop.sh
 ```
@@ -52,13 +49,13 @@ This is just mean for manual testing with the local CI chains defined in [demo/r
 First get some keys:
 
 ```sh
-ibc-setup init --src local_wasm --dest local_simapp # initializes home directory at: ~/.ibc-setup
+ibc-setup init --src local_wasm --dest local_gaia # initializes home directory at: ~/.ibc-setup
 ibc-setup keys list
 ```
 
 Then edit [manual/consts.ts](./src/lib/manual/consts.ts) and place your keys in those address variables.
 
-- `exports.simappAddress = 'cosmos1y6m4llfs0ruxr0p67cs748vrv40ryh9r0gaqvd';`
+- `exports.gaiaAddress = 'cosmos1y6m4llfs0ruxr0p67cs748vrv40ryh9r0gaqvd';`
 - `exports.wasmdAddress = 'wasm1q6cggcxghka0yj88927zqs6d2pdq58wnkptx52';`
 
 ```sh

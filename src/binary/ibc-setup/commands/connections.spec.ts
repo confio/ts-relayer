@@ -8,7 +8,7 @@ import { TestLogger } from '../../../lib/testutils';
 import { Logger } from '../../create-logger';
 import { signingClient } from '../../utils/signing-client';
 
-import { simappChain, wasmdChain } from './chains';
+import { gaiaChain, wasmdChain } from './chains';
 import { Options, run } from './connections';
 
 const fsReadFileSync = sinon.stub(fs, 'readFileSync');
@@ -27,12 +27,12 @@ chains:
     gas_price: 0.025ucosm
     rpc:
       - http://localhost:26659
-  local_simapp:
-    chain_id: simd-testing
+  local_gaia:
+    chain_id: gaia-testing
     prefix: cosmos
-    gas_price: 0.025umuon
+    gas_price: 0.025uatom
     rpc:
-      - http://localhost:26658`;
+      - http://localhost:26655`;
 
 test.beforeEach(() => {
   sinon.reset();
@@ -41,18 +41,18 @@ test.beforeEach(() => {
 test.serial('lists connections', async (t) => {
   const logger = new TestLogger();
 
-  const ibcClientSimapp = await signingClient(simappChain, mnemonic);
+  const ibcClientGaia = await signingClient(gaiaChain, mnemonic);
   const ibcClientWasm = await signingClient(wasmdChain, mnemonic);
 
   const link = await Link.createWithNewConnections(
-    ibcClientSimapp,
+    ibcClientGaia,
     ibcClientWasm
   );
 
   const options: Options = {
     home: '/home/user',
     mnemonic,
-    chain: 'local_simapp',
+    chain: 'local_gaia',
   };
 
   fsReadFileSync.returns(registryYaml);

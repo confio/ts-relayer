@@ -40,37 +40,6 @@ export class TestLogger implements Logger {
   }
 }
 
-export const simapp = {
-  tendermintUrlWs: 'ws://localhost:26658',
-  tendermintUrlHttp: 'http://localhost:26658',
-  chainId: 'simd-testing',
-  prefix: 'cosmos',
-  denomStaking: 'umoo',
-  denomFee: 'umuon',
-  minFee: '0.025umuon',
-  blockTime: 250, // ms
-  faucet: {
-    mnemonic:
-      'economy stock theory fatal elder harbor betray wasp final emotion task crumble siren bottom lizard educate guess current outdoor pair theory focus wife stone',
-    pubkey0: {
-      type: 'tendermint/PubKeySecp256k1',
-      value: 'A08EGB7ro1ORuFhjOnZcSgwYlpe0DSFjVNUIkNNQxwKQ',
-    },
-    address0: 'cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6',
-  },
-  /** Unused account */
-  unused: {
-    pubkey: {
-      type: 'tendermint/PubKeySecp256k1',
-      value: 'ArkCaFUJ/IH+vKBmNRCdUVl3mCAhbopk9jjW4Ko4OfRQ',
-    },
-    address: 'cosmos1cjsxept9rkggzxztslae9ndgpdyt2408lk850u',
-    accountNumber: 16,
-    sequence: 0,
-    balanceStaking: '10000000', // 10 STAKE
-    balanceFee: '1000000000', // 1000 COSM
-  },
-};
 
 export const gaia = {
   tendermintUrlWs: 'ws://localhost:26655',

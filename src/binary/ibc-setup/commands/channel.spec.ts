@@ -11,7 +11,7 @@ import { Logger } from '../../create-logger';
 import { indent } from '../../utils/indent';
 import { signingClient } from '../../utils/signing-client';
 
-import { simappChain, wasmdChain } from './chains';
+import { gaiaChain, wasmdChain } from './chains';
 import { Options, run } from './channel';
 
 const fsReadFileSync = sinon.stub(fs, 'readFileSync');
@@ -30,12 +30,12 @@ chains:
     gas_price: 0.025ucosm
     rpc:
       - http://localhost:26659
-  local_simapp:
-    chain_id: simd-testing
+  local_gaia:
+    chain_id: gaia-testing
     prefix: cosmos
-    gas_price: 0.025umuon
+    gas_price: 0.025uatom
     rpc:
-      - http://localhost:26658`;
+      - http://localhost:26655`;
 
 test.beforeEach(() => {
   sinon.reset();
@@ -44,18 +44,18 @@ test.beforeEach(() => {
 test.serial('creates channel for given connections and ports', async (t) => {
   const logger = new TestLogger();
 
-  const ibcClientSimapp = await signingClient(simappChain, mnemonic);
+  const ibcClientGaia = await signingClient(gaiaChain, mnemonic);
   const ibcClientWasm = await signingClient(wasmdChain, mnemonic);
   const link = await Link.createWithNewConnections(
     ibcClientWasm,
-    ibcClientSimapp
+    ibcClientGaia
   );
 
   const options: Options = {
     home: '/home/user',
     mnemonic,
     src: 'local_wasm',
-    dest: 'local_simapp',
+    dest: 'local_gaia',
     srcConnection: link.endA.connectionID,
     destConnection: link.endB.connectionID,
     srcPort: 'transfer',
@@ -92,7 +92,7 @@ test.serial('creates channel for given connections and ports', async (t) => {
   );
   t.assert(querySrcChannel.channel);
 
-  const queryDestChannel = await ibcClientSimapp.query.ibc.channel.channel(
+  const queryDestChannel = await ibcClientGaia.query.ibc.channel.channel(
     match.groups.destPort,
     match.groups.destChannel
   );
