@@ -67,7 +67,7 @@ chains:
     gas_price: 0.025uatom
     hd_path: m/44'/1234'/0'/3'
     rpc:
-      - http://localhost:26655
+      - http://localhost:26655`;
   
 test('lists chains with non-zero balance', async (t) => {
   const logger = new TestLogger();
