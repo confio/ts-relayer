@@ -70,7 +70,7 @@ chains:
     prefix: cosmos
     gas_price: 0.075uatom
     rpc:
-      - http://localhost:26658`;
+      - http://localhost:26655`;
 
 const app = {
   src: 'local_wasm',
