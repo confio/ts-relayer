@@ -50,8 +50,8 @@ test.before(async () => {
   link = await Link.createWithNewConnections(ibcClientGaia, ibcClientWasm);
   channel = await link.createChannel(
     'A',
-    ics20.srcPortId,
-    ics20.destPortId,
+    gaiaChain.ics20Port,
+    wasmdChain.ics20Port,
     ics20.ordering,
     ics20.version
   );

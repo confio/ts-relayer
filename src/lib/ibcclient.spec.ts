@@ -156,12 +156,12 @@ test.serial('transfer message and send packets', async (t) => {
   const link = await Link.createWithNewConnections(nodeA, nodeB, logger);
   const channels = await link.createChannel(
     'A',
-    ics20.srcPortId,
-    ics20.destPortId,
+    gaia.ics20Port,
+    wasmd.ics20Port,
     ics20.ordering,
     ics20.version
   );
-  t.is(channels.src.portId, ics20.srcPortId);
+  t.is(channels.src.portId, gaia.ics20Port);
 
   // make an account on remote chain, and check it is empty
   const recipient = randomAddress(wasmd.prefix);
@@ -218,8 +218,8 @@ test.serial('tests parsing with multi-message', async (t) => {
   const link = await Link.createWithNewConnections(nodeA, nodeB, logger);
   const channels = await link.createChannel(
     'A',
-    ics20.srcPortId,
-    ics20.destPortId,
+    gaia.ics20Port,
+    wasmd.ics20Port,
     ics20.ordering,
     ics20.version
   );

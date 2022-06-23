@@ -10,8 +10,8 @@ test.serial('submit multiple tx, query all packets', async (t) => {
   const link = await Link.createWithNewConnections(nodeA, nodeB);
   const channels = await link.createChannel(
     'A',
-    ics20.srcPortId,
-    ics20.destPortId,
+    gaia.ics20Port,
+    wasmd.ics20Port,
     ics20.ordering,
     ics20.version
   );

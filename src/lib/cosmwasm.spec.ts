@@ -156,7 +156,7 @@ test.serial('set up channel with ics20 contract', async (t) => {
   const link = await Link.createWithNewConnections(src, dest);
   await link.createChannel(
     'A',
-    ics20.srcPortId,
+    gaia.ics20Port,
     wasmPort,
     ics20.ordering,
     ics20.version
@@ -207,7 +207,7 @@ test.serial('send packets with ics20 contract', async (t) => {
   const link = await Link.createWithNewConnections(src, dest);
   const channels = await link.createChannel(
     'A',
-    ics20.srcPortId,
+    gaia.ics20Port,
     wasmPort,
     ics20.ordering,
     ics20.version

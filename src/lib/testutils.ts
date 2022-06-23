@@ -135,11 +135,8 @@ export const wasmd: ChainDefinition = {
 };
 
 // constants for this transport protocol
-// we assume src = simapp, dest = wasmd as returned by setup()
+// look at ChainDefinitions to find standard ics20 port
 export const ics20 = {
-  // we set a new port in genesis for simapp
-  srcPortId: 'custom',
-  destPortId: 'transfer',
   version: 'ics20-1',
   ordering: Order.ORDER_UNORDERED,
 };
