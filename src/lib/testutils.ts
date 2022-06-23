@@ -40,39 +40,37 @@ export class TestLogger implements Logger {
   }
 }
 
-export const simapp = {
-  tendermintUrlWs: 'ws://localhost:26658',
-  tendermintUrlHttp: 'http://localhost:26658',
-  chainId: 'simd-testing',
-  prefix: 'cosmos',
-  denomStaking: 'umoo',
-  denomFee: 'umuon',
-  minFee: '0.025umuon',
-  blockTime: 250, // ms
-  faucet: {
-    mnemonic:
-      'economy stock theory fatal elder harbor betray wasp final emotion task crumble siren bottom lizard educate guess current outdoor pair theory focus wife stone',
-    pubkey0: {
-      type: 'tendermint/PubKeySecp256k1',
-      value: 'A08EGB7ro1ORuFhjOnZcSgwYlpe0DSFjVNUIkNNQxwKQ',
-    },
-    address0: 'cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6',
-  },
-  /** Unused account */
-  unused: {
-    pubkey: {
-      type: 'tendermint/PubKeySecp256k1',
-      value: 'ArkCaFUJ/IH+vKBmNRCdUVl3mCAhbopk9jjW4Ko4OfRQ',
-    },
-    address: 'cosmos1cjsxept9rkggzxztslae9ndgpdyt2408lk850u',
-    accountNumber: 16,
-    sequence: 0,
-    balanceStaking: '10000000', // 10 STAKE
-    balanceFee: '1000000000', // 1000 COSM
-  },
-};
+export interface AccountInfo {
+  mnemonic: string;
+  pubkey0: {
+    type: string;
+    value: string;
+  };
+  address0: string;
+}
 
-export const gaia = {
+export interface ChainDefinition {
+  tendermintUrlWs: string;
+  tendermintUrlHttp: string;
+  chainId: string;
+  prefix: string;
+  denomStaking: string;
+  denomFee: string;
+  minFee: string;
+  blockTime: number; // ms
+  ics20Port: string;
+  faucet: AccountInfo;
+  unused: {
+    address: string;
+    balanceStaking: string;
+    balanceFee?: string;
+    accountNumber?: number;
+    sequence?: number;
+    pubkey?: unknown;
+  };
+}
+
+export const gaia: ChainDefinition = {
   tendermintUrlWs: 'ws://localhost:26655',
   tendermintUrlHttp: 'http://localhost:26655',
   chainId: 'gaia-test',
@@ -101,9 +99,10 @@ export const gaia = {
     sequence: 0,
     balanceStaking: '1000000000', // 1000 ATOM
   },
+  ics20Port: 'custom',
 };
 
-export const wasmd = {
+export const wasmd: ChainDefinition = {
   tendermintUrlWs: 'ws://localhost:26659',
   tendermintUrlHttp: 'http://localhost:26659',
   chainId: 'testing',
@@ -132,14 +131,12 @@ export const wasmd = {
     balanceStaking: '10000000', // 10 STAKE
     balanceFee: '1000000000', // 1000 COSM
   },
+  ics20Port: 'transfer',
 };
 
 // constants for this transport protocol
-// we assume src = simapp, dest = wasmd as returned by setup()
+// look at ChainDefinitions to find standard ics20 port
 export const ics20 = {
-  // we set a new port in genesis for simapp
-  srcPortId: 'custom',
-  destPortId: 'transfer',
   version: 'ics20-1',
   ordering: Order.ORDER_UNORDERED,
 };
@@ -216,24 +213,21 @@ export async function signingCosmWasmClient(
   return { sign, senderAddress };
 }
 
-// This is simapp -> wasm
-export async function setup(logger?: Logger): Promise<IbcClient[]> {
-  // create apps and fund an account
-  const mnemonic = generateMnemonic();
-  const src = await signingClient(simapp, mnemonic, logger);
-  const dest = await signingClient(wasmd, mnemonic, logger);
-  await fundAccount(wasmd, dest.senderAddress, '4000000');
-  await fundAccount(simapp, src.senderAddress, '4000000');
-  return [src, dest];
+export async function setupGaiaWasm(logger?: Logger): Promise<IbcClient[]> {
+  return setup(gaia, wasmd, logger);
 }
 
-export async function setupGaiaWasm(logger?: Logger): Promise<IbcClient[]> {
+export async function setup(
+  srcConfig: ChainDefinition,
+  destConfig: ChainDefinition,
+  logger?: Logger
+): Promise<IbcClient[]> {
   // create apps and fund an account
   const mnemonic = generateMnemonic();
-  const src = await signingClient(gaia, mnemonic, logger);
-  const dest = await signingClient(wasmd, mnemonic, logger);
-  await fundAccount(wasmd, dest.senderAddress, '4000000');
-  await fundAccount(gaia, src.senderAddress, '4000000');
+  const src = await signingClient(srcConfig, mnemonic, logger);
+  const dest = await signingClient(destConfig, mnemonic, logger);
+  await fundAccount(destConfig, dest.senderAddress, '4000000');
+  await fundAccount(srcConfig, src.senderAddress, '4000000');
   return [src, dest];
 }
 

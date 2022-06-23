@@ -5,6 +5,9 @@
   "repository": "https://github.com/confio/ts-relayer",
   "license": "MIT",
   "keywords": [],
+  "browserslist": [
+    "maintained node versions"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "fix": "run-s fix:*",

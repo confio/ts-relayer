@@ -25,13 +25,13 @@ chains:
     hd_path: m/44'/108'/0'/2'
     rpc:
       - http://localhost:26659
-  local_simapp:
-    chain_id: simd-testing
+  local_gaia:
+    chain_id: gaia-testing
     prefix: cosmos
-    gas_price: 0.025umuon
+    gas_price: 0.025uatom
     hd_path: m/44'/108'/0'/3'
     rpc:
-      - http://localhost:26658`;
+      - http://localhost:26655`;
 
 test('lists addresses for every chain in the registry', async (t) => {
   const options: Options = {
@@ -46,6 +46,6 @@ test('lists addresses for every chain in the registry', async (t) => {
   t.assert(fsReadFileSync.calledOnce);
   t.assert(consoleLog.calledOnce);
   t.assert(
-    consoleLog.calledWithMatch(/local_wasm: [a-z0-9]+\nlocal_simapp: [a-z0-9]+/)
+    consoleLog.calledWithMatch(/local_wasm: [a-z0-9]+\nlocal_gaia: [a-z0-9]+/)
   );
 });

@@ -67,10 +67,6 @@ jobs:
           command: ./scripts/wasmd/start.sh
           background: true
       - run: # start early for less wait time below
-          name: Start simapp
-          command: ./scripts/simapp/start.sh
-          background: true
-      - run: # start early for less wait time below
           name: Start gaiad
           command: ./scripts/gaia/start.sh
           background: true
@@ -110,8 +106,6 @@ jobs:
           command: |
             echo "Wait for wasmd..."
             timeout 60 bash -c "until curl -s http://localhost:26659/status > /dev/null; do sleep 0.5; done"
-            echo "Wait for simapp..."
-            timeout 60 bash -c "until curl -s http://localhost:26658/status > /dev/null; do sleep 0.5; done"
             echo "Wait for gaia..."
             timeout 60 bash -c "until curl -s http://localhost:26655/status > /dev/null; do sleep 0.5; done"
             sleep 1
@@ -121,7 +115,6 @@ jobs:
       - run:
           name: Stop chains
           command: |
-            ./scripts/simapp/stop.sh
             ./scripts/wasmd/stop.sh
             ./scripts/gaia/stop.sh
 

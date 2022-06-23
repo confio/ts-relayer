@@ -20,6 +20,7 @@ docker run --rm \
   --user=root \
   -e PASSWORD=my-secret-password \
   -e STAKE_TOKEN=uatom \
+  -e TRANSFER_PORT=custom \
   --mount type=bind,source="$SCRIPT_DIR/template",target=/root \
   "$REPOSITORY:$VERSION" \
   /root/setup.sh \

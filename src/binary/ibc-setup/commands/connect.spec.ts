@@ -10,7 +10,7 @@ import { appFile } from '../../constants';
 import { Logger } from '../../create-logger';
 import { signingClient } from '../../utils/signing-client';
 
-import { simappChain, wasmdChain } from './chains';
+import { gaiaChain, wasmdChain } from './chains';
 import { Options, run } from './connect';
 
 const fsWriteFileSync = sinon.stub(fs, 'writeFileSync');
@@ -30,12 +30,12 @@ chains:
     gas_price: 0.025ucosm
     rpc:
       - http://localhost:26659
-  local_simapp:
-    chain_id: simd-testing
+  local_gaia:
+    chain_id: gaia-testing
     prefix: cosmos
-    gas_price: 0.025umuon
+    gas_price: 0.025uatom
     rpc:
-      - http://localhost:26658`;
+      - http://localhost:26655`;
 
 const registryYamlTooLowGas = `
 version: 1
@@ -47,13 +47,13 @@ chains:
     gas_price: 0.001ucosm
     rpc:
       - http://localhost:26659
-  local_simapp:
-    chain_id: simd-testing
+  local_gaia:
+    chain_id: gaia-testing
     prefix: cosmos
     # this will fail
-    gas_price: 0.001umuon
+    gas_price: 0.001uatom
     rpc:
-      - http://localhost:26658`;
+      - http://localhost:26655`;
 
 const registryYamlHigherGas = `
 version: 1
@@ -65,16 +65,16 @@ chains:
     gas_price: 0.075ucosm
     rpc:
       - http://localhost:26659
-  local_simapp:
-    chain_id: simd-testing
+  local_gaia:
+    chain_id: gaia-testing
     prefix: cosmos
-    gas_price: 0.075umuon
+    gas_price: 0.075uatom
     rpc:
-      - http://localhost:26658`;
+      - http://localhost:26655`;
 
 const app = {
   src: 'local_wasm',
-  dest: 'local_simapp',
+  dest: 'local_gaia',
 };
 
 test.beforeEach(() => {
@@ -84,18 +84,18 @@ test.beforeEach(() => {
 test.serial('connects two chains', async (t) => {
   const logger = new TestLogger();
 
-  const ibcClientSimapp = await signingClient(simappChain, mnemonic);
+  const ibcClientGaia = await signingClient(gaiaChain, mnemonic);
   const ibcClientWasm = await signingClient(wasmdChain, mnemonic);
 
   const allConnectionsWasm =
     await ibcClientWasm.query.ibc.connection.allConnections();
-  const allConnectionsSimapp =
-    await ibcClientSimapp.query.ibc.connection.allConnections();
+  const allConnectionsGaia =
+    await ibcClientGaia.query.ibc.connection.allConnections();
 
   const options: Options = {
     home: '/home/user',
     mnemonic,
-    src: 'local_simapp',
+    src: 'local_gaia',
     dest: 'local_wasm',
     srcTrust: null,
     destTrust: null,
@@ -109,7 +109,7 @@ test.serial('connects two chains', async (t) => {
   const args = fsWriteFileSync.getCall(0).args as [string, string];
   const contentsRegexp = new RegExp(
     `src: local_wasm
-dest: local_simapp
+dest: local_gaia
 srcConnection: .+
 destConnection: .+
 `
@@ -130,41 +130,41 @@ destConnection: .+
   const nextConnectionWasm =
     await ibcClientWasm.query.ibc.connection.connection(destConnectionId);
 
-  const nextAllConnectionsSimapp =
-    await ibcClientSimapp.query.ibc.connection.allConnections();
+  const nextAllConnectionsGaia =
+    await ibcClientGaia.query.ibc.connection.allConnections();
   const srcConnectionIdMatch = /srcConnection: (?<connection>.+)/.exec(args[1]);
   const srcConnectionId = srcConnectionIdMatch?.groups?.connection;
   assert(srcConnectionId);
-  const nextConnectionSimapp =
-    await ibcClientSimapp.query.ibc.connection.connection(srcConnectionId);
+  const nextConnectionGaia =
+    await ibcClientGaia.query.ibc.connection.connection(srcConnectionId);
 
   t.is(
     nextAllConnectionsWasm.connections.length,
     allConnectionsWasm.connections.length + 1
   );
   t.is(
-    nextAllConnectionsSimapp.connections.length,
-    allConnectionsSimapp.connections.length + 1
+    nextAllConnectionsGaia.connections.length,
+    allConnectionsGaia.connections.length + 1
   );
   t.assert(nextConnectionWasm.connection);
-  t.assert(nextConnectionSimapp.connection);
+  t.assert(nextConnectionGaia.connection);
 });
 
 test.serial('connects two chains fails with too low gas', async (t) => {
   const logger = new TestLogger();
 
-  const ibcClientSimapp = await signingClient(simappChain, mnemonic);
+  const ibcClientGaia = await signingClient(gaiaChain, mnemonic);
   const ibcClientWasm = await signingClient(wasmdChain, mnemonic);
 
   const allConnectionsWasm =
     await ibcClientWasm.query.ibc.connection.allConnections();
-  const allConnectionsSimapp =
-    await ibcClientSimapp.query.ibc.connection.allConnections();
+  const allConnectionsGaia =
+    await ibcClientGaia.query.ibc.connection.allConnections();
 
   const options: Options = {
     home: '/home/user',
     mnemonic,
-    src: 'local_simapp',
+    src: 'local_gaia',
     dest: 'local_wasm',
     srcTrust: null,
     destTrust: null,
@@ -178,34 +178,34 @@ test.serial('connects two chains fails with too low gas', async (t) => {
 
   const nextAllConnectionsWasm =
     await ibcClientWasm.query.ibc.connection.allConnections();
-  const nextAllConnectionsSimapp =
-    await ibcClientSimapp.query.ibc.connection.allConnections();
+  const nextAllConnectionsGaia =
+    await ibcClientGaia.query.ibc.connection.allConnections();
   // no connection can be made
   t.is(
     nextAllConnectionsWasm.connections.length,
     allConnectionsWasm.connections.length
   );
   t.is(
-    nextAllConnectionsSimapp.connections.length,
-    allConnectionsSimapp.connections.length
+    nextAllConnectionsGaia.connections.length,
+    allConnectionsGaia.connections.length
   );
 });
 
 test.serial('connects two chains with explicit high gas works', async (t) => {
   const logger = new TestLogger();
 
-  const ibcClientSimapp = await signingClient(simappChain, mnemonic);
+  const ibcClientGaia = await signingClient(gaiaChain, mnemonic);
   const ibcClientWasm = await signingClient(wasmdChain, mnemonic);
 
   const allConnectionsWasm =
     await ibcClientWasm.query.ibc.connection.allConnections();
-  const allConnectionsSimapp =
-    await ibcClientSimapp.query.ibc.connection.allConnections();
+  const allConnectionsGaia =
+    await ibcClientGaia.query.ibc.connection.allConnections();
 
   const options: Options = {
     home: '/home/user',
     mnemonic,
-    src: 'local_simapp',
+    src: 'local_gaia',
     dest: 'local_wasm',
     srcTrust: null,
     destTrust: null,
@@ -219,15 +219,15 @@ test.serial('connects two chains with explicit high gas works', async (t) => {
 
   const nextAllConnectionsWasm =
     await ibcClientWasm.query.ibc.connection.allConnections();
-  const nextAllConnectionsSimapp =
-    await ibcClientSimapp.query.ibc.connection.allConnections();
+  const nextAllConnectionsGaia =
+    await ibcClientGaia.query.ibc.connection.allConnections();
   // one connection is made
   t.is(
     nextAllConnectionsWasm.connections.length,
     allConnectionsWasm.connections.length + 1
   );
   t.is(
-    nextAllConnectionsSimapp.connections.length,
-    allConnectionsSimapp.connections.length + 1
+    nextAllConnectionsGaia.connections.length,
+    allConnectionsGaia.connections.length + 1
   );
 });

@@ -1,17 +1,17 @@
 import test from 'ava';
 
 import { Link } from './link';
-import { ics20, randomAddress, setup, simapp, wasmd } from './testutils';
+import { gaia, ics20, randomAddress, setup, wasmd } from './testutils';
 import { parseAcksFromLogs } from './utils';
 
 test.serial('submit multiple tx, query all packets', async (t) => {
   // setup a channel
-  const [nodeA, nodeB] = await setup();
+  const [nodeA, nodeB] = await setup(gaia, wasmd);
   const link = await Link.createWithNewConnections(nodeA, nodeB);
   const channels = await link.createChannel(
     'A',
-    ics20.srcPortId,
-    ics20.destPortId,
+    gaia.ics20Port,
+    wasmd.ics20Port,
     ics20.ordering,
     ics20.version
   );
@@ -29,7 +29,7 @@ test.serial('submit multiple tx, query all packets', async (t) => {
   // let's make 3 transfer tx at different heights
   const txHeights = [];
   for (const amount of amounts) {
-    const token = { amount: amount.toString(), denom: simapp.denomFee };
+    const token = { amount: amount.toString(), denom: gaia.denomFee };
     const { height } = await nodeA.transferTokens(
       channels.src.portId,
       channels.src.channelId,

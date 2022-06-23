@@ -22,7 +22,7 @@ function buildIbcArgs(rpc: string) {
 const ibcClient = sinon.stub(IbcClient, 'connectWithSigner');
 const musselnetArgs = buildIbcArgs('https://rpc.musselnet.cosmwasm.com:443');
 const localWasmArgs = buildIbcArgs('http://localhost:26659');
-const localSimappArgs = buildIbcArgs('http://localhost:26658');
+const localGaiaArgs = buildIbcArgs('http://localhost:26655');
 
 async function createFakeIbcClient(amount: string, denom: string) {
   return {
@@ -61,13 +61,13 @@ chains:
     hd_path: m/44'/108'/0'/2'
     rpc:
       - http://localhost:26659
-  local_simapp:
-    chain_id: simd-testing
+  local_gaia:
+    chain_id: gaia-testing
     prefix: cosmos
-    gas_price: 0.025umuon
-    hd_path: m/44'/108'/0'/3'
+    gas_price: 0.025uatom
+    hd_path: m/44'/1234'/0'/3'
     rpc:
-      - http://localhost:26658`;
+      - http://localhost:26655`;
 
 test('lists chains with non-zero balance', async (t) => {
   const logger = new TestLogger();
@@ -83,8 +83,8 @@ test('lists chains with non-zero balance', async (t) => {
     .returns(createFakeIbcClient('1', 'musselnetdenom'))
     .withArgs(...localWasmArgs)
     .returns(createFakeIbcClient('2', 'wasmdenom'))
-    .withArgs(...localSimappArgs)
-    .returns(createFakeIbcClient('3', 'simappdenom'));
+    .withArgs(...localGaiaArgs)
+    .returns(createFakeIbcClient('3', 'gaiadenom'));
 
   await run(options, logger as unknown as Logger);
 
@@ -96,7 +96,7 @@ test('lists chains with non-zero balance', async (t) => {
         [
           'musselnet\\s+1musselnetdenom\\s+',
           'local_wasm\\s+2wasmdenom\\s+',
-          'local_simapp\\s+3simappdenom\\s+',
+          'local_gaia\\s+3gaiadenom\\s+',
         ].join(os.EOL)
       )
     )
@@ -117,8 +117,8 @@ test('omits chains with zero balance', async (t) => {
     .returns(createFakeIbcClient('1', 'musselnetdenom'))
     .withArgs(...localWasmArgs)
     .returns(createFakeIbcClient('0', 'wasmdenom'))
-    .withArgs(...localSimappArgs)
-    .returns(createFakeIbcClient('3', 'simappdenom'));
+    .withArgs(...localGaiaArgs)
+    .returns(createFakeIbcClient('3', 'gaiadenom'));
 
   await run(options, logger as unknown as Logger);
 
@@ -129,7 +129,7 @@ test('omits chains with zero balance', async (t) => {
       new RegExp(
         [
           'musselnet\\s+1musselnetdenom\\s+',
-          'local_simapp\\s+3simappdenom\\s+',
+          'local_gaia\\s+3gaiadenom\\s+',
         ].join(os.EOL)
       )
     )
@@ -150,8 +150,8 @@ test('informs when there are no funds on any balance', async (t) => {
     .returns(createFakeIbcClient('0', 'musselnetdenom'))
     .withArgs(...localWasmArgs)
     .returns(createFakeIbcClient('0', 'wasmdenom'))
-    .withArgs(...localSimappArgs)
-    .returns(createFakeIbcClient('0', 'simappdenom'));
+    .withArgs(...localGaiaArgs)
+    .returns(createFakeIbcClient('0', 'gaiadenom'));
 
   await run(options, logger as unknown as Logger);
 

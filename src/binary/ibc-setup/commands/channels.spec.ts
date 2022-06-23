@@ -11,7 +11,7 @@ import { ics20 } from '../../../lib/testutils';
 import { Logger } from '../../create-logger';
 import { signingClient } from '../../utils/signing-client';
 
-import { simappChain, wasmdChain } from './chains';
+import { gaiaChain, wasmdChain } from './chains';
 import { channelStateAsText, Options, run } from './channels';
 
 const fsReadFileSync = sinon.stub(fs, 'readFileSync');
@@ -30,12 +30,12 @@ chains:
     gas_price: 0.025ucosm
     rpc:
       - http://localhost:26659
-  local_simapp:
-    chain_id: simd-testing
+  local_gaia:
+    chain_id: gaia-testing
     prefix: cosmos
-    gas_price: 0.025umuon
+    gas_price: 0.025uatom
     rpc:
-      - http://localhost:26658`;
+      - http://localhost:26655`;
 
 test.beforeEach(() => {
   sinon.reset();
@@ -45,13 +45,13 @@ let channel: ChannelPair;
 let link: Link;
 
 test.before(async () => {
-  const ibcClientSimapp = await signingClient(simappChain, mnemonic);
+  const ibcClientGaia = await signingClient(gaiaChain, mnemonic);
   const ibcClientWasm = await signingClient(wasmdChain, mnemonic);
-  link = await Link.createWithNewConnections(ibcClientSimapp, ibcClientWasm);
+  link = await Link.createWithNewConnections(ibcClientGaia, ibcClientWasm);
   channel = await link.createChannel(
     'A',
-    ics20.srcPortId,
-    ics20.destPortId,
+    gaiaChain.ics20Port,
+    wasmdChain.ics20Port,
     ics20.ordering,
     ics20.version
   );
@@ -61,7 +61,7 @@ test('lists channels for given chain (A)', async (t) => {
   const logger = new TestLogger();
 
   const options: Options = {
-    chain: 'local_simapp',
+    chain: 'local_gaia',
     port: null,
     connection: null,
     mnemonic: null,
@@ -125,7 +125,7 @@ test('filters channels by port', async (t) => {
   const logger = new TestLogger();
 
   const options: Options = {
-    chain: 'local_simapp',
+    chain: 'local_gaia',
     port: channel.src.portId,
     connection: null,
     mnemonic: null,
@@ -153,7 +153,7 @@ test('filters channels by port (non-existing port)', async (t) => {
   const logger = new TestLogger();
 
   const options: Options = {
-    chain: 'local_simapp',
+    chain: 'local_gaia',
     port: 'unknown_port',
     connection: null,
     mnemonic: null,
@@ -201,7 +201,7 @@ test('filters channels by connection (non-existing connection)', async (t) => {
   const logger = new TestLogger();
 
   const options: Options = {
-    chain: 'local_simapp',
+    chain: 'local_gaia',
     port: null,
     connection: 'unknown_connection',
     mnemonic: null,
@@ -219,7 +219,7 @@ test('filters channels by port and connection', async (t) => {
   const logger = new TestLogger();
 
   const options: Options = {
-    chain: 'local_simapp',
+    chain: 'local_gaia',
     port: channel.src.portId,
     connection: link.endA.connectionID,
     mnemonic: null,
@@ -249,7 +249,7 @@ test('filters channels by port and connection (non-existing connection)', async 
   const logger = new TestLogger();
 
   const options: Options = {
-    chain: 'local_simapp',
+    chain: 'local_gaia',
     port: channel.src.portId,
     connection: 'unknown_connection',
     mnemonic: null,
