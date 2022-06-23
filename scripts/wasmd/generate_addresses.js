@@ -2,12 +2,14 @@
 
 /* eslint-disable @typescript-eslint/naming-convention */
 const {
-  encodeSecp256k1Pubkey,
   makeCosmoshubPath,
+} = require('@cosmjs/stargate');
+const {
+  encodeSecp256k1Pubkey,
   Secp256k1HdWallet,
-} = require('@cosmjs/launchpad');
+} = require('@cosmjs/amino');
 
-const prefix = 'wasm';
+const prefix = 'osmo';
 const accountsToCreate = [
   {
     mnemonic:
@@ -48,8 +50,10 @@ async function main() {
       accountNumbers.map((accountNumber) =>
         Secp256k1HdWallet.fromMnemonic(
           mnemonic,
-          makeCosmoshubPath(accountNumber),
-          prefix
+          { 
+            hdPaths: [makeCosmoshubPath(accountNumber)],
+            prefix,
+          },
         )
       )
     );
