@@ -134,6 +134,38 @@ export const wasmd: ChainDefinition = {
   ics20Port: 'transfer',
 };
 
+export const osmosis: ChainDefinition = {
+  tendermintUrlWs: 'ws://localhost:26653',
+  tendermintUrlHttp: 'http://localhost:26653',
+  chainId: 'osmo-testing',
+  prefix: 'osmo',
+  denomStaking: 'uosmo',
+  denomFee: 'uosmo',
+  minFee: '0uosmo',
+  blockTime: 250, // ms
+  faucet: {
+    mnemonic:
+      'remain fragile remove stamp quiz bus country dress critic mammal office need',
+    pubkey0: {
+      type: 'tendermint/PubKeySecp256k1',
+      value: 'A0d/GxY+UALE+miWJP0qyq4/EayG1G6tsg24v+cbD6By',
+    },
+    address0: 'osmo1lvrwcvrqlc5ktzp2c4t22xgkx29q3y83hdcc5d',
+  },
+  unused: {
+    pubkey: {
+      type: 'tendermint/PubKeySecp256k1',
+      value: 'ArkCaFUJ/IH+vKBmNRCdUVl3mCAhbopk9jjW4Ko4OfRQ',
+    },
+    address: 'osmo1cjsxept9rkggzxztslae9ndgpdyt2408hd5yew',
+    accountNumber: 16,
+    sequence: 0,
+    balanceStaking: '1000000000', // 1000 OSMO
+    balanceFee: '1000000000', // 1000 OSMO
+  },
+  ics20Port: 'transfer',
+};
+
 // constants for this transport protocol
 // look at ChainDefinitions to find standard ics20 port
 export const ics20 = {
