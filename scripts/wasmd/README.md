@@ -76,7 +76,7 @@ You should get output matching the following:
   address: wasm1gv9qj8sk904lgmk73lkc0wz2nd5ntk5tt6e5rx
   pubkey: '{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"A3sW2NFsDRyLBY/eOmPU3JtIWYBb+gfaIOCywyqVyGWm"}'
   mnemonic: ""
-  ```
+```
 
 ## Preset accounts
 

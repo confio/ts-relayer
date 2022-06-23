@@ -14,10 +14,10 @@ import test from 'ava';
 
 import { fundAccount, simapp, wasmd } from '../testutils';
 
-import { simappAddress, wasmdAddress } from './consts';
+import { gaiaAddress, wasmdAddress } from './consts';
 
 test.serial('fund relayer', async (t) => {
-  await fundAccount(simapp, simappAddress, '50000000');
+  await fundAccount(simapp, gaiaAddress, '50000000');
   await fundAccount(wasmd, wasmdAddress, '50000000');
 
   // to make ava happy
