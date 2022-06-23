@@ -50,14 +50,6 @@ chains:
     hd_path: m/44'/1234'/0'/2'
     rpc:
       - http://localhost:26659
-  local_simapp:
-    chain_id: simd-testing
-    prefix: cosmos
-    gas_price: 0.025umuon
-    hd_path: m/44'/1234'/0'/3'
-    ics20_port: 'custom'
-    rpc:
-      - http://localhost:26658
   cosmoshub-4:
     chain_id: cosmoshub-4
     prefix: cosmos
@@ -69,15 +61,6 @@ chains:
     ics20_port: 'transfer'
     rpc:
       - https://rpc.cosmos.network:443
-  nyancat:
-    # This is a long-living testnet by IrisNet
-    chain_id: nyancat-8
-    prefix: iaa
-    gas_price: 0.2unyan
-    hd_path: m/44'/118'/0'/0/0
-    ics20_port: 'transfer'
-    rpc:
-      - http://34.80.202.172:26657/
   juno:
     chain_id: juno-1
     prefix: juno
