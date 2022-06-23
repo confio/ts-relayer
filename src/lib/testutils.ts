@@ -40,7 +40,37 @@ export class TestLogger implements Logger {
   }
 }
 
-export const gaia = {
+export interface AccountInfo {
+  mnemonic: string;
+  pubkey0: {
+    type: string;
+    value: string;
+  };
+  address0: string;
+}
+
+export interface ChainDefinition {
+  tendermintUrlWs: string;
+  tendermintUrlHttp: string;
+  chainId: string;
+  prefix: string;
+  denomStaking: string;
+  denomFee: string;
+  minFee: string;
+  blockTime: number; // ms
+  ics20Port: string;
+  faucet: AccountInfo;
+  unused: {
+    address: string;
+    balanceStaking: string;
+    balanceFee?: string;
+    accountNumber?: number;
+    sequence?: number;
+    pubkey?: unknown;
+  };
+}
+
+export const gaia: ChainDefinition = {
   tendermintUrlWs: 'ws://localhost:26655',
   tendermintUrlHttp: 'http://localhost:26655',
   chainId: 'gaia-test',
@@ -69,9 +99,10 @@ export const gaia = {
     sequence: 0,
     balanceStaking: '1000000000', // 1000 ATOM
   },
+  ics20Port: 'custom',
 };
 
-export const wasmd = {
+export const wasmd: ChainDefinition = {
   tendermintUrlWs: 'ws://localhost:26659',
   tendermintUrlHttp: 'http://localhost:26659',
   chainId: 'testing',
@@ -100,6 +131,7 @@ export const wasmd = {
     balanceStaking: '10000000', // 10 STAKE
     balanceFee: '1000000000', // 1000 COSM
   },
+  ics20Port: 'transfer',
 };
 
 // constants for this transport protocol
@@ -185,12 +217,20 @@ export async function signingCosmWasmClient(
 }
 
 export async function setupGaiaWasm(logger?: Logger): Promise<IbcClient[]> {
+  return setup(gaia, wasmd, logger);
+}
+
+export async function setup(
+  srcConfig: ChainDefinition,
+  destConfig: ChainDefinition,
+  logger?: Logger
+): Promise<IbcClient[]> {
   // create apps and fund an account
   const mnemonic = generateMnemonic();
-  const src = await signingClient(gaia, mnemonic, logger);
-  const dest = await signingClient(wasmd, mnemonic, logger);
-  await fundAccount(wasmd, dest.senderAddress, '4000000');
-  await fundAccount(gaia, src.senderAddress, '4000000');
+  const src = await signingClient(srcConfig, mnemonic, logger);
+  const dest = await signingClient(destConfig, mnemonic, logger);
+  await fundAccount(destConfig, dest.senderAddress, '4000000');
+  await fundAccount(srcConfig, src.senderAddress, '4000000');
   return [src, dest];
 }
 

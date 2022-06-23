@@ -6,9 +6,11 @@ import axios from 'axios';
 import { Link } from './link';
 import {
   CosmWasmSigner,
+  gaia,
   ics20,
-  setupGaiaWasm,
+  setup,
   setupWasmClient,
+  wasmd,
 } from './testutils';
 
 const codeIds: Record<string, number> = {
@@ -150,7 +152,7 @@ test.serial('set up channel with ics20 contract', async (t) => {
   console.log(`Ibc Port: ${wasmPort}`);
   assert(wasmPort);
 
-  const [src, dest] = await setupGaiaWasm();
+  const [src, dest] = await setup(gaia, wasmd);
   const link = await Link.createWithNewConnections(src, dest);
   await link.createChannel(
     'A',
@@ -201,7 +203,7 @@ test.serial('send packets with ics20 contract', async (t) => {
   console.log(`Ibc Port: ${wasmPort}`);
   assert(wasmPort);
 
-  const [src, dest] = await setupGaiaWasm();
+  const [src, dest] = await setup(gaia, wasmd);
   const link = await Link.createWithNewConnections(src, dest);
   const channels = await link.createChannel(
     'A',

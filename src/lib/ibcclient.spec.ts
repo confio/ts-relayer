@@ -8,7 +8,7 @@ import {
   gaia,
   ics20,
   randomAddress,
-  setupGaiaWasm,
+  setup,
   TestLogger,
   wasmd,
 } from './testutils';
@@ -21,7 +21,7 @@ import {
 
 test.serial('create gaia client on wasmd', async (t) => {
   const logger = new TestLogger();
-  const [src, dest] = await setupGaiaWasm(logger);
+  const [src, dest] = await setup(gaia, wasmd, logger);
 
   const preClients = await dest.query.ibc.client.allStates();
   const preLen = preClients.clientStates.length;
@@ -44,7 +44,7 @@ test.serial('create gaia client on wasmd', async (t) => {
 });
 
 test.serial('create and update wasmd client on gaia', async (t) => {
-  const [src, dest] = await setupGaiaWasm();
+  const [src, dest] = await setup(gaia, wasmd);
 
   const header = await src.latestHeader();
 
@@ -88,7 +88,7 @@ function sameLong(a?: Long, b?: Long) {
 
 // make 2 clients, and try to establish a connection
 test.serial('perform connection handshake', async (t) => {
-  const [src, dest] = await setupGaiaWasm();
+  const [src, dest] = await setup(gaia, wasmd);
 
   // client on dest -> src
   const args = await buildCreateClientArgs(src, 5000);
@@ -152,7 +152,7 @@ test.serial('perform connection handshake', async (t) => {
 test.serial('transfer message and send packets', async (t) => {
   const logger = new TestLogger();
   // set up ics20 channel
-  const [nodeA, nodeB] = await setupGaiaWasm();
+  const [nodeA, nodeB] = await setup(gaia, wasmd);
   const link = await Link.createWithNewConnections(nodeA, nodeB, logger);
   const channels = await link.createChannel(
     'A',
@@ -214,7 +214,7 @@ test.serial('transfer message and send packets', async (t) => {
 test.serial('tests parsing with multi-message', async (t) => {
   const logger = new TestLogger();
   // set up ics20 channel
-  const [nodeA, nodeB] = await setupGaiaWasm(logger);
+  const [nodeA, nodeB] = await setup(gaia, wasmd, logger);
   const link = await Link.createWithNewConnections(nodeA, nodeB, logger);
   const channels = await link.createChannel(
     'A',
