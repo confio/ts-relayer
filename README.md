@@ -71,27 +71,27 @@ Reads the configuration and starts relaying packets.
 1. Init the configuration
 
    ```sh
-   ibc-setup init --src oysternet --dest nyancat
+   ibc-setup init --src malaga --dest uni
    ```
 
    - creates relayer's home directory at `~/.ibc-setup`
    - creates `app.yaml` inside relayer's home with `src`, `dest` and newly generated `mnemonic`
    - pulls default `registry.yaml` to relayer's home
-   - funds addresses on `oysternet` so relayer can pay the fee while relaying packets
+   - funds addresses on `malaga` so relayer can pay the fee while relaying packets
 
    > **NOTE:** Both testnets are running in the public. You do not need to start any blockchain locally to complete the quick start guide.
 
    > **NOTE:** Run `ibc-setup balances` to see the amount of tokens on each address.
 
-2. Get testnet tokens for `nyancat`
+2. Get testnet tokens for `uni`
 
-   - Find your relayer address on nyancat via: `ibc-setup keys list | grep nyancat`
-   - Join IRISnet discord with [this invite link](https://discord.gg/X6dZZxs3#nyncat-faucet)
-   - Go to the `nyancat-faucet` channel
-   - Request tokens at this address in the above channel: `$faucet iaa1fxmqew9dgg44jdf3l34zwa8rx7tcf42wz8ehjk`
-   - Check you have tokens on oysternet and nyancat via `ibc-setup balances`
+   - Find your relayer address on uni via: `ibc-setup keys list | grep uni`
+   - Join Juno discord with [this invite link](https://discord.gg/TfsuB6yd)
+   - Go to the `faucet` channel
+   - Request tokens at this address in the above channel: `$request iaa1fxmqew9dgg44jdf3l34zwa8rx7tcf42wz8ehjk`
+   - Check you have tokens on malaga and uni via `ibc-setup balances`
 
-   [Original Instructions from IRISnet](https://github.com/irisnet/testnets/tree/master/nyancat#faucet)
+   See [original instructions](https://docs.junonetwork.io/validators/joining-the-testnets#get-some-testnet-tokens)
 
 3. Create `ics20` channel
 
@@ -113,24 +113,24 @@ Reads the configuration and starts relaying packets.
 1. Make sure `wasmd` binary is installed on your system
 
    - you must be running Linux or OSX on amd64 (not arm64/Mac M1)
-   - [install Go 1.15+](https://golang.org/doc/install) and ensure that `$PATH` includes Go binaries (you may need to restart your terminal session)
+   - [install Go 1.17+](https://golang.org/doc/install) and ensure that `$PATH` includes Go binaries (you may need to restart your terminal session)
    - clone and install `wasmd`:
      ```sh
      git clone https://github.com/CosmWasm/wasmd.git
      cd wasmd
-     git checkout v0.15.1
+     git checkout v0.27.0
      make install
      ```
 
-2. Make sure `iris` binary is installed on your system
+2. Make sure `juno` binary is installed on your system
 
    - you must be running Linux or OSX on amd64
-   - [install Go 1.15+](https://golang.org/doc/install) and ensure that `$PATH` includes Go binaries (you may need to restart your terminal session)
-   - clone and install `iris`:
+   - [install Go 1.17+](https://golang.org/doc/install) and ensure that `$PATH` includes Go binaries (you may need to restart your terminal session)
+   - clone and install `juno`:
      ```sh
-     git clone https://github.com/irisnet/irishub
-     cd irishub
-     git checkout v1.1.1
+     git clone https://github.com/CosmosContracts/juno
+     cd juno
+     git checkout v6.0.0
      make install
      ```
 
@@ -139,25 +139,25 @@ Reads the configuration and starts relaying packets.
    ```sh
    wasmd keys add sender
    JSON=$(jq -n --arg addr $(wasmd keys show -a sender) '{"denom":"usponge","address":$addr}')
-   curl -X POST --header "Content-Type: application/json" --data "$JSON" https://faucet.oysternet.cosmwasm.com/credit
+   curl -X POST --header "Content-Type: application/json" --data "$JSON" https://faucet.malaga.cosmwasm.com/credit
    ```
 
 4. Create a valid IRISnet address to send tokens to
 
    ```sh
-   iris keys add receiver
+   junod keys add receiver
    ```
 
-   [Get testnet tokens](https://github.com/irisnet/testnets/tree/master/nyancat#faucet) if you want to send tokens to `oysternet`.
+   [Get testnet tokens](https://docs.junonetwork.io/validators/joining-the-testnets#get-some-testnet-tokens) if you want to send tokens to `malaga`.
 
 5. Send tokens
    ```sh
-   wasmd tx ibc-transfer transfer transfer <channel-id> $(iris keys show -a receiver) 200usponge --from $(wasmd keys show -a sender) --node http://rpc.oysternet.cosmwasm.com:80 --chain-id oysternet-1 --fees 2000usponge --packet-timeout-height 0-0
+   wasmd tx ibc-transfer transfer transfer <channel-id> $(junod keys show -a receiver) 200usponge --from $(wasmd keys show -a sender) --node http://rpc.malaga.cosmwasm.com:80 --chain-id malaga-1 --fees 2000usponge --packet-timeout-height 0-0
    ```
    - replace `<channel-id>` with the channel id obtained while configuring the relayer (2nd point)
    - if you cleared out the terminal, query the channel
      ```sh
-     ibc-setup channels --chain oysternet
+     ibc-setup channels --chain malaga
      ```
 6. Observe the relayer output
 
