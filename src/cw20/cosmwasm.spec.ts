@@ -1,133 +1,23 @@
-import { readFileSync } from 'fs';
-
-import { fromUtf8, toBase64, toUtf8 } from '@cosmjs/encoding';
+import { fromUtf8 } from '@cosmjs/encoding';
 import { assert } from '@cosmjs/utils';
 import test from 'ava';
 
-import { Link } from '..';
-import {
-  CosmWasmSigner,
-  gaia,
-  ics20,
-  setup,
-  setupWasmClient,
-  wasmd,
-} from '../lib/testutils';
+import { Link, testutils } from '..';
+const { gaia, ics20, setup, setupWasmClient, wasmd } = testutils;
 
-const codeIds: Record<string, number> = {
-  cw20: 0,
-  ics20: 0,
-};
+// TODO: replace these with be auto-generated helpers from ts-codegen
+import { balance, init, sendTokens } from './cw20';
+import { setupContracts } from './utils';
 
-interface WasmData {
-  wasmFile: string;
-}
-
-const contracts: Record<string, WasmData> = {
-  cw20: {
-    wasmFile: './src/testdata/cw20_base.wasm',
-  },
-  ics20: {
-    wasmFile: './src/testdata/cw20_ics20.wasm',
-  },
-};
-
-function loadFile(path: string) {
-  return readFileSync(path);
-  // const r = await axios.get(url, { responseType: 'arraybuffer' });
-  // if (r.status !== 200) {
-  //   throw new Error(`Download error: ${r.status}`);
-  // }
-  // return r.data;
-}
+let codeIds: Record<string, number> = {};
 
 test.before(async (t) => {
-  const cosmwasm = await setupWasmClient();
-
-  for (const name in contracts) {
-    const contract = contracts[name];
-    console.info(`Downloading ${name} at ${contract.wasmFile}...`);
-    const wasm = await loadFile(contract.wasmFile);
-    const receipt = await cosmwasm.sign.upload(
-      cosmwasm.senderAddress,
-      wasm,
-      'auto',
-      `Upload ${name}`
-    );
-    console.debug(`Upload ${name} with CodeID: ${receipt.codeId}`);
-    codeIds[name] = receipt.codeId;
-  }
-
+  const contracts = {
+    cw20: 'cw20_base.wasm',
+    ics20: 'cw20_ics20.wasm',
+  };
+  codeIds = await setupContracts(contracts);
   t.pass();
-});
-
-// creates it with 6 decimal places
-// provides 123456.789 tokens to the creator
-function cw20init(owner: string, symbol: string): Record<string, unknown> {
-  return {
-    decimals: 6,
-    name: symbol,
-    symbol,
-    initial_balances: [
-      {
-        address: owner,
-        amount: '123456789000',
-      },
-    ],
-  };
-}
-
-async function balance(
-  cosmwasm: CosmWasmSigner,
-  cw20Addr: string,
-  senderAddress?: string
-): Promise<string> {
-  const query = {
-    balance: {
-      address: senderAddress || cosmwasm.senderAddress,
-    },
-  };
-  const res = await cosmwasm.sign.queryContractSmart(cw20Addr, query);
-  // print this
-  return res.balance;
-}
-
-test.serial('successfully instantiate contracts', async (t) => {
-  const cosmwasm = await setupWasmClient();
-
-  // instantiate cw20
-  const initMsg = cw20init(cosmwasm.senderAddress, 'DEMO');
-  const { contractAddress: cw20Addr } = await cosmwasm.sign.instantiate(
-    cosmwasm.senderAddress,
-    codeIds.cw20,
-    initMsg,
-    'DEMO',
-    'auto'
-  );
-  t.truthy(cw20Addr);
-
-  const bal = await balance(cosmwasm, cw20Addr);
-  t.is('123456789000', bal);
-
-  // instantiate ics20
-  const ics20Msg = {
-    default_timeout: 3600,
-    gov_contract: cosmwasm.senderAddress,
-    allowlist: [
-      {
-        contract: cw20Addr,
-        gas_limit: 250000,
-      },
-    ],
-  };
-  const { contractAddress: ics20Addr } = await cosmwasm.sign.instantiate(
-    cosmwasm.senderAddress,
-    codeIds.ics20,
-    ics20Msg,
-    'ICS',
-    'auto'
-  );
-  t.truthy(ics20Addr);
 });
 
 test.serial('set up channel with ics20 contract', async (t) => {
@@ -167,7 +57,7 @@ test.serial('send packets with ics20 contract', async (t) => {
   const cosmwasm = await setupWasmClient();
 
   // instantiate cw20
-  const initMsg = cw20init(cosmwasm.senderAddress, 'CASH');
+  const initMsg = init(cosmwasm.senderAddress, 'CASH', '123456789000');
   const { contractAddress: cw20Addr } = await cosmwasm.sign.instantiate(
     cosmwasm.senderAddress,
     codeIds.cw20,
@@ -214,18 +104,10 @@ test.serial('send packets with ics20 contract', async (t) => {
   );
 
   // send a packet from the ics20 contract.... (on dest chain)
-  const receiveMsg = {
+  const sendMsg = sendTokens(ics20Addr, '456789000', {
     channel: channels.dest.channelId,
     remote_address: src.senderAddress,
-  };
-  const encoded = toBase64(toUtf8(JSON.stringify(receiveMsg)));
-  const sendMsg = {
-    send: {
-      contract: ics20Addr,
-      amount: '456789000', // leaving 123000.0000000 tokens
-      msg: encoded,
-    },
-  };
+  });
   await cosmwasm.sign.execute(
     cosmwasm.senderAddress,
     cw20Addr,
