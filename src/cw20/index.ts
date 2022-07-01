@@ -1,0 +1,1 @@
+export { setupContracts } from './utils';

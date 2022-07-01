@@ -1,4 +1,3 @@
-import { fromUtf8 } from '@cosmjs/encoding';
 import { assert } from '@cosmjs/utils';
 import test from 'ava';
 
@@ -7,7 +6,11 @@ const { gaia, ics20, setup, setupWasmClient, wasmd } = testutils;
 
 // TODO: replace these with be auto-generated helpers from ts-codegen
 import { balance, init, sendTokens } from './cw20';
-import { setupContracts } from './utils';
+import {
+  assertPacketsFromA,
+  assertPacketsFromB,
+  setupContracts,
+} from './utils';
 
 let codeIds: Record<string, number> = {};
 
@@ -103,7 +106,8 @@ test.serial('send packets with ics20 contract', async (t) => {
     ics20.version
   );
 
-  // send a packet from the ics20 contract.... (on dest chain)
+  // send cw20 tokens to ics20 contract and create a new packet
+  // (dest chain is wasmd)
   const sendMsg = sendTokens(ics20Addr, '456789000', {
     channel: channels.dest.channelId,
     remote_address: src.senderAddress,
@@ -125,22 +129,9 @@ test.serial('send packets with ics20 contract', async (t) => {
   t.is(1, preBalance.length);
   t.is('uatom', preBalance[0].denom);
 
-  // ensure the packet moves
-  const packets = await link.getPendingPackets('B');
-  t.is(packets.length, 1);
-  const preAcks = await link.getPendingAcks('A');
-  t.is(preAcks.length, 0);
-  // move it and the ack
-  const txAcks = await link.relayPackets('B', packets);
-  t.is(txAcks.length, 1);
-  const parsedAck1 = JSON.parse(fromUtf8(txAcks[0].acknowledgement));
-  t.truthy(parsedAck1.result);
-  t.falsy(parsedAck1.error);
-
-  // need to wait briefly for it to be indexed
-  await src.waitOneBlock();
-  // and send the acks over
-  await link.relayAcks('A', txAcks);
+  // easy way to move all packets and verify the results
+  let info = await link.relayAll();
+  assertPacketsFromB(info, 1, true);
 
   // check source balances increased
   const relayedBalance = await src.sign.getAllBalances(src.senderAddress);
@@ -161,16 +152,11 @@ test.serial('send packets with ics20 contract', async (t) => {
   );
   await src.waitOneBlock();
 
-  // ensure the packet moves
-  const packets2 = await link.getPendingPackets('A');
-  t.is(packets2.length, 1);
-  // move it and the ack
-  const txAcks2 = await link.relayPackets('A', packets2);
-  t.is(txAcks2.length, 1);
-  // need to wait briefly for it to be indexed
-  await dest.waitOneBlock();
-  // and send the acks over
-  await link.relayAcks('B', txAcks2);
+  // easy way to move all packets
+  info = await link.relayAll();
+  assertPacketsFromA(info, 1, true);
+  // extra check just because... not really needed
+  assertPacketsFromB(info, 0, true);
 
   // balance updated on recipient
   const gotBal = await balance(cosmwasm, cw20Addr, dest.senderAddress);
@@ -191,13 +177,7 @@ test.serial('send packets with ics20 contract', async (t) => {
   );
   await src.waitOneBlock();
 
-  // relay this packet
-  const packets3 = await link.getPendingPackets('A');
-  t.is(packets3.length, 1);
-  const txAcks3 = await link.relayPackets('A', packets3);
-  t.is(txAcks3.length, 1);
-  // and expect error on ack
-  const parsedAck = JSON.parse(fromUtf8(txAcks3[0].acknowledgement));
-  t.truthy(parsedAck.error);
-  t.falsy(parsedAck.result);
+  // relay and verify this fails (as it should)
+  info = await link.relayAll();
+  assertPacketsFromA(info, 1, false);
 });
