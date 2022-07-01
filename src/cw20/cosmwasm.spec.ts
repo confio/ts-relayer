@@ -1,9 +1,10 @@
+import { readFileSync } from 'fs';
+
 import { fromUtf8, toBase64, toUtf8 } from '@cosmjs/encoding';
 import { assert } from '@cosmjs/utils';
 import test from 'ava';
-import { readFileSync } from 'fs';
 
-import { Link } from '../lib/link';
+import { Link } from '..';
 import {
   CosmWasmSigner,
   gaia,
@@ -39,7 +40,6 @@ function loadFile(path: string) {
   // }
   // return r.data;
 }
-
 
 test.before(async (t) => {
   const cosmwasm = await setupWasmClient();
