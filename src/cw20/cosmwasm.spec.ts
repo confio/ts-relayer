@@ -1,9 +1,9 @@
 import { fromUtf8, toBase64, toUtf8 } from '@cosmjs/encoding';
 import { assert } from '@cosmjs/utils';
 import test from 'ava';
-import axios from 'axios';
+import { readFileSync } from 'fs';
 
-import { Link } from './link';
+import { Link } from '../lib/link';
 import {
   CosmWasmSigner,
   gaia,
@@ -11,7 +11,7 @@ import {
   setup,
   setupWasmClient,
   wasmd,
-} from './testutils';
+} from '../lib/testutils';
 
 const codeIds: Record<string, number> = {
   cw20: 0,
@@ -19,35 +19,35 @@ const codeIds: Record<string, number> = {
 };
 
 interface WasmData {
-  wasmUrl: string;
+  wasmFile: string;
 }
 
 const contracts: Record<string, WasmData> = {
   cw20: {
-    wasmUrl:
-      'https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.13.1/cw20_base.wasm',
+    wasmFile: './src/testdata/cw20_base.wasm',
   },
   ics20: {
-    wasmUrl:
-      'https://github.com/CosmWasm/cosmwasm-plus/releases/download/v0.13.1/cw20_ics20.wasm',
+    wasmFile: './src/testdata/cw20_ics20.wasm',
   },
 };
 
-async function downloadWasm(url: string) {
-  const r = await axios.get(url, { responseType: 'arraybuffer' });
-  if (r.status !== 200) {
-    throw new Error(`Download error: ${r.status}`);
-  }
-  return r.data;
+function loadFile(path: string) {
+  return readFileSync(path);
+  // const r = await axios.get(url, { responseType: 'arraybuffer' });
+  // if (r.status !== 200) {
+  //   throw new Error(`Download error: ${r.status}`);
+  // }
+  // return r.data;
 }
+
 
 test.before(async (t) => {
   const cosmwasm = await setupWasmClient();
 
   for (const name in contracts) {
     const contract = contracts[name];
-    console.info(`Downloading ${name} at ${contract.wasmUrl}...`);
-    const wasm = await downloadWasm(contract.wasmUrl);
+    console.info(`Downloading ${name} at ${contract.wasmFile}...`);
+    const wasm = await loadFile(contract.wasmFile);
     const receipt = await cosmwasm.sign.upload(
       cosmwasm.senderAddress,
       wasm,
