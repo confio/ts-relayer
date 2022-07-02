@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.5.0
+
+### Minor Changes
+
+- 0d4ae52: Update CosmJS to 0.28
+- fbafd9e: Reorganize code to make external integration test packages easier
+
+### Patch Changes
+
+- 8eb2b09: Remove all references to simapp
+- e12140b: Update wasmd to 0.27.0
+- e7130e6: Bump gaia to 7.0.1 in CI
+- 2434573: Update registry to use malaga, uni. Remove obsolete networks.
+- 29b22b7: Upgrade follow-redirects to 1.14.7 due to advisory https://github.com/advisories/GHSA-74fj-2j2h-c42q
+- ee0eddc: Update default contracts to v0.13.1
+- f5b7e85: Update config entries for juno and osmosis
+- b9a352b: Add Osmosis node to CI tests
+
 ## 0.4.0
 
 ### Minor Changes
