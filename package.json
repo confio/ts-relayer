@@ -11,11 +11,11 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "fix": "run-s fix:*",
-    "fix:prettier": "prettier \"**/*.{ts,md}\" \"scripts/wasmd/*.js\" --write",
+    "fix:prettier": "prettier \"**/*.{ts,md}\" --write",
     "fix:lint": "eslint src --ext .ts --fix",
     "test": "run-s build test:*",
     "test:lint": "eslint src --ext .ts",
-    "test:prettier": "prettier \"**/*.{ts,md}\" \"scripts/wasmd/*.js\" --list-different",
+    "test:prettier": "prettier \"**/*.{ts,md}\" --list-different",
     "test:unit": "nyc --silent ava --serial",
     "focused-test": "yarn test:unit ./src/cw20/cosmwasm.spec.ts",
     "watch:build": "tsc -p tsconfig.json -w",
