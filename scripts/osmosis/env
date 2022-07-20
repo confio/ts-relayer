@@ -1,4 +1,4 @@
-REPOSITORY="cephalopodequipment/osmosisd"
+REPOSITORY="confio/osmosis-ci"
 # Choose from https://hub.docker.com/r/cephalopodequipment/osmosisd/tags
 VERSION="9.0.0"
 CONTAINER_NAME="osmosis"
