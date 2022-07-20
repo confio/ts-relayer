@@ -18,7 +18,4 @@ test.serial('funds account and checks balance', async (t) => {
 
   const balance = await src.query.bank.allBalances(src.senderAddress);
   t.deepEqual(balance, [{ amount: '600000', denom: 'uatom' }]);
-
-  const unused = await src.query.bank.allBalances(gaia.unused.address);
-  t.deepEqual(unused, [{ amount: gaia.unused.balanceStaking, denom: 'uatom' }]);
 });

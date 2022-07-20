@@ -18,9 +18,4 @@ test.serial('funds account and checks balance', async (t) => {
 
   const balance = await src.query.bank.allBalances(src.senderAddress);
   t.deepEqual(balance, [{ amount: '600000', denom: 'uosmo' }]);
-
-  const unused = await src.query.bank.allBalances(osmosis.unused.address);
-  t.deepEqual(unused, [
-    { amount: osmosis.unused.balanceStaking, denom: 'uosmo' },
-  ]);
 });
