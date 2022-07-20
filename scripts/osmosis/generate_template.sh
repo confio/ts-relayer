@@ -24,11 +24,7 @@ docker run --rm \
   --mount type=bind,source="$SCRIPT_DIR/template",target=/root \
   --entrypoint /root/setup.sh \
   "$REPOSITORY:$VERSION" \
-  osmo1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmnd5nxg osmo10dyr9899g6t0pelew4nvf4j5c3jcgv0rk2nctx osmo1xy4yqngt0nlkdcenxymg8tenrghmek4nnmg63y osmo142u9fgcjdlycfcez3lw8x6x5h7rfjlnfl6a6f5 osmo1hsm76p4ahyhl5yh3ve9ur49r5kemhp2r8ktz65 \
-  osmo14qemq0vw6y3gc3u3e0aty2e764u4gs5l32ydm0 osmo1hhg2rlu9jscacku2wwckws7932qqqu8xen6cca osmo1xv9tklw7d82sezh9haa573wufgy59vmw3p4k0x osmo17yg9mssjenmc3jkqth6ulcwj9cxujrxx2z37a0 osmo1f7j7ryulwjfe9ljplvhtcaxa6wqgula33s9mwt \
-  osmo1lvrwcvrqlc5ktzp2c4t22xgkx29q3y83hdcc5d osmo1vkv9sfwaak76weyamqx0flmng2vuquxqs8nvq9 osmo106jwym4s9aujcmes26myzzwqsccw09sdn5lytw osmo1c7wpeen2uv8thayf7g8q2rgpm29clj0dqc7m5u osmo1mjxpv9ft30wer7ma7kwfxhm42l379xutfysaqg \
-  osmo1cjsxept9rkggzxztslae9ndgpdyt2408hd5yew \
-  osmo17d0jcz59jf68g52vq38tuuncmwwjk42ujqtk0q
+  osmo1lvrwcvrqlc5ktzp2c4t22xgkx29q3y83hdcc5d
 
 sudo chmod -R g+rwx template/.osmosisd/
 sudo chmod -R a+rx template/.osmosisd/
