@@ -1,4 +1,4 @@
-REPOSITORY="cephalopodequipment/gaiad"
-# Choose from https://hub.docker.com/r/cephalopodequipment/gaiad/tags
-VERSION="7.0.1-rocks"
+REPOSITORY="confio/gaia-ci"
+# Choose from https://hub.docker.com/r/confio/gaia-ci/tags
+VERSION="7.0.1"
 CONTAINER_NAME="gaia"

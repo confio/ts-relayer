@@ -5,8 +5,6 @@ command -v shellcheck >/dev/null && shellcheck "$0"
 # Please keep this in sync with the Ports overview in HACKING.md
 TENDERMINT_PORT_GUEST="26657"
 TENDERMINT_PORT_HOST="26659"
-LCD_API_PORT_GUEST="1317"
-LCD_API_PORT_HOST="1319"
 
 SCRIPT_DIR="$(realpath "$(dirname "$0")")"
 # shellcheck source=./env
@@ -28,9 +26,8 @@ echo "starting wasmd with rpc on port $TENDERMINT_PORT_HOST"
 docker run --rm \
   --name "$CONTAINER_NAME" \
   -p "$TENDERMINT_PORT_HOST":"$TENDERMINT_PORT_GUEST" \
-  -p "$LCD_API_PORT_HOST":"$LCD_API_PORT_GUEST" \
   --mount type=bind,source="$SCRIPT_DIR/template",target=/template \
   --mount type=volume,source=wasmd_data,target=/root \
   "$REPOSITORY:$VERSION" \
-  ./run_wasmd.sh /template \
-  2>&1 | grep 'executed block'
+  /opt/run.sh \
+  2>&1 | tee debug.log | grep 'executed block'

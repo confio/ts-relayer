@@ -60,14 +60,6 @@ export interface ChainDefinition {
   blockTime: number; // ms
   ics20Port: string;
   faucet: AccountInfo;
-  unused: {
-    address: string;
-    balanceStaking: string;
-    balanceFee?: string;
-    accountNumber?: number;
-    sequence?: number;
-    pubkey?: unknown;
-  };
 }
 
 export const gaia: ChainDefinition = {
@@ -87,17 +79,6 @@ export const gaia: ChainDefinition = {
       value: 'A08EGB7ro1ORuFhjOnZcSgwYlpe0DSFjVNUIkNNQxwKQ',
     },
     address0: 'cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6',
-  },
-  /** Unused account */
-  unused: {
-    pubkey: {
-      type: 'tendermint/PubKeySecp256k1',
-      value: 'ArkCaFUJ/IH+vKBmNRCdUVl3mCAhbopk9jjW4Ko4OfRQ',
-    },
-    address: 'cosmos1cjsxept9rkggzxztslae9ndgpdyt2408lk850u',
-    accountNumber: 16,
-    sequence: 0,
-    balanceStaking: '1000000000', // 1000 ATOM
   },
   ics20Port: 'custom',
 };
@@ -120,17 +101,6 @@ export const wasmd: ChainDefinition = {
     },
     address0: 'wasm14qemq0vw6y3gc3u3e0aty2e764u4gs5lndxgyk',
   },
-  unused: {
-    pubkey: {
-      type: 'tendermint/PubKeySecp256k1',
-      value: 'ArkCaFUJ/IH+vKBmNRCdUVl3mCAhbopk9jjW4Ko4OfRQ',
-    },
-    address: 'wasm1cjsxept9rkggzxztslae9ndgpdyt240842kpxh',
-    accountNumber: 16,
-    sequence: 0,
-    balanceStaking: '10000000', // 10 STAKE
-    balanceFee: '1000000000', // 1000 COSM
-  },
   ics20Port: 'transfer',
 };
 
@@ -151,17 +121,6 @@ export const osmosis: ChainDefinition = {
       value: 'A0d/GxY+UALE+miWJP0qyq4/EayG1G6tsg24v+cbD6By',
     },
     address0: 'osmo1lvrwcvrqlc5ktzp2c4t22xgkx29q3y83hdcc5d',
-  },
-  unused: {
-    pubkey: {
-      type: 'tendermint/PubKeySecp256k1',
-      value: 'ArkCaFUJ/IH+vKBmNRCdUVl3mCAhbopk9jjW4Ko4OfRQ',
-    },
-    address: 'osmo1cjsxept9rkggzxztslae9ndgpdyt2408hd5yew',
-    accountNumber: 16,
-    sequence: 0,
-    balanceStaking: '1000000000', // 1000 OSMO
-    balanceFee: '1000000000', // 1000 OSMO
   },
   ics20Port: 'transfer',
 };
