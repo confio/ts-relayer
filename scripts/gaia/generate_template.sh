@@ -7,6 +7,8 @@ SCRIPT_DIR="$(realpath "$(dirname "$0")")"
 # shellcheck disable=SC1091
 source "$SCRIPT_DIR"/env
 
+mkdir -p "$SCRIPT_DIR"/template
+
 # The usage of the accounts below is documented in README.md of this directory
 docker run --rm \
   --user=root \
