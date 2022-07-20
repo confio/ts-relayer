@@ -6,7 +6,7 @@
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
           "account_number": "0",
-          "address": "wasm173cw0kxkgj2kwknkksdylm82fkmma0nvtp8sdh",
+          "address": "wasm17e5l4ggxlyjf7k5scnas2zflwmnj9gjg54kce7",
           "pub_key": null,
           "sequence": "0"
         },
@@ -45,7 +45,7 @@
           ]
         },
         {
-          "address": "wasm173cw0kxkgj2kwknkksdylm82fkmma0nvtp8sdh",
+          "address": "wasm17e5l4ggxlyjf7k5scnas2zflwmnj9gjg54kce7",
           "coins": [
             {
               "amount": "1000000000",
@@ -128,7 +128,7 @@
                 },
                 "public_key": {
                   "@type": "/cosmos.crypto.secp256k1.PubKey",
-                  "key": "A1FHXiPgZc/MclA8P+SlQQpeN8j3MNQGmy3u5VqKmWq6"
+                  "key": "A+Mv0AWmUlfsrAvrUCYB2wOxnlBXzjFkAHXmUMalA50y"
                 },
                 "sequence": "0"
               }
@@ -136,7 +136,7 @@
           },
           "body": {
             "extension_options": [],
-            "memo": "2bcb2cd527bcf48d8b3e229620da733a0d237b82@172.17.0.2:26656",
+            "memo": "e00476a52bbadced4266814cee02b61c4cbdb860@172.17.0.2:26656",
             "messages": [
               {
                 "@type": "/cosmos.staking.v1beta1.MsgCreateValidator",
@@ -145,22 +145,22 @@
                   "max_rate": "0.200000000000000000",
                   "rate": "0.100000000000000000"
                 },
-                "delegator_address": "wasm173cw0kxkgj2kwknkksdylm82fkmma0nvtp8sdh",
+                "delegator_address": "wasm17e5l4ggxlyjf7k5scnas2zflwmnj9gjg54kce7",
                 "description": {
                   "details": "",
                   "identity": "",
-                  "moniker": "node001",
+                  "moniker": "wasm-moniker",
                   "security_contact": "",
                   "website": ""
                 },
                 "min_self_delegation": "1",
                 "pubkey": {
                   "@type": "/cosmos.crypto.ed25519.PubKey",
-                  "key": "8wyFRXkWi8aZzR3uURqpbQT+XQpRK456Ydi8bwaRdss="
+                  "key": "pbhQLheUqr0nbaNZ7z1wzAsXjLRilfq4xbcaMN2XRUY="
                 },
-                "validator_address": "wasmvaloper173cw0kxkgj2kwknkksdylm82fkmma0nv7ajvrd",
+                "validator_address": "wasmvaloper17e5l4ggxlyjf7k5scnas2zflwmnj9gjgpfryhy",
                 "value": {
-                  "amount": "250000000",
+                  "amount": "3000000",
                   "denom": "ustake"
                 }
               }
@@ -169,7 +169,7 @@
             "timeout_height": "0"
           },
           "signatures": [
-            "5djMMCMnAIBODOEo7BTmpN0umr/2himMbkvUrT6AJpA2npOwXVIOq/8waA48/ZEmR5377sOpzATJJt267V/cJQ=="
+            "oHhjuBqgpc8xV6SZu5v8E0Bf653PPRPvqYjsI+6l1ht1aeGF8f+ym+UynVvQj9mHc0EXlts23dN9Ht7/jm2WEA=="
           ]
         }
       ]
@@ -335,6 +335,6 @@
     },
     "version": {}
   },
-  "genesis_time": "2022-07-20T18:10:25.044999297Z",
+  "genesis_time": "2022-07-20T20:02:34.612004135Z",
   "initial_height": "1"
 }
