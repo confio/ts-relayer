@@ -1,5 +1,4 @@
-# Choose from https://hub.docker.com/r/cosmwasm/wasmd/tags
-REPOSITORY="cosmwasm/wasmd"
+REPOSITORY="confio/wasm-ci"
 # This should be pinned to the newest version we support
-VERSION="v0.27.0"
+VERSION="0.27.0"
 CONTAINER_NAME="wasmd"
