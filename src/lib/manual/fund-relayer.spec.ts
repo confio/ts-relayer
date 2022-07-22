@@ -12,7 +12,7 @@ yarn build && yarn test:unit ./src/lib/manual/fund-relayer.spec.ts
 
 import test from 'ava';
 
-import { fundAccount, gaia, wasmd } from '../testutils';
+import { fundAccount, gaia, wasmd } from '../helpers';
 
 import { gaiaAddress, wasmdAddress } from './consts';
 

@@ -1,7 +1,7 @@
 import test from 'ava';
 
+import { gaia, ics20, randomAddress, setup, wasmd } from './helpers';
 import { Link } from './link';
-import { gaia, ics20, randomAddress, setup, wasmd } from './testutils';
 import { parseAcksFromLogs } from './utils';
 
 test.serial('submit multiple tx, query all packets', async (t) => {

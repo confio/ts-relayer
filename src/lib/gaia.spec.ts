@@ -7,7 +7,7 @@ import {
   generateMnemonic,
   signingClient,
   TestLogger,
-} from './testutils';
+} from './helpers';
 
 test.serial('funds account and checks balance', async (t) => {
   const logger = new TestLogger();

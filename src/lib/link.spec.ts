@@ -2,8 +2,6 @@ import { assert, sleep } from '@cosmjs/utils';
 import test from 'ava';
 import { State } from 'cosmjs-types/ibc/core/channel/v1/channel';
 
-import { prepareChannelHandshake } from './ibcclient';
-import { Link, RelayedHeights } from './link';
 import {
   gaia,
   ics20,
@@ -12,7 +10,9 @@ import {
   TestLogger,
   transferTokens,
   wasmd,
-} from './testutils';
+} from './helpers';
+import { prepareChannelHandshake } from './ibcclient';
+import { Link, RelayedHeights } from './link';
 import { secondsFromDateNanos, splitPendingPackets } from './utils';
 
 test.serial('establish new client-connection', async (t) => {

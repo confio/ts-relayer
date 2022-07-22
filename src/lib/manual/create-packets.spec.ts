@@ -12,7 +12,7 @@ yarn build && yarn test:unit ./src/lib/manual/create-packets.spec.ts
 
 import test from 'ava';
 
-import { gaia, setup, TestLogger, transferTokens, wasmd } from '../testutils';
+import { gaia, setup, TestLogger, transferTokens, wasmd } from '../helpers';
 
 import { channels } from './consts';
 

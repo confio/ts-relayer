@@ -1,10 +1,11 @@
 // This file outputs some basic test functionality, and includes tests that they work
+
 import {
   SigningCosmWasmClient,
   SigningCosmWasmClientOptions,
 } from '@cosmjs/cosmwasm-stargate';
 import { Bip39, Random } from '@cosmjs/crypto';
-import { Bech32 } from '@cosmjs/encoding';
+import { toBech32 } from '@cosmjs/encoding';
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 import { GasPrice, StargateClient } from '@cosmjs/stargate';
 import { Order } from 'cosmjs-types/ibc/core/channel/v1/channel';
@@ -258,7 +259,7 @@ export function generateMnemonic(): string {
 
 export function randomAddress(prefix: string): string {
   const random = Random.getBytes(20);
-  return Bech32.encode(prefix, random);
+  return toBech32(prefix, random);
 }
 
 // Makes multiple transfers, one per item in amounts.

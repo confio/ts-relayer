@@ -3,13 +3,15 @@ import fs from 'fs';
 import test from 'ava';
 import sinon from 'sinon';
 
+import { testutils } from '../../../lib';
 import { Link } from '../../../lib/link';
-import { TestLogger } from '../../../lib/testutils';
 import { Logger } from '../../create-logger';
 import { signingClient } from '../../utils/signing-client';
 
 import { gaiaChain, wasmdChain } from './chains';
 import { Options, run } from './connections';
+
+const { TestLogger } = testutils;
 
 const fsReadFileSync = sinon.stub(fs, 'readFileSync');
 const consoleLog = sinon.stub(console, 'log');
