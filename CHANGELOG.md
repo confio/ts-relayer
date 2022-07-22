@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.1
+
+### Patch Changes
+
+- 54eba2e: Reorganize CI files for blockchains
+- da204f2: Rename testutils.ts to helpers.ts so it will be published
+- da204f2: Ensure build/index.js exposed when publishing
+
 ## 0.5.0
 
 ### Minor Changes
