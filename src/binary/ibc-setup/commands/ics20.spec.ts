@@ -5,14 +5,16 @@ import { assert } from '@cosmjs/utils';
 import test from 'ava';
 import sinon from 'sinon';
 
+import { testutils } from '../../../lib';
 import { Link } from '../../../lib/link';
-import { TestLogger } from '../../../lib/testutils';
 import { appFile } from '../../constants';
 import { Logger } from '../../create-logger';
 import { signingClient } from '../../utils/signing-client';
 
 import { gaiaChain, wasmdChain } from './chains';
 import { Options, run } from './ics20';
+
+const { TestLogger } = testutils;
 
 const fsWriteFileSync = sinon.stub(fs, 'writeFileSync');
 const fsReadFileSync = sinon.stub(fs, 'readFileSync');

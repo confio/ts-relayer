@@ -1,5 +1,5 @@
+import { gaia, wasmd } from '../helpers';
 import { ChannelPair } from '../link';
-import { gaia, wasmd } from '../testutils';
 
 // TODO: use env vars
 // copy these values from `ibc-setup keys list`

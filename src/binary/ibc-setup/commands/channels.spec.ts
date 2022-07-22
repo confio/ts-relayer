@@ -5,11 +5,14 @@ import test from 'ava';
 import { State as ChannelState } from 'cosmjs-types/ibc/core/channel/v1/channel';
 import sinon from 'sinon';
 
+import { testutils } from '../../../lib';
 import { ChannelPair, Link } from '../../../lib/link';
-import { TestLogger } from '../../../lib/testutils';
-import { ics20 } from '../../../lib/testutils';
 import { Logger } from '../../create-logger';
 import { signingClient } from '../../utils/signing-client';
+
+const { TestLogger } = testutils;
+
+const { ics20 } = testutils;
 
 import { gaiaChain, wasmdChain } from './chains';
 import { channelStateAsText, Options, run } from './channels';

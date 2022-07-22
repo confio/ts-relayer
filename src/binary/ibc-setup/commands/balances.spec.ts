@@ -4,12 +4,14 @@ import os from 'os';
 import test from 'ava';
 import sinon from 'sinon';
 
+import { testutils } from '../../../lib';
 import { IbcClient } from '../../../lib/ibcclient';
-import { TestLogger } from '../../../lib/testutils';
 import { Logger } from '../../create-logger';
 
 import { run } from './balances';
 import { Options } from './keys-list';
+
+const { TestLogger } = testutils;
 
 const fsReadFileSync = sinon.stub(fs, 'readFileSync');
 const consoleLog = sinon.stub(console, 'log');

@@ -5,11 +5,13 @@ import { assert } from '@cosmjs/utils';
 import test from 'ava';
 import sinon from 'sinon';
 
+import { testutils } from '../../../lib';
 import { Link } from '../../../lib/link';
-import { TestLogger } from '../../../lib/testutils';
 import { Logger } from '../../create-logger';
 import { indent } from '../../utils/indent';
 import { signingClient } from '../../utils/signing-client';
+
+const { TestLogger } = testutils;
 
 import { gaiaChain, wasmdChain } from './chains';
 import { Options, run } from './channel';
