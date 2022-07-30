@@ -233,6 +233,14 @@ The `GET /metrics` endpoint will be exposed by default on port `8080`, which you
 
 [Refer to the development page.](DEVELOPMENT.md)
 
+## Integration Tests
+
+ts-relayer can be used as a library as well as a binary. This allows us to make powerful node scripts, or to
+easily test CosmWasm contract IBC flows in CI code. You can look at the following two examples on how to do so:
+
+* [Simple CW20-ICS20 talking to non-CosmWasm node](https://github.com/confio/ibc-tests-ics20)
+* [A pair of CosmWasm contracts talking on multiple chains](https://github.com/confio/cw-ibc-demo/tree/main/tests)
+
 ## Chain Requirements
 
 The blockchain must be based on Cosmos SDK `v0.42.4+`. In particular it must have
