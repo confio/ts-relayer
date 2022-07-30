@@ -183,6 +183,8 @@ export interface ChannelInfo {
 export type IbcClientOptions = SigningStargateClientOptions & {
   logger?: Logger;
   gasPrice: GasPrice;
+  estimatedBlockTime: number;
+  estimatedIndexerTime: number;
 };
 
 export class IbcClient {
@@ -199,6 +201,8 @@ export class IbcClient {
 
   public readonly chainId: string;
   public readonly revisionNumber: Long;
+  public readonly estimatedBlockTime: number;
+  public readonly estimatedIndexerTime: number;
 
   public static async connectWithSigner(
     endpoint: string,
@@ -247,9 +251,10 @@ export class IbcClient {
     this.chainId = chainId;
     this.revisionNumber = parseRevisionNumber(chainId);
 
-    const { gasPrice, logger } = options;
-    this.gasPrice = gasPrice;
-    this.logger = logger ?? new NoopLogger();
+    this.gasPrice = options.gasPrice;
+    this.logger = options.logger ?? new NoopLogger();
+    this.estimatedBlockTime = options.estimatedBlockTime;
+    this.estimatedIndexerTime = options.estimatedIndexerTime;
   }
 
   public revisionHeight(height: number): Height {
@@ -318,7 +323,7 @@ export class IbcClient {
     const start = await this.currentHeight();
     let end: number;
     do {
-      await sleep(500);
+      await sleep(this.estimatedBlockTime);
       end = await this.currentHeight();
     } while (end === start);
     // TODO: this works but only for websocket connections, is there some code that falls back to polling in cosmjs?
@@ -327,7 +332,7 @@ export class IbcClient {
 
   // we may have to wait a bit before a tx returns and making queries on the event log
   public async waitForIndexer(): Promise<void> {
-    await sleep(50);
+    await sleep(this.estimatedIndexerTime);
   }
 
   public getCommit(height?: number): Promise<tendermint34.CommitResponse> {

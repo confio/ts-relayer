@@ -1,4 +1,4 @@
-import { assert, sleep } from '@cosmjs/utils';
+import { assert } from '@cosmjs/utils';
 import test from 'ava';
 import { State } from 'cosmjs-types/ibc/core/channel/v1/channel';
 
@@ -408,7 +408,7 @@ test.serial(
       })),
     };
     // need to wait briefly for it to be indexed
-    await sleep(100);
+    await nodeA.waitForIndexer();
 
     // now query for all packets, ensuring we mapped the channels properly
     const packets = await link.getPendingPackets('A');
@@ -476,8 +476,10 @@ test.serial(
     const heightA = (await nodeA.latestHeader()).height;
     const heightB = (await nodeB.latestHeader()).height;
 
-    // wait a few seconds so we can get stale ones
-    await sleep(3000);
+    // wait a few blocks so we can get stale ones
+    for (let i = 0; i < 10; i++) {
+      await Promise.all([nodeA.waitOneBlock(), nodeB.waitOneBlock()]);
+    }
 
     // we definitely have updated within the last 1000 seconds, this should do nothing
     const noUpdateA = await link.updateClientIfStale('A', 1000);
@@ -646,7 +648,7 @@ test.serial('timeout expired packets', async (t) => {
   t.assert(txHeights[1] > txHeights[0], txHeights.toString());
   t.assert(txHeights[2] > txHeights[1], txHeights.toString());
   // need to wait briefly for it to be indexed
-  await sleep(100);
+  await nodeA.waitForIndexer();
 
   // now query for all packets
   const packets = await link.getPendingPackets('A');
