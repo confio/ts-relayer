@@ -258,9 +258,6 @@ export async function fundAccount(
   const feeTokens = {
     amount,
     denom: GasPrice.fromString(opts.minFee).denom,
-    gasLimits: {
-      upload: 1750000,
-    },
   };
   await client.sendTokens(rcpt, [feeTokens]);
 }
