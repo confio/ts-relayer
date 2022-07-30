@@ -86,7 +86,7 @@ Reads the configuration and starts relaying packets.
 2. Get testnet tokens for `uni`
 
    - Find your relayer address on uni via: `ibc-setup keys list | grep uni`
-   - Join Juno discord with [this invite link](https://discord.gg/TfsuB6yd)
+   - Join Juno discord with [this invite link](https://discord.gg/NbB8zCPX)
    - Go to the `faucet` channel
    - Request tokens at this address in the above channel: `$request iaa1fxmqew9dgg44jdf3l34zwa8rx7tcf42wz8ehjk`
    - Check you have tokens on malaga and uni via `ibc-setup balances`
