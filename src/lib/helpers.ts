@@ -164,6 +164,21 @@ export async function queryClient(opts: QueryOpts): Promise<StargateClient> {
   return StargateClient.connect(opts.tendermintUrlHttp);
 }
 
+function extras(): {
+  broadcastPollIntervalMs?: number;
+  broadcastTimeoutMs?: number;
+} {
+  const extras =
+    process.env.NODE_ENV == 'test'
+      ? {
+          // This is just for tests - don't add this in production code
+          broadcastPollIntervalMs: 300,
+          broadcastTimeoutMs: 2000,
+        }
+      : {};
+  return extras;
+}
+
 export async function signingClient(
   opts: SigningOpts,
   mnemonic: string,
@@ -179,9 +194,7 @@ export async function signingClient(
     logger,
     estimatedBlockTime: opts.estimatedBlockTime,
     estimatedIndexerTime: opts.estimatedIndexerTime,
-    // This is just for tests - don't add this in production code
-    broadcastPollIntervalMs: 300,
-    broadcastTimeoutMs: 2000,
+    ...extras(),
   };
   const client = await IbcClient.connectWithSigner(
     opts.tendermintUrlHttp,
@@ -204,9 +217,7 @@ export async function signingCosmWasmClient(
   const options: SigningCosmWasmClientOptions = {
     prefix: opts.prefix,
     gasPrice: GasPrice.fromString(opts.minFee),
-    // This is just for tests - don't add this in production code
-    broadcastPollIntervalMs: 300,
-    broadcastTimeoutMs: 2000,
+    ...extras(),
   };
   const sign = await SigningCosmWasmClient.connectWithSigner(
     opts.tendermintUrlHttp,
