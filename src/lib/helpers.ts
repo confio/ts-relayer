@@ -61,6 +61,8 @@ export interface ChainDefinition {
   blockTime: number; // ms
   ics20Port: string;
   faucet: AccountInfo;
+  estimatedBlockTime: number;
+  estimatedIndexerTime: number;
 }
 
 export const gaia: ChainDefinition = {
@@ -82,6 +84,8 @@ export const gaia: ChainDefinition = {
     address0: 'cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6',
   },
   ics20Port: 'custom',
+  estimatedBlockTime: 400,
+  estimatedIndexerTime: 80,
 };
 
 export const wasmd: ChainDefinition = {
@@ -103,6 +107,8 @@ export const wasmd: ChainDefinition = {
     address0: 'wasm14qemq0vw6y3gc3u3e0aty2e764u4gs5lndxgyk',
   },
   ics20Port: 'transfer',
+  estimatedBlockTime: 400,
+  estimatedIndexerTime: 80,
 };
 
 export const osmosis: ChainDefinition = {
@@ -124,6 +130,8 @@ export const osmosis: ChainDefinition = {
     address0: 'osmo1lvrwcvrqlc5ktzp2c4t22xgkx29q3y83hdcc5d',
   },
   ics20Port: 'transfer',
+  estimatedBlockTime: 400,
+  estimatedIndexerTime: 80,
 };
 
 // constants for this transport protocol
@@ -138,6 +146,8 @@ export interface SigningOpts {
   readonly prefix: string;
   readonly denomFee: string;
   readonly minFee: string;
+  readonly estimatedBlockTime: number;
+  readonly estimatedIndexerTime: number;
 }
 
 interface QueryOpts {
@@ -154,6 +164,21 @@ export async function queryClient(opts: QueryOpts): Promise<StargateClient> {
   return StargateClient.connect(opts.tendermintUrlHttp);
 }
 
+function extras(): {
+  broadcastPollIntervalMs?: number;
+  broadcastTimeoutMs?: number;
+} {
+  const extras =
+    process.env.NODE_ENV == 'test'
+      ? {
+          // This is just for tests - don't add this in production code
+          broadcastPollIntervalMs: 300,
+          broadcastTimeoutMs: 2000,
+        }
+      : {};
+  return extras;
+}
+
 export async function signingClient(
   opts: SigningOpts,
   mnemonic: string,
@@ -167,9 +192,9 @@ export async function signingClient(
     prefix: opts.prefix,
     gasPrice: GasPrice.fromString(opts.minFee),
     logger,
-    // This is just for tests - don't add this in production code
-    broadcastPollIntervalMs: 300,
-    broadcastTimeoutMs: 2000,
+    estimatedBlockTime: opts.estimatedBlockTime,
+    estimatedIndexerTime: opts.estimatedIndexerTime,
+    ...extras(),
   };
   const client = await IbcClient.connectWithSigner(
     opts.tendermintUrlHttp,
@@ -192,9 +217,7 @@ export async function signingCosmWasmClient(
   const options: SigningCosmWasmClientOptions = {
     prefix: opts.prefix,
     gasPrice: GasPrice.fromString(opts.minFee),
-    // This is just for tests - don't add this in production code
-    broadcastPollIntervalMs: 300,
-    broadcastTimeoutMs: 2000,
+    ...extras(),
   };
   const sign = await SigningCosmWasmClient.connectWithSigner(
     opts.tendermintUrlHttp,
@@ -246,9 +269,6 @@ export async function fundAccount(
   const feeTokens = {
     amount,
     denom: GasPrice.fromString(opts.minFee).denom,
-    gasLimits: {
-      upload: 1750000,
-    },
   };
   await client.sendTokens(rcpt, [feeTokens]);
 }

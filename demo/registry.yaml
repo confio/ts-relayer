@@ -15,39 +15,19 @@ chains:
     faucet: https://faucet.malaga-420.cosmwasm.com:443
     # You can optionally define a default ics20_port that will be used instead of transfer if no flags set
     ics20_port: 'transfer'
+    estimated_block_time: 6000,
+    estimated_indexer_time: 100,
     # You can include multiple RPC endpoints and it will rotate through them if
     # one is down (TODO)
     rpc:
       - https://rpc.malaga-420.cosmwasm.com:443
-    # you can optionally override the gas limits for this chain
-    # the most important ones here are `receive_packet` and `ack_packet` for custom protocols
-    # this can be deprecated after https://github.com/confio/ts-relayer/issues/198 is closed
-    gas_limits:
-      # max amount of gas to be used when performing client init transactions
-      init_client: 150000
-      # # max amount of gas to be used when performing client update transactions
-      update_client: 600000
-        # max amount of gas to be used when performing connection init transactions
-      init_connection: 150000
-        # max amount of gas to be used when performing connection handshakes transactions
-      connection_handshake: 300000
-        # max amount of gas to be used when performing channel init transactions
-      init_channel: 150000
-        # max amount of gas to be used when performing channel handshakes transactions
-      channel_handshake: 300000
-        # max amount of gas to be used when receiving packets
-      receive_packet: 300000
-        # max amount of gas to be used when receiving acknowledgments
-      ack_packet: 300000
-        # max amount of gas to be used when receiving timeout packets
-      timeout_packet: 300000
-        # max amount of gas to be used when performing transfer transactions
-      transfer: 180000
   local_wasm:
     chain_id: testing
     prefix: wasm
     gas_price: 0.025ucosm
     hd_path: m/44'/1234'/0'/2'
+    estimated_block_time: 400,
+    estimated_indexer_time: 60,
     rpc:
       - http://localhost:26659
   local_gaia:
@@ -55,6 +35,8 @@ chains:
     prefix: cosmos
     gas_price: 0.025uatom
     hd_path: m/44'/1234'/0'/3'
+    estimated_block_time: 400,
+    estimated_indexer_time: 60,
     rpc:
       - http://localhost:26655
   local_osmo:
@@ -62,6 +44,8 @@ chains:
     prefix: osmo
     gas_price: 0uosmo
     hd_path: m/44'/1234'/0'/4'
+    estimated_block_time: 400,
+    estimated_indexer_time: 60,
     rpc:
       - http://localhost:26653
   cosmoshub-4:
@@ -73,6 +57,8 @@ chains:
     # Set this if you want to share the relayer account with a CLI account (not recommended)
     hd_path: m/44'/118'/0'/0/0
     ics20_port: 'transfer'
+    estimated_block_time: 7000,
+    estimated_indexer_time: 150,
     rpc:
       - https://rpc.cosmos.network:443
   juno:
@@ -81,6 +67,8 @@ chains:
     gas_price: 0.005ujuno
     hd_path: m/44'/118'/0'/0/0
     ics20_port: 'transfer'
+    estimated_block_time: 7000,
+    estimated_indexer_time: 250,
     rpc:
       - https://rpc-juno.itastakers.com:443
   uni:
@@ -89,6 +77,8 @@ chains:
     gas_price: 0.025ujunox
     hd_path: m/44'/118'/0'/0/0
     ics20_port: 'transfer'
+    estimated_block_time: 7000,
+    estimated_indexer_time: 250,
     # request in juno faucet channel https://discord.gg/TfsuB6yd
     # faucet: https://faucet.uni.juno.deuslabs.fi
     rpc:
@@ -99,5 +89,7 @@ chains:
     gas_price: 0uosmo
     hd_path: m/44'/118'/0'/0/0
     ics20_port: 'transfer'
+    estimated_block_time: 7000,
+    estimated_indexer_time: 250,
     rpc:
       - https://rpc-osmosis.blockapsis.com:443

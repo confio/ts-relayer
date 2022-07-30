@@ -30,6 +30,8 @@ export async function signingClient(
   const options: IbcClientOptions = {
     prefix: chain.prefix,
     gasPrice: GasPrice.fromString(chain.gas_price),
+    estimatedBlockTime: chain.estimated_block_time,
+    estimatedIndexerTime: chain.estimated_indexer_time,
     logger,
     ...extras,
   };

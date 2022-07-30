@@ -8,6 +8,8 @@ export type Chain = {
   hd_path?: string;
   ics20_port?: string;
   rpc: string[];
+  estimated_block_time: number;
+  estimated_indexer_time: number;
 };
 
 export type Registry = {
