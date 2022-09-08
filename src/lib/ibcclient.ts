@@ -400,21 +400,21 @@ export class IbcClient {
     const mappedValidators = validators.validators.map((val) => ({
       address: val.address,
       pubKey: mapRpcPubKeyToProto(val.pubkey),
-      votingPower: Long.fromNumber(val.votingPower),
+      votingPower: Long.fromString(val.votingPower.toString()),
       proposerPriority: val.proposerPriority
         ? Long.fromNumber(val.proposerPriority)
         : undefined,
     }));
     const totalPower = validators.validators.reduce(
-      (x, v) => x + v.votingPower,
-      0
+      (accumulator, v) => accumulator + v.votingPower,
+      BigInt(0)
     );
     const proposer = mappedValidators.find((val) =>
       arrayContentEquals(val.address, proposerAddress)
     );
     return ValidatorSet.fromPartial({
       validators: mappedValidators,
-      totalVotingPower: Long.fromNumber(totalPower),
+      totalVotingPower: Long.fromString(totalPower.toString()),
       proposer,
     });
   }
