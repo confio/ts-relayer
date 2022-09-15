@@ -56,7 +56,7 @@
     "winston": "3.3.3"
   },
   "devDependencies": {
-    "@ava/typescript": "^1.1.1",
+    "@ava/typescript": "^3",
     "@changesets/cli": "^2.16.0",
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
     "@types/js-yaml": "^4.0.0",
@@ -64,9 +64,9 @@
     "@types/node": "^14.14.25",
     "@types/sinon": "^9.0.10",
     "@types/triple-beam": "^1.3.2",
-    "@typescript-eslint/eslint-plugin": "^4.0.1",
-    "@typescript-eslint/parser": "^4.0.1",
-    "ava": "^3.12.1",
+    "@typescript-eslint/eslint-plugin": "^5",
+    "@typescript-eslint/parser": "^5",
+    "ava": "^4",
     "codecov": "^3.5.0",
     "eslint": "^7.8.0",
     "eslint-config-prettier": "^6.11.0",
@@ -78,7 +78,7 @@
     "prettier": "^2.1.1",
     "sinon": "^9.2.4",
     "ts-node": "^9.0.0",
-    "typescript": "^4.0.2"
+    "typescript": "^4.8"
   },
   "files": [
     "build/**/*.js",
@@ -97,7 +97,8 @@
     "typescript": {
       "rewritePaths": {
         "src/": "build/"
-      }
+      },
+      "compile": false
     }
   },
   "nyc": {
