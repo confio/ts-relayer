@@ -34,7 +34,7 @@ test('generates mnemonic to file', (t) => {
   run(options);
 
   const [path, contents] = fsWriteFileSync.getCall(0).args;
-  t.is(path, options.keyFile);
+  t.is(path, options.keyFile ?? '');
   t.regex(contents as string, /[\\w ]+/);
 
   t.assert(consoleLog.calledOnce);
