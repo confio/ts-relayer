@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.6.0
+
+### Minor Changes
+
+- 8bff22b: Make estimated block and indexer times configurable.
+  They are now required in the registry.yaml file.
+- 71f5c64: Upgrade codebase to CosmJS 0.29 and adapt code
+
+### Patch Changes
+
+- 898baa6: Dependency upgrades in the build and test system
+- fdfe86e: Wait for indexer instead of whole block in doCheckAndRelay
+- febc210: Remove open-cli dependency
+- 2763798: Document how to use this as a library for integration tests
+
 ## 0.5.1
 
 ### Patch Changes
