@@ -538,8 +538,8 @@ export class Link {
 
     // let's wait a bit to ensure our newly committed acks are indexed
     await Promise.all([
-      this.endA.client.waitOneBlock(),
-      this.endB.client.waitOneBlock(),
+      this.endA.client.waitForIndexer(),
+      this.endB.client.waitForIndexer(),
     ]);
 
     const [ackHeightA, ackHeightB, acksA, acksB] = await Promise.all([
