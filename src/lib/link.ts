@@ -40,7 +40,7 @@ export function otherSide(side: Side): Side {
 
 // This records the block heights from the last point where we successfully relayed packets.
 // This can be used to optimize the next round of relaying
-export interface RelayedHeights {
+export interface RelayedHeights extends Record<string, number | undefined> {
   packetHeightA?: number;
   packetHeightB?: number;
   ackHeightA?: number;
@@ -488,7 +488,7 @@ export class Link {
       timedoutThresholdBlocks,
       timedoutThresholdSeconds
     );
-    this.logger.verbose('next heights to relay', heights as any); // eslint-disable-line @typescript-eslint/no-explicit-any
+    this.logger.verbose('next heights to relay', heights);
     return heights;
   }
 
