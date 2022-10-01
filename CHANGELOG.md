@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.1
+
+### Patch Changes
+
+- 96dec9f: Bump TypeScript build target to es2018 (same as CosmJS)
+
 ## 0.6.0
 
 ### Minor Changes
