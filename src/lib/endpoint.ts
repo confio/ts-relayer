@@ -1,4 +1,3 @@
-import { toHex } from '@cosmjs/encoding';
 import { logs } from '@cosmjs/stargate';
 import { tendermint34 } from '@cosmjs/tendermint-rpc';
 import { Packet } from 'cosmjs-types/ibc/core/channel/v1/channel';
@@ -9,6 +8,7 @@ import {
   parseAcksFromLogs,
   parsePacketsFromBlockResult,
   parsePacketsFromLogs,
+  printableTxId,
 } from './utils';
 
 export interface PacketWithMetadata {
@@ -110,7 +110,7 @@ export class Endpoint {
           sender = logs.findAttribute(parsedLogs, 'message', 'signer').value;
         } catch {
           this.client.logger.warn(
-            `No message.sender nor message.signer in tx ${toHex(hash)}`
+            `No message.sender nor message.signer in tx ${printableTxId(hash)} on ${this.chainId()}`
           );
         }
       }

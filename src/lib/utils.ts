@@ -390,3 +390,7 @@ export function presentPacketData(data: Uint8Array): Record<string, unknown> {
     return { hex: toHex(data) };
   }
 }
+
+export function printableTxId(hash: Uint8Array): string {
+  return toHex(hash).toUpperCase();
+}
