@@ -1,4 +1,4 @@
-import { arrayContentEquals } from '@cosmjs/utils';
+import { arrayContentEquals, isDefined } from '@cosmjs/utils';
 import { Order, Packet, State } from 'cosmjs-types/ibc/core/channel/v1/channel';
 import { Height } from 'cosmjs-types/ibc/core/client/v1/client';
 
@@ -618,7 +618,7 @@ export class Link {
         }
       })
     );
-    return valid.filter((x) => x !== undefined) as PacketWithMetadata[];
+    return valid.filter(isDefined);
   }
 
   public async getPendingAcks(
