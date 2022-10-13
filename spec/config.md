@@ -85,9 +85,9 @@ as environmental variables or in `app.yaml`. If they are not defined in any of t
 
 There is a simple pattern for this. Take two examples:
 
-- CLI flags: `--src` and `--log-level`
-- Env Vars (Prefix `RELAYER_`, use `_` not `-`): `RELAYER_SRC` and `RELAYER_LOG_LEVEL`
-- `app.yaml` (Same name as flag, but using `_` not `-`): `src:` and `log_level:`
+- CLI flags: `--src` and `--src-connection`
+- Env Vars (Prefix `RELAYER_`, use `_` not `-`): `RELAYER_SRC` and `RELAYER_SRC_CONNECTION`
+- `app.yaml` (Same name as flag, but using lower camel case): `src:` and `srcConnection:`
 
 ### Chain Selection
 
