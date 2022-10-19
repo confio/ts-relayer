@@ -7,7 +7,7 @@ import {
   Ack,
   parseAcksFromLogs,
   parsePacketsFromBlockResult,
-  parsePacketsFromLogs,
+  parsePacketsFromEvents,
 } from './utils';
 
 export interface PacketWithMetadata {
@@ -97,13 +97,11 @@ export class Endpoint {
 
     const search = await this.client.tm.txSearchAll({ query });
     const resultsNested = search.txs.map(
-      ({ height, result }): PacketWithMetadata[] => {
-        const parsedLogs = logs.parseRawLog(result.log);
-        return parsePacketsFromLogs(parsedLogs).map((packet) => ({
+      ({ height, result }): PacketWithMetadata[] =>
+        parsePacketsFromEvents(result.events).map((packet) => ({
           packet,
           height,
-        }));
-      }
+        }))
     );
     return resultsNested.flat();
   }

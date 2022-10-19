@@ -218,11 +218,23 @@ export function stringifyEvent(event: tendermint34.Event): ParsedEvent {
 export function parsePacketsFromBlockResult(
   result: BlockResultsResponse
 ): Packet[] {
-  const sendPacketEvents = result.beginBlockEvents
-    .concat(...result.endBlockEvents)
+  return parsePacketsFromEvents([
+    ...result.beginBlockEvents,
+    ...result.endBlockEvents,
+  ]);
+}
+
+/**
+ * Takes a list of events, finds the send_packet events, stringifies attributes
+ * and parsed the events into `Packet`s.
+ */
+export function parsePacketsFromEvents(
+  events: readonly tendermint34.Event[]
+): Packet[] {
+  return events
     .filter(({ type }) => type === 'send_packet')
-    .map(stringifyEvent);
-  return sendPacketEvents.map(parsePacket);
+    .map(stringifyEvent)
+    .map(parsePacket);
 }
 
 export function parsePacketsFromLogs(logs: readonly logs.Log[]): Packet[] {
