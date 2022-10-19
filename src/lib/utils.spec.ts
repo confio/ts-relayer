@@ -3,6 +3,7 @@ import { logs } from '@cosmjs/stargate';
 import {
   fromRfc3339WithNanoseconds,
   ReadonlyDateWithNanoseconds,
+  tendermint34,
 } from '@cosmjs/tendermint-rpc';
 import test from 'ava';
 import Long from 'long';
@@ -10,6 +11,7 @@ import Long from 'long';
 import {
   heightGreater,
   parseHeightAttribute,
+  parsePacketsFromEvents,
   parsePacketsFromLogs,
   parseRevisionNumber,
   secondsFromDateNanos,
@@ -46,6 +48,437 @@ test('stringifyEvent works', (t) => {
         value: '36945ujunox',
       },
     ],
+  });
+});
+
+test('parsePacketsFromEvents', (t) => {
+  // From https://gist.github.com/webmaster128/14d273b3b462c1c653f51e3e1edb8cd5
+  const events: tendermint34.Event[] = [
+    {
+      type: 'coin_spent',
+      attributes: [
+        {
+          key: fromBase64('c3BlbmRlcg=='),
+          value: fromBase64(
+            'anVubzEwMHM0NXM0aDk0cWRrY2FmbW1ycWZsdGxyZ3lxd3luNmUwNWp4Mg=='
+          ),
+        },
+        {
+          key: fromBase64('YW1vdW50'),
+          value: fromBase64('MzY5NDV1anVub3g='),
+        },
+      ],
+    },
+    {
+      type: 'coin_received',
+      attributes: [
+        {
+          key: fromBase64('cmVjZWl2ZXI='),
+          value: fromBase64(
+            'anVubzE3eHBmdmFrbTJhbWc5NjJ5bHM2Zjg0ejNrZWxsOGM1bHh0cW12cA=='
+          ),
+        },
+        {
+          key: fromBase64('YW1vdW50'),
+          value: fromBase64('MzY5NDV1anVub3g='),
+        },
+      ],
+    },
+    {
+      type: 'transfer',
+      attributes: [
+        {
+          key: fromBase64('cmVjaXBpZW50'),
+          value: fromBase64(
+            'anVubzE3eHBmdmFrbTJhbWc5NjJ5bHM2Zjg0ejNrZWxsOGM1bHh0cW12cA=='
+          ),
+        },
+        {
+          key: fromBase64('c2VuZGVy'),
+          value: fromBase64(
+            'anVubzEwMHM0NXM0aDk0cWRrY2FmbW1ycWZsdGxyZ3lxd3luNmUwNWp4Mg=='
+          ),
+        },
+        {
+          key: fromBase64('YW1vdW50'),
+          value: fromBase64('MzY5NDV1anVub3g='),
+        },
+      ],
+    },
+    {
+      type: 'message',
+      attributes: [
+        {
+          key: fromBase64('c2VuZGVy'),
+          value: fromBase64(
+            'anVubzEwMHM0NXM0aDk0cWRrY2FmbW1ycWZsdGxyZ3lxd3luNmUwNWp4Mg=='
+          ),
+        },
+      ],
+    },
+    {
+      type: 'tx',
+      attributes: [
+        {
+          key: fromBase64('ZmVl'),
+          value: fromBase64('MzY5NDV1anVub3g='),
+        },
+      ],
+    },
+    {
+      type: 'tx',
+      attributes: [
+        {
+          key: fromBase64('YWNjX3NlcQ=='),
+          value: fromBase64(
+            'anVubzEwMHM0NXM0aDk0cWRrY2FmbW1ycWZsdGxyZ3lxd3luNmUwNWp4Mi8xMjQ5Mg=='
+          ),
+        },
+      ],
+    },
+    {
+      type: 'tx',
+      attributes: [
+        {
+          key: fromBase64('c2lnbmF0dXJl'),
+          value: fromBase64(
+            'Sm42eW9WYlFPdFIxWlNHRW1lQmQ4c2VaOTl5RHlqdlJ2eU8rR1hGL1FGaDh3bzR2Tm5EckFFUzNxNmk0Sy9XTnhhdkNFRDAxVXNSK0hJYVB2djdRNkE9PQ=='
+          ),
+        },
+      ],
+    },
+    {
+      type: 'message',
+      attributes: [
+        {
+          key: fromBase64('YWN0aW9u'),
+          value: fromBase64('L2Nvc213YXNtLndhc20udjEuTXNnRXhlY3V0ZUNvbnRyYWN0'),
+        },
+      ],
+    },
+    {
+      type: 'message',
+      attributes: [
+        {
+          key: fromBase64('bW9kdWxl'),
+          value: fromBase64('d2FzbQ=='),
+        },
+        {
+          key: fromBase64('c2VuZGVy'),
+          value: fromBase64(
+            'anVubzEwMHM0NXM0aDk0cWRrY2FmbW1ycWZsdGxyZ3lxd3luNmUwNWp4Mg=='
+          ),
+        },
+      ],
+    },
+    {
+      type: 'execute',
+      attributes: [
+        {
+          key: fromBase64('X2NvbnRyYWN0X2FkZHJlc3M='),
+          value: fromBase64(
+            'anVubzE0eWYyNHBmY3pjc2xjaGRyMDR1NXAyeXc5enhmNmN2czN2aGU5cjlzcmY1cGc2eTJwN25xZHFuN2tu'
+          ),
+        },
+      ],
+    },
+    {
+      type: 'execute',
+      attributes: [
+        {
+          key: fromBase64('X2NvbnRyYWN0X2FkZHJlc3M='),
+          value: fromBase64(
+            'anVubzFlN3ZzNzZtYXJrc2h1czM5ZXlmZWZoMnkzdDlndWdlNHQwa3ZxeWEzcTZ2YW1nc2VqaDRxOGx4dHE5'
+          ),
+        },
+      ],
+    },
+    {
+      type: 'wasm',
+      attributes: [
+        {
+          key: fromBase64('X2NvbnRyYWN0X2FkZHJlc3M='),
+          value: fromBase64(
+            'anVubzFlN3ZzNzZtYXJrc2h1czM5ZXlmZWZoMnkzdDlndWdlNHQwa3ZxeWEzcTZ2YW1nc2VqaDRxOGx4dHE5'
+          ),
+        },
+        {
+          key: fromBase64('YWN0aW9u'),
+          value: fromBase64('ZXhlY3V0ZV9nZXRfbmV4dF9yYW5kb21uZXNz'),
+        },
+      ],
+    },
+    {
+      type: 'send_packet',
+      attributes: [
+        {
+          key: fromBase64('cGFja2V0X2NoYW5uZWxfb3JkZXJpbmc='),
+          value: fromBase64('T1JERVJfVU5PUkRFUkVE'),
+        },
+        {
+          key: fromBase64('cGFja2V0X2Nvbm5lY3Rpb24='),
+          value: fromBase64('Y29ubmVjdGlvbi0zMQ=='),
+        },
+        {
+          key: fromBase64('cGFja2V0X2RhdGE='),
+          value: fromBase64(
+            'eyJhZnRlciI6IjE2NjYxNjkwMDM0MTM1NzgyNjkiLCJzZW5kZXIiOiJqdW5vMTR5ZjI0cGZjemNzbGNoZHIwNHU1cDJ5dzl6eGY2Y3ZzM3ZoZTlyOXNyZjVwZzZ5MnA3bnFkcW43a24iLCJqb2JfaWQiOiJzaW1vbi1yb2xsLTEifQ=='
+          ),
+        },
+        {
+          key: fromBase64('cGFja2V0X2RhdGFfaGV4'),
+          value: fromBase64(
+            'N2IyMjYxNjY3NDY1NzIyMjNhMjIzMTM2MzYzNjMxMzYzOTMwMzAzMzM0MzEzMzM1MzczODMyMzYzOTIyMmMyMjczNjU2ZTY0NjU3MjIyM2EyMjZhNzU2ZTZmMzEzNDc5NjYzMjM0NzA2NjYzN2E2MzczNmM2MzY4NjQ3MjMwMzQ3NTM1NzAzMjc5NzczOTdhNzg2NjM2NjM3NjczMzM3NjY4NjUzOTcyMzk3MzcyNjYzNTcwNjczNjc5MzI3MDM3NmU3MTY0NzE2ZTM3NmI2ZTIyMmMyMjZhNmY2MjVmNjk2NDIyM2EyMjczNjk2ZDZmNmUyZDcyNmY2YzZjMmQzMTIyN2Q='
+          ),
+        },
+        {
+          key: fromBase64('cGFja2V0X2RzdF9jaGFubmVs'),
+          value: fromBase64('Y2hhbm5lbC0xMA=='),
+        },
+        {
+          key: fromBase64('cGFja2V0X2RzdF9wb3J0'),
+          value: fromBase64(
+            'd2FzbS5ub2lzMWo3bTRmNjhscnVjZWc1eHEzZ2ZrZmRnZGd6MDJ2aHZscTJwNjd2Zjl2M2h3ZHlkYWF0M3NhanpjeTU='
+          ),
+        },
+        {
+          key: fromBase64('cGFja2V0X3NlcXVlbmNl'),
+          value: fromBase64('NzUyNA=='),
+        },
+        {
+          key: fromBase64('cGFja2V0X3NyY19jaGFubmVs'),
+          value: fromBase64('Y2hhbm5lbC00Mg=='),
+        },
+        {
+          key: fromBase64('cGFja2V0X3NyY19wb3J0'),
+          value: fromBase64(
+            'd2FzbS5qdW5vMWU3dnM3Nm1hcmtzaHVzMzlleWZlZmgyeTN0OWd1Z2U0dDBrdnF5YTNxNnZhbWdzZWpoNHE4bHh0cTk='
+          ),
+        },
+        {
+          key: fromBase64('cGFja2V0X3RpbWVvdXRfaGVpZ2h0'),
+          value: fromBase64('MC0w'),
+        },
+        {
+          key: fromBase64('cGFja2V0X3RpbWVvdXRfdGltZXN0YW1w'),
+          value: fromBase64('MTY2NjE3MjYwMDQxMzU3ODI2OQ=='),
+        },
+      ],
+    },
+    {
+      type: 'execute',
+      attributes: [
+        {
+          key: fromBase64('X2NvbnRyYWN0X2FkZHJlc3M='),
+          value: fromBase64(
+            'anVubzFlN3ZzNzZtYXJrc2h1czM5ZXlmZWZoMnkzdDlndWdlNHQwa3ZxeWEzcTZ2YW1nc2VqaDRxOGx4dHE5'
+          ),
+        },
+      ],
+    },
+    {
+      type: 'wasm',
+      attributes: [
+        {
+          key: fromBase64('X2NvbnRyYWN0X2FkZHJlc3M='),
+          value: fromBase64(
+            'anVubzFlN3ZzNzZtYXJrc2h1czM5ZXlmZWZoMnkzdDlndWdlNHQwa3ZxeWEzcTZ2YW1nc2VqaDRxOGx4dHE5'
+          ),
+        },
+        {
+          key: fromBase64('YWN0aW9u'),
+          value: fromBase64('ZXhlY3V0ZV9nZXRfbmV4dF9yYW5kb21uZXNz'),
+        },
+      ],
+    },
+    {
+      type: 'send_packet',
+      attributes: [
+        {
+          key: fromBase64('cGFja2V0X2NoYW5uZWxfb3JkZXJpbmc='),
+          value: fromBase64('T1JERVJfVU5PUkRFUkVE'),
+        },
+        {
+          key: fromBase64('cGFja2V0X2Nvbm5lY3Rpb24='),
+          value: fromBase64('Y29ubmVjdGlvbi0zMQ=='),
+        },
+        {
+          key: fromBase64('cGFja2V0X2RhdGE='),
+          value: fromBase64(
+            'eyJhZnRlciI6IjE2NjYxNjkwMDM0MTM1NzgyNjkiLCJzZW5kZXIiOiJqdW5vMTR5ZjI0cGZjemNzbGNoZHIwNHU1cDJ5dzl6eGY2Y3ZzM3ZoZTlyOXNyZjVwZzZ5MnA3bnFkcW43a24iLCJqb2JfaWQiOiJzaW1vbi1yb2xsLTIifQ=='
+          ),
+        },
+        {
+          key: fromBase64('cGFja2V0X2RhdGFfaGV4'),
+          value: fromBase64(
+            'N2IyMjYxNjY3NDY1NzIyMjNhMjIzMTM2MzYzNjMxMzYzOTMwMzAzMzM0MzEzMzM1MzczODMyMzYzOTIyMmMyMjczNjU2ZTY0NjU3MjIyM2EyMjZhNzU2ZTZmMzEzNDc5NjYzMjM0NzA2NjYzN2E2MzczNmM2MzY4NjQ3MjMwMzQ3NTM1NzAzMjc5NzczOTdhNzg2NjM2NjM3NjczMzM3NjY4NjUzOTcyMzk3MzcyNjYzNTcwNjczNjc5MzI3MDM3NmU3MTY0NzE2ZTM3NmI2ZTIyMmMyMjZhNmY2MjVmNjk2NDIyM2EyMjczNjk2ZDZmNmUyZDcyNmY2YzZjMmQzMjIyN2Q='
+          ),
+        },
+        {
+          key: fromBase64('cGFja2V0X2RzdF9jaGFubmVs'),
+          value: fromBase64('Y2hhbm5lbC0xMA=='),
+        },
+        {
+          key: fromBase64('cGFja2V0X2RzdF9wb3J0'),
+          value: fromBase64(
+            'd2FzbS5ub2lzMWo3bTRmNjhscnVjZWc1eHEzZ2ZrZmRnZGd6MDJ2aHZscTJwNjd2Zjl2M2h3ZHlkYWF0M3NhanpjeTU='
+          ),
+        },
+        {
+          key: fromBase64('cGFja2V0X3NlcXVlbmNl'),
+          value: fromBase64('NzUyNQ=='),
+        },
+        {
+          key: fromBase64('cGFja2V0X3NyY19jaGFubmVs'),
+          value: fromBase64('Y2hhbm5lbC00Mg=='),
+        },
+        {
+          key: fromBase64('cGFja2V0X3NyY19wb3J0'),
+          value: fromBase64(
+            'd2FzbS5qdW5vMWU3dnM3Nm1hcmtzaHVzMzlleWZlZmgyeTN0OWd1Z2U0dDBrdnF5YTNxNnZhbWdzZWpoNHE4bHh0cTk='
+          ),
+        },
+        {
+          key: fromBase64('cGFja2V0X3RpbWVvdXRfaGVpZ2h0'),
+          value: fromBase64('MC0w'),
+        },
+        {
+          key: fromBase64('cGFja2V0X3RpbWVvdXRfdGltZXN0YW1w'),
+          value: fromBase64('MTY2NjE3MjYwMDQxMzU3ODI2OQ=='),
+        },
+      ],
+    },
+    {
+      type: 'execute',
+      attributes: [
+        {
+          key: fromBase64('X2NvbnRyYWN0X2FkZHJlc3M='),
+          value: fromBase64(
+            'anVubzFlN3ZzNzZtYXJrc2h1czM5ZXlmZWZoMnkzdDlndWdlNHQwa3ZxeWEzcTZ2YW1nc2VqaDRxOGx4dHE5'
+          ),
+        },
+      ],
+    },
+    {
+      type: 'wasm',
+      attributes: [
+        {
+          key: fromBase64('X2NvbnRyYWN0X2FkZHJlc3M='),
+          value: fromBase64(
+            'anVubzFlN3ZzNzZtYXJrc2h1czM5ZXlmZWZoMnkzdDlndWdlNHQwa3ZxeWEzcTZ2YW1nc2VqaDRxOGx4dHE5'
+          ),
+        },
+        {
+          key: fromBase64('YWN0aW9u'),
+          value: fromBase64('ZXhlY3V0ZV9nZXRfbmV4dF9yYW5kb21uZXNz'),
+        },
+      ],
+    },
+    {
+      type: 'send_packet',
+      attributes: [
+        {
+          key: fromBase64('cGFja2V0X2NoYW5uZWxfb3JkZXJpbmc='),
+          value: fromBase64('T1JERVJfVU5PUkRFUkVE'),
+        },
+        {
+          key: fromBase64('cGFja2V0X2Nvbm5lY3Rpb24='),
+          value: fromBase64('Y29ubmVjdGlvbi0zMQ=='),
+        },
+        {
+          key: fromBase64('cGFja2V0X2RhdGE='),
+          value: fromBase64(
+            'eyJhZnRlciI6IjE2NjYxNjkwMDM0MTM1NzgyNjkiLCJzZW5kZXIiOiJqdW5vMTR5ZjI0cGZjemNzbGNoZHIwNHU1cDJ5dzl6eGY2Y3ZzM3ZoZTlyOXNyZjVwZzZ5MnA3bnFkcW43a24iLCJqb2JfaWQiOiJzaW1vbi1yb2xsLTMifQ=='
+          ),
+        },
+        {
+          key: fromBase64('cGFja2V0X2RhdGFfaGV4'),
+          value: fromBase64(
+            'N2IyMjYxNjY3NDY1NzIyMjNhMjIzMTM2MzYzNjMxMzYzOTMwMzAzMzM0MzEzMzM1MzczODMyMzYzOTIyMmMyMjczNjU2ZTY0NjU3MjIyM2EyMjZhNzU2ZTZmMzEzNDc5NjYzMjM0NzA2NjYzN2E2MzczNmM2MzY4NjQ3MjMwMzQ3NTM1NzAzMjc5NzczOTdhNzg2NjM2NjM3NjczMzM3NjY4NjUzOTcyMzk3MzcyNjYzNTcwNjczNjc5MzI3MDM3NmU3MTY0NzE2ZTM3NmI2ZTIyMmMyMjZhNmY2MjVmNjk2NDIyM2EyMjczNjk2ZDZmNmUyZDcyNmY2YzZjMmQzMzIyN2Q='
+          ),
+        },
+        {
+          key: fromBase64('cGFja2V0X2RzdF9jaGFubmVs'),
+          value: fromBase64('Y2hhbm5lbC0xMA=='),
+        },
+        {
+          key: fromBase64('cGFja2V0X2RzdF9wb3J0'),
+          value: fromBase64(
+            'd2FzbS5ub2lzMWo3bTRmNjhscnVjZWc1eHEzZ2ZrZmRnZGd6MDJ2aHZscTJwNjd2Zjl2M2h3ZHlkYWF0M3NhanpjeTU='
+          ),
+        },
+        {
+          key: fromBase64('cGFja2V0X3NlcXVlbmNl'),
+          value: fromBase64('NzUyNg=='),
+        },
+        {
+          key: fromBase64('cGFja2V0X3NyY19jaGFubmVs'),
+          value: fromBase64('Y2hhbm5lbC00Mg=='),
+        },
+        {
+          key: fromBase64('cGFja2V0X3NyY19wb3J0'),
+          value: fromBase64(
+            'd2FzbS5qdW5vMWU3dnM3Nm1hcmtzaHVzMzlleWZlZmgyeTN0OWd1Z2U0dDBrdnF5YTNxNnZhbWdzZWpoNHE4bHh0cTk='
+          ),
+        },
+        {
+          key: fromBase64('cGFja2V0X3RpbWVvdXRfaGVpZ2h0'),
+          value: fromBase64('MC0w'),
+        },
+        {
+          key: fromBase64('cGFja2V0X3RpbWVvdXRfdGltZXN0YW1w'),
+          value: fromBase64('MTY2NjE3MjYwMDQxMzU3ODI2OQ=='),
+        },
+      ],
+    },
+  ];
+
+  // See https://testnet.mintscan.io/juno-testnet/txs/F64B8C6A320A9C25FD1EA60B00194817B069C9CBEF19B736117D9339F33F2E51
+  // for packet logs
+  const packets = parsePacketsFromEvents(events);
+  t.is(packets.length, 3);
+  const [packet0, packet1, packet2] = packets;
+  t.deepEqual(packet0, {
+    sequence: Long.fromNumber(7524),
+    sourcePort:
+      'wasm.juno1e7vs76markshus39eyfefh2y3t9guge4t0kvqya3q6vamgsejh4q8lxtq9',
+    sourceChannel: 'channel-42',
+    destinationPort:
+      'wasm.nois1j7m4f68lruceg5xq3gfkfdgdgz02vhvlq2p67vf9v3hwdydaat3sajzcy5',
+    destinationChannel: 'channel-10',
+    data: fromHex(
+      '7b226166746572223a2231363636313639303033343133353738323639222c2273656e646572223a226a756e6f3134796632347066637a63736c636864723034753570327977397a7866366376733376686539723973726635706736793270376e7164716e376b6e222c226a6f625f6964223a2273696d6f6e2d726f6c6c2d31227d'
+    ),
+    timeoutHeight: undefined,
+    timeoutTimestamp: Long.fromString('1666172600413578269'),
+  });
+  t.deepEqual(packet1, {
+    sequence: Long.fromNumber(7525),
+    sourcePort:
+      'wasm.juno1e7vs76markshus39eyfefh2y3t9guge4t0kvqya3q6vamgsejh4q8lxtq9',
+    sourceChannel: 'channel-42',
+    destinationPort:
+      'wasm.nois1j7m4f68lruceg5xq3gfkfdgdgz02vhvlq2p67vf9v3hwdydaat3sajzcy5',
+    destinationChannel: 'channel-10',
+    data: fromHex(
+      '7b226166746572223a2231363636313639303033343133353738323639222c2273656e646572223a226a756e6f3134796632347066637a63736c636864723034753570327977397a7866366376733376686539723973726635706736793270376e7164716e376b6e222c226a6f625f6964223a2273696d6f6e2d726f6c6c2d32227d'
+    ),
+    timeoutHeight: undefined,
+    timeoutTimestamp: Long.fromString('1666172600413578269'),
+  });
+  t.deepEqual(packet2, {
+    sequence: Long.fromNumber(7526),
+    sourcePort:
+      'wasm.juno1e7vs76markshus39eyfefh2y3t9guge4t0kvqya3q6vamgsejh4q8lxtq9',
+    sourceChannel: 'channel-42',
+    destinationPort:
+      'wasm.nois1j7m4f68lruceg5xq3gfkfdgdgz02vhvlq2p67vf9v3hwdydaat3sajzcy5',
+    destinationChannel: 'channel-10',
+    data: fromHex(
+      '7b226166746572223a2231363636313639303033343133353738323639222c2273656e646572223a226a756e6f3134796632347066637a63736c636864723034753570327977397a7866366376733376686539723973726635706736793270376e7164716e376b6e222c226a6f625f6964223a2273696d6f6e2d726f6c6c2d33227d'
+    ),
+    timeoutHeight: undefined,
+    timeoutTimestamp: Long.fromString('1666172600413578269'),
   });
 });
 
