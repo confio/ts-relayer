@@ -1,4 +1,3 @@
-import { toHex } from '@cosmjs/encoding';
 import { logs } from '@cosmjs/stargate';
 import { tendermint34 } from '@cosmjs/tendermint-rpc';
 import { Packet } from 'cosmjs-types/ibc/core/channel/v1/channel';
@@ -15,8 +14,6 @@ export interface PacketWithMetadata {
   packet: Packet;
   // block it was in, must query proofs >= height
   height: number;
-  // who send the packet (first signer of the tx this was in)
-  sender: string;
 }
 
 export type AckWithMetadata = Ack & {
@@ -99,25 +96,11 @@ export class Endpoint {
     }
 
     const search = await this.client.tm.txSearchAll({ query });
-    const resultsNested = search.txs.map(({ hash, height, result }) => {
+    const resultsNested = search.txs.map(({ height, result }) => {
       const parsedLogs = logs.parseRawLog(result.log);
-      // we accept message.sender (cosmos-sdk) and message.signer (x/wasm)
-      let sender = '';
-      try {
-        sender = logs.findAttribute(parsedLogs, 'message', 'sender').value;
-      } catch {
-        try {
-          sender = logs.findAttribute(parsedLogs, 'message', 'signer').value;
-        } catch {
-          this.client.logger.warn(
-            `No message.sender nor message.signer in tx ${toHex(hash)}`
-          );
-        }
-      }
       return parsePacketsFromLogs(parsedLogs).map((packet) => ({
         packet,
         height,
-        sender,
       }));
     });
     return ([] as PacketWithMetadata[]).concat(...resultsNested);
