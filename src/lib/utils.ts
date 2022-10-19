@@ -194,10 +194,6 @@ interface ParsedEvent {
   readonly attributes: readonly ParsedAttribute[];
 }
 
-function decodeBase64(value: Uint8Array): string {
-  return Buffer.from(value).toString('binary');
-}
-
 export function parsePacketsFromBlockResult(
   result: BlockResultsResponse
 ): Packet[] {
@@ -207,8 +203,8 @@ export function parsePacketsFromBlockResult(
     .map(({ type, attributes }) => ({
       type,
       attributes: attributes.map(({ key, value }) => ({
-        key: decodeBase64(key),
-        value: decodeBase64(value),
+        key: fromUtf8(key),
+        value: fromUtf8(value),
       })),
     }));
 
