@@ -96,14 +96,16 @@ export class Endpoint {
     }
 
     const search = await this.client.tm.txSearchAll({ query });
-    const resultsNested = search.txs.map(({ height, result }) => {
-      const parsedLogs = logs.parseRawLog(result.log);
-      return parsePacketsFromLogs(parsedLogs).map((packet) => ({
-        packet,
-        height,
-      }));
-    });
-    return ([] as PacketWithMetadata[]).concat(...resultsNested);
+    const resultsNested = search.txs.map(
+      ({ height, result }): PacketWithMetadata[] => {
+        const parsedLogs = logs.parseRawLog(result.log);
+        return parsePacketsFromLogs(parsedLogs).map((packet) => ({
+          packet,
+          height,
+        }));
+      }
+    );
+    return resultsNested.flat();
   }
 
   // returns all packets (auto-paginates, so be careful about not setting a minHeight)
