@@ -1,3 +1,5 @@
+import { fromHex } from '@cosmjs/encoding';
+import { logs } from '@cosmjs/stargate';
 import {
   fromRfc3339WithNanoseconds,
   ReadonlyDateWithNanoseconds,
@@ -8,11 +10,37 @@ import Long from 'long';
 import {
   heightGreater,
   parseHeightAttribute,
+  parsePacketsFromLogs,
   parseRevisionNumber,
   secondsFromDateNanos,
   timeGreater,
   timestampFromDateNanos,
 } from './utils';
+
+test('parsePacketsFromLogs works for one packet', (t) => {
+  // curl -sS "https://juno-testnet-rpc.polkachu.com/tx?hash=0x502E6F4AEA3FB185DD894D0DC14E013C45E6F52AC00A0B5224F6876A1CA107DB" | jq .result.tx_result.log -r
+  // and then replace \" with \\" to get the correct JavaScript escaping
+  const rawLog =
+    '[{"events":[{"type":"execute","attributes":[{"key":"_contract_address","value":"juno19pam0vncl2s3etn4e7rqxvpq2gkyu9wg2czfvsph6dgvp00fsrxqzjt5sr"},{"key":"_contract_address","value":"juno1e7vs76markshus39eyfefh2y3t9guge4t0kvqya3q6vamgsejh4q8lxtq9"}]},{"type":"message","attributes":[{"key":"action","value":"/cosmwasm.wasm.v1.MsgExecuteContract"},{"key":"module","value":"wasm"},{"key":"sender","value":"juno100s45s4h94qdkcafmmrqfltlrgyqwyn6e05jx2"}]},{"type":"send_packet","attributes":[{"key":"packet_channel_ordering","value":"ORDER_UNORDERED"},{"key":"packet_connection","value":"connection-31"},{"key":"packet_data","value":"{\\"after\\":\\"1666164035856871113\\",\\"sender\\":\\"juno19pam0vncl2s3etn4e7rqxvpq2gkyu9wg2czfvsph6dgvp00fsrxqzjt5sr\\",\\"job_id\\":\\"dapp-1-1666164017\\"}"},{"key":"packet_data_hex","value":"7b226166746572223a2231363636313634303335383536383731313133222c2273656e646572223a226a756e6f313970616d30766e636c32733365746e34653772717876707132676b797539776732637a66767370683664677670303066737278717a6a74357372222c226a6f625f6964223a22646170702d312d31363636313634303137227d"},{"key":"packet_dst_channel","value":"channel-10"},{"key":"packet_dst_port","value":"wasm.nois1j7m4f68lruceg5xq3gfkfdgdgz02vhvlq2p67vf9v3hwdydaat3sajzcy5"},{"key":"packet_sequence","value":"7489"},{"key":"packet_src_channel","value":"channel-42"},{"key":"packet_src_port","value":"wasm.juno1e7vs76markshus39eyfefh2y3t9guge4t0kvqya3q6vamgsejh4q8lxtq9"},{"key":"packet_timeout_height","value":"0-0"},{"key":"packet_timeout_timestamp","value":"1666167632856871113"}]},{"type":"wasm","attributes":[{"key":"_contract_address","value":"juno1e7vs76markshus39eyfefh2y3t9guge4t0kvqya3q6vamgsejh4q8lxtq9"},{"key":"action","value":"execute_get_next_randomness"}]}]}]';
+  const parsedLog = logs.parseRawLog(rawLog);
+
+  const packets = parsePacketsFromLogs(parsedLog);
+  t.is(packets.length, 1);
+  t.deepEqual(packets[0], {
+    sequence: Long.fromNumber(7489),
+    sourcePort:
+      'wasm.juno1e7vs76markshus39eyfefh2y3t9guge4t0kvqya3q6vamgsejh4q8lxtq9',
+    sourceChannel: 'channel-42',
+    destinationPort:
+      'wasm.nois1j7m4f68lruceg5xq3gfkfdgdgz02vhvlq2p67vf9v3hwdydaat3sajzcy5',
+    destinationChannel: 'channel-10',
+    data: fromHex(
+      '7b226166746572223a2231363636313634303335383536383731313133222c2273656e646572223a226a756e6f313970616d30766e636c32733365746e34653772717876707132676b797539776732637a66767370683664677670303066737278717a6a74357372222c226a6f625f6964223a22646170702d312d31363636313634303137227d'
+    ),
+    timeoutHeight: undefined,
+    timeoutTimestamp: Long.fromString('1666167632856871113'),
+  });
+});
 
 test('can parse revision numbers', (t) => {
   const musselnet = parseRevisionNumber('musselnet-4');
