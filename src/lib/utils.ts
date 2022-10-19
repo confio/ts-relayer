@@ -1,6 +1,5 @@
 import { fromUtf8, toHex, toUtf8 } from '@cosmjs/encoding';
 import { DeliverTxResponse, logs } from '@cosmjs/stargate';
-const { parseEvent } = logs;
 import {
   BlockResultsResponse,
   ReadonlyDateWithNanoseconds,
@@ -194,22 +193,36 @@ interface ParsedEvent {
   readonly attributes: readonly ParsedAttribute[];
 }
 
+/**
+ * In Tendermint 0.34, event attributes are raw bytes. This changes
+ * to strings in 0.35+. For now we keep 🤞 those bytes contrain
+ * printable string data (valid UTF-8) and decode attributes from UTF-8.
+ *
+ * If this function ever fails to decode data, we should add a lossy
+ * UTF-8 decoder that does not throw since we hardly care about non-UTF-8
+ * attributes in this software.
+ */
+export function stringifyEvent(event: tendermint34.Event): ParsedEvent {
+  const { type, attributes } = event;
+  return {
+    type,
+    attributes: attributes.map(
+      ({ key, value }): ParsedAttribute => ({
+        key: fromUtf8(key),
+        value: fromUtf8(value),
+      })
+    ),
+  };
+}
+
 export function parsePacketsFromBlockResult(
   result: BlockResultsResponse
 ): Packet[] {
-  const allEvents: ParsedEvent[] = result.beginBlockEvents
+  const sendPacketEvents = result.beginBlockEvents
     .concat(...result.endBlockEvents)
     .filter(({ type }) => type === 'send_packet')
-    .map(({ type, attributes }) => ({
-      type,
-      attributes: attributes.map(({ key, value }) => ({
-        key: fromUtf8(key),
-        value: fromUtf8(value),
-      })),
-    }));
-
-  const flatEvents = ([] as ParsedEvent[]).concat(allEvents.map(parseEvent));
-  return flatEvents.map(parsePacket);
+    .map(stringifyEvent);
+  return sendPacketEvents.map(parsePacket);
 }
 
 export function parsePacketsFromLogs(logs: readonly logs.Log[]): Packet[] {

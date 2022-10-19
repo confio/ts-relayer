@@ -1,4 +1,4 @@
-import { fromHex } from '@cosmjs/encoding';
+import { fromBase64, fromHex } from '@cosmjs/encoding';
 import { logs } from '@cosmjs/stargate';
 import {
   fromRfc3339WithNanoseconds,
@@ -13,9 +13,41 @@ import {
   parsePacketsFromLogs,
   parseRevisionNumber,
   secondsFromDateNanos,
+  stringifyEvent,
   timeGreater,
   timestampFromDateNanos,
 } from './utils';
+
+test('stringifyEvent works', (t) => {
+  const event = stringifyEvent({
+    type: 'coin_spent',
+    attributes: [
+      {
+        key: fromBase64('c3BlbmRlcg=='),
+        value: fromBase64(
+          'anVubzEwMHM0NXM0aDk0cWRrY2FmbW1ycWZsdGxyZ3lxd3luNmUwNWp4Mg=='
+        ),
+      },
+      {
+        key: fromBase64('YW1vdW50'),
+        value: fromBase64('MzY5NDV1anVub3g='),
+      },
+    ],
+  });
+  t.deepEqual(event, {
+    type: 'coin_spent',
+    attributes: [
+      {
+        key: 'spender',
+        value: 'juno100s45s4h94qdkcafmmrqfltlrgyqwyn6e05jx2',
+      },
+      {
+        key: 'amount',
+        value: '36945ujunox',
+      },
+    ],
+  });
+});
 
 test('parsePacketsFromLogs works for one packet', (t) => {
   // curl -sS "https://juno-testnet-rpc.polkachu.com/tx?hash=0x502E6F4AEA3FB185DD894D0DC14E013C45E6F52AC00A0B5224F6876A1CA107DB" | jq .result.tx_result.log -r
