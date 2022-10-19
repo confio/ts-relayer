@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.7.0
+
+### Minor Changes
+
+- ae12a8a: Fix event parsing in cases where more than one IBC packet is emitted in a transaction.
+  Removed the "No message.sender nor message.signer" warning and the unused field `PacketWithMetadata.sender`.
+
+### Patch Changes
+
+- 347a2fa: Fix demo yamls by removing trailing commas
+- 85dff13: Upgrade CosmJS to 0.29.2 and use new `isDefined`
+- 387295a: Fix Uint8Array to string conversion in parsePacketsFromBlockResult
+- 90a2135: Create test for parsePacketsFromLogs
+
 ## 0.6.1
 
 ### Patch Changes
