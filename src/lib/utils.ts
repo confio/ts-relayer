@@ -195,23 +195,31 @@ interface ParsedEvent {
 
 /**
  * In Tendermint 0.34, event attributes are raw bytes. This changes
- * to strings in 0.35+. For now we keep 🤞 those bytes contrain
- * printable string data (valid UTF-8) and decode attributes from UTF-8.
+ * to strings in 0.35+.
  *
- * If this function ever fails to decode data, we should add a lossy
- * UTF-8 decoder that does not throw since we hardly care about non-UTF-8
- * attributes in this software.
+ * If this function fails to decode data in one attribute, the key or value
+ * is replaces with replacement characters.
  */
 export function stringifyEvent(event: tendermint34.Event): ParsedEvent {
   const { type, attributes } = event;
   return {
     type,
-    attributes: attributes.map(
-      ({ key, value }): ParsedAttribute => ({
-        key: fromUtf8(key),
-        value: fromUtf8(value),
-      })
-    ),
+    attributes: attributes.map(({ key, value }): ParsedAttribute => {
+      let keyStr = '���';
+      let valueStr = '�����';
+      try {
+        keyStr = fromUtf8(key);
+        // eslint-disable-next-line no-empty
+      } catch {}
+      try {
+        valueStr = fromUtf8(value);
+        // eslint-disable-next-line no-empty
+      } catch {}
+      return {
+        key: keyStr,
+        value: valueStr,
+      };
+    }),
   };
 }
 

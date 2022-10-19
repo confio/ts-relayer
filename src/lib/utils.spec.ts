@@ -49,6 +49,64 @@ test('stringifyEvent works', (t) => {
       },
     ],
   });
+
+  // Invalid key in one attribute
+  const event2 = stringifyEvent({
+    type: 'coin_spent',
+    attributes: [
+      {
+        key: new Uint8Array([0, 159, 146, 150]),
+        value: fromBase64(
+          'anVubzEwMHM0NXM0aDk0cWRrY2FmbW1ycWZsdGxyZ3lxd3luNmUwNWp4Mg=='
+        ),
+      },
+      {
+        key: fromBase64('YW1vdW50'),
+        value: fromBase64('MzY5NDV1anVub3g='),
+      },
+    ],
+  });
+  t.deepEqual(event2, {
+    type: 'coin_spent',
+    attributes: [
+      {
+        key: '���',
+        value: 'juno100s45s4h94qdkcafmmrqfltlrgyqwyn6e05jx2',
+      },
+      {
+        key: 'amount',
+        value: '36945ujunox',
+      },
+    ],
+  });
+
+  // Invalid valud in one attribute
+  const event3 = stringifyEvent({
+    type: 'coin_spent',
+    attributes: [
+      {
+        key: fromBase64('c3BlbmRlcg=='),
+        value: new Uint8Array([0, 159, 146, 150]),
+      },
+      {
+        key: fromBase64('YW1vdW50'),
+        value: fromBase64('MzY5NDV1anVub3g='),
+      },
+    ],
+  });
+  t.deepEqual(event3, {
+    type: 'coin_spent',
+    attributes: [
+      {
+        key: 'spender',
+        value: '�����',
+      },
+      {
+        key: 'amount',
+        value: '36945ujunox',
+      },
+    ],
+  });
 });
 
 test('parsePacketsFromEvents', (t) => {
