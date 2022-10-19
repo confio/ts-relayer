@@ -1,6 +1,5 @@
 import { fromUtf8, toHex, toUtf8 } from '@cosmjs/encoding';
 import { DeliverTxResponse, logs } from '@cosmjs/stargate';
-const { parseEvent } = logs;
 import {
   BlockResultsResponse,
   ReadonlyDateWithNanoseconds,
@@ -194,22 +193,56 @@ interface ParsedEvent {
   readonly attributes: readonly ParsedAttribute[];
 }
 
+/**
+ * In Tendermint 0.34, event attributes are raw bytes. This changes
+ * to strings in 0.35+.
+ *
+ * If this function fails to decode data in one attribute, the key or value
+ * is replaces with replacement characters.
+ */
+export function stringifyEvent(event: tendermint34.Event): ParsedEvent {
+  const { type, attributes } = event;
+  return {
+    type,
+    attributes: attributes.map(({ key, value }): ParsedAttribute => {
+      let keyStr = '���';
+      let valueStr = '�����';
+      try {
+        keyStr = fromUtf8(key);
+        // eslint-disable-next-line no-empty
+      } catch {}
+      try {
+        valueStr = fromUtf8(value);
+        // eslint-disable-next-line no-empty
+      } catch {}
+      return {
+        key: keyStr,
+        value: valueStr,
+      };
+    }),
+  };
+}
+
 export function parsePacketsFromBlockResult(
   result: BlockResultsResponse
 ): Packet[] {
-  const allEvents: ParsedEvent[] = result.beginBlockEvents
-    .concat(...result.endBlockEvents)
-    .filter(({ type }) => type === 'send_packet')
-    .map(({ type, attributes }) => ({
-      type,
-      attributes: attributes.map(({ key, value }) => ({
-        key: fromUtf8(key),
-        value: fromUtf8(value),
-      })),
-    }));
+  return parsePacketsFromEvents([
+    ...result.beginBlockEvents,
+    ...result.endBlockEvents,
+  ]);
+}
 
-  const flatEvents = ([] as ParsedEvent[]).concat(allEvents.map(parseEvent));
-  return flatEvents.map(parsePacket);
+/**
+ * Takes a list of events, finds the send_packet events, stringifies attributes
+ * and parsed the events into `Packet`s.
+ */
+export function parsePacketsFromEvents(
+  events: readonly tendermint34.Event[]
+): Packet[] {
+  return events
+    .filter(({ type }) => type === 'send_packet')
+    .map(stringifyEvent)
+    .map(parsePacket);
 }
 
 export function parsePacketsFromLogs(logs: readonly logs.Log[]): Packet[] {

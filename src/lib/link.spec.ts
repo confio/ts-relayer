@@ -313,10 +313,6 @@ test.serial('submit multiple tx, get unreceived packets', async (t) => {
     packets.map(({ height }) => height),
     txHeights
   );
-  // ensure the sender is set properly
-  for (const packet of packets) {
-    t.is(packet.sender, nodeA.senderAddress);
-  }
 
   // ensure no acks yet
   const preAcks = await link.getPendingAcks('B');
@@ -420,11 +416,6 @@ test.serial(
       })),
       [...txHeights.channels1, ...txHeights.channels2]
     );
-
-    // ensure the sender is set properly
-    for (const packet of packets) {
-      t.is(packet.sender, nodeA.senderAddress);
-    }
 
     // ensure no acks yet
     const preAcks = await link.getPendingAcks('B');
