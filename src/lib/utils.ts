@@ -205,19 +205,10 @@ export function stringifyEvent(event: tendermint34.Event): ParsedEvent {
   return {
     type,
     attributes: attributes.map(({ key, value }): ParsedAttribute => {
-      let keyStr = '���';
-      let valueStr = '�����';
-      try {
-        keyStr = fromUtf8(key);
-        // eslint-disable-next-line no-empty
-      } catch {}
-      try {
-        valueStr = fromUtf8(value);
-        // eslint-disable-next-line no-empty
-      } catch {}
       return {
-        key: keyStr,
-        value: valueStr,
+        // Lossy UTF-8 conversion using � replacement characters
+        key: fromUtf8(key, true),
+        value: fromUtf8(value, true),
       };
     }),
   };
