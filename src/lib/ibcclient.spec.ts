@@ -24,6 +24,8 @@ test.serial('create gaia client on wasmd', async (t) => {
 
   const preClients = await dest.query.ibc.client.allStates();
   const preLen = preClients.clientStates.length;
+  t.log('preLen', preLen);
+  t.log('preClients', preClients.clientStates);
 
   const header = await src.latestHeader();
 
@@ -39,7 +41,10 @@ test.serial('create gaia client on wasmd', async (t) => {
 
   await dest.waitOneBlock();
   const postClients = await dest.query.ibc.client.allStates();
-  t.is(postClients.clientStates.length, preLen + 1);
+  const postLen = postClients.clientStates.length;
+  t.log('postLen', postLen);
+  t.log('postClients', postClients);
+  t.is(postLen, preLen + 1);
 });
 
 test.serial('create and update wasmd client on gaia', async (t) => {
