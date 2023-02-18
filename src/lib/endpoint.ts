@@ -135,15 +135,15 @@ export class Endpoint {
     }
 
     const search = await this.client.tm.txSearchAll({ query });
-    const resultsNested = search.txs.map(({ height, result }) => {
+    const out = search.txs.flatMap(({ height, result }) => {
       const parsedLogs = logs.parseRawLog(result.log);
       // const sender = logs.findAttribute(parsedLogs, 'message', 'sender').value;
-      return parseAcksFromLogs(parsedLogs).map((ack) => ({
+      return parseAcksFromLogs(parsedLogs).map((ack): AckWithMetadata => ({
         height,
         ...ack,
       }));
     });
-    return ([] as AckWithMetadata[]).concat(...resultsNested);
+    return out;
   }
 }
 
