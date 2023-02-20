@@ -1,3 +1,4 @@
+import { toHex } from '@cosmjs/encoding';
 import { logs } from '@cosmjs/stargate';
 import { tendermint34 } from '@cosmjs/tendermint-rpc';
 import { Packet } from 'cosmjs-types/ibc/core/channel/v1/channel';
@@ -19,6 +20,11 @@ export interface PacketWithMetadata {
 export type AckWithMetadata = Ack & {
   // block the ack was in, must query proofs >= height
   height: number;
+  /**
+   * The hash of the transaction in which the ack was found.
+   * Encoded as upper case hex.
+   */
+  txHash: string;
 };
 
 export interface QueryOpts {
@@ -135,15 +141,18 @@ export class Endpoint {
     }
 
     const search = await this.client.tm.txSearchAll({ query });
-    const resultsNested = search.txs.map(({ height, result }) => {
+    const out = search.txs.flatMap(({ height, result, hash }) => {
       const parsedLogs = logs.parseRawLog(result.log);
       // const sender = logs.findAttribute(parsedLogs, 'message', 'sender').value;
-      return parseAcksFromLogs(parsedLogs).map((ack) => ({
-        height,
-        ...ack,
-      }));
+      return parseAcksFromLogs(parsedLogs).map(
+        (ack): AckWithMetadata => ({
+          height,
+          txHash: toHex(hash).toUpperCase(),
+          ...ack,
+        })
+      );
     });
-    return ([] as AckWithMetadata[]).concat(...resultsNested);
+    return out;
   }
 }
 

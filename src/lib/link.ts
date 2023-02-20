@@ -727,13 +727,17 @@ export class Link {
     const proofs = await Promise.all(
       submit.map((packet) => src.client.getPacketProof(packet, headerHeight))
     );
-    const { logs, height } = await dest.client.receivePackets(
+    const { logs, height, transactionHash } = await dest.client.receivePackets(
       submit,
       proofs,
       headerHeight
     );
     const acks = parseAcksFromLogs(logs);
-    return acks.map((ack) => ({ height, ...ack }));
+    return acks.map((ack) => ({
+      height,
+      txHash: transactionHash,
+      ...ack,
+    }));
   }
 
   // this will update the client if needed and relay all provided acks from src -> dest
