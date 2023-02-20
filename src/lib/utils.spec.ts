@@ -70,7 +70,7 @@ test('stringifyEvent works', (t) => {
     type: 'coin_spent',
     attributes: [
       {
-        key: '���',
+        key: '\0���',
         value: 'juno100s45s4h94qdkcafmmrqfltlrgyqwyn6e05jx2',
       },
       {
@@ -80,13 +80,16 @@ test('stringifyEvent works', (t) => {
     ],
   });
 
-  // Invalid valud in one attribute
+  // Invalid value in one attribute
   const event3 = stringifyEvent({
     type: 'coin_spent',
     attributes: [
       {
         key: fromBase64('c3BlbmRlcg=='),
-        value: new Uint8Array([0, 159, 146, 150]),
+        // https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=7c1a7f484132afdebfa19b65dab60bbd
+        value: new Uint8Array([
+          72, 101, 108, 108, 111, 32, 240, 144, 128, 87, 111, 114, 108, 100,
+        ]),
       },
       {
         key: fromBase64('YW1vdW50'),
@@ -99,7 +102,7 @@ test('stringifyEvent works', (t) => {
     attributes: [
       {
         key: 'spender',
-        value: '�����',
+        value: 'Hello �World',
       },
       {
         key: 'amount',
