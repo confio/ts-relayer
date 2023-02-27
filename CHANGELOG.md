@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.8.0
+
+### Minor Changes
+
+- 8d27523: Add txHash to AckWithMetadata
+
+### Patch Changes
+
+- 28a149d: Upgrade CosmJS to 0.29.5 and use lossy fromUtf8 implementation from @cosmjs/encoding
+
 ## 0.7.0
 
 ### Minor Changes
