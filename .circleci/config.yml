@@ -1,9 +1,9 @@
-# https://circleci.com/docs/2.0/language-javascript/
-version: 2
+version: 2.1
+
 jobs:
   build:
     docker:
-      - image: circleci/node:12
+      - image: cimg/node:16.19
     steps:
       - checkout
       - restore_cache:
@@ -21,7 +21,7 @@ jobs:
 
   changeset-validation:
     docker:
-      - image: circleci/node:12
+      - image: cimg/node:16.19
     steps:
       - checkout
       - restore_cache:
@@ -33,7 +33,7 @@ jobs:
 
   publish-main-tag:
     docker:
-      - image: circleci/node:12
+      - image: cimg/node:16.19
     steps:
       - checkout
       - restore_cache:
@@ -84,7 +84,7 @@ jobs:
           name: Install nodejs
           # In the current image, `sudo apt install nodejs` requires `sudo apt update` which is too slow
           command: |
-            curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+            curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
             sudo apt-get install -y nodejs
       - run:
           name: Set yarn version to latest stable
