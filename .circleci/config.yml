@@ -62,6 +62,13 @@ jobs:
       image: ubuntu-2004:202010-01
     steps:
       - checkout
+      - run:
+          # TODO: check if still needed with 20.04
+          # The images ubuntu-1604 comes with preinstalled nvm, which does not work well with non-login shells
+          # We do this before running other scripts in parallel to avoid trouble when starting bash sessions.
+          name: Uninstall nvm
+          # Moving to trash is faster than deleting (gvfs-trash is not installed on this image)
+          command: mkdir -p ~/.local/share/Trash && mv "$NVM_DIR" ~/.npm ~/.local/share/Trash
       - run: # start early for less wait time below
           name: Start osmosisd
           command: ./scripts/osmosis/start.sh
@@ -74,12 +81,6 @@ jobs:
           name: Start gaiad
           command: ./scripts/gaia/start.sh
           background: true
-      - run:
-          # TODO: check if still needed with 20.04
-          # The images ubuntu-1604 comes with preinstalled nvm, which does not work well with non-login shells
-          name: Uninstall nvm
-          # Moving to trash is faster than deleting (gvfs-trash is not installed on this image)
-          command: mkdir -p ~/.local/share/Trash && mv "$NVM_DIR" ~/.npm ~/.local/share/Trash
       - run:
           name: Install nodejs
           # In the current image, `sudo apt install nodejs` requires `sudo apt update` which is too slow
