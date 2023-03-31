@@ -2,7 +2,7 @@ import test from 'ava';
 
 import { gaia, ics20, randomAddress, setup, wasmd } from './helpers';
 import { Link } from './link';
-import { parseAcksFromLogs } from './utils';
+import { parseAcksFromTxEvents } from './utils';
 
 test.serial('submit multiple tx, query all packets', async (t) => {
   // setup a channel
@@ -88,12 +88,12 @@ test.serial('submit multiple tx, query all packets', async (t) => {
   const proofs = await Promise.all(
     sendPackets.map((packet) => nodeA.getPacketProof(packet, headerHeight))
   );
-  const { logs: relayLog } = await nodeB.receivePackets(
+  const { events: relayEvents } = await nodeB.receivePackets(
     sendPackets,
     proofs,
     headerHeight
   );
-  const txAcks = parseAcksFromLogs(relayLog);
+  const txAcks = parseAcksFromTxEvents(relayEvents);
   t.is(txAcks.length, 2);
   // do we always need to sleep for the indexer?
   await link.endB.client.waitForIndexer();

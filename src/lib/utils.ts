@@ -1,5 +1,5 @@
 import { fromUtf8, toHex, toUtf8 } from '@cosmjs/encoding';
-import { DeliverTxResponse, logs } from '@cosmjs/stargate';
+import { DeliverTxResponse, Event } from '@cosmjs/stargate';
 import {
   BlockResultsResponse,
   ReadonlyDateWithNanoseconds,
@@ -236,13 +236,9 @@ export function parsePacketsFromEvents(
     .map(parsePacket);
 }
 
-export function parsePacketsFromLogs(logs: readonly logs.Log[]): Packet[] {
-  // grab all send_packet events from the logs
-  const allEvents: ParsedEvent[][] = logs.map((log) =>
-    log.events.filter(({ type }) => type === 'send_packet')
-  );
-  const flatEvents = ([] as ParsedEvent[]).concat(...allEvents);
-  return flatEvents.map(parsePacket);
+/** Those events are normalized to strings already in CosmJS */
+export function parsePacketsFromTxEvents(events: readonly Event[]): Packet[] {
+  return events.filter(({ type }) => type === 'send_packet').map(parsePacket);
 }
 
 export function parseHeightAttribute(attribute?: string): Height | undefined {
@@ -296,13 +292,10 @@ export function parsePacket({ type, attributes }: ParsedEvent): Packet {
   });
 }
 
-export function parseAcksFromLogs(logs: readonly logs.Log[]): Ack[] {
-  // grab all send_packet events from the logs
-  const allEvents: ParsedEvent[][] = logs.map((log) =>
-    log.events.filter(({ type }) => type === 'write_acknowledgement')
-  );
-  const flatEvents = ([] as ParsedEvent[]).concat(...allEvents);
-  return flatEvents.map(parseAck);
+export function parseAcksFromTxEvents(events: readonly Event[]): Ack[] {
+  return events
+    .filter(({ type }) => type === 'write_acknowledgement')
+    .map(parseAck);
 }
 
 export function parseAck({ type, attributes }: ParsedEvent): Ack {

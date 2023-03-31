@@ -1,12 +1,12 @@
 import { toHex } from '@cosmjs/encoding';
-import { logs } from '@cosmjs/stargate';
+import { fromTendermintEvent } from '@cosmjs/stargate';
 import { tendermint34 } from '@cosmjs/tendermint-rpc';
 import { Packet } from 'cosmjs-types/ibc/core/channel/v1/channel';
 
 import { IbcClient } from './ibcclient';
 import {
   Ack,
-  parseAcksFromLogs,
+  parseAcksFromTxEvents,
   parsePacketsFromBlockResult,
   parsePacketsFromEvents,
 } from './utils';
@@ -142,9 +142,9 @@ export class Endpoint {
 
     const search = await this.client.tm.txSearchAll({ query });
     const out = search.txs.flatMap(({ height, result, hash }) => {
-      const parsedLogs = logs.parseRawLog(result.log);
+      const events = result.events.map(fromTendermintEvent);
       // const sender = logs.findAttribute(parsedLogs, 'message', 'sender').value;
-      return parseAcksFromLogs(parsedLogs).map(
+      return parseAcksFromTxEvents(events).map(
         (ack): AckWithMetadata => ({
           height,
           txHash: toHex(hash).toUpperCase(),
