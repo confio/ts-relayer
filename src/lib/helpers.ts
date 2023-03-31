@@ -189,7 +189,6 @@ export async function signingClient(
   });
   const { address } = (await signer.getAccounts())[0];
   const options: IbcClientOptions = {
-    prefix: opts.prefix,
     gasPrice: GasPrice.fromString(opts.minFee),
     logger,
     estimatedBlockTime: opts.estimatedBlockTime,
@@ -215,7 +214,6 @@ export async function signingCosmWasmClient(
   const { address: senderAddress } = (await wallet.getAccounts())[0];
 
   const options: SigningCosmWasmClientOptions = {
-    prefix: opts.prefix,
     gasPrice: GasPrice.fromString(opts.minFee),
     ...extras(),
   };
