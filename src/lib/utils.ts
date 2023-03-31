@@ -1,5 +1,9 @@
 import { fromUtf8, toHex, toUtf8 } from '@cosmjs/encoding';
-import { DeliverTxResponse, Event } from '@cosmjs/stargate';
+import {
+  DeliverTxResponse,
+  Event,
+  fromTendermintEvent,
+} from '@cosmjs/stargate';
 import {
   BlockResultsResponse,
   ReadonlyDateWithNanoseconds,
@@ -193,27 +197,6 @@ interface ParsedEvent {
   readonly attributes: readonly ParsedAttribute[];
 }
 
-/**
- * In Tendermint 0.34, event attributes are raw bytes. This changes
- * to strings in 0.35+.
- *
- * If this function fails to decode data in one attribute, the key or value
- * is replaces with replacement characters.
- */
-export function stringifyEvent(event: tendermint34.Event): ParsedEvent {
-  const { type, attributes } = event;
-  return {
-    type,
-    attributes: attributes.map(({ key, value }): ParsedAttribute => {
-      return {
-        // Lossy UTF-8 conversion using � replacement characters
-        key: fromUtf8(key, true),
-        value: fromUtf8(value, true),
-      };
-    }),
-  };
-}
-
 export function parsePacketsFromBlockResult(
   result: BlockResultsResponse
 ): Packet[] {
@@ -232,7 +215,7 @@ export function parsePacketsFromEvents(
 ): Packet[] {
   return events
     .filter(({ type }) => type === 'send_packet')
-    .map(stringifyEvent)
+    .map(fromTendermintEvent)
     .map(parsePacket);
 }
 
