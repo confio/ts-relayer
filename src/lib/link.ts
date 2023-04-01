@@ -733,6 +733,7 @@ export class Link {
     return acks.map((ack) => ({
       height,
       txHash: transactionHash,
+      txEvents: events,
       ...ack,
     }));
   }
