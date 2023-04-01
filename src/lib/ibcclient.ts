@@ -5,6 +5,7 @@ import {
   BankExtension,
   Coin,
   defaultRegistryTypes,
+  Event,
   GasPrice,
   isDeliverTxFailure,
   logs,
@@ -134,7 +135,7 @@ function ibcRegistry(): Registry {
 
 /// This is the default message result with no extra data
 export interface MsgResult {
-  readonly logs: readonly logs.Log[];
+  readonly events: readonly Event[];
   /** Transaction hash (might be used as transaction ID). Guaranteed to be non-empty upper-case hex */
   readonly transactionHash: string;
   /** block height where this transaction was committed - only set if we send 'block' mode */
@@ -618,9 +619,8 @@ export class IbcClient {
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
     }
-    const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
-      logs: parsedLogs,
+      events: result.events,
       transactionHash: result.transactionHash,
       height: result.height,
     };
@@ -641,9 +641,8 @@ export class IbcClient {
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
     }
-    const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
-      logs: parsedLogs,
+      events: result.events,
       transactionHash: result.transactionHash,
       height: result.height,
     };
@@ -679,15 +678,16 @@ export class IbcClient {
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
     }
-    const parsedLogs = logs.parseRawLog(result.rawLog);
 
+    const parsedLogs = logs.parseRawLog(result.rawLog);
     const clientId = logs.findAttribute(
       parsedLogs,
       'create_client',
       'client_id'
     ).value;
+
     return {
-      logs: parsedLogs,
+      events: result.events,
       transactionHash: result.transactionHash,
       height: result.height,
       clientId,
@@ -731,9 +731,8 @@ export class IbcClient {
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
     }
-    const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
-      logs: parsedLogs,
+      events: result.events,
       transactionHash: result.transactionHash,
       height: result.height,
     };
@@ -776,7 +775,7 @@ export class IbcClient {
     ).value;
     this.logger.debug(`Connection open init successful: ${connectionId}`);
     return {
-      logs: parsedLogs,
+      events: result.events,
       transactionHash: result.transactionHash,
       height: result.height,
       connectionId,
@@ -852,7 +851,7 @@ export class IbcClient {
       `Connection open try successful: ${myConnectionId} => ${connectionId}`
     );
     return {
-      logs: parsedLogs,
+      events: result.events,
       transactionHash: result.transactionHash,
       height: result.height,
       connectionId: myConnectionId,
@@ -912,9 +911,8 @@ export class IbcClient {
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
     }
-    const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
-      logs: parsedLogs,
+      events: result.events,
       transactionHash: result.transactionHash,
       height: result.height,
     };
@@ -951,9 +949,8 @@ export class IbcClient {
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
     }
-    const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
-      logs: parsedLogs,
+      events: result.events,
       transactionHash: result.transactionHash,
       height: result.height,
     };
@@ -1004,7 +1001,7 @@ export class IbcClient {
     ).value;
     this.logger.debug(`Channel open init successful: ${channelId}`);
     return {
-      logs: parsedLogs,
+      events: result.events,
       transactionHash: result.transactionHash,
       height: result.height,
       channelId,
@@ -1067,7 +1064,7 @@ export class IbcClient {
       `Channel open try successful: ${channelId} => ${remote.channelId})`
     );
     return {
-      logs: parsedLogs,
+      events: result.events,
       transactionHash: result.transactionHash,
       height: result.height,
       channelId,
@@ -1113,9 +1110,8 @@ export class IbcClient {
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
     }
-    const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
-      logs: parsedLogs,
+      events: result.events,
       transactionHash: result.transactionHash,
       height: result.height,
     };
@@ -1156,9 +1152,8 @@ export class IbcClient {
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
     }
-    const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
-      logs: parsedLogs,
+      events: result.events,
       transactionHash: result.transactionHash,
       height: result.height,
     };
@@ -1230,9 +1225,8 @@ export class IbcClient {
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
     }
-    const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
-      logs: parsedLogs,
+      events: result.events,
       transactionHash: result.transactionHash,
       height: result.height,
     };
@@ -1313,9 +1307,8 @@ export class IbcClient {
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
     }
-    const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
-      logs: parsedLogs,
+      events: result.events,
       transactionHash: result.transactionHash,
       height: result.height,
     };
@@ -1396,9 +1389,8 @@ export class IbcClient {
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
     }
-    const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
-      logs: parsedLogs,
+      events: result.events,
       transactionHash: result.transactionHash,
       height: result.height,
     };
@@ -1427,9 +1419,8 @@ export class IbcClient {
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
     }
-    const parsedLogs = logs.parseRawLog(result.rawLog);
     return {
-      logs: parsedLogs,
+      events: result.events,
       transactionHash: result.transactionHash,
       height: result.height,
     };

@@ -17,7 +17,7 @@ import {
 } from './ibcclient';
 import { Logger, NoopLogger } from './logger';
 import {
-  parseAcksFromLogs,
+  parseAcksFromTxEvents,
   secondsFromDateNanos,
   splitPendingPackets,
   timestampFromDateNanos,
@@ -727,12 +727,9 @@ export class Link {
     const proofs = await Promise.all(
       submit.map((packet) => src.client.getPacketProof(packet, headerHeight))
     );
-    const { logs, height, transactionHash } = await dest.client.receivePackets(
-      submit,
-      proofs,
-      headerHeight
-    );
-    const acks = parseAcksFromLogs(logs);
+    const { events, height, transactionHash } =
+      await dest.client.receivePackets(submit, proofs, headerHeight);
+    const acks = parseAcksFromTxEvents(events);
     return acks.map((ack) => ({
       height,
       txHash: transactionHash,

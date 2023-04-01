@@ -1,10 +1,15 @@
 import { fromUtf8, toHex, toUtf8 } from '@cosmjs/encoding';
-import { DeliverTxResponse, logs } from '@cosmjs/stargate';
+import {
+  DeliverTxResponse,
+  Event,
+  fromTendermintEvent,
+} from '@cosmjs/stargate';
 import {
   BlockResultsResponse,
   ReadonlyDateWithNanoseconds,
   ValidatorPubkey as RpcPubKey,
   tendermint34,
+  tendermint37,
 } from '@cosmjs/tendermint-rpc';
 import { HashOp, LengthOp } from 'cosmjs-types/confio/proofs';
 import { Timestamp } from 'cosmjs-types/google/protobuf/timestamp';
@@ -183,66 +188,28 @@ export function buildClientState(
   });
 }
 
-interface ParsedAttribute {
-  readonly key: string;
-  readonly value: string;
-}
-
-interface ParsedEvent {
-  readonly type: string;
-  readonly attributes: readonly ParsedAttribute[];
-}
-
-/**
- * In Tendermint 0.34, event attributes are raw bytes. This changes
- * to strings in 0.35+.
- *
- * If this function fails to decode data in one attribute, the key or value
- * is replaces with replacement characters.
- */
-export function stringifyEvent(event: tendermint34.Event): ParsedEvent {
-  const { type, attributes } = event;
-  return {
-    type,
-    attributes: attributes.map(({ key, value }): ParsedAttribute => {
-      return {
-        // Lossy UTF-8 conversion using � replacement characters
-        key: fromUtf8(key, true),
-        value: fromUtf8(value, true),
-      };
-    }),
-  };
-}
-
 export function parsePacketsFromBlockResult(
   result: BlockResultsResponse
 ): Packet[] {
-  return parsePacketsFromEvents([
+  return parsePacketsFromTendermintEvents([
     ...result.beginBlockEvents,
     ...result.endBlockEvents,
   ]);
+}
+
+/** Those events are normalized to strings already in CosmJS */
+export function parsePacketsFromEvents(events: readonly Event[]): Packet[] {
+  return events.filter(({ type }) => type === 'send_packet').map(parsePacket);
 }
 
 /**
  * Takes a list of events, finds the send_packet events, stringifies attributes
  * and parsed the events into `Packet`s.
  */
-export function parsePacketsFromEvents(
-  events: readonly tendermint34.Event[]
+export function parsePacketsFromTendermintEvents(
+  events: readonly (tendermint34.Event | tendermint37.Event)[]
 ): Packet[] {
-  return events
-    .filter(({ type }) => type === 'send_packet')
-    .map(stringifyEvent)
-    .map(parsePacket);
-}
-
-export function parsePacketsFromLogs(logs: readonly logs.Log[]): Packet[] {
-  // grab all send_packet events from the logs
-  const allEvents: ParsedEvent[][] = logs.map((log) =>
-    log.events.filter(({ type }) => type === 'send_packet')
-  );
-  const flatEvents = ([] as ParsedEvent[]).concat(...allEvents);
-  return flatEvents.map(parsePacket);
+  return parsePacketsFromEvents(events.map(fromTendermintEvent));
 }
 
 export function parseHeightAttribute(attribute?: string): Height | undefined {
@@ -260,7 +227,7 @@ export function parseHeightAttribute(attribute?: string): Height | undefined {
   return { revisionHeight, revisionNumber };
 }
 
-export function parsePacket({ type, attributes }: ParsedEvent): Packet {
+export function parsePacket({ type, attributes }: Event): Packet {
   if (type !== 'send_packet') {
     throw new Error(`Cannot parse event of type ${type}`);
   }
@@ -296,16 +263,13 @@ export function parsePacket({ type, attributes }: ParsedEvent): Packet {
   });
 }
 
-export function parseAcksFromLogs(logs: readonly logs.Log[]): Ack[] {
-  // grab all send_packet events from the logs
-  const allEvents: ParsedEvent[][] = logs.map((log) =>
-    log.events.filter(({ type }) => type === 'write_acknowledgement')
-  );
-  const flatEvents = ([] as ParsedEvent[]).concat(...allEvents);
-  return flatEvents.map(parseAck);
+export function parseAcksFromTxEvents(events: readonly Event[]): Ack[] {
+  return events
+    .filter(({ type }) => type === 'write_acknowledgement')
+    .map(parseAck);
 }
 
-export function parseAck({ type, attributes }: ParsedEvent): Ack {
+export function parseAck({ type, attributes }: Event): Ack {
   if (type !== 'write_acknowledgement') {
     throw new Error(`Cannot parse event of type ${type}`);
   }

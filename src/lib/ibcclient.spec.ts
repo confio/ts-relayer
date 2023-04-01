@@ -14,8 +14,8 @@ import { Link } from './link';
 import {
   buildClientState,
   buildConsensusState,
-  parseAcksFromLogs,
-  parsePacketsFromLogs,
+  parseAcksFromTxEvents,
+  parsePacketsFromEvents,
 } from './utils';
 
 test.serial('create gaia client on wasmd', async (t) => {
@@ -180,7 +180,7 @@ test.serial('transfer message and send packets', async (t) => {
     destHeight
   );
 
-  const packets = parsePacketsFromLogs(transferResult.logs);
+  const packets = parsePacketsFromEvents(transferResult.events);
   t.is(packets.length, 1);
   const packet = packets[0];
 
@@ -200,7 +200,7 @@ test.serial('transfer message and send packets', async (t) => {
   t.assert(recvCoin.denom.startsWith('ibc/'), recvCoin.denom);
 
   // get the acknowledgement from the receivePacket tx
-  const acks = parseAcksFromLogs(relayResult.logs);
+  const acks = parseAcksFromTxEvents(relayResult.events);
   t.is(acks.length, 1);
   const ack = acks[0];
 
@@ -230,7 +230,7 @@ test.serial('tests parsing with multi-message', async (t) => {
   const srcAddr = randomAddress(gaia.prefix);
 
   // submit a send message - no events
-  const { logs: sendLogs } = await nodeA.sendTokens(srcAddr, [
+  const { events: sendEvents } = await nodeA.sendTokens(srcAddr, [
     { amount: '5000', denom: gaia.denomFee },
   ]);
   t.assert(
@@ -242,10 +242,10 @@ test.serial('tests parsing with multi-message', async (t) => {
     logger.debug.callCount.toString()
   );
 
-  const sendPackets = parsePacketsFromLogs(sendLogs);
+  const sendPackets = parsePacketsFromEvents(sendEvents);
   t.is(sendPackets.length, 0);
 
-  const sendAcks = parseAcksFromLogs(sendLogs);
+  const sendAcks = parseAcksFromTxEvents(sendEvents);
   t.is(sendAcks.length, 0);
 
   // submit 2 transfer messages
@@ -272,11 +272,11 @@ test.serial('tests parsing with multi-message', async (t) => {
       timeoutHeight,
     }),
   };
-  const { logs: multiLog } = await nodeA.sendMultiMsg([msg, msg2]);
-  const multiPackets = parsePacketsFromLogs(multiLog);
+  const { events: multiEvents } = await nodeA.sendMultiMsg([msg, msg2]);
+  const multiPackets = parsePacketsFromEvents(multiEvents);
   t.is(multiPackets.length, 2);
   // no acks here
-  const multiAcks = parseAcksFromLogs(multiLog);
+  const multiAcks = parseAcksFromTxEvents(multiEvents);
   t.is(multiAcks.length, 0);
 
   // post them to the other side
@@ -285,17 +285,17 @@ test.serial('tests parsing with multi-message', async (t) => {
   const proofs = await Promise.all(
     multiPackets.map((packet) => nodeA.getPacketProof(packet, headerHeight))
   );
-  const { logs: relayLog } = await nodeB.receivePackets(
+  const { events: relayEvents } = await nodeB.receivePackets(
     multiPackets,
     proofs,
     headerHeight
   );
 
   // no recv packets here
-  const relayPackets = parsePacketsFromLogs(relayLog);
+  const relayPackets = parsePacketsFromEvents(relayEvents);
   t.is(relayPackets.length, 0);
   // but we got 2 acks
-  const relayAcks = parseAcksFromLogs(relayLog);
+  const relayAcks = parseAcksFromTxEvents(relayEvents);
   t.is(relayAcks.length, 2);
 
   // relay them together
