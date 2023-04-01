@@ -187,16 +187,6 @@ export function buildClientState(
   });
 }
 
-interface ParsedAttribute {
-  readonly key: string;
-  readonly value: string;
-}
-
-interface ParsedEvent {
-  readonly type: string;
-  readonly attributes: readonly ParsedAttribute[];
-}
-
 export function parsePacketsFromBlockResult(
   result: BlockResultsResponse
 ): Packet[] {
@@ -239,7 +229,7 @@ export function parseHeightAttribute(attribute?: string): Height | undefined {
   return { revisionHeight, revisionNumber };
 }
 
-export function parsePacket({ type, attributes }: ParsedEvent): Packet {
+export function parsePacket({ type, attributes }: Event): Packet {
   if (type !== 'send_packet') {
     throw new Error(`Cannot parse event of type ${type}`);
   }
@@ -281,7 +271,7 @@ export function parseAcksFromTxEvents(events: readonly Event[]): Ack[] {
     .map(parseAck);
 }
 
-export function parseAck({ type, attributes }: ParsedEvent): Ack {
+export function parseAck({ type, attributes }: Event): Ack {
   if (type !== 'write_acknowledgement') {
     throw new Error(`Cannot parse event of type ${type}`);
   }
