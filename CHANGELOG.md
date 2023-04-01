@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.9.0
+
+### Minor Changes
+
+- fe11c40: Use events instead of log parsing
+- f2957f1: Upgrade CosmJS to 0.30
+
+### Patch Changes
+
+- 7340fad: Add txEvents to AckWithMetadata, allowing users to receive error messages of error acks
+
 ## 0.8.0
 
 ### Minor Changes
