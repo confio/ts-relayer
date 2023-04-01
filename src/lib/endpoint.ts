@@ -1,5 +1,5 @@
 import { toHex } from '@cosmjs/encoding';
-import { fromTendermintEvent } from '@cosmjs/stargate';
+import { Event, fromTendermintEvent } from '@cosmjs/stargate';
 import { tendermint34 } from '@cosmjs/tendermint-rpc';
 import { Packet } from 'cosmjs-types/ibc/core/channel/v1/channel';
 
@@ -25,6 +25,11 @@ export type AckWithMetadata = Ack & {
    * Encoded as upper case hex.
    */
   txHash: string;
+  /**
+   * The events of the transaction in which the ack was found.
+   * Please note that the events do not necessarily belong to the ack.
+   */
+  txEvents: readonly Event[];
 };
 
 export interface QueryOpts {
@@ -148,6 +153,7 @@ export class Endpoint {
         (ack): AckWithMetadata => ({
           height,
           txHash: toHex(hash).toUpperCase(),
+          txEvents: events,
           ...ack,
         })
       );
