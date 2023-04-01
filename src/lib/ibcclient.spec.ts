@@ -15,7 +15,7 @@ import {
   buildClientState,
   buildConsensusState,
   parseAcksFromTxEvents,
-  parsePacketsFromTxEvents,
+  parsePacketsFromEvents,
 } from './utils';
 
 test.serial('create gaia client on wasmd', async (t) => {
@@ -180,7 +180,7 @@ test.serial('transfer message and send packets', async (t) => {
     destHeight
   );
 
-  const packets = parsePacketsFromTxEvents(transferResult.events);
+  const packets = parsePacketsFromEvents(transferResult.events);
   t.is(packets.length, 1);
   const packet = packets[0];
 
@@ -242,7 +242,7 @@ test.serial('tests parsing with multi-message', async (t) => {
     logger.debug.callCount.toString()
   );
 
-  const sendPackets = parsePacketsFromTxEvents(sendEvents);
+  const sendPackets = parsePacketsFromEvents(sendEvents);
   t.is(sendPackets.length, 0);
 
   const sendAcks = parseAcksFromTxEvents(sendEvents);
@@ -273,7 +273,7 @@ test.serial('tests parsing with multi-message', async (t) => {
     }),
   };
   const { events: multiEvents } = await nodeA.sendMultiMsg([msg, msg2]);
-  const multiPackets = parsePacketsFromTxEvents(multiEvents);
+  const multiPackets = parsePacketsFromEvents(multiEvents);
   t.is(multiPackets.length, 2);
   // no acks here
   const multiAcks = parseAcksFromTxEvents(multiEvents);
@@ -292,7 +292,7 @@ test.serial('tests parsing with multi-message', async (t) => {
   );
 
   // no recv packets here
-  const relayPackets = parsePacketsFromTxEvents(relayEvents);
+  const relayPackets = parsePacketsFromEvents(relayEvents);
   t.is(relayPackets.length, 0);
   // but we got 2 acks
   const relayAcks = parseAcksFromTxEvents(relayEvents);

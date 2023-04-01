@@ -9,6 +9,7 @@ import {
   ReadonlyDateWithNanoseconds,
   ValidatorPubkey as RpcPubKey,
   tendermint34,
+  tendermint37,
 } from '@cosmjs/tendermint-rpc';
 import { HashOp, LengthOp } from 'cosmjs-types/confio/proofs';
 import { Timestamp } from 'cosmjs-types/google/protobuf/timestamp';
@@ -190,28 +191,25 @@ export function buildClientState(
 export function parsePacketsFromBlockResult(
   result: BlockResultsResponse
 ): Packet[] {
-  return parsePacketsFromEvents([
+  return parsePacketsFromTendermintEvents([
     ...result.beginBlockEvents,
     ...result.endBlockEvents,
   ]);
+}
+
+/** Those events are normalized to strings already in CosmJS */
+export function parsePacketsFromEvents(events: readonly Event[]): Packet[] {
+  return events.filter(({ type }) => type === 'send_packet').map(parsePacket);
 }
 
 /**
  * Takes a list of events, finds the send_packet events, stringifies attributes
  * and parsed the events into `Packet`s.
  */
-export function parsePacketsFromEvents(
-  events: readonly tendermint34.Event[]
+export function parsePacketsFromTendermintEvents(
+  events: readonly (tendermint34.Event | tendermint37.Event)[]
 ): Packet[] {
-  return events
-    .filter(({ type }) => type === 'send_packet')
-    .map(fromTendermintEvent)
-    .map(parsePacket);
-}
-
-/** Those events are normalized to strings already in CosmJS */
-export function parsePacketsFromTxEvents(events: readonly Event[]): Packet[] {
-  return events.filter(({ type }) => type === 'send_packet').map(parsePacket);
+  return parsePacketsFromEvents(events.map(fromTendermintEvent));
 }
 
 export function parseHeightAttribute(attribute?: string): Height | undefined {

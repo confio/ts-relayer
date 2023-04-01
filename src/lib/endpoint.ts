@@ -8,7 +8,7 @@ import {
   Ack,
   parseAcksFromTxEvents,
   parsePacketsFromBlockResult,
-  parsePacketsFromEvents,
+  parsePacketsFromTendermintEvents,
 } from './utils';
 
 export interface PacketWithMetadata {
@@ -104,7 +104,7 @@ export class Endpoint {
     const search = await this.client.tm.txSearchAll({ query });
     const resultsNested = search.txs.map(
       ({ height, result }): PacketWithMetadata[] =>
-        parsePacketsFromEvents(result.events).map((packet) => ({
+        parsePacketsFromTendermintEvents(result.events).map((packet) => ({
           packet,
           height,
         }))
