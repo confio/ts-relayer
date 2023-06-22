@@ -4,7 +4,7 @@ import {
   createProtobufRpcClient,
   QueryClient,
 } from '@cosmjs/stargate';
-import { CommitmentProof } from 'cosmjs-types/confio/proofs';
+import { CommitmentProof } from 'cosmjs-types/cosmos/ics23/v1/proofs';
 import { Any } from 'cosmjs-types/google/protobuf/any';
 import { Channel } from 'cosmjs-types/ibc/core/channel/v1/channel';
 import {
