@@ -705,7 +705,7 @@ export class IbcClient {
       value: MsgUpdateClient.fromPartial({
         signer: senderAddress,
         clientId,
-        header: {
+        clientMessage: {
           typeUrl: '/ibc.lightclients.tendermint.v1.Header',
           value: TendermintHeader.encode(header).finish(),
         },
@@ -715,9 +715,9 @@ export class IbcClient {
     this.logger.debug(
       `MsgUpdateClient`,
       deepCloneAndMutate(updateMsg, (mutableMsg) => {
-        if (mutableMsg.value.header?.value) {
-          mutableMsg.value.header.value = toBase64AsAny(
-            mutableMsg.value.header.value
+        if (mutableMsg.value.clientMessage?.value) {
+          mutableMsg.value.clientMessage.value = toBase64AsAny(
+            mutableMsg.value.clientMessage.value
           );
         }
       })

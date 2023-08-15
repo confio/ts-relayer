@@ -11,7 +11,7 @@ import {
   tendermint34,
   tendermint37,
 } from '@cosmjs/tendermint-rpc';
-import { HashOp, LengthOp } from 'cosmjs-types/confio/proofs';
+import { HashOp, LengthOp } from 'cosmjs-types/cosmos/ics23/v1/proofs';
 import { Timestamp } from 'cosmjs-types/google/protobuf/timestamp';
 import { Packet } from 'cosmjs-types/ibc/core/channel/v1/channel';
 import { Height } from 'cosmjs-types/ibc/core/client/v1/client';
