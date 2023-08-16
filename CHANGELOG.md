@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.10.0
+
+### Minor Changes
+
+- 5a1bcf7: Upgrade CosmJS to 0.31 and cosmjs-types to 0.8.0
+- f58cd28: Add support for tendermint37 RPC
+
+### Patch Changes
+
+- 3c7a32c: Disable publish-main-tag CI job
+
 ## 0.9.0
 
 ### Minor Changes
