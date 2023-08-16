@@ -5,7 +5,6 @@ import {
   fromTendermintEvent,
 } from '@cosmjs/stargate';
 import {
-  BlockResultsResponse,
   ReadonlyDateWithNanoseconds,
   ValidatorPubkey as RpcPubKey,
   tendermint34,
@@ -112,7 +111,7 @@ export function secondsFromDateNanos(
 }
 
 export function buildConsensusState(
-  header: tendermint34.Header
+  header: tendermint34.Header | tendermint37.Header
 ): TendermintConsensusState {
   return TendermintConsensusState.fromPartial({
     timestamp: timestampFromDateNanos(header.time),
@@ -189,7 +188,7 @@ export function buildClientState(
 }
 
 export function parsePacketsFromBlockResult(
-  result: BlockResultsResponse
+  result: tendermint34.BlockResultsResponse | tendermint37.BlockResultsResponse
 ): Packet[] {
   return parsePacketsFromTendermintEvents([
     ...result.beginBlockEvents,
