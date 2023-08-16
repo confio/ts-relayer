@@ -138,9 +138,11 @@ workflows:
           filters:
             branches:
               ignore: main
-      - publish-main-tag:
-          requires:
-            - build
-          filters:
-            branches:
-              only: main
+      # This stopped working after 3b30964 (2022-09-19). It can probably be restored
+      # by fixing the npm access token.
+      # - publish-main-tag:
+      #     requires:
+      #       - build
+      #     filters:
+      #       branches:
+      #         only: main
