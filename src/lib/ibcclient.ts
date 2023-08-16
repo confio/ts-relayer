@@ -21,6 +21,9 @@ import {
   ReadonlyDateWithNanoseconds,
   tendermint34,
   Tendermint34Client,
+  tendermint37,
+  Tendermint37Client,
+  TendermintClient,
 } from '@cosmjs/tendermint-rpc';
 import { arrayContentEquals, assert, sleep } from '@cosmjs/utils';
 import { Any } from 'cosmjs-types/google/protobuf/any';
@@ -188,6 +191,20 @@ export type IbcClientOptions = SigningStargateClientOptions & {
   estimatedIndexerTime: number;
 };
 
+async function connectTendermint(endpoint: string): Promise<TendermintClient> {
+  // Tendermint/CometBFT 0.34/0.37 auto-detection. Starting with 0.37 we seem to get reliable versions again 🎉
+  // Using 0.34 as the fallback.
+  let tmClient: TendermintClient;
+  const tm37Client = await Tendermint37Client.connect(endpoint);
+  const version = (await tm37Client.status()).nodeInfo.version;
+  if (version.startsWith('0.37.')) {
+    tmClient = tm37Client;
+  } else {
+    tm37Client.disconnect();
+    tmClient = await Tendermint34Client.connect(endpoint);
+  }
+  return tmClient;
+}
 export class IbcClient {
   public readonly gasPrice: GasPrice;
   public readonly sign: SigningStargateClient;
@@ -196,7 +213,7 @@ export class IbcClient {
     BankExtension &
     IbcExtension &
     StakingExtension;
-  public readonly tm: Tendermint34Client;
+  public readonly tm: TendermintClient;
   public readonly senderAddress: string;
   public readonly logger: Logger;
 
@@ -221,7 +238,7 @@ export class IbcClient {
       signer,
       mergedOptions
     );
-    const tmClient = await Tendermint34Client.connect(endpoint);
+    const tmClient = await connectTendermint(endpoint);
     const chainId = await signingClient.getChainId();
     return new IbcClient(
       signingClient,
@@ -234,7 +251,7 @@ export class IbcClient {
 
   private constructor(
     signingClient: SigningStargateClient,
-    tmClient: Tendermint34Client,
+    tmClient: TendermintClient,
     senderAddress: string,
     chainId: string,
     options: IbcClientOptions
@@ -290,14 +307,18 @@ export class IbcClient {
     return this.sign.getChainId();
   }
 
-  public async header(height: number): Promise<tendermint34.Header> {
+  public async header(
+    height: number
+  ): Promise<tendermint34.Header | tendermint37.Header> {
     this.logger.verbose(`Get header for height ${height}`);
     // TODO: expose header method on tmClient and use that
     const resp = await this.tm.blockchain(height, height);
     return resp.blockMetas[0].header;
   }
 
-  public async latestHeader(): Promise<tendermint34.Header> {
+  public async latestHeader(): Promise<
+    tendermint34.Header | tendermint37.Header
+  > {
     // TODO: expose header method on tmClient and use that
     const block = await this.tm.block();
     return block.block.header;
@@ -336,7 +357,9 @@ export class IbcClient {
     await sleep(this.estimatedIndexerTime);
   }
 
-  public getCommit(height?: number): Promise<tendermint34.CommitResponse> {
+  public getCommit(
+    height?: number
+  ): Promise<tendermint34.CommitResponse | tendermint37.CommitResponse> {
     this.logger.verbose(
       height === undefined
         ? 'Get latest commit'
