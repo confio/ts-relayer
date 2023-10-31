@@ -8,7 +8,7 @@ the keys and addresses for all chains it connects to.
 Note that two relayers _may_ safely share the same mnemonic phrase _only if_ they point to different
 chains. eg. one is A-B, the other is C-D. If they both had a chain in common, they would share an
 address and cause all kinds of issue with sequence numbers when trying to send packets in parallel.
-In general, it is good practice to provide each relayer instance with it's own mnemonic phrase.
+In general, it is good practice to provide each relayer instance with its own mnemonic phrase.
 
 ## Configuration
 
