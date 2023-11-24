@@ -481,10 +481,10 @@ test.serial(
     // we haven't updated in the last 2 seconds, this should trigger the update
     const updateA = await link.updateClientIfStale('A', 2);
     assert(updateA);
-    t.assert(updateA.revisionHeight.toNumber() > heightA);
+    t.assert(Number(updateA.revisionHeight) > heightA);
     const updateB = await link.updateClientIfStale('B', 2);
     assert(updateB);
-    t.assert(updateB.revisionHeight.toNumber() > heightB);
+    t.assert(Number(updateB.revisionHeight) > heightB);
   }
 );
 

@@ -475,16 +475,16 @@ test('parsePacketsFromTxEvents works for one packet', (t) => {
 
 test('can parse revision numbers', (t) => {
   const musselnet = parseRevisionNumber('musselnet-4');
-  t.is(musselnet.toNumber(), 4);
+  t.is(musselnet, 4n);
 
   const numerific = parseRevisionNumber('numers-123-456');
-  t.is(numerific.toNumber(), 456);
+  t.is(numerific, 456n);
 
   const nonums = parseRevisionNumber('hello');
-  t.is(nonums.toNumber(), 0);
+  t.is(nonums, 0n);
 
   const nonums2 = parseRevisionNumber('hello-world');
-  t.is(nonums2.toNumber(), 0);
+  t.is(nonums2, 0n);
 });
 
 test('can parse strange revision numbers', (t) => {
@@ -500,13 +500,13 @@ test('can parse strange revision numbers', (t) => {
   ];
   for (const strange of strangers) {
     const rev = parseRevisionNumber(strange);
-    t.is(rev.toNumber(), 0, strange);
+    t.is(rev, 0n, strange);
   }
 });
 
-function nanosFromDateTime(time: ReadonlyDateWithNanoseconds): Long {
+function nanosFromDateTime(time: ReadonlyDateWithNanoseconds): bigint {
   const stamp = timestampFromDateNanos(time);
-  return stamp.seconds.multiply(1_000_000_000).add(stamp.nanos);
+  return stamp.seconds * 1_000_000_000n + BigInt(stamp.nanos);
 }
 
 test('time-based timeouts properly', (t) => {
@@ -539,16 +539,16 @@ test('time-based timeouts properly', (t) => {
 
 test('height based timeouts properly', (t) => {
   const height1a = {
-    revisionHeight: Long.fromNumber(12345),
-    revisionNumber: Long.fromNumber(1),
+    revisionHeight: BigInt(12345),
+    revisionNumber: BigInt(1),
   };
   const height1b = {
-    revisionHeight: Long.fromNumber(14000),
-    revisionNumber: Long.fromNumber(1),
+    revisionHeight: BigInt(14000),
+    revisionNumber: BigInt(1),
   };
   const height2a = {
-    revisionHeight: Long.fromNumber(600),
-    revisionNumber: Long.fromNumber(2),
+    revisionHeight: BigInt(600),
+    revisionNumber: BigInt(2),
   };
 
   t.assert(heightGreater(height1b, height1a));

@@ -336,11 +336,11 @@ export class Link {
     const currentHeader = await src.client.latestHeader();
 
     // quit now if we don't need to update
-    const knownSeconds = knownHeader.timestamp?.seconds?.toNumber();
+    const knownSeconds = Number(knownHeader.timestamp?.seconds);
     if (knownSeconds) {
-      const curSeconds = timestampFromDateNanos(
-        currentHeader.time
-      ).seconds.toNumber();
+      const curSeconds = Number(
+        timestampFromDateNanos(currentHeader.time).seconds
+      );
       if (curSeconds - knownSeconds < maxAge) {
         return null;
       }
@@ -369,7 +369,7 @@ export class Link {
     const { src, dest } = this.getEnds(source);
     const client = await dest.client.query.ibc.client.stateTm(dest.clientID);
     // TODO: revisit where revision number comes from - this must be the number from the source chain
-    const knownHeight = client.latestHeight?.revisionHeight?.toNumber() ?? 0;
+    const knownHeight = Number(client.latestHeight?.revisionHeight ?? 0);
     if (knownHeight >= minHeight && client.latestHeight !== undefined) {
       return client.latestHeight;
     }
@@ -592,13 +592,13 @@ export class Link {
         channel,
         sequences
       );
-      return res.sequences.map((seq) => seq.toNumber());
+      return res.sequences.map((seq) => Number(seq));
     };
 
     // This gets the subset of packets that were already processed on the receiving chain
     const unreceived = await this.filterUnreceived(toFilter, query, packetId);
     const unreceivedPackets = allPackets.filter(({ packet }) =>
-      unreceived[packetId(packet)].has(packet.sequence.toNumber())
+      unreceived[packetId(packet)].has(Number(packet.sequence))
     );
 
     // However, some of these may have already been submitted as timeouts on the source chain. Check and filter
@@ -640,12 +640,12 @@ export class Link {
         channel,
         sequences
       );
-      return res.sequences.map((seq) => seq.toNumber());
+      return res.sequences.map((seq) => Number(seq));
     };
     const unreceived = await this.filterUnreceived(toFilter, query, ackId);
 
     return allAcks.filter(({ originalPacket: packet }) =>
-      unreceived[ackId(packet)].has(packet.sequence.toNumber())
+      unreceived[ackId(packet)].has(Number(packet.sequence))
     );
   }
 
@@ -667,7 +667,7 @@ export class Link {
         const key = idFunc(packet);
         return {
           ...sorted,
-          [key]: [...(sorted[key] ?? []), packet.sequence.toNumber()],
+          [key]: [...(sorted[key] ?? []), Number(packet.sequence)],
         };
       },
       {}
@@ -698,7 +698,7 @@ export class Link {
     this.logger.verbose(`Get last known header on ${this.chain(side)}`);
     const { src } = this.getEnds(side);
     const client = await src.client.query.ibc.client.stateTm(src.clientID);
-    return client.latestHeight?.revisionHeight?.toNumber() ?? 0;
+    return Number(client.latestHeight?.revisionHeight ?? 0);
   }
 
   // this will update the client if needed and relay all provided packets from src -> dest
