@@ -211,7 +211,6 @@ export function parsePacketsFromTendermintEvents(
 }
 
 export function parseHeightAttribute(attribute?: string): Height | undefined {
-
   // Note: With cosmjs-types>=0.9.0, I believe this no longer needs to return undefined under any circumstances
   // but will need more extensive testing before refactoring.
 

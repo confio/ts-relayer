@@ -1,4 +1,5 @@
 import { toAscii } from '@cosmjs/encoding';
+import { Uint64 } from '@cosmjs/math';
 import {
   createPagination,
   createProtobufRpcClient,
@@ -50,7 +51,6 @@ import {
   ConsensusState as TendermintConsensusState,
 } from 'cosmjs-types/ibc/lightclients/tendermint/v1/tendermint';
 import { ProofOps } from 'cosmjs-types/tendermint/crypto/proof';
-import Long from 'long';
 
 function decodeTendermintClientStateAny(
   clientState: Any | undefined
@@ -694,9 +694,10 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
               key,
               Number(proofHeight.revisionHeight)
             );
-            const nextSequenceReceive = BigInt(
-              Long.fromBytesBE([...proven.value]).toString()
-            );
+            const nextSequenceReceive = Uint64.fromBytes(
+              [...proven.value],
+              'be'
+            ).toBigInt();
             const proof = convertProofsToIcs23(proven.proof);
             return {
               nextSequenceReceive,
