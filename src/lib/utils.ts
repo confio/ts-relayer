@@ -211,18 +211,22 @@ export function parsePacketsFromTendermintEvents(
 }
 
 export function parseHeightAttribute(attribute?: string): Height | undefined {
+
+  // Note: With cosmjs-types>=0.9.0, I believe this no longer needs to return undefined under any circumstances
+  // but will need more extensive testing before refactoring.
+
   const [timeoutRevisionNumber, timeoutRevisionHeight] =
     attribute?.split('-') ?? [];
-  console.log(timeoutRevisionNumber);
-  console.log(timeoutRevisionHeight);
-  console.log(!timeoutRevisionHeight || !timeoutRevisionNumber);
   if (!timeoutRevisionHeight || !timeoutRevisionNumber) {
-    console.log('Undef');
     return undefined;
   }
-  console.log('here');
-  const revisionNumber = BigInt(timeoutRevisionNumber);
-  const revisionHeight = BigInt(timeoutRevisionHeight);
+
+  const revisionNumber = BigInt(
+    isNaN(Number(timeoutRevisionNumber)) ? 0 : timeoutRevisionNumber
+  );
+  const revisionHeight = BigInt(
+    isNaN(Number(timeoutRevisionHeight)) ? 0 : timeoutRevisionHeight
+  );
   // note: 0 revisionNumber is allowed. If there is bad data, '' or '0-0', we will get 0 for the height
   if (revisionHeight == 0n) {
     return undefined;
@@ -306,7 +310,10 @@ export function parseAck({ type, attributes }: Event): Ack {
 
 // return true if a > b, or a undefined
 export function heightGreater(a: Height | undefined, b: Height): boolean {
-  if (a === undefined) {
+  if (
+    a === undefined ||
+    (a.revisionHeight === BigInt(0) && a.revisionNumber === BigInt(0))
+  ) {
     return true;
   }
   // comparing longs made some weird issues (maybe signed/unsigned)?
@@ -317,8 +324,6 @@ export function heightGreater(a: Height | undefined, b: Height): boolean {
     Number(b.revisionNumber),
     Number(b.revisionHeight),
   ];
-  console.log(a);
-  console.log(b);
   const valid = numA > numB || (numA == numB && heightA > heightB);
   return valid;
 }
@@ -326,8 +331,6 @@ export function heightGreater(a: Height | undefined, b: Height): boolean {
 // return true if a > b, or a 0
 // note a is nanoseconds, while b is seconds
 export function timeGreater(a: bigint | undefined, b: number): boolean {
-  console.log(a);
-  console.log(b);
   if (a === undefined || a == 0n) {
     return true;
   }
@@ -348,7 +351,6 @@ export function splitPendingPackets(
 } {
   return packets.reduce(
     (acc, packet) => {
-      console.log(packet);
       const validPacket =
         heightGreater(packet.packet.timeoutHeight, currentHeight) &&
         timeGreater(packet.packet.timeoutTimestamp, currentTime);

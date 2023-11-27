@@ -5,7 +5,6 @@ import {
   tendermint34,
 } from '@cosmjs/tendermint-rpc';
 import test from 'ava';
-import Long from 'long';
 
 import {
   heightGreater,
@@ -406,7 +405,7 @@ test('parsePacketsFromEvents', (t) => {
   t.is(packets.length, 3);
   const [packet0, packet1, packet2] = packets;
   t.deepEqual(packet0, {
-    sequence: Long.fromNumber(7524),
+    sequence: BigInt(7524),
     sourcePort:
       'wasm.juno1e7vs76markshus39eyfefh2y3t9guge4t0kvqya3q6vamgsejh4q8lxtq9',
     sourceChannel: 'channel-42',
@@ -416,11 +415,14 @@ test('parsePacketsFromEvents', (t) => {
     data: fromHex(
       '7b226166746572223a2231363636313639303033343133353738323639222c2273656e646572223a226a756e6f3134796632347066637a63736c636864723034753570327977397a7866366376733376686539723973726635706736793270376e7164716e376b6e222c226a6f625f6964223a2273696d6f6e2d726f6c6c2d31227d'
     ),
-    timeoutHeight: undefined,
-    timeoutTimestamp: Long.fromString('1666172600413578269'),
+    timeoutHeight: {
+      revisionHeight: BigInt('0'),
+      revisionNumber: BigInt('0'),
+    },
+    timeoutTimestamp: BigInt('1666172600413578269'),
   });
   t.deepEqual(packet1, {
-    sequence: Long.fromNumber(7525),
+    sequence: BigInt(7525),
     sourcePort:
       'wasm.juno1e7vs76markshus39eyfefh2y3t9guge4t0kvqya3q6vamgsejh4q8lxtq9',
     sourceChannel: 'channel-42',
@@ -430,11 +432,14 @@ test('parsePacketsFromEvents', (t) => {
     data: fromHex(
       '7b226166746572223a2231363636313639303033343133353738323639222c2273656e646572223a226a756e6f3134796632347066637a63736c636864723034753570327977397a7866366376733376686539723973726635706736793270376e7164716e376b6e222c226a6f625f6964223a2273696d6f6e2d726f6c6c2d32227d'
     ),
-    timeoutHeight: undefined,
-    timeoutTimestamp: Long.fromString('1666172600413578269'),
+    timeoutHeight: {
+      revisionHeight: BigInt('0'),
+      revisionNumber: BigInt('0'),
+    },
+    timeoutTimestamp: BigInt('1666172600413578269'),
   });
   t.deepEqual(packet2, {
-    sequence: Long.fromNumber(7526),
+    sequence: BigInt(7526),
     sourcePort:
       'wasm.juno1e7vs76markshus39eyfefh2y3t9guge4t0kvqya3q6vamgsejh4q8lxtq9',
     sourceChannel: 'channel-42',
@@ -444,8 +449,11 @@ test('parsePacketsFromEvents', (t) => {
     data: fromHex(
       '7b226166746572223a2231363636313639303033343133353738323639222c2273656e646572223a226a756e6f3134796632347066637a63736c636864723034753570327977397a7866366376733376686539723973726635706736793270376e7164716e376b6e222c226a6f625f6964223a2273696d6f6e2d726f6c6c2d33227d'
     ),
-    timeoutHeight: undefined,
-    timeoutTimestamp: Long.fromString('1666172600413578269'),
+    timeoutHeight: {
+      revisionHeight: BigInt('0'),
+      revisionNumber: BigInt('0'),
+    },
+    timeoutTimestamp: BigInt('1666172600413578269'),
   });
 });
 
@@ -458,7 +466,7 @@ test('parsePacketsFromTxEvents works for one packet', (t) => {
   const packets = parsePacketsFromEvents(events);
   t.is(packets.length, 1);
   t.deepEqual(packets[0], {
-    sequence: Long.fromNumber(7489),
+    sequence: BigInt(7489),
     sourcePort:
       'wasm.juno1e7vs76markshus39eyfefh2y3t9guge4t0kvqya3q6vamgsejh4q8lxtq9',
     sourceChannel: 'channel-42',
@@ -468,8 +476,11 @@ test('parsePacketsFromTxEvents works for one packet', (t) => {
     data: fromHex(
       '7b226166746572223a2231363636313634303335383536383731313133222c2273656e646572223a226a756e6f313970616d30766e636c32733365746e34653772717876707132676b797539776732637a66767370683664677670303066737278717a6a74357372222c226a6f625f6964223a22646170702d312d31363636313634303137227d'
     ),
-    timeoutHeight: undefined,
-    timeoutTimestamp: Long.fromString('1666167632856871113'),
+    timeoutHeight: {
+      revisionHeight: BigInt('0'),
+      revisionNumber: BigInt('0'),
+    },
+    timeoutTimestamp: BigInt('1666167632856871113'),
   });
 });
 
@@ -562,18 +573,18 @@ test('height based timeouts properly', (t) => {
 test('Properly determines height-based timeouts', (t) => {
   // proper heights
   t.deepEqual(parseHeightAttribute('1-34'), {
-    revisionNumber: Long.fromNumber(1),
-    revisionHeight: Long.fromNumber(34),
+    revisionNumber: BigInt(1),
+    revisionHeight: BigInt(34),
   });
   t.deepEqual(parseHeightAttribute('17-3456'), {
-    revisionNumber: Long.fromNumber(17),
-    revisionHeight: Long.fromNumber(3456),
+    revisionNumber: BigInt(17),
+    revisionHeight: BigInt(3456),
   });
 
   // handles revision number 0 properly (this is allowed)
   t.deepEqual(parseHeightAttribute('0-1724'), {
-    revisionNumber: Long.fromNumber(0),
-    revisionHeight: Long.fromNumber(1724),
+    revisionNumber: BigInt(0),
+    revisionHeight: BigInt(1724),
   });
 
   // missing heights
