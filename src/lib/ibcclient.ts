@@ -1371,6 +1371,13 @@ export class IbcClient {
           signer: senderAddress,
         }),
       };
+      console.log({
+        packet,
+        proofUnreceived: proofsUnreceived[i],
+        nextSequenceRecv: nextSequenceRecv[i],
+        proofHeight,
+        signer: senderAddress,
+      });
       msgs.push(msg);
     }
 
@@ -1388,13 +1395,13 @@ export class IbcClient {
         })
       ),
     });
-    
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       msgs,
       'auto'
     );
     if (isDeliverTxFailure(result)) {
+      console.log(result);
       throw new Error(createDeliverTxFailureMessage(result));
     }
     return {
