@@ -37,6 +37,11 @@ export function otherSide(side: Side): Side {
     return 'A';
   }
 }
+/**
+ * PacketFilter is the type for a function that accepts a Packet and returns a boolean definign whether to relay the packet or not
+ */
+
+export type PacketFilter = (packet: Packet) => boolean;
 
 // This records the block heights from the last point where we successfully relayed packets.
 // This can be used to optimize the next round of relaying
@@ -69,6 +74,7 @@ export class Link {
 
   private readonly chainA: string;
   private readonly chainB: string;
+  private packetFilter: PacketFilter | null = null;
 
   private chain(side: Side): string {
     if (side === 'A') {
@@ -76,6 +82,14 @@ export class Link {
     } else {
       return this.chainB;
     }
+  }
+
+  public setFilter(filter: PacketFilter): void {
+    this.packetFilter = filter;
+  }
+
+  public clearFilter(): void {
+    this.packetFilter = null;
   }
 
   private otherChain(side: Side): string {
@@ -506,6 +520,15 @@ export class Link {
         this.getPendingPackets('B', { minHeight: relayFrom.packetHeightB }),
       ]);
 
+    const filteredPacketsA =
+      this.packetFilter !== null
+        ? packetsA.filter((packet) => this.packetFilter?.(packet.packet))
+        : packetsA;
+    const filteredPacketsB =
+      this.packetFilter !== null
+        ? packetsB.filter((packet) => this.packetFilter?.(packet.packet))
+        : packetsB;
+
     const cutoffHeightA = await this.endB.client.timeoutHeight(
       timedoutThresholdBlocks
     );
@@ -515,7 +538,7 @@ export class Link {
     const { toSubmit: submitA, toTimeout: timeoutA } = splitPendingPackets(
       cutoffHeightA,
       cutoffTimeA,
-      packetsA
+      filteredPacketsA
     );
 
     const cutoffHeightB = await this.endA.client.timeoutHeight(
@@ -527,7 +550,7 @@ export class Link {
     const { toSubmit: submitB, toTimeout: timeoutB } = splitPendingPackets(
       cutoffHeightB,
       cutoffTimeB,
-      packetsB
+      filteredPacketsB
     );
 
     // FIXME: use the returned acks first? Then query for others?
@@ -628,8 +651,11 @@ export class Link {
     this.logger.verbose(`Get pending acks on ${this.chain(source)}`);
     const { src, dest } = this.getEnds(source);
     const allAcks = await src.queryWrittenAcks(opts);
-
-    const toFilter = allAcks.map(({ originalPacket }) => originalPacket);
+    const filteredAcks =
+      this.packetFilter !== null
+        ? allAcks.filter((ack) => this.packetFilter?.(ack.originalPacket))
+        : allAcks;
+    const toFilter = filteredAcks.map(({ originalPacket }) => originalPacket);
     const query = async (
       port: string,
       channel: string,
@@ -644,7 +670,7 @@ export class Link {
     };
     const unreceived = await this.filterUnreceived(toFilter, query, ackId);
 
-    return allAcks.filter(({ originalPacket: packet }) =>
+    return filteredAcks.filter(({ originalPacket: packet }) =>
       unreceived[ackId(packet)].has(Number(packet.sequence))
     );
   }
