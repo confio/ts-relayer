@@ -38,7 +38,7 @@ export function otherSide(side: Side): Side {
   }
 }
 /**
- * PacketFilter is the type for a function that accepts a Packet and returns a boolean definign whether to relay the packet or not
+ * PacketFilter is the type for a function that accepts a Packet and returns a boolean defining whether to relay the packet or not
  */
 
 export type PacketFilter = (packet: Packet) => boolean;
