@@ -18,12 +18,12 @@ import {
   StakingExtension,
 } from '@cosmjs/stargate';
 import {
+  comet38,
+  CometClient,
+  connectComet,
   ReadonlyDateWithNanoseconds,
   tendermint34,
-  Tendermint34Client,
   tendermint37,
-  Tendermint37Client,
-  TendermintClient,
 } from '@cosmjs/tendermint-rpc';
 import { arrayContentEquals, assert, sleep } from '@cosmjs/utils';
 import { Any } from 'cosmjs-types/google/protobuf/any';
@@ -63,7 +63,6 @@ import {
 } from 'cosmjs-types/tendermint/types/types';
 import { ValidatorSet } from 'cosmjs-types/tendermint/types/validator';
 import cloneDeep from 'lodash/cloneDeep';
-import Long from 'long';
 
 import { Logger, NoopLogger } from './logger';
 import { IbcExtension, setupIbcExtension } from './queries/ibc';
@@ -79,6 +78,12 @@ import {
   timestampFromDateNanos,
   toIntHeight,
 } from './utils';
+
+type CometHeader = tendermint34.Header | tendermint37.Header | comet38.Header;
+type CometCommitResponse =
+  | tendermint34.CommitResponse
+  | tendermint37.CommitResponse
+  | comet38.CommitResponse;
 
 function deepCloneAndMutate<T extends Record<string, unknown>>(
   object: T,
@@ -111,7 +116,7 @@ const defaultConnectionVersion: Version = {
   features: ['ORDER_ORDERED', 'ORDER_UNORDERED'],
 };
 // this is a sane default, but we can revisit it
-const defaultDelayPeriod = Long.ZERO;
+const defaultDelayPeriod = 0n;
 
 function ibcRegistry(): Registry {
   return new Registry([
@@ -190,21 +195,6 @@ export type IbcClientOptions = SigningStargateClientOptions & {
   estimatedBlockTime: number;
   estimatedIndexerTime: number;
 };
-
-async function connectTendermint(endpoint: string): Promise<TendermintClient> {
-  // Tendermint/CometBFT 0.34/0.37 auto-detection. Starting with 0.37 we seem to get reliable versions again 🎉
-  // Using 0.34 as the fallback.
-  let tmClient: TendermintClient;
-  const tm37Client = await Tendermint37Client.connect(endpoint);
-  const version = (await tm37Client.status()).nodeInfo.version;
-  if (version.startsWith('0.37.')) {
-    tmClient = tm37Client;
-  } else {
-    tm37Client.disconnect();
-    tmClient = await Tendermint34Client.connect(endpoint);
-  }
-  return tmClient;
-}
 export class IbcClient {
   public readonly gasPrice: GasPrice;
   public readonly sign: SigningStargateClient;
@@ -213,12 +203,12 @@ export class IbcClient {
     BankExtension &
     IbcExtension &
     StakingExtension;
-  public readonly tm: TendermintClient;
+  public readonly tm: CometClient;
   public readonly senderAddress: string;
   public readonly logger: Logger;
 
   public readonly chainId: string;
-  public readonly revisionNumber: Long;
+  public readonly revisionNumber: bigint;
   public readonly estimatedBlockTime: number;
   public readonly estimatedIndexerTime: number;
 
@@ -238,7 +228,7 @@ export class IbcClient {
       signer,
       mergedOptions
     );
-    const tmClient = await connectTendermint(endpoint);
+    const tmClient = await connectComet(endpoint);
     const chainId = await signingClient.getChainId();
     return new IbcClient(
       signingClient,
@@ -251,7 +241,7 @@ export class IbcClient {
 
   private constructor(
     signingClient: SigningStargateClient,
-    tmClient: TendermintClient,
+    tmClient: CometClient,
     senderAddress: string,
     chainId: string,
     options: IbcClientOptions
@@ -277,7 +267,7 @@ export class IbcClient {
 
   public revisionHeight(height: number): Height {
     return Height.fromPartial({
-      revisionHeight: Long.fromNumber(height),
+      revisionHeight: BigInt(height),
       revisionNumber: this.revisionNumber,
     });
   }
@@ -285,11 +275,11 @@ export class IbcClient {
   public ensureRevisionHeight(height: number | Height): Height {
     if (typeof height === 'number') {
       return Height.fromPartial({
-        revisionHeight: Long.fromNumber(height),
+        revisionHeight: BigInt(height),
         revisionNumber: this.revisionNumber,
       });
     }
-    if (height.revisionNumber.toNumber() !== this.revisionNumber.toNumber()) {
+    if (height.revisionNumber !== this.revisionNumber) {
       throw new Error(
         `Using incorrect revisionNumber ${height.revisionNumber} on chain with ${this.revisionNumber}`
       );
@@ -307,18 +297,14 @@ export class IbcClient {
     return this.sign.getChainId();
   }
 
-  public async header(
-    height: number
-  ): Promise<tendermint34.Header | tendermint37.Header> {
+  public async header(height: number): Promise<CometHeader> {
     this.logger.verbose(`Get header for height ${height}`);
     // TODO: expose header method on tmClient and use that
     const resp = await this.tm.blockchain(height, height);
     return resp.blockMetas[0].header;
   }
 
-  public async latestHeader(): Promise<
-    tendermint34.Header | tendermint37.Header
-  > {
+  public async latestHeader(): Promise<CometHeader> {
     // TODO: expose header method on tmClient and use that
     const block = await this.tm.block();
     return block.block.header;
@@ -357,9 +343,7 @@ export class IbcClient {
     await sleep(this.estimatedIndexerTime);
   }
 
-  public getCommit(
-    height?: number
-  ): Promise<tendermint34.CommitResponse | tendermint37.CommitResponse> {
+  public getCommit(height?: number): Promise<CometCommitResponse> {
     this.logger.verbose(
       height === undefined
         ? 'Get latest commit'
@@ -371,7 +355,7 @@ export class IbcClient {
   /** Returns the unbonding period in seconds */
   public async getUnbondingPeriod(): Promise<number> {
     const { params } = await this.query.staking.params();
-    const seconds = params?.unbondingTime?.seconds?.toNumber();
+    const seconds = Number(params?.unbondingTime?.seconds ?? 0);
     if (!seconds) {
       throw new Error('No unbonding period found');
     }
@@ -386,9 +370,9 @@ export class IbcClient {
     const header = Header.fromPartial({
       ...rpcHeader,
       version: {
-        block: Long.fromNumber(rpcHeader.version.block),
+        block: BigInt(rpcHeader.version.block),
       },
-      height: Long.fromNumber(rpcHeader.height),
+      height: BigInt(rpcHeader.height),
       time: timestampFromDateNanos(rpcHeader.time),
       lastBlockId: {
         hash: rpcHeader.lastBlockId?.hash,
@@ -402,7 +386,7 @@ export class IbcClient {
       blockIdFlag: blockIDFlagFromJSON(sig.blockIdFlag),
     }));
     const commit = Commit.fromPartial({
-      height: Long.fromNumber(rpcCommit.height),
+      height: BigInt(rpcCommit.height),
       round: rpcCommit.round,
       blockId: {
         hash: rpcCommit.blockId.hash,
@@ -424,9 +408,9 @@ export class IbcClient {
     const mappedValidators = validators.validators.map((val) => ({
       address: val.address,
       pubKey: mapRpcPubKeyToProto(val.pubkey),
-      votingPower: Long.fromString(val.votingPower.toString()),
+      votingPower: val.votingPower,
       proposerPriority: val.proposerPriority
-        ? Long.fromNumber(val.proposerPriority)
+        ? BigInt(val.proposerPriority)
         : undefined,
     }));
     const totalPower = validators.validators.reduce(
@@ -438,7 +422,7 @@ export class IbcClient {
     );
     return ValidatorSet.fromPartial({
       validators: mappedValidators,
-      totalVotingPower: Long.fromString(totalPower.toString()),
+      totalVotingPower: totalPower,
       proposer,
     });
   }
@@ -463,7 +447,7 @@ export class IbcClient {
     // https://github.com/cosmos/cosmos-sdk/blob/v0.41.0/x/ibc/light-clients/07-tendermint/types/update.go#L74
     const validatorHeight = lastHeight + 1;
     /* eslint @typescript-eslint/no-non-null-assertion: "off" */
-    const curHeight = signedHeader.header!.height.toNumber();
+    const curHeight = Number(signedHeader.header!.height);
     return TendermintHeader.fromPartial({
       signedHeader,
       validatorSet: await this.getValidatorSet(curHeight),
@@ -484,7 +468,7 @@ export class IbcClient {
     headerHeight: Height | number
   ): Promise<ConnectionHandshakeProof> {
     const proofHeight = this.ensureRevisionHeight(headerHeight);
-    const queryHeight = subtractBlock(proofHeight, 1);
+    const queryHeight = subtractBlock(proofHeight, 1n);
 
     const {
       clientState,
@@ -535,7 +519,7 @@ export class IbcClient {
     headerHeight: Height | number
   ): Promise<ChannelHandshake> {
     const proofHeight = this.ensureRevisionHeight(headerHeight);
-    const queryHeight = subtractBlock(proofHeight, 1);
+    const queryHeight = subtractBlock(proofHeight, 1n);
 
     const { proof } = await this.query.ibc.proof.channel.channel(
       id.portId,
@@ -555,7 +539,7 @@ export class IbcClient {
     headerHeight: Height | number
   ): Promise<Uint8Array> {
     const proofHeight = this.ensureRevisionHeight(headerHeight);
-    const queryHeight = subtractBlock(proofHeight, 1);
+    const queryHeight = subtractBlock(proofHeight, 1n);
 
     const { proof } = await this.query.ibc.proof.channel.packetCommitment(
       packet.sourcePort,
@@ -572,12 +556,12 @@ export class IbcClient {
     headerHeight: Height | number
   ): Promise<Uint8Array> {
     const proofHeight = this.ensureRevisionHeight(headerHeight);
-    const queryHeight = subtractBlock(proofHeight, 1);
+    const queryHeight = subtractBlock(proofHeight, 1n);
 
     const res = await this.query.ibc.proof.channel.packetAcknowledgement(
       originalPacket.destinationPort,
       originalPacket.destinationChannel,
-      originalPacket.sequence.toNumber(),
+      Number(originalPacket.sequence),
       queryHeight
     );
     const { proof } = res;
@@ -589,12 +573,12 @@ export class IbcClient {
     headerHeight: Height | number
   ): Promise<Uint8Array> {
     const proofHeight = this.ensureRevisionHeight(headerHeight);
-    const queryHeight = subtractBlock(proofHeight, 1);
+    const queryHeight = subtractBlock(proofHeight, 1n);
 
     const proof = await this.query.ibc.proof.channel.receiptProof(
       originalPacket.destinationPort,
       originalPacket.destinationChannel,
-      originalPacket.sequence.toNumber(),
+      Number(originalPacket.sequence),
       queryHeight
     );
     return proof;
@@ -614,7 +598,7 @@ export class IbcClient {
     const { latestHeight } = await this.query.ibc.client.stateTm(clientId);
     const header = await src.buildHeader(toIntHeight(latestHeight));
     await this.updateTendermintClient(clientId, header);
-    const height = header.signedHeader?.header?.height?.toNumber() ?? 0;
+    const height = Number(header.signedHeader?.header?.height ?? 0);
     return src.revisionHeight(height);
   }
 
@@ -1210,9 +1194,7 @@ export class IbcClient {
     for (const i in packets) {
       const packet = packets[i];
       this.logger.verbose(
-        `Sending packet #${packet.sequence.toNumber()} from ${this.chainId}:${
-          packet.sourceChannel
-        }`,
+        `Sending packet #${packet.sequence} from ${this.chainId}:${packet.sourceChannel}`,
         presentPacketData(packet.data)
       );
       const msg = {
@@ -1285,9 +1267,7 @@ export class IbcClient {
       const acknowledgement = acks[i].acknowledgement;
 
       this.logger.verbose(
-        `Ack packet #${packet.sequence.toNumber()} from ${this.chainId}:${
-          packet.sourceChannel
-        }`,
+        `Ack packet #${packet.sequence} from ${this.chainId}:${packet.sourceChannel}`,
         {
           packet: presentPacketData(packet.data),
           ack: presentPacketData(acknowledgement),
@@ -1340,7 +1320,7 @@ export class IbcClient {
   public timeoutPacket(
     packet: Packet,
     proofUnreceived: Uint8Array,
-    nextSequenceRecv: Long,
+    nextSequenceRecv: bigint,
     proofHeight: Height
   ): Promise<MsgResult> {
     return this.timeoutPackets(
@@ -1354,7 +1334,7 @@ export class IbcClient {
   public async timeoutPackets(
     packets: Packet[],
     proofsUnreceived: Uint8Array[],
-    nextSequenceRecv: Long[],
+    nextSequenceRecv: bigint[],
     proofHeight: Height
   ): Promise<MsgResult> {
     if (packets.length !== proofsUnreceived.length) {
@@ -1371,9 +1351,7 @@ export class IbcClient {
     for (const i in packets) {
       const packet = packets[i];
       this.logger.verbose(
-        `Timeout packet #${packet.sequence.toNumber()} from ${this.chainId}:${
-          packet.sourceChannel
-        }`,
+        `Timeout packet #${packet.sequence} from ${this.chainId}:${packet.sourceChannel}`,
         presentPacketData(packet.data)
       );
 

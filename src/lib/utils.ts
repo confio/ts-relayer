@@ -19,7 +19,6 @@ import {
   ConsensusState as TendermintConsensusState,
 } from 'cosmjs-types/ibc/lightclients/tendermint/v1/tendermint';
 import { PublicKey as ProtoPubKey } from 'cosmjs-types/tendermint/crypto/keys';
-import Long from 'long';
 
 import { PacketWithMetadata } from './endpoint';
 
@@ -35,31 +34,31 @@ export function createDeliverTxFailureMessage(
 }
 
 export function toIntHeight(height?: Height): number {
-  return height?.revisionHeight?.toNumber() ?? 0;
+  return Number(height?.revisionHeight) ?? 0;
 }
 
-export function ensureIntHeight(height: number | Height): number {
-  if (typeof height === 'number') {
-    return height;
+export function ensureIntHeight(height: bigint | Height): number {
+  if (typeof height === 'bigint') {
+    return Number(height);
   }
   return toIntHeight(height);
 }
 
-export function subtractBlock(height: Height, count = 1): Height {
+export function subtractBlock(height: Height, count = 1n): Height {
   return {
     revisionNumber: height.revisionNumber,
-    revisionHeight: height.revisionHeight.subtract(count),
+    revisionHeight: height.revisionHeight - count,
   };
 }
 
 const regexRevNum = new RegExp('-([1-9][0-9]*)$');
 
-export function parseRevisionNumber(chainId: string): Long {
+export function parseRevisionNumber(chainId: string): bigint {
   const match = chainId.match(regexRevNum);
   if (match && match.length >= 2) {
-    return Long.fromString(match[1]);
+    return BigInt(match[1]);
   }
-  return Long.ZERO;
+  return 0n;
 }
 
 // may will run the transform if value is defined, otherwise returns undefined
@@ -99,7 +98,7 @@ export function timestampFromDateNanos(
 ): Timestamp {
   const nanos = (date.getTime() % 1000) * 1000000 + (date.nanoseconds ?? 0);
   return Timestamp.fromPartial({
-    seconds: Long.fromNumber(date.getTime() / 1000),
+    seconds: BigInt(Math.floor(date.getTime() / 1000)),
     nanos,
   });
 }
@@ -167,17 +166,17 @@ export function buildClientState(
   return TendermintClientState.fromPartial({
     chainId,
     trustLevel: {
-      numerator: Long.fromInt(1),
-      denominator: Long.fromInt(3),
+      numerator: 1n,
+      denominator: 3n,
     },
     unbondingPeriod: {
-      seconds: Long.fromNumber(unbondingPeriodSec),
+      seconds: BigInt(unbondingPeriodSec),
     },
     trustingPeriod: {
-      seconds: Long.fromNumber(trustPeriodSec),
+      seconds: BigInt(trustPeriodSec),
     },
     maxClockDrift: {
-      seconds: Long.fromNumber(20),
+      seconds: 20n,
     },
     latestHeight: height,
     proofSpecs: [iavlSpec, tendermintSpec],
@@ -212,15 +211,23 @@ export function parsePacketsFromTendermintEvents(
 }
 
 export function parseHeightAttribute(attribute?: string): Height | undefined {
+  // Note: With cosmjs-types>=0.9.0, I believe this no longer needs to return undefined under any circumstances
+  // but will need more extensive testing before refactoring.
+
   const [timeoutRevisionNumber, timeoutRevisionHeight] =
     attribute?.split('-') ?? [];
   if (!timeoutRevisionHeight || !timeoutRevisionNumber) {
     return undefined;
   }
-  const revisionNumber = Long.fromString(timeoutRevisionNumber);
-  const revisionHeight = Long.fromString(timeoutRevisionHeight);
+
+  const revisionNumber = BigInt(
+    isNaN(Number(timeoutRevisionNumber)) ? 0 : timeoutRevisionNumber
+  );
+  const revisionHeight = BigInt(
+    isNaN(Number(timeoutRevisionHeight)) ? 0 : timeoutRevisionHeight
+  );
   // note: 0 revisionNumber is allowed. If there is bad data, '' or '0-0', we will get 0 for the height
-  if (revisionHeight.isZero()) {
+  if (revisionHeight == 0n) {
     return undefined;
   }
   return { revisionHeight, revisionNumber };
@@ -239,7 +246,7 @@ export function parsePacket({ type, attributes }: Event): Packet {
   );
 
   return Packet.fromPartial({
-    sequence: may(Long.fromString, attributesObj.packet_sequence),
+    sequence: may(BigInt, attributesObj.packet_sequence),
     /** identifies the port on the sending chain. */
     sourcePort: attributesObj.packet_src_port,
     /** identifies the channel end on the sending chain. */
@@ -255,10 +262,7 @@ export function parsePacket({ type, attributes }: Event): Packet {
     /** block height after which the packet times out */
     timeoutHeight: parseHeightAttribute(attributesObj.packet_timeout_height),
     /** block timestamp (in nanoseconds) after which the packet times out */
-    timeoutTimestamp: may(
-      Long.fromString,
-      attributesObj.packet_timeout_timestamp
-    ),
+    timeoutTimestamp: may(BigInt, attributesObj.packet_timeout_timestamp),
   });
 }
 
@@ -280,7 +284,7 @@ export function parseAck({ type, attributes }: Event): Ack {
     {}
   );
   const originalPacket = Packet.fromPartial({
-    sequence: may(Long.fromString, attributesObj.packet_sequence),
+    sequence: may(BigInt, attributesObj.packet_sequence),
     /** identifies the port on the sending chain. */
     sourcePort: attributesObj.packet_src_port,
     /** identifies the channel end on the sending chain. */
@@ -294,10 +298,7 @@ export function parseAck({ type, attributes }: Event): Ack {
     /** block height after which the packet times out */
     timeoutHeight: parseHeightAttribute(attributesObj.packet_timeout_height),
     /** block timestamp (in nanoseconds) after which the packet times out */
-    timeoutTimestamp: may(
-      Long.fromString,
-      attributesObj.packet_timeout_timestamp
-    ),
+    timeoutTimestamp: may(BigInt, attributesObj.packet_timeout_timestamp),
   });
   const acknowledgement = toUtf8(attributesObj.packet_ack ?? '');
   return {
@@ -308,16 +309,19 @@ export function parseAck({ type, attributes }: Event): Ack {
 
 // return true if a > b, or a undefined
 export function heightGreater(a: Height | undefined, b: Height): boolean {
-  if (a === undefined) {
+  if (
+    a === undefined ||
+    (a.revisionHeight === BigInt(0) && a.revisionNumber === BigInt(0))
+  ) {
     return true;
   }
   // comparing longs made some weird issues (maybe signed/unsigned)?
   // convert to numbers to compare safely
   const [numA, heightA, numB, heightB] = [
-    a.revisionNumber.toNumber(),
-    a.revisionHeight.toNumber(),
-    b.revisionNumber.toNumber(),
-    b.revisionHeight.toNumber(),
+    Number(a.revisionNumber),
+    Number(a.revisionHeight),
+    Number(b.revisionNumber),
+    Number(b.revisionHeight),
   ];
   const valid = numA > numB || (numA == numB && heightA > heightB);
   return valid;
@@ -325,11 +329,11 @@ export function heightGreater(a: Height | undefined, b: Height): boolean {
 
 // return true if a > b, or a 0
 // note a is nanoseconds, while b is seconds
-export function timeGreater(a: Long | undefined, b: number): boolean {
-  if (a === undefined || a.isZero()) {
+export function timeGreater(a: bigint | undefined, b: number): boolean {
+  if (a === undefined || a == 0n) {
     return true;
   }
-  const valid = a.toNumber() > b * 1_000_000_000;
+  const valid = Number(a) > b * 1_000_000_000;
   return valid;
 }
 

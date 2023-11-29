@@ -58,7 +58,7 @@ test.serial('create and update wasmd client on gaia', async (t) => {
   const state = await dest.query.ibc.client.stateTm(clientId);
   // console.error(state);
   // TODO: check more details?
-  t.is(state.latestHeight?.revisionHeight.toNumber(), header.height);
+  t.is(Number(state.latestHeight?.revisionHeight), header.height);
   t.deepEqual(state.chainId, await src.getChainId());
 
   // wait for a few blocks, then try
@@ -67,24 +67,24 @@ test.serial('create and update wasmd client on gaia', async (t) => {
   }
   const newHeader = await src.buildHeader(header.height);
   const newHeight = newHeader.signedHeader?.header?.height;
-  t.not(newHeight?.toNumber(), header.height);
+  t.not(Number(newHeight), header.height);
 
   await dest.updateTendermintClient(clientId, newHeader);
 
   // any other checks?
   const upstate = await dest.query.ibc.client.stateTm(clientId);
-  t.assert(sameLong(upstate.latestHeight?.revisionHeight, newHeight));
+  t.assert(sameBigInt(upstate.latestHeight?.revisionHeight, newHeight));
 });
 
 // handles both as optional fields, does Long.equal to ignore signed/unsigned difference
-function sameLong(a?: Long, b?: Long) {
+function sameBigInt(a?: bigint, b?: bigint) {
   if (a === undefined) {
     return false;
   }
   if (b === undefined) {
     return false;
   }
-  return a.equals(b);
+  return a == b;
 }
 
 // make 2 clients, and try to establish a connection

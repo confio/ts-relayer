@@ -1,4 +1,5 @@
 import { toAscii } from '@cosmjs/encoding';
+import { Uint64 } from '@cosmjs/math';
 import {
   createPagination,
   createProtobufRpcClient,
@@ -50,7 +51,6 @@ import {
   ConsensusState as TendermintConsensusState,
 } from 'cosmjs-types/ibc/lightclients/tendermint/v1/tendermint';
 import { ProofOps } from 'cosmjs-types/tendermint/crypto/proof';
-import Long from 'long';
 
 function decodeTendermintClientStateAny(
   clientState: Any | undefined
@@ -107,7 +107,7 @@ export interface IbcExtension {
       readonly packetCommitment: (
         portId: string,
         channelId: string,
-        sequence: Long
+        sequence: bigint
       ) => Promise<QueryPacketCommitmentResponse>;
       readonly packetCommitments: (
         portId: string,
@@ -216,7 +216,7 @@ export interface IbcExtension {
         readonly packetCommitment: (
           portId: string,
           channelId: string,
-          sequence: Long,
+          sequence: bigint,
           proofHeight: Height
         ) => Promise<QueryPacketCommitmentResponse>;
         readonly packetAcknowledgement: (
@@ -327,13 +327,13 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           channelQueryService.ChannelConsensusState({
             portId,
             channelId,
-            revisionNumber: Long.fromNumber(revisionNumber, true),
-            revisionHeight: Long.fromNumber(revisionHeight, true),
+            revisionNumber: BigInt(revisionNumber),
+            revisionHeight: BigInt(revisionHeight),
           }),
         packetCommitment: async (
           portId: string,
           channelId: string,
-          sequence: Long
+          sequence: bigint
         ) =>
           channelQueryService.PacketCommitment({
             portId,
@@ -376,7 +376,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           channelQueryService.PacketReceipt({
             portId,
             channelId,
-            sequence: Long.fromNumber(sequence, true),
+            sequence: BigInt(sequence),
           }),
         packetAcknowledgement: async (
           portId: string,
@@ -386,7 +386,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           channelQueryService.PacketAcknowledgement({
             portId,
             channelId,
-            sequence: Long.fromNumber(sequence, true),
+            sequence: BigInt(sequence),
           }),
         packetAcknowledgements: async (
           portId: string,
@@ -433,7 +433,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             portId,
             channelId,
             packetCommitmentSequences: packetCommitmentSequences.map((s) =>
-              Long.fromNumber(s, true)
+              BigInt(s)
             ),
           }),
         unreceivedAcks: async (
@@ -444,9 +444,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           channelQueryService.UnreceivedAcks({
             portId,
             channelId,
-            packetAckSequences: packetAckSequences.map((s) =>
-              Long.fromNumber(s, true)
-            ),
+            packetAckSequences: packetAckSequences.map((s) => BigInt(s)),
           }),
         nextSequenceReceive: async (portId: string, channelId: string) =>
           channelQueryService.NextSequenceReceive({
@@ -482,7 +480,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
               clientId,
               revisionHeight:
                 consensusHeight !== undefined
-                  ? Long.fromNumber(consensusHeight, true)
+                  ? BigInt(consensusHeight)
                   : undefined,
               latestHeight: consensusHeight === undefined,
             })
@@ -588,7 +586,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           connectionQueryService.ConnectionConsensusState(
             QueryConnectionConsensusStateRequest.fromPartial({
               connectionId,
-              revisionHeight: Long.fromNumber(revisionHeight, true),
+              revisionHeight: BigInt(revisionHeight),
             })
           ),
       },
@@ -608,7 +606,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             const proven = await base.queryRawProof(
               'ibc',
               key,
-              proofHeight.revisionHeight.toNumber()
+              Number(proofHeight.revisionHeight)
             );
             const channel = Channel.decode(proven.value);
             const proof = convertProofsToIcs23(proven.proof);
@@ -632,7 +630,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             const proven = await base.queryRawProof(
               'ibc',
               key,
-              proofHeight.revisionHeight.toNumber()
+              Number(proofHeight.revisionHeight)
             );
             const proof = convertProofsToIcs23(proven.proof);
             return proof;
@@ -640,16 +638,16 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           packetCommitment: async (
             portId: string,
             channelId: string,
-            sequence: Long,
+            sequence: bigint,
             proofHeight: Height
           ) => {
             const key = toAscii(
-              `commitments/ports/${portId}/channels/${channelId}/sequences/${sequence.toNumber()}`
+              `commitments/ports/${portId}/channels/${channelId}/sequences/${sequence}`
             );
             const proven = await base.queryRawProof(
               'ibc',
               key,
-              proofHeight.revisionHeight.toNumber()
+              Number(proofHeight.revisionHeight)
             );
             const commitment = proven.value;
             const proof = convertProofsToIcs23(proven.proof);
@@ -671,7 +669,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             const proven = await base.queryRawProof(
               'ibc',
               key,
-              proofHeight.revisionHeight.toNumber()
+              Number(proofHeight.revisionHeight)
             );
             const acknowledgement = proven.value;
             const proof = convertProofsToIcs23(proven.proof);
@@ -692,9 +690,12 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             const proven = await base.queryRawProof(
               'ibc',
               key,
-              proofHeight.revisionHeight.toNumber()
+              Number(proofHeight.revisionHeight)
             );
-            const nextSequenceReceive = Long.fromBytesBE([...proven.value]);
+            const nextSequenceReceive = Uint64.fromBytes(
+              [...proven.value],
+              'be'
+            ).toBigInt();
             const proof = convertProofsToIcs23(proven.proof);
             return {
               nextSequenceReceive,
@@ -709,7 +710,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             const proven = await base.queryRawProof(
               'ibc',
               toAscii(key),
-              proofHeight.revisionHeight.toNumber()
+              Number(proofHeight.revisionHeight)
             );
             const clientState = Any.decode(proven.value);
             const proof = convertProofsToIcs23(proven.proof);
@@ -729,7 +730,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             const proven = await base.queryRawProof(
               'ibc',
               toAscii(key),
-              proofHeight.revisionHeight.toNumber()
+              Number(proofHeight.revisionHeight)
             );
             const consensusState = Any.decode(proven.value);
             const proof = convertProofsToIcs23(proven.proof);
@@ -746,7 +747,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             const proven = await base.queryRawProof(
               'ibc',
               toAscii(key),
-              proofHeight.revisionHeight.toNumber()
+              Number(proofHeight.revisionHeight)
             );
             const connection = ConnectionEnd.decode(proven.value);
             const proof = convertProofsToIcs23(proven.proof);
