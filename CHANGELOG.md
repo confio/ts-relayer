@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.11.0
+
+### Minor Changes
+
+- 81b58b5: Bumps cosmjs and cosmjs-types versions to add Cosmos SDK 0.50.0 support
+- c07063a: Support for packet level filtering
+
+### Patch Changes
+
+- d8c346f: Use double quotes in codebase (prettier default)
+
 ## 0.10.0
 
 ### Minor Changes
