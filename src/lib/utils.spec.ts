@@ -570,6 +570,16 @@ test("height based timeouts properly", (t) => {
   t.false(heightGreater(height1a, height1b));
 });
 
+test("Ensure nano timestamps are parsed correctly", (t) => {
+  const time1 = fromRfc3339WithNanoseconds("0001-01-01T00:00:00Z");
+  const ts = timestampFromDateNanos(time1);
+
+  t.deepEqual(ts, {
+    seconds: BigInt(0),
+    nanos: 0,
+  });
+});
+
 test("Properly determines height-based timeouts", (t) => {
   // proper heights
   t.deepEqual(parseHeightAttribute("1-34"), {
