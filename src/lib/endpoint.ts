@@ -1,15 +1,15 @@
-import { toHex } from '@cosmjs/encoding';
-import { Event, fromTendermintEvent } from '@cosmjs/stargate';
-import { tendermint34, tendermint37 } from '@cosmjs/tendermint-rpc';
-import { Packet } from 'cosmjs-types/ibc/core/channel/v1/channel';
+import { toHex } from "@cosmjs/encoding";
+import { Event, fromTendermintEvent } from "@cosmjs/stargate";
+import { tendermint34, tendermint37 } from "@cosmjs/tendermint-rpc";
+import { Packet } from "cosmjs-types/ibc/core/channel/v1/channel";
 
-import { IbcClient } from './ibcclient';
+import { IbcClient } from "./ibcclient";
 import {
   Ack,
   parseAcksFromTxEvents,
   parsePacketsFromBlockResult,
   parsePacketsFromTendermintEvents,
-} from './utils';
+} from "./utils";
 
 export interface PacketWithMetadata {
   packet: Packet;
@@ -88,7 +88,7 @@ export class Endpoint {
         return parsePacketsFromBlockResult(result).map((packet) => ({
           packet,
           height,
-          sender: '',
+          sender: "",
         }));
       })
     );

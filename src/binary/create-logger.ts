@@ -1,12 +1,12 @@
-import jsonStringify from 'fast-safe-stringify';
-import { MESSAGE } from 'triple-beam';
-import winston from 'winston';
+import jsonStringify from "fast-safe-stringify";
+import { MESSAGE } from "triple-beam";
+import winston from "winston";
 
-import { LoggerFlags } from './types';
-import { resolveOption } from './utils/options/resolve-option';
+import { LoggerFlags } from "./types";
+import { resolveOption } from "./utils/options/resolve-option";
 
 // Re-export Logger interface with type-safe child method.
-export interface Logger extends Omit<winston.Logger, 'child'> {
+export interface Logger extends Omit<winston.Logger, "child"> {
   child(options: { label: string }): Logger;
 }
 
@@ -19,7 +19,7 @@ export const levels = {
 };
 type Level = keyof typeof levels;
 
-export const defaultLevel = 'info'; // if not provided
+export const defaultLevel = "info"; // if not provided
 
 function validateLevel(level: string | null): level is Level {
   return level ? Object.keys(levels).includes(level) : false;
@@ -28,7 +28,7 @@ function validateLevel(level: string | null): level is Level {
 export function resolveLevel(
   flags: LoggerFlags
 ): [level: Level, invalidInputLevel: string | null] {
-  const level = resolveOption('logLevel')(
+  const level = resolveOption("logLevel")(
     flags.logLevel,
     process.env.RELAYER_LOG_LEVEL
   );
@@ -37,14 +37,14 @@ export function resolveLevel(
     return [defaultLevel, level];
   }
 
-  const levelValue = levels[level ?? 'error'];
+  const levelValue = levels[level ?? "error"];
 
   if (flags.verbose && levelValue < levels.verbose) {
-    return ['verbose', null];
+    return ["verbose", null];
   }
 
   if (flags.quiet && levelValue <= levels.error) {
-    return ['error', null];
+    return ["error", null];
   }
 
   if (level) {
@@ -93,7 +93,7 @@ export function createLogger(flags: LoggerFlags): Logger {
         levels
       )
         .map((level) => `"${level}"`)
-        .join(', ')}`
+        .join(", ")}`
     );
   }
 
@@ -111,9 +111,9 @@ function simpleFormat(stackTrace: boolean) {
 
       ...(stackTrace ? {} : { stack: undefined }), // remove `stack` from the output if no --stack-trace is provided
     });
-    stringifiedRest = stringifiedRest !== '{}' ? ` ${stringifiedRest}` : '';
+    stringifiedRest = stringifiedRest !== "{}" ? ` ${stringifiedRest}` : "";
 
-    const label = info.label ? ` [${info.label}]` : '';
+    const label = info.label ? ` [${info.label}]` : "";
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore: indexing with symbols: https://github.com/microsoft/TypeScript/issues/1863

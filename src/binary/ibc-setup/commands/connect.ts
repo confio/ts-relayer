@@ -1,19 +1,19 @@
-import fs from 'fs';
-import path from 'path';
+import fs from "fs";
+import path from "path";
 
-import yaml from 'js-yaml';
+import yaml from "js-yaml";
 
-import { Link } from '../../../lib/link';
-import { appFile, registryFile } from '../../constants';
-import { Logger } from '../../create-logger';
-import { AppConfig } from '../../types';
-import { loadAndValidateApp } from '../../utils/load-and-validate-app';
-import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
-import { resolveOption } from '../../utils/options/resolve-option';
-import { resolveHomeOption } from '../../utils/options/shared/resolve-home-option';
-import { resolveKeyFileOption } from '../../utils/options/shared/resolve-key-file-option';
-import { resolveMnemonicOption } from '../../utils/options/shared/resolve-mnemonic-option';
-import { signingClient } from '../../utils/signing-client';
+import { Link } from "../../../lib/link";
+import { appFile, registryFile } from "../../constants";
+import { Logger } from "../../create-logger";
+import { AppConfig } from "../../types";
+import { loadAndValidateApp } from "../../utils/load-and-validate-app";
+import { loadAndValidateRegistry } from "../../utils/load-and-validate-registry";
+import { resolveOption } from "../../utils/options/resolve-option";
+import { resolveHomeOption } from "../../utils/options/shared/resolve-home-option";
+import { resolveKeyFileOption } from "../../utils/options/shared/resolve-key-file-option";
+import { resolveMnemonicOption } from "../../utils/options/shared/resolve-mnemonic-option";
+import { signingClient } from "../../utils/signing-client";
 
 export type Flags = {
   readonly interactive: boolean;
@@ -47,13 +47,13 @@ export async function connect(flags: Flags, logger: Logger) {
     keyFile,
     app,
   });
-  const src = resolveOption('src', { required: true })(app.src);
-  const dest = resolveOption('dest', { required: true })(app.dest);
-  const srcTrust = resolveOption('srcTrust', { integer: true })(
+  const src = resolveOption("src", { required: true })(app.src);
+  const dest = resolveOption("dest", { required: true })(app.dest);
+  const srcTrust = resolveOption("srcTrust", { integer: true })(
     flags.srcTrust,
     process.env.RELAYER_SRC_TRUST
   );
-  const destTrust = resolveOption('destTrust', { integer: true })(
+  const destTrust = resolveOption("destTrust", { integer: true })(
     flags.destTrust,
     process.env.RELAYER_DEST_TRUST
   );
@@ -104,7 +104,7 @@ export async function run(options: Options, app: AppConfig, logger: Logger) {
   );
 
   fs.writeFileSync(path.join(options.home, appFile), appYaml, {
-    encoding: 'utf-8',
+    encoding: "utf-8",
   });
 
   console.log(

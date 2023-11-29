@@ -27,7 +27,7 @@ This is used to setup a new key and configuration file.
 ```yaml
 src: XYZ
 dest: ABC
-mnemonic: 'your codes here...'
+mnemonic: "your codes here..."
 ```
 
 It will then output the relayer's addresses on each chain on standard out and request the admin to fill those addresses with funds.

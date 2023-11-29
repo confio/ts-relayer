@@ -1,4 +1,4 @@
-import { getBorderCharacters, table } from 'table';
+import { getBorderCharacters, table } from "table";
 
 export function borderlessTable(data: (string | number)[][]) {
   return table(data, {

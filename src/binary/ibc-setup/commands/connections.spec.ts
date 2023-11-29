@@ -1,23 +1,23 @@
-import fs from 'fs';
+import fs from "fs";
 
-import test from 'ava';
-import sinon from 'sinon';
+import test from "ava";
+import sinon from "sinon";
 
-import { testutils } from '../../../lib';
-import { Link } from '../../../lib/link';
-import { Logger } from '../../create-logger';
-import { signingClient } from '../../utils/signing-client';
+import { testutils } from "../../../lib";
+import { Link } from "../../../lib/link";
+import { Logger } from "../../create-logger";
+import { signingClient } from "../../utils/signing-client";
 
-import { gaiaChain, wasmdChain } from './chains';
-import { Options, run } from './connections';
+import { gaiaChain, wasmdChain } from "./chains";
+import { Options, run } from "./connections";
 
 const { TestLogger } = testutils;
 
-const fsReadFileSync = sinon.stub(fs, 'readFileSync');
-const consoleLog = sinon.stub(console, 'log');
+const fsReadFileSync = sinon.stub(fs, "readFileSync");
+const consoleLog = sinon.stub(console, "log");
 
 const mnemonic =
-  'enlist hip relief stomach skate base shallow young switch frequent cry park';
+  "enlist hip relief stomach skate base shallow young switch frequent cry park";
 
 const registryYaml = `
 version: 1
@@ -40,7 +40,7 @@ test.beforeEach(() => {
   sinon.reset();
 });
 
-test.serial('lists connections', async (t) => {
+test.serial("lists connections", async (t) => {
   const logger = new TestLogger();
 
   const ibcClientGaia = await signingClient(gaiaChain, mnemonic);
@@ -52,17 +52,17 @@ test.serial('lists connections', async (t) => {
   );
 
   const options: Options = {
-    home: '/home/user',
+    home: "/home/user",
     mnemonic,
-    chain: 'local_gaia',
+    chain: "local_gaia",
   };
 
   fsReadFileSync.returns(registryYaml);
 
   await run(options, logger as unknown as Logger);
 
-  const tableRow = [link.endA.connectionID, link.endA.clientID, 0, 'Open'];
-  const match = new RegExp(tableRow.join('\\s+'));
+  const tableRow = [link.endA.connectionID, link.endA.clientID, 0, "Open"];
+  const match = new RegExp(tableRow.join("\\s+"));
   t.assert(consoleLog.getCall(-1).calledWithMatch(match));
 });
 

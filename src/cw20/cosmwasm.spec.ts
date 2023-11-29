@@ -1,29 +1,29 @@
-import { assert } from '@cosmjs/utils';
-import test from 'ava';
+import { assert } from "@cosmjs/utils";
+import test from "ava";
 
-import { Link, testutils } from '..';
+import { Link, testutils } from "..";
 const { gaia, ics20, setup, setupWasmClient, wasmd } = testutils;
 
 // TODO: replace these with be auto-generated helpers from ts-codegen
-import { balance, init, sendTokens } from './cw20';
+import { balance, init, sendTokens } from "./cw20";
 import {
   assertPacketsFromA,
   assertPacketsFromB,
   setupContracts,
-} from './utils';
+} from "./utils";
 
 let codeIds: Record<string, number> = {};
 
 test.before(async (t) => {
   const contracts = {
-    cw20: 'cw20_base.wasm',
-    ics20: 'cw20_ics20.wasm',
+    cw20: "cw20_base.wasm",
+    ics20: "cw20_ics20.wasm",
   };
   codeIds = await setupContracts(contracts);
   t.pass();
 });
 
-test.serial('set up channel with ics20 contract', async (t) => {
+test.serial("set up channel with ics20 contract", async (t) => {
   const cosmwasm = await setupWasmClient();
 
   // instantiate ics20
@@ -36,8 +36,8 @@ test.serial('set up channel with ics20 contract', async (t) => {
     cosmwasm.senderAddress,
     codeIds.ics20,
     ics20Msg,
-    'ICS',
-    'auto'
+    "ICS",
+    "auto"
   );
   t.truthy(ics20Addr);
 
@@ -48,7 +48,7 @@ test.serial('set up channel with ics20 contract', async (t) => {
   const [src, dest] = await setup(gaia, wasmd);
   const link = await Link.createWithNewConnections(src, dest);
   await link.createChannel(
-    'A',
+    "A",
     gaia.ics20Port,
     wasmPort,
     ics20.ordering,
@@ -56,21 +56,21 @@ test.serial('set up channel with ics20 contract', async (t) => {
   );
 });
 
-test.serial('send packets with ics20 contract', async (t) => {
+test.serial("send packets with ics20 contract", async (t) => {
   const cosmwasm = await setupWasmClient();
 
   // instantiate cw20
-  const initMsg = init(cosmwasm.senderAddress, 'CASH', '123456789000');
+  const initMsg = init(cosmwasm.senderAddress, "CASH", "123456789000");
   const { contractAddress: cw20Addr } = await cosmwasm.sign.instantiate(
     cosmwasm.senderAddress,
     codeIds.cw20,
     initMsg,
-    'CASH',
-    'auto'
+    "CASH",
+    "auto"
   );
   t.truthy(cw20Addr);
   let bal = await balance(cosmwasm, cw20Addr);
-  t.is('123456789000', bal);
+  t.is("123456789000", bal);
 
   // instantiate ics20
   const ics20Msg = {
@@ -87,8 +87,8 @@ test.serial('send packets with ics20 contract', async (t) => {
     cosmwasm.senderAddress,
     codeIds.ics20,
     ics20Msg,
-    'ICSX',
-    'auto'
+    "ICSX",
+    "auto"
   );
   t.truthy(ics20Addr);
 
@@ -99,7 +99,7 @@ test.serial('send packets with ics20 contract', async (t) => {
   const [src, dest] = await setup(gaia, wasmd);
   const link = await Link.createWithNewConnections(src, dest);
   const channels = await link.createChannel(
-    'A',
+    "A",
     gaia.ics20Port,
     wasmPort,
     ics20.ordering,
@@ -108,7 +108,7 @@ test.serial('send packets with ics20 contract', async (t) => {
 
   // send cw20 tokens to ics20 contract and create a new packet
   // (dest chain is wasmd)
-  const sendMsg = sendTokens(ics20Addr, '456789000', {
+  const sendMsg = sendTokens(ics20Addr, "456789000", {
     channel: channels.dest.channelId,
     remote_address: src.senderAddress,
   });
@@ -116,18 +116,18 @@ test.serial('send packets with ics20 contract', async (t) => {
     cosmwasm.senderAddress,
     cw20Addr,
     sendMsg,
-    'auto',
-    'Send CW20 tokens via ICS20'
+    "auto",
+    "Send CW20 tokens via ICS20"
   );
 
   // let's see if the balance went down
   bal = await balance(cosmwasm, cw20Addr);
-  t.is('123000000000', bal);
+  t.is("123000000000", bal);
 
   // check source balance
   const preBalance = await src.sign.getAllBalances(src.senderAddress);
   t.is(1, preBalance.length);
-  t.is('uatom', preBalance[0].denom);
+  t.is("uatom", preBalance[0].denom);
 
   // easy way to move all packets and verify the results
   let info = await link.relayAll();
@@ -136,9 +136,9 @@ test.serial('send packets with ics20 contract', async (t) => {
   // check source balances increased
   const relayedBalance = await src.sign.getAllBalances(src.senderAddress);
   t.is(2, relayedBalance.length);
-  const ibcCoin = relayedBalance.find((d) => d.denom !== 'uatom');
+  const ibcCoin = relayedBalance.find((d) => d.denom !== "uatom");
   assert(ibcCoin);
-  t.is('456789000', ibcCoin.amount);
+  t.is("456789000", ibcCoin.amount);
   console.log(ibcCoin);
 
   // send this token back over the channel
@@ -160,13 +160,13 @@ test.serial('send packets with ics20 contract', async (t) => {
 
   // balance updated on recipient
   const gotBal = await balance(cosmwasm, cw20Addr, dest.senderAddress);
-  t.is(gotBal, '456789000');
+  t.is(gotBal, "456789000");
 
   // send native token over channel (from dest -> cosmwasm chain)
   const timeoutHeight2 = await dest.timeoutHeight(500);
   const nativeCoin = {
-    denom: 'uatom',
-    amount: '111111',
+    denom: "uatom",
+    amount: "111111",
   };
   await src.transferTokens(
     channels.src.portId,

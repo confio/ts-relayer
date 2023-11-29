@@ -1,19 +1,19 @@
-import path from 'path';
+import path from "path";
 
-import { State as ConnectionState } from 'cosmjs-types/ibc/core/connection/v1/connection';
-import { IdentifiedConnection } from 'cosmjs-types/ibc/core/connection/v1/connection';
+import { State as ConnectionState } from "cosmjs-types/ibc/core/connection/v1/connection";
+import { IdentifiedConnection } from "cosmjs-types/ibc/core/connection/v1/connection";
 
-import { registryFile } from '../../constants';
-import { Logger } from '../../create-logger';
-import { borderlessTable } from '../../utils/borderless-table';
-import { generateMnemonic } from '../../utils/generate-mnemonic';
-import { loadAndValidateApp } from '../../utils/load-and-validate-app';
-import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
-import { resolveOption } from '../../utils/options/resolve-option';
-import { resolveHomeOption } from '../../utils/options/shared/resolve-home-option';
-import { resolveKeyFileOption } from '../../utils/options/shared/resolve-key-file-option';
-import { resolveMnemonicOption } from '../../utils/options/shared/resolve-mnemonic-option';
-import { signingClient } from '../../utils/signing-client';
+import { registryFile } from "../../constants";
+import { Logger } from "../../create-logger";
+import { borderlessTable } from "../../utils/borderless-table";
+import { generateMnemonic } from "../../utils/generate-mnemonic";
+import { loadAndValidateApp } from "../../utils/load-and-validate-app";
+import { loadAndValidateRegistry } from "../../utils/load-and-validate-registry";
+import { resolveOption } from "../../utils/options/resolve-option";
+import { resolveHomeOption } from "../../utils/options/shared/resolve-home-option";
+import { resolveKeyFileOption } from "../../utils/options/shared/resolve-key-file-option";
+import { resolveMnemonicOption } from "../../utils/options/shared/resolve-mnemonic-option";
+import { signingClient } from "../../utils/signing-client";
 
 export type Flags = {
   readonly home?: string;
@@ -33,7 +33,7 @@ export async function connections(flags: Flags, logger: Logger) {
   const home = resolveHomeOption({ homeFlag: flags.home });
   const app = loadAndValidateApp(home);
   const keyFile = resolveKeyFileOption({ keyFileFlag: flags.keyFile, app });
-  const chain = resolveOption('chain', { required: true })(
+  const chain = resolveOption("chain", { required: true })(
     flags.chain,
     process.env.RELAYER_CHAIN
   );
@@ -60,20 +60,20 @@ export async function connections(flags: Flags, logger: Logger) {
 function connectionStateAsText(state: ConnectionState) {
   switch (state) {
     case ConnectionState.STATE_INIT:
-      return 'Init';
+      return "Init";
 
     case ConnectionState.STATE_OPEN:
-      return 'Open';
+      return "Open";
 
     case ConnectionState.STATE_TRYOPEN:
-      return 'Tryopen';
+      return "Tryopen";
 
     case ConnectionState.STATE_UNINITIALIZED_UNSPECIFIED:
-      return 'UninitializedUnspecified';
+      return "UninitializedUnspecified";
 
     case ConnectionState.UNRECOGNIZED:
     default:
-      return 'Unrecognized';
+      return "Unrecognized";
   }
 }
 
@@ -107,7 +107,7 @@ export async function run(options: Options, logger: Logger) {
   }
 
   const output = borderlessTable([
-    ['CONNECTION_ID', 'CLIENT_ID', 'DELAY', 'STATE'],
+    ["CONNECTION_ID", "CLIENT_ID", "DELAY", "STATE"],
     ...connections,
   ]);
 

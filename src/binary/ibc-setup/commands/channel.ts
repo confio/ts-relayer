@@ -1,19 +1,19 @@
-import os from 'os';
-import path from 'path';
+import os from "os";
+import path from "path";
 
-import { Order } from 'cosmjs-types/ibc/core/channel/v1/channel';
+import { Order } from "cosmjs-types/ibc/core/channel/v1/channel";
 
-import { Link } from '../../../lib/link';
-import { appFile, registryFile } from '../../constants';
-import { Logger } from '../../create-logger';
-import { indent } from '../../utils/indent';
-import { loadAndValidateApp } from '../../utils/load-and-validate-app';
-import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
-import { resolveOption } from '../../utils/options/resolve-option';
-import { resolveHomeOption } from '../../utils/options/shared/resolve-home-option';
-import { resolveKeyFileOption } from '../../utils/options/shared/resolve-key-file-option';
-import { resolveMnemonicOption } from '../../utils/options/shared/resolve-mnemonic-option';
-import { signingClient } from '../../utils/signing-client';
+import { Link } from "../../../lib/link";
+import { appFile, registryFile } from "../../constants";
+import { Logger } from "../../create-logger";
+import { indent } from "../../utils/indent";
+import { loadAndValidateApp } from "../../utils/load-and-validate-app";
+import { loadAndValidateRegistry } from "../../utils/load-and-validate-registry";
+import { resolveOption } from "../../utils/options/resolve-option";
+import { resolveHomeOption } from "../../utils/options/shared/resolve-home-option";
+import { resolveKeyFileOption } from "../../utils/options/shared/resolve-key-file-option";
+import { resolveMnemonicOption } from "../../utils/options/shared/resolve-mnemonic-option";
+import { signingClient } from "../../utils/signing-client";
 
 export type Flags = {
   readonly interactive: boolean;
@@ -42,7 +42,7 @@ export type Options = {
 };
 
 export const defaults = {
-  version: 'ics20-1',
+  version: "ics20-1",
 };
 
 export async function channel(flags: Flags, logger: Logger) {
@@ -59,28 +59,28 @@ export async function channel(flags: Flags, logger: Logger) {
     keyFile,
     app,
   });
-  const src = resolveOption('src', { required: true })(app.src);
-  const dest = resolveOption('dest', { required: true })(app.dest);
-  const srcConnection = resolveOption('srcConnection', { required: true })(
+  const src = resolveOption("src", { required: true })(app.src);
+  const dest = resolveOption("dest", { required: true })(app.dest);
+  const srcConnection = resolveOption("srcConnection", { required: true })(
     flags.srcConnection,
     app.srcConnection,
     process.env.RELAYER_SRC_CONNECTION
   );
-  const destConnection = resolveOption('destConnection', { required: true })(
+  const destConnection = resolveOption("destConnection", { required: true })(
     flags.destConnection,
     app.destConnection,
     process.env.RELAYER_DEST_CONNECTION
   );
-  const srcPort = resolveOption('srcPort', { required: true })(
+  const srcPort = resolveOption("srcPort", { required: true })(
     flags.srcPort,
     process.env.RELAYER_SRC_PORT
   );
-  const destPort = resolveOption('destPort', { required: true })(
+  const destPort = resolveOption("destPort", { required: true })(
     flags.destPort,
     process.env.RELAYER_DEST_PORT
   );
   const version =
-    resolveOption('version')(flags.version, process.env.RELAYER_VERSION) ??
+    resolveOption("version")(flags.version, process.env.RELAYER_VERSION) ??
     defaults.version;
 
   const options: Options = {
@@ -135,7 +135,7 @@ export async function run(options: Options, logger: Logger) {
     : Order.ORDER_UNORDERED;
 
   const channel = await link.createChannel(
-    'A',
+    "A",
     options.srcPort,
     options.destPort,
     ordering,
@@ -143,7 +143,7 @@ export async function run(options: Options, logger: Logger) {
   );
 
   const output = [
-    'Created channel:',
+    "Created channel:",
     ...indent([
       `${srcChain.chain_id}: ${channel.src.portId}/${channel.src.channelId} (${link.endA.connectionID})`,
       `${destChain.chain_id}: ${channel.dest.portId}/${channel.dest.channelId} (${link.endB.connectionID})`,

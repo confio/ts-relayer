@@ -1,4 +1,4 @@
-import { InvalidOptionError } from '../../exceptions/InvalidOptionError';
+import { InvalidOptionError } from "../../exceptions/InvalidOptionError";
 
 type Args<T = string> = Array<(T | undefined | null) | (() => T | null)>;
 
@@ -63,7 +63,7 @@ export function resolveOption(
 
 function findValue(...args: Args) {
   for (const option of args) {
-    const value = typeof option === 'function' ? option() : option;
+    const value = typeof option === "function" ? option() : option;
 
     if (value !== undefined && value !== null) {
       return value;
