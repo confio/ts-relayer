@@ -27,6 +27,7 @@ import {
 } from "@cosmjs/tendermint-rpc";
 import { arrayContentEquals, assert, sleep } from "@cosmjs/utils";
 import { Any } from "cosmjs-types/google/protobuf/any";
+import { Timestamp } from "cosmjs-types/google/protobuf/timestamp";
 import { MsgTransfer } from "cosmjs-types/ibc/applications/transfer/v1/tx";
 import { Order, Packet, State } from "cosmjs-types/ibc/core/channel/v1/channel";
 import {
@@ -56,6 +57,7 @@ import {
   Header as TendermintHeader,
 } from "cosmjs-types/ibc/lightclients/tendermint/v1/tendermint";
 import {
+  BlockIDFlag,
   blockIDFlagFromJSON,
   Commit,
   Header,
@@ -382,7 +384,11 @@ export class IbcClient {
 
     const signatures = rpcCommit.signatures.map((sig) => ({
       ...sig,
-      timestamp: sig.timestamp && timestampFromDateNanos(sig.timestamp),
+      timestamp:
+        sig.timestamp &&
+        blockIDFlagFromJSON(sig.blockIdFlag) != BlockIDFlag.BLOCK_ID_FLAG_ABSENT
+          ? timestampFromDateNanos(sig.timestamp)
+          : Timestamp.fromPartial({}),
       blockIdFlag: blockIDFlagFromJSON(sig.blockIdFlag),
     }));
     const commit = Commit.fromPartial({

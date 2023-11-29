@@ -98,7 +98,7 @@ export function timestampFromDateNanos(
 ): Timestamp {
   const nanos = (date.getTime() % 1000) * 1000000 + (date.nanoseconds ?? 0);
   return date.getTime() < 0
-    ? Timestamp.fromPartial({})
+    ? Timestamp.fromPartial({}) // Should never happen
     : Timestamp.fromPartial({
         seconds: BigInt(Math.floor(date.getTime() / 1000)),
         nanos,
