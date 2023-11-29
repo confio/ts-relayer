@@ -642,9 +642,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             proofHeight: Height
           ) => {
             const key = toAscii(
-              `commitments/ports/${portId}/channels/${channelId}/sequences/${Number(
-                sequence
-              )}`
+              `commitments/ports/${portId}/channels/${channelId}/sequences/${sequence}`
             );
             const proven = await base.queryRawProof(
               'ibc',

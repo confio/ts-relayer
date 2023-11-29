@@ -1194,9 +1194,7 @@ export class IbcClient {
     for (const i in packets) {
       const packet = packets[i];
       this.logger.verbose(
-        `Sending packet #${Number(packet.sequence)} from ${this.chainId}:${
-          packet.sourceChannel
-        }`,
+        `Sending packet #${packet.sequence} from ${this.chainId}:${packet.sourceChannel}`,
         presentPacketData(packet.data)
       );
       const msg = {
@@ -1269,9 +1267,7 @@ export class IbcClient {
       const acknowledgement = acks[i].acknowledgement;
 
       this.logger.verbose(
-        `Ack packet #${Number(packet.sequence)} from ${this.chainId}:${
-          packet.sourceChannel
-        }`,
+        `Ack packet #${packet.sequence} from ${this.chainId}:${packet.sourceChannel}`,
         {
           packet: presentPacketData(packet.data),
           ack: presentPacketData(acknowledgement),
@@ -1355,9 +1351,7 @@ export class IbcClient {
     for (const i in packets) {
       const packet = packets[i];
       this.logger.verbose(
-        `Timeout packet #${Number(packet.sequence)} from ${this.chainId}:${
-          packet.sourceChannel
-        }`,
+        `Timeout packet #${packet.sequence} from ${this.chainId}:${packet.sourceChannel}`,
         presentPacketData(packet.data)
       );
 
