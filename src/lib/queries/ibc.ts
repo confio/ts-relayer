@@ -1,13 +1,13 @@
-import { toAscii } from '@cosmjs/encoding';
-import { Uint64 } from '@cosmjs/math';
+import { toAscii } from "@cosmjs/encoding";
+import { Uint64 } from "@cosmjs/math";
 import {
   createPagination,
   createProtobufRpcClient,
   QueryClient,
-} from '@cosmjs/stargate';
-import { CommitmentProof } from 'cosmjs-types/cosmos/ics23/v1/proofs';
-import { Any } from 'cosmjs-types/google/protobuf/any';
-import { Channel } from 'cosmjs-types/ibc/core/channel/v1/channel';
+} from "@cosmjs/stargate";
+import { CommitmentProof } from "cosmjs-types/cosmos/ics23/v1/proofs";
+import { Any } from "cosmjs-types/google/protobuf/any";
+import { Channel } from "cosmjs-types/ibc/core/channel/v1/channel";
 import {
   QueryClientImpl as ChannelQuery,
   QueryChannelClientStateResponse,
@@ -24,8 +24,8 @@ import {
   QueryPacketReceiptResponse,
   QueryUnreceivedAcksResponse,
   QueryUnreceivedPacketsResponse,
-} from 'cosmjs-types/ibc/core/channel/v1/query';
-import { Height } from 'cosmjs-types/ibc/core/client/v1/client';
+} from "cosmjs-types/ibc/core/channel/v1/query";
+import { Height } from "cosmjs-types/ibc/core/client/v1/client";
 import {
   QueryClientImpl as ClientQuery,
   QueryClientParamsResponse,
@@ -34,9 +34,9 @@ import {
   QueryConsensusStateRequest,
   QueryConsensusStateResponse,
   QueryConsensusStatesResponse,
-} from 'cosmjs-types/ibc/core/client/v1/query';
-import { MerkleProof } from 'cosmjs-types/ibc/core/commitment/v1/commitment';
-import { ConnectionEnd } from 'cosmjs-types/ibc/core/connection/v1/connection';
+} from "cosmjs-types/ibc/core/client/v1/query";
+import { MerkleProof } from "cosmjs-types/ibc/core/commitment/v1/commitment";
+import { ConnectionEnd } from "cosmjs-types/ibc/core/connection/v1/connection";
 import {
   QueryClientImpl as ConnectionQuery,
   QueryClientConnectionsResponse,
@@ -45,17 +45,17 @@ import {
   QueryConnectionConsensusStateResponse,
   QueryConnectionResponse,
   QueryConnectionsResponse,
-} from 'cosmjs-types/ibc/core/connection/v1/query';
+} from "cosmjs-types/ibc/core/connection/v1/query";
 import {
   ClientState as TendermintClientState,
   ConsensusState as TendermintConsensusState,
-} from 'cosmjs-types/ibc/lightclients/tendermint/v1/tendermint';
-import { ProofOps } from 'cosmjs-types/tendermint/crypto/proof';
+} from "cosmjs-types/ibc/lightclients/tendermint/v1/tendermint";
+import { ProofOps } from "cosmjs-types/tendermint/crypto/proof";
 
 function decodeTendermintClientStateAny(
   clientState: Any | undefined
 ): TendermintClientState {
-  if (clientState?.typeUrl !== '/ibc.lightclients.tendermint.v1.ClientState') {
+  if (clientState?.typeUrl !== "/ibc.lightclients.tendermint.v1.ClientState") {
     throw new Error(`Unexpected client state type: ${clientState?.typeUrl}`);
   }
   return TendermintClientState.decode(clientState.value);
@@ -65,7 +65,7 @@ function decodeTendermintConsensusStateAny(
   clientState: Any | undefined
 ): TendermintConsensusState {
   if (
-    clientState?.typeUrl !== '/ibc.lightclients.tendermint.v1.ConsensusState'
+    clientState?.typeUrl !== "/ibc.lightclients.tendermint.v1.ConsensusState"
   ) {
     throw new Error(`Unexpected client state type: ${clientState?.typeUrl}`);
   }
@@ -604,7 +604,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
               `channelEnds/ports/${portId}/channels/${channelId}`
             );
             const proven = await base.queryRawProof(
-              'ibc',
+              "ibc",
               key,
               Number(proofHeight.revisionHeight)
             );
@@ -628,7 +628,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
               `receipts/ports/${portId}/channels/${channelId}/sequences/${sequence}`
             );
             const proven = await base.queryRawProof(
-              'ibc',
+              "ibc",
               key,
               Number(proofHeight.revisionHeight)
             );
@@ -645,7 +645,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
               `commitments/ports/${portId}/channels/${channelId}/sequences/${sequence}`
             );
             const proven = await base.queryRawProof(
-              'ibc',
+              "ibc",
               key,
               Number(proofHeight.revisionHeight)
             );
@@ -667,7 +667,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
               `acks/ports/${portId}/channels/${channelId}/sequences/${sequence}`
             );
             const proven = await base.queryRawProof(
-              'ibc',
+              "ibc",
               key,
               Number(proofHeight.revisionHeight)
             );
@@ -688,13 +688,13 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
               `nextSequenceRecv/ports/${portId}/channels/${channelId}`
             );
             const proven = await base.queryRawProof(
-              'ibc',
+              "ibc",
               key,
               Number(proofHeight.revisionHeight)
             );
             const nextSequenceReceive = Uint64.fromBytes(
               [...proven.value],
-              'be'
+              "be"
             ).toBigInt();
             const proof = convertProofsToIcs23(proven.proof);
             return {
@@ -708,7 +708,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           state: async (clientId: string, proofHeight: Height) => {
             const key = `clients/${clientId}/clientState`;
             const proven = await base.queryRawProof(
-              'ibc',
+              "ibc",
               toAscii(key),
               Number(proofHeight.revisionHeight)
             );
@@ -728,7 +728,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             const height = heightQueryString(consensusHeight);
             const key = `clients/${clientId}/consensusStates/${height}`;
             const proven = await base.queryRawProof(
-              'ibc',
+              "ibc",
               toAscii(key),
               Number(proofHeight.revisionHeight)
             );
@@ -745,7 +745,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           connection: async (connectionId: string, proofHeight: Height) => {
             const key = `connections/${connectionId}`;
             const proven = await base.queryRawProof(
-              'ibc',
+              "ibc",
               toAscii(key),
               Number(proofHeight.revisionHeight)
             );

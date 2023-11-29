@@ -1,30 +1,30 @@
-import fs from 'fs';
-import os from 'os';
+import fs from "fs";
+import os from "os";
 
-import test from 'ava';
-import sinon from 'sinon';
+import test from "ava";
+import sinon from "sinon";
 
-import { testutils } from '../../../lib';
-import { IbcClient } from '../../../lib/ibcclient';
-import { Logger } from '../../create-logger';
+import { testutils } from "../../../lib";
+import { IbcClient } from "../../../lib/ibcclient";
+import { Logger } from "../../create-logger";
 
-import { run } from './balances';
-import { Options } from './keys-list';
+import { run } from "./balances";
+import { Options } from "./keys-list";
 
 const { TestLogger } = testutils;
 
-const fsReadFileSync = sinon.stub(fs, 'readFileSync');
-const consoleLog = sinon.stub(console, 'log');
+const fsReadFileSync = sinon.stub(fs, "readFileSync");
+const consoleLog = sinon.stub(console, "log");
 const mnemonic =
-  'accident harvest weasel surge source return tag supreme sorry isolate wave mammal';
+  "accident harvest weasel surge source return tag supreme sorry isolate wave mammal";
 
 function buildIbcArgs(rpc: string) {
   return [rpc, sinon.match.any, sinon.match.any, sinon.match.any] as const;
 }
-const ibcClient = sinon.stub(IbcClient, 'connectWithSigner');
-const musselnetArgs = buildIbcArgs('https://rpc.musselnet.cosmwasm.com:443');
-const localWasmArgs = buildIbcArgs('http://localhost:26659');
-const localGaiaArgs = buildIbcArgs('http://localhost:26655');
+const ibcClient = sinon.stub(IbcClient, "connectWithSigner");
+const musselnetArgs = buildIbcArgs("https://rpc.musselnet.cosmwasm.com:443");
+const localWasmArgs = buildIbcArgs("http://localhost:26659");
+const localGaiaArgs = buildIbcArgs("http://localhost:26655");
 
 async function createFakeIbcClient(amount: string, denom: string) {
   return {
@@ -71,22 +71,22 @@ chains:
     rpc:
       - http://localhost:26655`;
 
-test('lists chains with non-zero balance', async (t) => {
+test("lists chains with non-zero balance", async (t) => {
   const logger = new TestLogger();
 
   const options: Options = {
-    home: '/home/user',
+    home: "/home/user",
     mnemonic,
   };
 
   fsReadFileSync.returns(registryYaml);
   ibcClient
     .withArgs(...musselnetArgs)
-    .returns(createFakeIbcClient('1', 'musselnetdenom'))
+    .returns(createFakeIbcClient("1", "musselnetdenom"))
     .withArgs(...localWasmArgs)
-    .returns(createFakeIbcClient('2', 'wasmdenom'))
+    .returns(createFakeIbcClient("2", "wasmdenom"))
     .withArgs(...localGaiaArgs)
-    .returns(createFakeIbcClient('3', 'gaiadenom'));
+    .returns(createFakeIbcClient("3", "gaiadenom"));
 
   await run(options, logger as unknown as Logger);
 
@@ -96,31 +96,31 @@ test('lists chains with non-zero balance', async (t) => {
     consoleLog.calledWithMatch(
       new RegExp(
         [
-          'musselnet\\s+1musselnetdenom\\s+',
-          'local_wasm\\s+2wasmdenom\\s+',
-          'local_gaia\\s+3gaiadenom\\s+',
+          "musselnet\\s+1musselnetdenom\\s+",
+          "local_wasm\\s+2wasmdenom\\s+",
+          "local_gaia\\s+3gaiadenom\\s+",
         ].join(os.EOL)
       )
     )
   );
 });
 
-test('omits chains with zero balance', async (t) => {
+test("omits chains with zero balance", async (t) => {
   const logger = new TestLogger();
 
   const options: Options = {
-    home: '/home/user',
+    home: "/home/user",
     mnemonic,
   };
 
   fsReadFileSync.returns(registryYaml);
   ibcClient
     .withArgs(...musselnetArgs)
-    .returns(createFakeIbcClient('1', 'musselnetdenom'))
+    .returns(createFakeIbcClient("1", "musselnetdenom"))
     .withArgs(...localWasmArgs)
-    .returns(createFakeIbcClient('0', 'wasmdenom'))
+    .returns(createFakeIbcClient("0", "wasmdenom"))
     .withArgs(...localGaiaArgs)
-    .returns(createFakeIbcClient('3', 'gaiadenom'));
+    .returns(createFakeIbcClient("3", "gaiadenom"));
 
   await run(options, logger as unknown as Logger);
 
@@ -130,30 +130,30 @@ test('omits chains with zero balance', async (t) => {
     consoleLog.calledWithMatch(
       new RegExp(
         [
-          'musselnet\\s+1musselnetdenom\\s+',
-          'local_gaia\\s+3gaiadenom\\s+',
+          "musselnet\\s+1musselnetdenom\\s+",
+          "local_gaia\\s+3gaiadenom\\s+",
         ].join(os.EOL)
       )
     )
   );
 });
 
-test('informs when there are no funds on any balance', async (t) => {
+test("informs when there are no funds on any balance", async (t) => {
   const logger = new TestLogger();
 
   const options: Options = {
-    home: '/home/user',
+    home: "/home/user",
     mnemonic,
   };
 
   fsReadFileSync.returns(registryYaml);
   ibcClient
     .withArgs(...musselnetArgs)
-    .returns(createFakeIbcClient('0', 'musselnetdenom'))
+    .returns(createFakeIbcClient("0", "musselnetdenom"))
     .withArgs(...localWasmArgs)
-    .returns(createFakeIbcClient('0', 'wasmdenom'))
+    .returns(createFakeIbcClient("0", "wasmdenom"))
     .withArgs(...localGaiaArgs)
-    .returns(createFakeIbcClient('0', 'gaiadenom'));
+    .returns(createFakeIbcClient("0", "gaiadenom"));
 
   await run(options, logger as unknown as Logger);
 

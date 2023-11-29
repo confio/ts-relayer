@@ -1,18 +1,18 @@
-import path from 'path';
+import path from "path";
 
-import { State as ChannelState } from 'cosmjs-types/ibc/core/channel/v1/channel';
+import { State as ChannelState } from "cosmjs-types/ibc/core/channel/v1/channel";
 
-import { registryFile } from '../../constants';
-import { Logger } from '../../create-logger';
-import { borderlessTable } from '../../utils/borderless-table';
-import { generateMnemonic } from '../../utils/generate-mnemonic';
-import { loadAndValidateApp } from '../../utils/load-and-validate-app';
-import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
-import { resolveOption } from '../../utils/options/resolve-option';
-import { resolveHomeOption } from '../../utils/options/shared/resolve-home-option';
-import { resolveKeyFileOption } from '../../utils/options/shared/resolve-key-file-option';
-import { resolveMnemonicOption } from '../../utils/options/shared/resolve-mnemonic-option';
-import { signingClient } from '../../utils/signing-client';
+import { registryFile } from "../../constants";
+import { Logger } from "../../create-logger";
+import { borderlessTable } from "../../utils/borderless-table";
+import { generateMnemonic } from "../../utils/generate-mnemonic";
+import { loadAndValidateApp } from "../../utils/load-and-validate-app";
+import { loadAndValidateRegistry } from "../../utils/load-and-validate-registry";
+import { resolveOption } from "../../utils/options/resolve-option";
+import { resolveHomeOption } from "../../utils/options/shared/resolve-home-option";
+import { resolveKeyFileOption } from "../../utils/options/shared/resolve-key-file-option";
+import { resolveMnemonicOption } from "../../utils/options/shared/resolve-mnemonic-option";
+import { signingClient } from "../../utils/signing-client";
 
 export type Flags = {
   readonly home?: string;
@@ -36,12 +36,12 @@ export async function channels(flags: Flags, logger: Logger) {
   const home = resolveHomeOption({ homeFlag: flags.home });
   const app = loadAndValidateApp(home);
   const keyFile = resolveKeyFileOption({ keyFileFlag: flags.keyFile, app });
-  const chain = resolveOption('chain', { required: true })(
+  const chain = resolveOption("chain", { required: true })(
     flags.chain,
     process.env.RELAYER_CHAIN
   );
-  const port = resolveOption('port')(flags.port, process.env.RELAYER_PORT);
-  const connection = resolveOption('connection')(
+  const port = resolveOption("port")(flags.port, process.env.RELAYER_PORT);
+  const connection = resolveOption("connection")(
     flags.connection,
     process.env.RELAYER_CONNECTION
   );
@@ -70,23 +70,23 @@ export async function channels(flags: Flags, logger: Logger) {
 export function channelStateAsText(state: ChannelState) {
   switch (state) {
     case ChannelState.STATE_CLOSED:
-      return 'Closed';
+      return "Closed";
 
     case ChannelState.STATE_INIT:
-      return 'Init';
+      return "Init";
 
     case ChannelState.STATE_OPEN:
-      return 'Open';
+      return "Open";
 
     case ChannelState.STATE_TRYOPEN:
-      return 'Tryopen';
+      return "Tryopen";
 
     case ChannelState.STATE_UNINITIALIZED_UNSPECIFIED:
-      return 'UninitializedUnspecified';
+      return "UninitializedUnspecified";
 
     case ChannelState.UNRECOGNIZED:
     default:
-      return 'Unrecognized';
+      return "Unrecognized";
   }
 }
 
@@ -119,17 +119,17 @@ export async function run(options: Options, logger: Logger) {
     .map((channel) => [
       channel.channelId,
       channel.portId,
-      channel.connectionHops.join(', '),
+      channel.connectionHops.join(", "),
       channelStateAsText(channel.state),
     ]);
 
   if (!channels.length) {
     const conditionalPortInfo = options.port
       ? ` on port "${options.port}"`
-      : '';
+      : "";
     const conditionalConnectionInfo = options.connection
       ? ` with connection "${options.connection}"`
-      : '';
+      : "";
 
     console.log(
       `No channels found for chain "${options.chain}"${conditionalPortInfo}${conditionalConnectionInfo}.`
@@ -139,7 +139,7 @@ export async function run(options: Options, logger: Logger) {
   }
 
   const output = borderlessTable([
-    ['CHANNEL_ID', 'PORT', 'CONNECTION(S)', 'STATE'],
+    ["CHANNEL_ID", "PORT", "CONNECTION(S)", "STATE"],
     ...channels,
   ]);
 

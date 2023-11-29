@@ -1,8 +1,8 @@
-import { readFileSync } from 'fs';
+import { readFileSync } from "fs";
 
-import { fromUtf8 } from '@cosmjs/encoding';
+import { fromUtf8 } from "@cosmjs/encoding";
 
-import { AckWithMetadata, RelayInfo, testutils } from '..';
+import { AckWithMetadata, RelayInfo, testutils } from "..";
 const { setupWasmClient } = testutils;
 
 export async function setupContracts(
@@ -19,7 +19,7 @@ export async function setupContracts(
     const receipt = await cosmwasm.sign.upload(
       cosmwasm.senderAddress,
       wasm,
-      'auto',
+      "auto",
       `Upload ${name}`
     );
     console.debug(`Upload ${name} with CodeID: ${receipt.codeId}`);

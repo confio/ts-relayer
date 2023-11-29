@@ -1,10 +1,10 @@
-import { stringToPath } from '@cosmjs/crypto';
-import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
-import { GasPrice } from '@cosmjs/stargate';
+import { stringToPath } from "@cosmjs/crypto";
+import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
+import { GasPrice } from "@cosmjs/stargate";
 
-import { IbcClient, IbcClientOptions } from '../../lib/ibcclient';
-import { Logger } from '../../lib/logger';
-import { Chain } from '../types';
+import { IbcClient, IbcClientOptions } from "../../lib/ibcclient";
+import { Logger } from "../../lib/logger";
+import { Chain } from "../types";
 
 export async function signingClient(
   chain: Chain,
@@ -21,7 +21,7 @@ export async function signingClient(
   const { address } = (await signer.getAccounts())[0];
   // This is test timing to let us handle 250ms blocks without huge delays
   const extras =
-    process.env.NODE_ENV == 'test'
+    process.env.NODE_ENV == "test"
       ? {
           broadcastPollIntervalMs: 300,
           broadcastTimeoutMs: 2000,

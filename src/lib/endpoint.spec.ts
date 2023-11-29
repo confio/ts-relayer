@@ -1,15 +1,15 @@
-import test from 'ava';
+import test from "ava";
 
-import { gaia, ics20, randomAddress, setup, wasmd } from './helpers';
-import { Link } from './link';
-import { parseAcksFromTxEvents } from './utils';
+import { gaia, ics20, randomAddress, setup, wasmd } from "./helpers";
+import { Link } from "./link";
+import { parseAcksFromTxEvents } from "./utils";
 
-test.serial('submit multiple tx, query all packets', async (t) => {
+test.serial("submit multiple tx, query all packets", async (t) => {
   // setup a channel
   const [nodeA, nodeB] = await setup(gaia, wasmd);
   const link = await Link.createWithNewConnections(nodeA, nodeB);
   const channels = await link.createChannel(
-    'A',
+    "A",
     gaia.ics20Port,
     wasmd.ics20Port,
     ics20.ordering,

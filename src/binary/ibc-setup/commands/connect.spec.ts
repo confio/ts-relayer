@@ -1,26 +1,26 @@
-import fs from 'fs';
-import path from 'path';
+import fs from "fs";
+import path from "path";
 
-import { assert } from '@cosmjs/utils';
-import test from 'ava';
-import sinon from 'sinon';
+import { assert } from "@cosmjs/utils";
+import test from "ava";
+import sinon from "sinon";
 
-import { testutils } from '../../../lib';
-import { appFile } from '../../constants';
-import { Logger } from '../../create-logger';
-import { signingClient } from '../../utils/signing-client';
+import { testutils } from "../../../lib";
+import { appFile } from "../../constants";
+import { Logger } from "../../create-logger";
+import { signingClient } from "../../utils/signing-client";
 
-import { gaiaChain, wasmdChain } from './chains';
-import { Options, run } from './connect';
+import { gaiaChain, wasmdChain } from "./chains";
+import { Options, run } from "./connect";
 
 const { TestLogger } = testutils;
 
-const fsWriteFileSync = sinon.stub(fs, 'writeFileSync');
-const fsReadFileSync = sinon.stub(fs, 'readFileSync');
-const consoleLog = sinon.stub(console, 'log');
+const fsWriteFileSync = sinon.stub(fs, "writeFileSync");
+const fsReadFileSync = sinon.stub(fs, "readFileSync");
+const consoleLog = sinon.stub(console, "log");
 
 const mnemonic =
-  'enlist hip relief stomach skate base shallow young switch frequent cry park';
+  "enlist hip relief stomach skate base shallow young switch frequent cry park";
 
 const registryYaml = `
 version: 1
@@ -75,15 +75,15 @@ chains:
       - http://localhost:26655`;
 
 const app = {
-  src: 'local_wasm',
-  dest: 'local_gaia',
+  src: "local_wasm",
+  dest: "local_gaia",
 };
 
 test.beforeEach(() => {
   sinon.reset();
 });
 
-test.serial('connects two chains', async (t) => {
+test.serial("connects two chains", async (t) => {
   const logger = new TestLogger();
 
   const ibcClientGaia = await signingClient(gaiaChain, mnemonic);
@@ -95,10 +95,10 @@ test.serial('connects two chains', async (t) => {
     await ibcClientGaia.query.ibc.connection.allConnections();
 
   const options: Options = {
-    home: '/home/user',
+    home: "/home/user",
     mnemonic,
-    src: 'local_gaia',
-    dest: 'local_wasm',
+    src: "local_gaia",
+    dest: "local_wasm",
     srcTrust: null,
     destTrust: null,
   };
@@ -152,7 +152,7 @@ destConnection: .+
   t.assert(nextConnectionGaia.connection);
 });
 
-test.serial('connects two chains fails with too low gas', async (t) => {
+test.serial("connects two chains fails with too low gas", async (t) => {
   const logger = new TestLogger();
 
   const ibcClientGaia = await signingClient(gaiaChain, mnemonic);
@@ -164,10 +164,10 @@ test.serial('connects two chains fails with too low gas', async (t) => {
     await ibcClientGaia.query.ibc.connection.allConnections();
 
   const options: Options = {
-    home: '/home/user',
+    home: "/home/user",
     mnemonic,
-    src: 'local_gaia',
-    dest: 'local_wasm',
+    src: "local_gaia",
+    dest: "local_wasm",
     srcTrust: null,
     destTrust: null,
   };
@@ -193,7 +193,7 @@ test.serial('connects two chains fails with too low gas', async (t) => {
   );
 });
 
-test.serial('connects two chains with explicit high gas works', async (t) => {
+test.serial("connects two chains with explicit high gas works", async (t) => {
   const logger = new TestLogger();
 
   const ibcClientGaia = await signingClient(gaiaChain, mnemonic);
@@ -205,10 +205,10 @@ test.serial('connects two chains with explicit high gas works', async (t) => {
     await ibcClientGaia.query.ibc.connection.allConnections();
 
   const options: Options = {
-    home: '/home/user',
+    home: "/home/user",
     mnemonic,
-    src: 'local_gaia',
-    dest: 'local_wasm',
+    src: "local_gaia",
+    dest: "local_wasm",
     srcTrust: null,
     destTrust: null,
   };

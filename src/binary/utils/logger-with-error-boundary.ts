@@ -1,5 +1,5 @@
-import { createLogger, Logger } from '../create-logger';
-import { LoggerFlags } from '../types';
+import { createLogger, Logger } from "../create-logger";
+import { LoggerFlags } from "../types";
 
 export function loggerWithErrorBoundary<T>(
   command: (flags: T, logger: Logger) => Promise<void>

@@ -1,19 +1,19 @@
-import http from 'http';
+import http from "http";
 
-import client from 'prom-client';
+import client from "prom-client";
 
-import { Logger } from '../create-logger';
+import { Logger } from "../create-logger";
 
 let initialized = false;
 
-const prefix = 'relayer';
+const prefix = "relayer";
 const withPrefix = (name: string) => `${prefix}_${name}`;
 
 function getMetrics() {
   return {
     loopTotal: new client.Counter({
-      name: withPrefix('loop_total'),
-      help: 'Total relayer loops.',
+      name: withPrefix("loop_total"),
+      help: "Total relayer loops.",
     }),
   };
 }
@@ -43,10 +43,10 @@ export function setupPrometheus({
 
   client.collectDefaultMetrics({ prefix: `${prefix}_` });
   const server = http.createServer(async (request, response) => {
-    if (request.method === 'GET' && request.url === '/metrics') {
+    if (request.method === "GET" && request.url === "/metrics") {
       const metrics = await client.register.metrics();
       response.writeHead(200, {
-        'Content-Type': client.register.contentType,
+        "Content-Type": client.register.contentType,
       });
       response.end(metrics);
 
@@ -54,7 +54,7 @@ export function setupPrometheus({
     }
 
     response.writeHead(404);
-    response.end('404');
+    response.end("404");
   });
   server.listen(port);
   logger.info(`Prometheus GET /metrics exposed on port ${port}.`);

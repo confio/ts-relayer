@@ -1,6 +1,6 @@
-import { assert } from '@cosmjs/utils';
-import test from 'ava';
-import { State } from 'cosmjs-types/ibc/core/channel/v1/channel';
+import { assert } from "@cosmjs/utils";
+import test from "ava";
+import { State } from "cosmjs-types/ibc/core/channel/v1/channel";
 
 import {
   gaia,
@@ -10,30 +10,30 @@ import {
   TestLogger,
   transferTokens,
   wasmd,
-} from './helpers';
-import { prepareChannelHandshake } from './ibcclient';
-import { Link, RelayedHeights } from './link';
-import { secondsFromDateNanos, splitPendingPackets } from './utils';
+} from "./helpers";
+import { prepareChannelHandshake } from "./ibcclient";
+import { Link, RelayedHeights } from "./link";
+import { secondsFromDateNanos, splitPendingPackets } from "./utils";
 
-test.serial('establish new client-connection', async (t) => {
+test.serial("establish new client-connection", async (t) => {
   const logger = new TestLogger();
   const [src, dest] = await setup(gaia, wasmd);
 
   const link = await Link.createWithNewConnections(src, dest, logger);
   // ensure the data makes sense (TODO: more?)
-  t.assert(link.endA.clientID.startsWith('07-tendermint-'), link.endA.clientID);
-  t.assert(link.endB.clientID.startsWith('07-tendermint-'), link.endB.clientID);
+  t.assert(link.endA.clientID.startsWith("07-tendermint-"), link.endA.clientID);
+  t.assert(link.endB.clientID.startsWith("07-tendermint-"), link.endB.clientID);
 
   // try to update both clients, ensuring this connection is stable
-  await link.updateClient('A');
+  await link.updateClient("A");
   // TODO: ensure it is updated
-  await link.updateClient('B');
+  await link.updateClient("B");
   // TODO: ensure it is updated
 
   t.assert(logger.info.calledTwice, logger.info.callCount.toString());
 });
 
-test.serial('initialized connection and start channel handshake', async (t) => {
+test.serial("initialized connection and start channel handshake", async (t) => {
   const [src, dest] = await setup(gaia, wasmd);
   const link = await Link.createWithNewConnections(src, dest);
 
@@ -57,7 +57,7 @@ test.serial('initialized connection and start channel handshake', async (t) => {
       wasmd.ics20Port,
       ics20.ordering,
       link.endA.connectionID,
-      'ics27'
+      "ics27"
     )
   );
   // we need to wait a block for a new checkTx state, and proper sequences
@@ -71,11 +71,11 @@ test.serial('initialized connection and start channel handshake', async (t) => {
     link.endA.connectionID,
     ics20.version
   );
-  t.assert(channelIdSrc.startsWith('channel-'), channelIdSrc);
+  t.assert(channelIdSrc.startsWith("channel-"), channelIdSrc);
 });
 
 test.serial(
-  'automated channel handshake on initialized connection',
+  "automated channel handshake on initialized connection",
   async (t) => {
     const [nodeA, nodeB] = await setup(gaia, wasmd);
     const link = await Link.createWithNewConnections(nodeA, nodeB);
@@ -91,7 +91,7 @@ test.serial(
 
     // open a channel
     const channels = await link.createChannel(
-      'A',
+      "A",
       gaia.ics20Port,
       wasmd.ics20Port,
       ics20.ordering,
@@ -117,7 +117,7 @@ test.serial(
 
 // createWithExistingConnections
 
-test.serial('reuse existing connections', async (t) => {
+test.serial("reuse existing connections", async (t) => {
   const [src, dest] = await setup(gaia, wasmd);
 
   const oldLink = await Link.createWithNewConnections(src, dest);
@@ -125,7 +125,7 @@ test.serial('reuse existing connections', async (t) => {
   const connB = oldLink.endB.connectionID;
 
   const oldChannels = await oldLink.createChannel(
-    'A',
+    "A",
     gaia.ics20Port,
     wasmd.ics20Port,
     ics20.ordering,
@@ -157,7 +157,7 @@ test.serial('reuse existing connections', async (t) => {
   // Check everything is fine by creating a new channel
   // switch src and dest just to test another path
   const newChannels = await newLink.createChannel(
-    'B',
+    "B",
     wasmd.ics20Port,
     gaia.ics20Port,
     ics20.ordering,
@@ -167,7 +167,7 @@ test.serial('reuse existing connections', async (t) => {
 });
 
 test.serial(
-  'reuse existing connections with partially open channel',
+  "reuse existing connections with partially open channel",
   async (t) => {
     const [src, dest] = await setup(gaia, wasmd);
 
@@ -212,7 +212,7 @@ test.serial(
     t.is(channelSrc.channel?.state, State.STATE_INIT);
     t.is(channelSrc.channel?.ordering, ics20.ordering);
     // Counterparty channel ID not yet known
-    t.is(channelSrc.channel?.counterparty?.channelId, '');
+    t.is(channelSrc.channel?.counterparty?.channelId, "");
     const channelDest = await newLink.endB.client.query.ibc.channel.channel(
       wasmd.ics20Port,
       destChannelId
@@ -224,7 +224,7 @@ test.serial(
     // Check everything is fine by creating a new channel
     // switch src and dest just to test another path
     const newChannels = await newLink.createChannel(
-      'B',
+      "B",
       wasmd.ics20Port,
       gaia.ics20Port,
       ics20.ordering,
@@ -237,14 +237,14 @@ test.serial(
   }
 );
 
-test.serial('errors when reusing an invalid connection', async (t) => {
+test.serial("errors when reusing an invalid connection", async (t) => {
   const [src, dest] = await setup(gaia, wasmd);
 
   // Make sure valid connections do exist
   await Link.createWithNewConnections(src, dest);
 
-  const connA = 'whatever';
-  const connB = 'unreal';
+  const connA = "whatever";
+  const connB = "unreal";
   await t.throwsAsync(() =>
     Link.createWithExistingConnections(src, dest, connA, connB)
   );
@@ -274,12 +274,12 @@ test.serial(`errors when reusing connections which don’t match`, async (t) => 
   );
 });
 
-test.serial('submit multiple tx, get unreceived packets', async (t) => {
+test.serial("submit multiple tx, get unreceived packets", async (t) => {
   // setup a channel
   const [nodeA, nodeB] = await setup(gaia, wasmd);
   const link = await Link.createWithNewConnections(nodeA, nodeB);
   const channels = await link.createChannel(
-    'A',
+    "A",
     gaia.ics20Port,
     wasmd.ics20Port,
     ics20.ordering,
@@ -307,7 +307,7 @@ test.serial('submit multiple tx, get unreceived packets', async (t) => {
   await nodeA.waitOneBlock();
 
   // now query for all packets
-  const packets = await link.getPendingPackets('A');
+  const packets = await link.getPendingPackets("A");
   t.is(packets.length, 3);
   t.deepEqual(
     packets.map(({ height }) => height),
@@ -315,55 +315,55 @@ test.serial('submit multiple tx, get unreceived packets', async (t) => {
   );
 
   // ensure no acks yet
-  const preAcks = await link.getPendingAcks('B');
+  const preAcks = await link.getPendingAcks("B");
   t.is(preAcks.length, 0);
 
   // let's pre-update to test conditional logic (no need to update below)
   await nodeA.waitOneBlock();
-  await link.updateClient('A');
+  await link.updateClient("A");
 
   // submit 2 of them (out of order)
   const submit = [packets[0], packets[2]];
-  const txAcks = await link.relayPackets('A', submit);
+  const txAcks = await link.relayPackets("A", submit);
   t.is(txAcks.length, 2);
   // need to wait briefly for it to be indexed
   await nodeA.waitOneBlock();
 
   // ensure only one marked pending (for tx1)
-  const postPackets = await link.getPendingPackets('A');
+  const postPackets = await link.getPendingPackets("A");
   t.is(postPackets.length, 1);
   t.is(postPackets[0].height, txHeights[1]);
 
   // ensure acks can be queried
-  const acks = await link.getPendingAcks('B');
+  const acks = await link.getPendingAcks("B");
   t.is(acks.length, 2);
 
   // submit one of the acks, without waiting (it must update client)
-  await link.relayAcks('B', acks.slice(0, 1));
+  await link.relayAcks("B", acks.slice(0, 1));
 
   // ensure only one ack is still pending
-  const postAcks = await link.getPendingAcks('B');
+  const postAcks = await link.getPendingAcks("B");
   t.is(postAcks.length, 1);
   // and it matches the one we did not send
   t.deepEqual(postAcks[0], acks[1]);
 });
 
 test.serial(
-  'submit multiple tx on multiple channels, get unreceived packets',
+  "submit multiple tx on multiple channels, get unreceived packets",
   async (t) => {
     const logger = new TestLogger();
     // setup a channel
     const [nodeA, nodeB] = await setup(gaia, wasmd, logger);
     const link = await Link.createWithNewConnections(nodeA, nodeB, logger);
     const channels1 = await link.createChannel(
-      'A',
+      "A",
       gaia.ics20Port,
       wasmd.ics20Port,
       ics20.ordering,
       ics20.version
     );
     const channels2 = await link.createChannel(
-      'A',
+      "A",
       gaia.ics20Port,
       wasmd.ics20Port,
       ics20.ordering,
@@ -407,7 +407,7 @@ test.serial(
     await nodeA.waitForIndexer();
 
     // now query for all packets, ensuring we mapped the channels properly
-    const packets = await link.getPendingPackets('A');
+    const packets = await link.getPendingPackets("A");
     t.is(packets.length, 6);
     t.deepEqual(
       packets.map(({ height, packet }) => ({
@@ -418,23 +418,23 @@ test.serial(
     );
 
     // ensure no acks yet
-    const preAcks = await link.getPendingAcks('B');
+    const preAcks = await link.getPendingAcks("B");
     t.is(preAcks.length, 0);
 
     // submit 4 of them (out of order) - make sure not to use same sequences on both sides
     const packetsToSubmit = [packets[0], packets[1], packets[4], packets[5]];
-    const txAcks = await link.relayPackets('A', packetsToSubmit);
+    const txAcks = await link.relayPackets("A", packetsToSubmit);
     t.is(txAcks.length, 4);
     await nodeA.waitOneBlock();
 
     // ensure only two marked pending (for tx1)
-    const postPackets = await link.getPendingPackets('A');
+    const postPackets = await link.getPendingPackets("A");
     t.is(postPackets.length, 2);
     t.is(postPackets[0].height, txHeights.channels1[2].height);
     t.is(postPackets[1].height, txHeights.channels2[0].height);
 
     // ensure acks can be queried
-    const acks = await link.getPendingAcks('B');
+    const acks = await link.getPendingAcks("B");
     t.is(acks.length, 4);
 
     // make sure we ack on different channels (and different sequences)
@@ -443,11 +443,11 @@ test.serial(
       acks[3].originalPacket.sourceChannel
     );
     t.not(acks[0].originalPacket.sequence, acks[3].originalPacket.sequence);
-    await link.relayAcks('B', [acks[0], acks[3]]);
+    await link.relayAcks("B", [acks[0], acks[3]]);
     await nodeA.waitOneBlock();
 
     // ensure only two acks are still pending
-    const postAcks = await link.getPendingAcks('B');
+    const postAcks = await link.getPendingAcks("B");
     t.is(postAcks.length, 2);
     // and it matches the ones we did not send
     t.deepEqual(postAcks[0], acks[1]);
@@ -456,7 +456,7 @@ test.serial(
 );
 
 test.serial(
-  'updateClientIfStale only runs if it is too long since an update',
+  "updateClientIfStale only runs if it is too long since an update",
   async (t) => {
     // setup
     const logger = new TestLogger();
@@ -473,30 +473,30 @@ test.serial(
     }
 
     // we definitely have updated within the last 1000 seconds, this should do nothing
-    const noUpdateA = await link.updateClientIfStale('A', 1000);
+    const noUpdateA = await link.updateClientIfStale("A", 1000);
     t.is(noUpdateA, null);
-    const noUpdateB = await link.updateClientIfStale('B', 1000);
+    const noUpdateB = await link.updateClientIfStale("B", 1000);
     t.is(noUpdateB, null);
 
     // we haven't updated in the last 2 seconds, this should trigger the update
-    const updateA = await link.updateClientIfStale('A', 2);
+    const updateA = await link.updateClientIfStale("A", 2);
     assert(updateA);
     t.assert(Number(updateA.revisionHeight) > heightA);
-    const updateB = await link.updateClientIfStale('B', 2);
+    const updateB = await link.updateClientIfStale("B", 2);
     assert(updateB);
     t.assert(Number(updateB.revisionHeight) > heightB);
   }
 );
 
 test.serial(
-  'checkAndRelayPacketsAndAcks relays packets properly',
+  "checkAndRelayPacketsAndAcks relays packets properly",
   async (t) => {
     const logger = new TestLogger();
     const [nodeA, nodeB] = await setup(gaia, wasmd, logger);
 
     const link = await Link.createWithNewConnections(nodeA, nodeB, logger);
     const channels = await link.createChannel(
-      'A',
+      "A",
       gaia.ics20Port,
       wasmd.ics20Port,
       ics20.ordering,
@@ -509,14 +509,14 @@ test.serial(
       ackA: number,
       ackB: number
     ) => {
-      const packetsA = await link.getPendingPackets('A');
+      const packetsA = await link.getPendingPackets("A");
       t.is(packetsA.length, packA);
-      const packetsB = await link.getPendingPackets('B');
+      const packetsB = await link.getPendingPackets("B");
       t.is(packetsB.length, packB);
 
-      const acksA = await link.getPendingAcks('A');
+      const acksA = await link.getPendingAcks("A");
       t.is(acksA.length, ackA);
-      const acksB = await link.getPendingAcks('B');
+      const acksB = await link.getPendingAcks("B");
       t.is(acksB.length, ackB);
     };
 
@@ -588,13 +588,13 @@ test.serial(
   }
 );
 
-test.serial('timeout expired packets', async (t) => {
+test.serial("timeout expired packets", async (t) => {
   const logger = new TestLogger();
   const [nodeA, nodeB] = await setup(gaia, wasmd, logger);
 
   const link = await Link.createWithNewConnections(nodeA, nodeB, logger);
   const channels = await link.createChannel(
-    'A',
+    "A",
     gaia.ics20Port,
     wasmd.ics20Port,
     ics20.ordering,
@@ -642,7 +642,7 @@ test.serial('timeout expired packets', async (t) => {
   await nodeA.waitForIndexer();
 
   // now query for all packets
-  const packets = await link.getPendingPackets('A');
+  const packets = await link.getPendingPackets("A");
   t.is(packets.length, 3);
   t.deepEqual(
     packets.map(({ height }) => height),
@@ -650,7 +650,7 @@ test.serial('timeout expired packets', async (t) => {
   );
 
   // ensure no acks yet
-  const preAcks = await link.getPendingAcks('B');
+  const preAcks = await link.getPendingAcks("B");
   t.is(preAcks.length, 0);
 
   // wait to trigger timeout
@@ -671,20 +671,20 @@ test.serial('timeout expired packets', async (t) => {
   t.is(toTimeout.length, 2);
 
   // submit the ones which didn't timeout
-  const txAcks = await link.relayPackets('A', toSubmit);
+  const txAcks = await link.relayPackets("A", toSubmit);
   t.is(txAcks.length, 1);
 
   // one completed after relay
-  const afterRelay = await link.getPendingPackets('A');
+  const afterRelay = await link.getPendingPackets("A");
   t.is(afterRelay.length, 2);
 
   // try to submit the one which did timeout
-  await t.throwsAsync(() => link.relayPackets('A', toTimeout));
+  await t.throwsAsync(() => link.relayPackets("A", toTimeout));
 
   // timeout remaining packet
-  await link.timeoutPackets('A', toTimeout);
+  await link.timeoutPackets("A", toTimeout);
 
   // nothing left after timeout
-  const afterTimeout = await link.getPendingPackets('A');
+  const afterTimeout = await link.getPendingPackets("A");
   t.is(afterTimeout.length, 0);
 });

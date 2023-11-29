@@ -1,27 +1,27 @@
-import fs from 'fs';
-import path from 'path';
+import fs from "fs";
+import path from "path";
 
-import { assert } from '@cosmjs/utils';
-import test from 'ava';
-import sinon from 'sinon';
+import { assert } from "@cosmjs/utils";
+import test from "ava";
+import sinon from "sinon";
 
-import { testutils } from '../../../lib';
-import { Link } from '../../../lib/link';
-import { appFile } from '../../constants';
-import { Logger } from '../../create-logger';
-import { signingClient } from '../../utils/signing-client';
+import { testutils } from "../../../lib";
+import { Link } from "../../../lib/link";
+import { appFile } from "../../constants";
+import { Logger } from "../../create-logger";
+import { signingClient } from "../../utils/signing-client";
 
-import { gaiaChain, wasmdChain } from './chains';
-import { Options, run } from './ics20';
+import { gaiaChain, wasmdChain } from "./chains";
+import { Options, run } from "./ics20";
 
 const { TestLogger } = testutils;
 
-const fsWriteFileSync = sinon.stub(fs, 'writeFileSync');
-const fsReadFileSync = sinon.stub(fs, 'readFileSync');
-const consoleLog = sinon.stub(console, 'log');
+const fsWriteFileSync = sinon.stub(fs, "writeFileSync");
+const fsReadFileSync = sinon.stub(fs, "readFileSync");
+const consoleLog = sinon.stub(console, "log");
 
 const mnemonic =
-  'enlist hip relief stomach skate base shallow young switch frequent cry park';
+  "enlist hip relief stomach skate base shallow young switch frequent cry park";
 
 const registryYaml = `
 version: 1
@@ -41,15 +41,15 @@ chains:
       - http://localhost:26655`;
 
 const app = {
-  src: 'local_wasm',
-  dest: 'local_gaia',
+  src: "local_wasm",
+  dest: "local_gaia",
 };
 
 test.beforeEach(() => {
   sinon.reset();
 });
 
-test.serial('ics20 create channels with new connection', async (t) => {
+test.serial("ics20 create channels with new connection", async (t) => {
   const logger = new TestLogger();
 
   const ibcClientGaia = await signingClient(gaiaChain, mnemonic);
@@ -61,12 +61,12 @@ test.serial('ics20 create channels with new connection', async (t) => {
     await ibcClientGaia.query.ibc.connection.allConnections();
 
   const options: Options = {
-    home: '/home/user',
+    home: "/home/user",
     mnemonic,
-    src: 'local_wasm',
-    dest: 'local_gaia',
-    srcPort: 'transfer',
-    destPort: 'custom',
+    src: "local_wasm",
+    dest: "local_gaia",
+    srcPort: "transfer",
+    destPort: "custom",
     connections: null,
     srcTrust: null,
     destTrust: null,
@@ -122,7 +122,7 @@ destConnection: .+
   t.assert(nextConnectionGaia.connection);
 });
 
-test.serial('ics20 create channels with existing connection', async (t) => {
+test.serial("ics20 create channels with existing connection", async (t) => {
   const logger = new TestLogger();
 
   const ibcClientGaia = await signingClient(gaiaChain, mnemonic);
@@ -138,12 +138,12 @@ test.serial('ics20 create channels with existing connection', async (t) => {
     await ibcClientWasm.query.ibc.connection.allConnections();
 
   const options: Options = {
-    home: '/home/user',
+    home: "/home/user",
     mnemonic,
-    src: 'local_wasm',
-    dest: 'local_gaia',
-    srcPort: 'transfer',
-    destPort: 'custom',
+    src: "local_wasm",
+    dest: "local_gaia",
+    srcPort: "transfer",
+    destPort: "custom",
     connections: {
       src: link.endA.connectionID,
       dest: link.endB.connectionID,

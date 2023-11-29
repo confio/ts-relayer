@@ -1,40 +1,40 @@
-import { arrayContentEquals, isDefined } from '@cosmjs/utils';
-import { Order, Packet, State } from 'cosmjs-types/ibc/core/channel/v1/channel';
-import { Height } from 'cosmjs-types/ibc/core/client/v1/client';
+import { arrayContentEquals, isDefined } from "@cosmjs/utils";
+import { Order, Packet, State } from "cosmjs-types/ibc/core/channel/v1/channel";
+import { Height } from "cosmjs-types/ibc/core/client/v1/client";
 
 import {
   AckWithMetadata,
   Endpoint,
   PacketWithMetadata,
   QueryOpts,
-} from './endpoint';
+} from "./endpoint";
 import {
   buildCreateClientArgs,
   ChannelInfo,
   IbcClient,
   prepareChannelHandshake,
   prepareConnectionHandshake,
-} from './ibcclient';
-import { Logger, NoopLogger } from './logger';
+} from "./ibcclient";
+import { Logger, NoopLogger } from "./logger";
 import {
   parseAcksFromTxEvents,
   secondsFromDateNanos,
   splitPendingPackets,
   timestampFromDateNanos,
   toIntHeight,
-} from './utils';
+} from "./utils";
 
 /**
  * Many actions on link focus on a src and a dest. Rather than add two functions,
  * we have `Side` to select if we initialize from A or B.
  */
-export type Side = 'A' | 'B';
+export type Side = "A" | "B";
 
 export function otherSide(side: Side): Side {
-  if (side === 'A') {
-    return 'B';
+  if (side === "A") {
+    return "B";
   } else {
-    return 'A';
+    return "A";
   }
 }
 
@@ -77,7 +77,7 @@ export class Link {
   private packetFilter: PacketFilter | null = null;
 
   private chain(side: Side): string {
-    if (side === 'A') {
+    if (side === "A") {
       return this.chainA;
     } else {
       return this.chainB;
@@ -93,7 +93,7 @@ export class Link {
   }
 
   private otherChain(side: Side): string {
-    if (side === 'A') {
+    if (side === "A") {
       return this.chainB;
     } else {
       return this.chainA;
@@ -181,12 +181,12 @@ export class Link {
 
     await Promise.all([
       link.assertHeadersMatchConsensusState(
-        'A',
+        "A",
         clientIdA,
         clientStateA.latestHeight
       ),
       link.assertHeadersMatchConsensusState(
-        'B',
+        "B",
         clientIdB,
         clientStateB.latestHeight
       ),
@@ -502,7 +502,7 @@ export class Link {
       timedoutThresholdBlocks,
       timedoutThresholdSeconds
     );
-    this.logger.verbose('next heights to relay', heights as any); // eslint-disable-line @typescript-eslint/no-explicit-any
+    this.logger.verbose("next heights to relay", heights as any); // eslint-disable-line @typescript-eslint/no-explicit-any
     return heights;
   }
 
@@ -516,8 +516,8 @@ export class Link {
       await Promise.all([
         this.endA.client.currentHeight(),
         this.endB.client.currentHeight(),
-        this.getPendingPackets('A', { minHeight: relayFrom.packetHeightA }),
-        this.getPendingPackets('B', { minHeight: relayFrom.packetHeightB }),
+        this.getPendingPackets("A", { minHeight: relayFrom.packetHeightA }),
+        this.getPendingPackets("B", { minHeight: relayFrom.packetHeightB }),
       ]);
 
     const filteredPacketsA =
@@ -555,8 +555,8 @@ export class Link {
 
     // FIXME: use the returned acks first? Then query for others?
     await Promise.all([
-      this.relayPackets('A', submitA),
-      this.relayPackets('B', submitB),
+      this.relayPackets("A", submitA),
+      this.relayPackets("B", submitB),
     ]);
 
     // let's wait a bit to ensure our newly committed acks are indexed
@@ -568,15 +568,15 @@ export class Link {
     const [ackHeightA, ackHeightB, acksA, acksB] = await Promise.all([
       this.endA.client.currentHeight(),
       this.endB.client.currentHeight(),
-      this.getPendingAcks('A', { minHeight: relayFrom.ackHeightA }),
-      this.getPendingAcks('B', { minHeight: relayFrom.ackHeightB }),
+      this.getPendingAcks("A", { minHeight: relayFrom.ackHeightA }),
+      this.getPendingAcks("B", { minHeight: relayFrom.ackHeightB }),
     ]);
 
-    await Promise.all([this.relayAcks('A', acksA), this.relayAcks('B', acksB)]);
+    await Promise.all([this.relayAcks("A", acksA), this.relayAcks("B", acksB)]);
 
     await Promise.all([
-      this.timeoutPackets('A', timeoutA),
-      this.timeoutPackets('B', timeoutB),
+      this.timeoutPackets("A", timeoutA),
+      this.timeoutPackets("B", timeoutB),
     ]);
 
     const heights = {
@@ -849,7 +849,7 @@ export class Link {
   }
 
   private getEnds(src: Side): EndpointPair {
-    if (src === 'A') {
+    if (src === "A") {
       return {
         src: this.endA,
         dest: this.endB,
@@ -863,7 +863,7 @@ export class Link {
   }
 }
 
-const idDelim = ':';
+const idDelim = ":";
 const packetId = (packet: Packet) =>
   `${packet.destinationPort}${idDelim}${packet.destinationChannel}`;
 const ackId = (packet: Packet) =>

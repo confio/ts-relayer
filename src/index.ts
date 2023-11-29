@@ -9,6 +9,6 @@ export {
   RelayInfo,
   RelayedHeights,
   testutils,
-} from './lib';
+} from "./lib";
 
-export { setupContracts } from './cw20';
+export { setupContracts } from "./cw20";

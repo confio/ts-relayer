@@ -3,16 +3,16 @@
 import {
   SigningCosmWasmClient,
   SigningCosmWasmClientOptions,
-} from '@cosmjs/cosmwasm-stargate';
-import { Bip39, Random } from '@cosmjs/crypto';
-import { toBech32 } from '@cosmjs/encoding';
-import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
-import { GasPrice, StargateClient } from '@cosmjs/stargate';
-import { Order } from 'cosmjs-types/ibc/core/channel/v1/channel';
-import sinon, { SinonSpy } from 'sinon';
+} from "@cosmjs/cosmwasm-stargate";
+import { Bip39, Random } from "@cosmjs/crypto";
+import { toBech32 } from "@cosmjs/encoding";
+import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
+import { GasPrice, StargateClient } from "@cosmjs/stargate";
+import { Order } from "cosmjs-types/ibc/core/channel/v1/channel";
+import sinon, { SinonSpy } from "sinon";
 
-import { ChannelInfo, IbcClient, IbcClientOptions } from './ibcclient';
-import { Logger, LogMethod } from './logger';
+import { ChannelInfo, IbcClient, IbcClientOptions } from "./ibcclient";
+import { Logger, LogMethod } from "./logger";
 
 export class TestLogger implements Logger {
   public readonly error: SinonSpy & LogMethod;
@@ -66,70 +66,70 @@ export interface ChainDefinition {
 }
 
 export const gaia: ChainDefinition = {
-  tendermintUrlWs: 'ws://localhost:26655',
-  tendermintUrlHttp: 'http://localhost:26655',
-  chainId: 'gaia-test',
-  prefix: 'cosmos',
-  denomStaking: 'uatom',
-  denomFee: 'uatom',
-  minFee: '0.025uatom',
+  tendermintUrlWs: "ws://localhost:26655",
+  tendermintUrlHttp: "http://localhost:26655",
+  chainId: "gaia-test",
+  prefix: "cosmos",
+  denomStaking: "uatom",
+  denomFee: "uatom",
+  minFee: "0.025uatom",
   blockTime: 250, // ms
   faucet: {
     mnemonic:
-      'economy stock theory fatal elder harbor betray wasp final emotion task crumble siren bottom lizard educate guess current outdoor pair theory focus wife stone',
+      "economy stock theory fatal elder harbor betray wasp final emotion task crumble siren bottom lizard educate guess current outdoor pair theory focus wife stone",
     pubkey0: {
-      type: 'tendermint/PubKeySecp256k1',
-      value: 'A08EGB7ro1ORuFhjOnZcSgwYlpe0DSFjVNUIkNNQxwKQ',
+      type: "tendermint/PubKeySecp256k1",
+      value: "A08EGB7ro1ORuFhjOnZcSgwYlpe0DSFjVNUIkNNQxwKQ",
     },
-    address0: 'cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6',
+    address0: "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6",
   },
-  ics20Port: 'custom',
+  ics20Port: "custom",
   estimatedBlockTime: 400,
   estimatedIndexerTime: 80,
 };
 
 export const wasmd: ChainDefinition = {
-  tendermintUrlWs: 'ws://localhost:26659',
-  tendermintUrlHttp: 'http://localhost:26659',
-  chainId: 'testing',
-  prefix: 'wasm',
-  denomStaking: 'ustake',
-  denomFee: 'ucosm',
-  minFee: '0.025ucosm',
+  tendermintUrlWs: "ws://localhost:26659",
+  tendermintUrlHttp: "http://localhost:26659",
+  chainId: "testing",
+  prefix: "wasm",
+  denomStaking: "ustake",
+  denomFee: "ucosm",
+  minFee: "0.025ucosm",
   blockTime: 250, // ms
   faucet: {
     mnemonic:
-      'enlist hip relief stomach skate base shallow young switch frequent cry park',
+      "enlist hip relief stomach skate base shallow young switch frequent cry park",
     pubkey0: {
-      type: 'tendermint/PubKeySecp256k1',
-      value: 'A9cXhWb8ZpqCzkA8dQCPV29KdeRLV3rUYxrkHudLbQtS',
+      type: "tendermint/PubKeySecp256k1",
+      value: "A9cXhWb8ZpqCzkA8dQCPV29KdeRLV3rUYxrkHudLbQtS",
     },
-    address0: 'wasm14qemq0vw6y3gc3u3e0aty2e764u4gs5lndxgyk',
+    address0: "wasm14qemq0vw6y3gc3u3e0aty2e764u4gs5lndxgyk",
   },
-  ics20Port: 'transfer',
+  ics20Port: "transfer",
   estimatedBlockTime: 400,
   estimatedIndexerTime: 80,
 };
 
 export const osmosis: ChainDefinition = {
-  tendermintUrlWs: 'ws://localhost:26653',
-  tendermintUrlHttp: 'http://localhost:26653',
-  chainId: 'osmo-testing',
-  prefix: 'osmo',
-  denomStaking: 'uosmo',
-  denomFee: 'uosmo',
-  minFee: '0uosmo',
+  tendermintUrlWs: "ws://localhost:26653",
+  tendermintUrlHttp: "http://localhost:26653",
+  chainId: "osmo-testing",
+  prefix: "osmo",
+  denomStaking: "uosmo",
+  denomFee: "uosmo",
+  minFee: "0uosmo",
   blockTime: 250, // ms
   faucet: {
     mnemonic:
-      'remain fragile remove stamp quiz bus country dress critic mammal office need',
+      "remain fragile remove stamp quiz bus country dress critic mammal office need",
     pubkey0: {
-      type: 'tendermint/PubKeySecp256k1',
-      value: 'A0d/GxY+UALE+miWJP0qyq4/EayG1G6tsg24v+cbD6By',
+      type: "tendermint/PubKeySecp256k1",
+      value: "A0d/GxY+UALE+miWJP0qyq4/EayG1G6tsg24v+cbD6By",
     },
-    address0: 'osmo1lvrwcvrqlc5ktzp2c4t22xgkx29q3y83hdcc5d',
+    address0: "osmo1lvrwcvrqlc5ktzp2c4t22xgkx29q3y83hdcc5d",
   },
-  ics20Port: 'transfer',
+  ics20Port: "transfer",
   estimatedBlockTime: 400,
   estimatedIndexerTime: 80,
 };
@@ -137,7 +137,7 @@ export const osmosis: ChainDefinition = {
 // constants for this transport protocol
 // look at ChainDefinitions to find standard ics20 port
 export const ics20 = {
-  version: 'ics20-1',
+  version: "ics20-1",
   ordering: Order.ORDER_UNORDERED,
 };
 
@@ -169,7 +169,7 @@ function extras(): {
   broadcastTimeoutMs?: number;
 } {
   const extras =
-    process.env.NODE_ENV == 'test'
+    process.env.NODE_ENV == "test"
       ? {
           // This is just for tests - don't add this in production code
           broadcastPollIntervalMs: 300,
@@ -239,8 +239,8 @@ export async function setup(
   const mnemonic = generateMnemonic();
   const src = await signingClient(srcConfig, mnemonic, logger);
   const dest = await signingClient(destConfig, mnemonic, logger);
-  await fundAccount(destConfig, dest.senderAddress, '4000000');
-  await fundAccount(srcConfig, src.senderAddress, '4000000');
+  await fundAccount(destConfig, dest.senderAddress, "4000000");
+  await fundAccount(srcConfig, src.senderAddress, "4000000");
   return [src, dest];
 }
 
@@ -254,7 +254,7 @@ export async function setupWasmClient(): Promise<CosmWasmSigner> {
   // create apps and fund an account
   const mnemonic = generateMnemonic();
   const cosmwasm = await signingCosmWasmClient(wasmd, mnemonic);
-  await fundAccount(wasmd, cosmwasm.senderAddress, '4000000');
+  await fundAccount(wasmd, cosmwasm.senderAddress, "4000000");
   return cosmwasm;
 }
 

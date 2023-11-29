@@ -1,19 +1,19 @@
-import path from 'path';
+import path from "path";
 
-import { GasPrice } from '@cosmjs/stargate';
-import { Coin } from 'cosmjs-types/cosmos/base/v1beta1/coin';
+import { GasPrice } from "@cosmjs/stargate";
+import { Coin } from "cosmjs-types/cosmos/base/v1beta1/coin";
 
-import { registryFile } from '../../constants';
-import { Logger } from '../../create-logger';
-import { borderlessTable } from '../../utils/borderless-table';
-import { loadAndValidateApp } from '../../utils/load-and-validate-app';
-import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
-import { resolveHomeOption } from '../../utils/options/shared/resolve-home-option';
-import { resolveKeyFileOption } from '../../utils/options/shared/resolve-key-file-option';
-import { resolveMnemonicOption } from '../../utils/options/shared/resolve-mnemonic-option';
-import { signingClient } from '../../utils/signing-client';
+import { registryFile } from "../../constants";
+import { Logger } from "../../create-logger";
+import { borderlessTable } from "../../utils/borderless-table";
+import { loadAndValidateApp } from "../../utils/load-and-validate-app";
+import { loadAndValidateRegistry } from "../../utils/load-and-validate-registry";
+import { resolveHomeOption } from "../../utils/options/shared/resolve-home-option";
+import { resolveKeyFileOption } from "../../utils/options/shared/resolve-key-file-option";
+import { resolveMnemonicOption } from "../../utils/options/shared/resolve-mnemonic-option";
+import { signingClient } from "../../utils/signing-client";
 
-import { Flags, getAddresses, Options } from './keys-list';
+import { Flags, getAddresses, Options } from "./keys-list";
 
 export async function balances(flags: Flags, logger: Logger) {
   const home = resolveHomeOption({ homeFlag: flags.home });
@@ -55,7 +55,7 @@ export async function run(options: Options, logger: Logger) {
     )
   )
     .filter((result): result is PromiseFulfilledResult<[string, Coin]> => {
-      if (result.status === 'rejected') {
+      if (result.status === "rejected") {
         logger.error(result.reason);
         return false;
       }
@@ -63,13 +63,13 @@ export async function run(options: Options, logger: Logger) {
       return true;
     })
     .map((result) => result.value)
-    .filter(([, coin]) => coin.amount !== '0')
+    .filter(([, coin]) => coin.amount !== "0")
     .map(([chain, coin]) => [chain, `${coin.amount}${coin.denom}`]);
 
   if (!balances.length) {
-    console.log('No funds found for default denomination on any chain.');
+    console.log("No funds found for default denomination on any chain.");
     return;
   }
 
-  console.log(borderlessTable([['CHAIN', 'AMOUNT'], ...balances]));
+  console.log(borderlessTable([["CHAIN", "AMOUNT"], ...balances]));
 }

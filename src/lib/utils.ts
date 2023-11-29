@@ -1,26 +1,26 @@
-import { fromUtf8, toHex, toUtf8 } from '@cosmjs/encoding';
+import { fromUtf8, toHex, toUtf8 } from "@cosmjs/encoding";
 import {
   DeliverTxResponse,
   Event,
   fromTendermintEvent,
-} from '@cosmjs/stargate';
+} from "@cosmjs/stargate";
 import {
   ReadonlyDateWithNanoseconds,
   ValidatorPubkey as RpcPubKey,
   tendermint34,
   tendermint37,
-} from '@cosmjs/tendermint-rpc';
-import { HashOp, LengthOp } from 'cosmjs-types/cosmos/ics23/v1/proofs';
-import { Timestamp } from 'cosmjs-types/google/protobuf/timestamp';
-import { Packet } from 'cosmjs-types/ibc/core/channel/v1/channel';
-import { Height } from 'cosmjs-types/ibc/core/client/v1/client';
+} from "@cosmjs/tendermint-rpc";
+import { HashOp, LengthOp } from "cosmjs-types/cosmos/ics23/v1/proofs";
+import { Timestamp } from "cosmjs-types/google/protobuf/timestamp";
+import { Packet } from "cosmjs-types/ibc/core/channel/v1/channel";
+import { Height } from "cosmjs-types/ibc/core/client/v1/client";
 import {
   ClientState as TendermintClientState,
   ConsensusState as TendermintConsensusState,
-} from 'cosmjs-types/ibc/lightclients/tendermint/v1/tendermint';
-import { PublicKey as ProtoPubKey } from 'cosmjs-types/tendermint/crypto/keys';
+} from "cosmjs-types/ibc/lightclients/tendermint/v1/tendermint";
+import { PublicKey as ProtoPubKey } from "cosmjs-types/tendermint/crypto/keys";
 
-import { PacketWithMetadata } from './endpoint';
+import { PacketWithMetadata } from "./endpoint";
 
 export interface Ack {
   readonly acknowledgement: Uint8Array;
@@ -38,7 +38,7 @@ export function toIntHeight(height?: Height): number {
 }
 
 export function ensureIntHeight(height: bigint | Height): number {
-  if (typeof height === 'bigint') {
+  if (typeof height === "bigint") {
     return Number(height);
   }
   return toIntHeight(height);
@@ -51,7 +51,7 @@ export function subtractBlock(height: Height, count = 1n): Height {
   };
 }
 
-const regexRevNum = new RegExp('-([1-9][0-9]*)$');
+const regexRevNum = new RegExp("-([1-9][0-9]*)$");
 
 export function parseRevisionNumber(chainId: string): bigint {
   const match = chainId.match(regexRevNum);
@@ -75,12 +75,12 @@ export function mapRpcPubKeyToProto(
   if (pubkey === undefined) {
     return undefined;
   }
-  if (pubkey.algorithm == 'ed25519') {
+  if (pubkey.algorithm == "ed25519") {
     return {
       ed25519: pubkey.data,
       secp256k1: undefined,
     };
-  } else if (pubkey.algorithm == 'secp256k1') {
+  } else if (pubkey.algorithm == "secp256k1") {
     return {
       ed25519: undefined,
       secp256k1: pubkey.data,
@@ -180,7 +180,7 @@ export function buildClientState(
     },
     latestHeight: height,
     proofSpecs: [iavlSpec, tendermintSpec],
-    upgradePath: ['upgrade', 'upgradedIBCState'],
+    upgradePath: ["upgrade", "upgradedIBCState"],
     allowUpdateAfterExpiry: false,
     allowUpdateAfterMisbehaviour: false,
   });
@@ -197,7 +197,7 @@ export function parsePacketsFromBlockResult(
 
 /** Those events are normalized to strings already in CosmJS */
 export function parsePacketsFromEvents(events: readonly Event[]): Packet[] {
-  return events.filter(({ type }) => type === 'send_packet').map(parsePacket);
+  return events.filter(({ type }) => type === "send_packet").map(parsePacket);
 }
 
 /**
@@ -215,7 +215,7 @@ export function parseHeightAttribute(attribute?: string): Height | undefined {
   // but will need more extensive testing before refactoring.
 
   const [timeoutRevisionNumber, timeoutRevisionHeight] =
-    attribute?.split('-') ?? [];
+    attribute?.split("-") ?? [];
   if (!timeoutRevisionHeight || !timeoutRevisionNumber) {
     return undefined;
   }
@@ -234,7 +234,7 @@ export function parseHeightAttribute(attribute?: string): Height | undefined {
 }
 
 export function parsePacket({ type, attributes }: Event): Packet {
-  if (type !== 'send_packet') {
+  if (type !== "send_packet") {
     throw new Error(`Cannot parse event of type ${type}`);
   }
   const attributesObj: Record<string, string> = attributes.reduce(
@@ -268,12 +268,12 @@ export function parsePacket({ type, attributes }: Event): Packet {
 
 export function parseAcksFromTxEvents(events: readonly Event[]): Ack[] {
   return events
-    .filter(({ type }) => type === 'write_acknowledgement')
+    .filter(({ type }) => type === "write_acknowledgement")
     .map(parseAck);
 }
 
 export function parseAck({ type, attributes }: Event): Ack {
-  if (type !== 'write_acknowledgement') {
+  if (type !== "write_acknowledgement") {
     throw new Error(`Cannot parse event of type ${type}`);
   }
   const attributesObj: Record<string, string | undefined> = attributes.reduce(
@@ -294,13 +294,13 @@ export function parseAck({ type, attributes }: Event): Ack {
     /** identifies the channel end on the receiving chain. */
     destinationChannel: attributesObj.packet_dst_channel,
     /** actual opaque bytes transferred directly to the application module */
-    data: toUtf8(attributesObj.packet_data ?? ''),
+    data: toUtf8(attributesObj.packet_data ?? ""),
     /** block height after which the packet times out */
     timeoutHeight: parseHeightAttribute(attributesObj.packet_timeout_height),
     /** block timestamp (in nanoseconds) after which the packet times out */
     timeoutTimestamp: may(BigInt, attributesObj.packet_timeout_timestamp),
   });
-  const acknowledgement = toUtf8(attributesObj.packet_ack ?? '');
+  const acknowledgement = toUtf8(attributesObj.packet_ack ?? "");
   return {
     acknowledgement,
     originalPacket,

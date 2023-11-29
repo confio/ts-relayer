@@ -107,9 +107,6 @@
       "**/*.spec.js"
     ]
   },
-  "prettier": {
-    "singleQuote": true
-  },
   "bin": {
     "ibc-setup": "build/binary/ibc-setup/index.js",
     "ibc-relayer": "build/binary/ibc-relayer/index.js"

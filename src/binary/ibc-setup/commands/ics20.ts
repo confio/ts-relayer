@@ -1,23 +1,23 @@
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
+import fs from "fs";
+import os from "os";
+import path from "path";
 
-import { Order } from 'cosmjs-types/ibc/core/channel/v1/channel';
-import yaml from 'js-yaml';
+import { Order } from "cosmjs-types/ibc/core/channel/v1/channel";
+import yaml from "js-yaml";
 
-import { IbcClient } from '../../../lib/ibcclient';
-import { Link } from '../../../lib/link';
-import { appFile, registryFile } from '../../constants';
-import { Logger } from '../../create-logger';
-import { AppConfig } from '../../types';
-import { indent } from '../../utils/indent';
-import { loadAndValidateApp } from '../../utils/load-and-validate-app';
-import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
-import { resolveOption } from '../../utils/options/resolve-option';
-import { resolveHomeOption } from '../../utils/options/shared/resolve-home-option';
-import { resolveKeyFileOption } from '../../utils/options/shared/resolve-key-file-option';
-import { resolveMnemonicOption } from '../../utils/options/shared/resolve-mnemonic-option';
-import { signingClient } from '../../utils/signing-client';
+import { IbcClient } from "../../../lib/ibcclient";
+import { Link } from "../../../lib/link";
+import { appFile, registryFile } from "../../constants";
+import { Logger } from "../../create-logger";
+import { AppConfig } from "../../types";
+import { indent } from "../../utils/indent";
+import { loadAndValidateApp } from "../../utils/load-and-validate-app";
+import { loadAndValidateRegistry } from "../../utils/load-and-validate-registry";
+import { resolveOption } from "../../utils/options/resolve-option";
+import { resolveHomeOption } from "../../utils/options/shared/resolve-home-option";
+import { resolveKeyFileOption } from "../../utils/options/shared/resolve-key-file-option";
+import { resolveMnemonicOption } from "../../utils/options/shared/resolve-mnemonic-option";
+import { signingClient } from "../../utils/signing-client";
 
 type Connections = {
   src: string;
@@ -48,7 +48,7 @@ export type Options = {
 };
 
 export const defaults = {
-  port: 'transfer',
+  port: "transfer",
 };
 
 function resolveConnections({
@@ -92,22 +92,22 @@ export async function ics20(flags: Flags, logger: Logger): Promise<void> {
     keyFile,
     app,
   });
-  const src = resolveOption('src', { required: true })(app.src);
-  const dest = resolveOption('dest', { required: true })(app.dest);
+  const src = resolveOption("src", { required: true })(app.src);
+  const dest = resolveOption("dest", { required: true })(app.dest);
   // we apply default ports later, once we have the registry
-  const srcPort = resolveOption('srcPort')(
+  const srcPort = resolveOption("srcPort")(
     flags.srcPort,
     process.env.RELAYER_SRC_PORT
   );
-  const destPort = resolveOption('destPort')(
+  const destPort = resolveOption("destPort")(
     flags.destPort,
     process.env.RELAYER_DEST_PORT
   );
-  const srcTrust = resolveOption('srcTrust', { integer: true })(
+  const srcTrust = resolveOption("srcTrust", { integer: true })(
     flags.srcTrust,
     process.env.RELAYER_SRC_TRUST
   );
-  const destTrust = resolveOption('destTrust', { integer: true })(
+  const destTrust = resolveOption("destTrust", { integer: true })(
     flags.destTrust,
     process.env.RELAYER_DEST_TRUST
   );
@@ -180,14 +180,14 @@ export async function run(
   const { chains } = loadAndValidateRegistry(registryFilePath);
   const srcChain = chains[options.src];
   if (!srcChain) {
-    throw new Error('src chain not found in registry');
+    throw new Error("src chain not found in registry");
   }
   const destChain = chains[options.dest];
   if (!destChain) {
-    throw new Error('dest chain not found in registry');
+    throw new Error("dest chain not found in registry");
   }
   const ordering = Order.ORDER_UNORDERED;
-  const version = 'ics20-1';
+  const version = "ics20-1";
 
   const nodeA = await signingClient(srcChain, options.mnemonic, logger);
   const nodeB = await signingClient(destChain, options.mnemonic, logger);
@@ -207,22 +207,22 @@ export async function run(
     }
   );
 
-  fs.writeFileSync(appFilePath, appYaml, { encoding: 'utf-8' });
+  fs.writeFileSync(appFilePath, appYaml, { encoding: "utf-8" });
 
   // provide default port, either from registry or global default
-  const srcPort = resolveOption('src-port', { required: true })(
+  const srcPort = resolveOption("src-port", { required: true })(
     options.srcPort,
     srcChain.ics20_port,
     defaults.port
   );
-  const destPort = resolveOption('dest-port', { required: true })(
+  const destPort = resolveOption("dest-port", { required: true })(
     options.destPort,
     destChain.ics20_port,
     defaults.port
   );
 
   const channel = await link.createChannel(
-    'A',
+    "A",
     srcPort,
     destPort,
     ordering,
@@ -230,7 +230,7 @@ export async function run(
   );
 
   const output = [
-    'Created channel:',
+    "Created channel:",
     ...indent([
       `${srcChain.chain_id}: ${channel.src.portId}/${channel.src.channelId} (${link.endA.connectionID})`,
       `${destChain.chain_id}: ${channel.dest.portId}/${channel.dest.channelId} (${link.endB.connectionID})`,

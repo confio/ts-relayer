@@ -1,19 +1,19 @@
-import fs from 'fs';
-import path from 'path';
+import fs from "fs";
+import path from "path";
 
-import { FaucetClient } from '@cosmjs/faucet-client';
-import axios from 'axios';
-import yaml from 'js-yaml';
+import { FaucetClient } from "@cosmjs/faucet-client";
+import axios from "axios";
+import yaml from "js-yaml";
 
-import { appFile, registryFile } from '../../constants';
-import { Logger } from '../../create-logger';
-import { feeDenom } from '../../types';
-import { deriveAddress } from '../../utils/derive-address';
-import { generateMnemonic } from '../../utils/generate-mnemonic';
-import { isNoExistError } from '../../utils/is-no-exist-error';
-import { loadAndValidateRegistry } from '../../utils/load-and-validate-registry';
-import { resolveOption } from '../../utils/options/resolve-option';
-import { resolveHomeOption } from '../../utils/options/shared/resolve-home-option';
+import { appFile, registryFile } from "../../constants";
+import { Logger } from "../../create-logger";
+import { feeDenom } from "../../types";
+import { deriveAddress } from "../../utils/derive-address";
+import { generateMnemonic } from "../../utils/generate-mnemonic";
+import { isNoExistError } from "../../utils/is-no-exist-error";
+import { loadAndValidateRegistry } from "../../utils/load-and-validate-registry";
+import { resolveOption } from "../../utils/options/resolve-option";
+import { resolveHomeOption } from "../../utils/options/shared/resolve-home-option";
 
 type Flags = {
   readonly home?: string;
@@ -47,7 +47,7 @@ function copyRegistryFile(from: string, to: string) {
 async function pullRegistryFromRemote(writeTo: string) {
   try {
     const registryFromRemote = await axios.get(
-      'https://raw.githubusercontent.com/confio/ts-relayer/main/demo/registry.yaml'
+      "https://raw.githubusercontent.com/confio/ts-relayer/main/demo/registry.yaml"
     );
     fs.writeFileSync(writeTo, registryFromRemote.data);
     console.log(`Pulled default ${registryFile} from remote.`);
@@ -58,10 +58,10 @@ async function pullRegistryFromRemote(writeTo: string) {
 
 export async function init(flags: Flags, _logger: Logger) {
   const options = {
-    src: resolveOption('src')(flags.src, process.env.RELAYER_SRC),
-    dest: resolveOption('dest')(flags.dest, process.env.RELAYER_DEST),
+    src: resolveOption("src")(flags.src, process.env.RELAYER_SRC),
+    dest: resolveOption("dest")(flags.dest, process.env.RELAYER_DEST),
     home: resolveHomeOption({ homeFlag: flags.home }),
-    registryFrom: resolveOption('registryFrom')(
+    registryFrom: resolveOption("registryFrom")(
       flags.registryFrom,
       process.env.RELAYER_REGISTRY_FROM
     ),
@@ -133,7 +133,7 @@ export async function run(options: Options) {
     }
   );
 
-  fs.writeFileSync(appFilePath, appYaml, { encoding: 'utf-8' });
+  fs.writeFileSync(appFilePath, appYaml, { encoding: "utf-8" });
   console.log(`Saved configuration to ${appFilePath}`);
 
   const [addressSrc, addressDest] = await Promise.all([

@@ -1,26 +1,26 @@
-import fs from 'fs';
-import os from 'os';
+import fs from "fs";
+import os from "os";
 
-import { assert } from '@cosmjs/utils';
-import test from 'ava';
-import sinon from 'sinon';
+import { assert } from "@cosmjs/utils";
+import test from "ava";
+import sinon from "sinon";
 
-import { testutils } from '../../../lib';
-import { Link } from '../../../lib/link';
-import { Logger } from '../../create-logger';
-import { indent } from '../../utils/indent';
-import { signingClient } from '../../utils/signing-client';
+import { testutils } from "../../../lib";
+import { Link } from "../../../lib/link";
+import { Logger } from "../../create-logger";
+import { indent } from "../../utils/indent";
+import { signingClient } from "../../utils/signing-client";
 
 const { TestLogger } = testutils;
 
-import { gaiaChain, wasmdChain } from './chains';
-import { Options, run } from './channel';
+import { gaiaChain, wasmdChain } from "./chains";
+import { Options, run } from "./channel";
 
-const fsReadFileSync = sinon.stub(fs, 'readFileSync');
-const consoleLog = sinon.stub(console, 'log');
+const fsReadFileSync = sinon.stub(fs, "readFileSync");
+const consoleLog = sinon.stub(console, "log");
 
 const mnemonic =
-  'enlist hip relief stomach skate base shallow young switch frequent cry park';
+  "enlist hip relief stomach skate base shallow young switch frequent cry park";
 
 const registryYaml = `
 version: 1
@@ -43,7 +43,7 @@ test.beforeEach(() => {
   sinon.reset();
 });
 
-test.serial('creates channel for given connections and ports', async (t) => {
+test.serial("creates channel for given connections and ports", async (t) => {
   const logger = new TestLogger();
 
   const ibcClientGaia = await signingClient(gaiaChain, mnemonic);
@@ -54,16 +54,16 @@ test.serial('creates channel for given connections and ports', async (t) => {
   );
 
   const options: Options = {
-    home: '/home/user',
+    home: "/home/user",
     mnemonic,
-    src: 'local_wasm',
-    dest: 'local_gaia',
+    src: "local_wasm",
+    dest: "local_gaia",
     srcConnection: link.endA.connectionID,
     destConnection: link.endB.connectionID,
-    srcPort: 'transfer',
-    destPort: 'custom',
+    srcPort: "transfer",
+    destPort: "custom",
     ordered: false,
-    version: 'ics20-1',
+    version: "ics20-1",
   };
 
   fsReadFileSync.returns(registryYaml);
@@ -76,10 +76,10 @@ test.serial('creates channel for given connections and ports', async (t) => {
   const match = output.match(
     new RegExp(
       [
-        'Created channel:',
+        "Created channel:",
         ...indent([
-          '.+: (?<srcPort>.+)/(?<srcChannel>.+) \\(.+\\)',
-          '.+: (?<destPort>.+)/(?<destChannel>.+) \\(.+\\)',
+          ".+: (?<srcPort>.+)/(?<srcChannel>.+) \\(.+\\)",
+          ".+: (?<destPort>.+)/(?<destChannel>.+) \\(.+\\)",
         ]),
       ].join(os.EOL)
     )

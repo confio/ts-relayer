@@ -1,25 +1,25 @@
-import fs from 'fs';
-import path from 'path';
+import fs from "fs";
+import path from "path";
 
-import test from 'ava';
-import axios from 'axios';
-import sinon from 'sinon';
+import test from "ava";
+import axios from "axios";
+import sinon from "sinon";
 
-import { registryFile } from '../../constants';
+import { registryFile } from "../../constants";
 
-import { Options, run } from './init';
+import { Options, run } from "./init";
 
-const fsExistSync = sinon.stub(fs, 'existsSync');
-const fsMkdirSync = sinon.stub(fs, 'mkdirSync');
-const axiosGet = sinon.stub(axios, 'get');
-const fsReadFileSync = sinon.stub(fs, 'readFileSync');
-const fsWriteFileSync = sinon.stub(fs, 'writeFileSync');
-const fsCopyFileSync = sinon.stub(fs, 'copyFileSync');
-const consoleLog = sinon.stub(console, 'log');
+const fsExistSync = sinon.stub(fs, "existsSync");
+const fsMkdirSync = sinon.stub(fs, "mkdirSync");
+const axiosGet = sinon.stub(axios, "get");
+const fsReadFileSync = sinon.stub(fs, "readFileSync");
+const fsWriteFileSync = sinon.stub(fs, "writeFileSync");
+const fsCopyFileSync = sinon.stub(fs, "copyFileSync");
+const consoleLog = sinon.stub(console, "log");
 
 sinon.replace(
   fs,
-  'lstatSync',
+  "lstatSync",
   sinon.fake.returns({
     isDirectory: () => true,
     isFile: () => true,
@@ -49,15 +49,15 @@ test.beforeEach(() => {
   sinon.reset();
 });
 
-test('creates app.yaml', async (t) => {
+test("creates app.yaml", async (t) => {
   const options: Options = {
-    home: '/home/user',
-    src: 'local_wasm',
-    dest: 'local_gaia',
+    home: "/home/user",
+    src: "local_wasm",
+    dest: "local_gaia",
     registryFrom: null,
   };
-  const appPath = path.join(options.home, 'app.yaml');
-  const registryPath = path.join(options.home, 'registry.yaml');
+  const appPath = path.join(options.home, "app.yaml");
+  const registryPath = path.join(options.home, "registry.yaml");
 
   fsExistSync
     .onCall(0)
@@ -81,7 +81,7 @@ test('creates app.yaml', async (t) => {
   const [calledAppPath, contents] = fsWriteFileSync.getCall(0).args;
   const appYamlRegexp = new RegExp(
     `src: ${options.src}\ndest: ${options.dest}\nmnemonic: [\\w ]+`,
-    'mg'
+    "mg"
   );
   t.is(calledAppPath, appPath);
   t.regex(contents as string, appYamlRegexp);
@@ -92,15 +92,15 @@ test('creates app.yaml', async (t) => {
   );
 });
 
-test.only('initialize home directory, pull registry.yaml and create app.yaml', async (t) => {
+test.only("initialize home directory, pull registry.yaml and create app.yaml", async (t) => {
   const options: Options = {
-    home: '/home/user',
-    src: 'local_wasm',
-    dest: 'local_gaia',
+    home: "/home/user",
+    src: "local_wasm",
+    dest: "local_gaia",
     registryFrom: null,
   };
-  const appPath = path.join(options.home, 'app.yaml');
-  const registryPath = path.join(options.home, 'registry.yaml');
+  const appPath = path.join(options.home, "app.yaml");
+  const registryPath = path.join(options.home, "registry.yaml");
 
   fsExistSync
     .onCall(0)
@@ -127,7 +127,7 @@ test.only('initialize home directory, pull registry.yaml and create app.yaml', a
   const [calledAppPath, contents] = fsWriteFileSync.getCall(1).args;
   const appYamlRegexp = new RegExp(
     `src: ${options.src}\ndest: ${options.dest}\nmnemonic: [\\w ]+`,
-    'mg'
+    "mg"
   );
   t.is(calledAppPath, appPath);
   t.regex(contents as string, appYamlRegexp);
@@ -138,18 +138,18 @@ test.only('initialize home directory, pull registry.yaml and create app.yaml', a
   );
 });
 
-test('throws when cannot fetch registry.yaml from remote', async (t) => {
+test("throws when cannot fetch registry.yaml from remote", async (t) => {
   const options: Options = {
-    home: '/home/user',
-    src: 'local_wasm',
-    dest: 'local_gaia',
+    home: "/home/user",
+    src: "local_wasm",
+    dest: "local_gaia",
     registryFrom: null,
   };
 
   fsExistSync.returns(false);
   fsMkdirSync.returns(options.home);
   axiosGet.rejects();
-  fsReadFileSync.returns('');
+  fsReadFileSync.returns("");
   fsWriteFileSync.returns();
 
   await t.throwsAsync(async () => await run(options), {
@@ -161,11 +161,11 @@ test('throws when cannot fetch registry.yaml from remote', async (t) => {
   t.assert(axiosGet.calledOnce);
 });
 
-test('returns early if app.yaml exists', async (t) => {
+test("returns early if app.yaml exists", async (t) => {
   const options: Options = {
-    home: '/home/user',
-    src: 'local_wasm',
-    dest: 'local_gaia',
+    home: "/home/user",
+    src: "local_wasm",
+    dest: "local_gaia",
     registryFrom: null,
   };
 
@@ -178,14 +178,14 @@ test('returns early if app.yaml exists', async (t) => {
   t.assert(consoleLog.calledOnce);
 });
 
-test('throws if provided chain does not exist in the registry', async (t) => {
+test("throws if provided chain does not exist in the registry", async (t) => {
   const options: Options = {
-    home: '/home/user',
-    src: 'chain_that_does_not_exist',
-    dest: 'local_gaia',
+    home: "/home/user",
+    src: "chain_that_does_not_exist",
+    dest: "local_gaia",
     registryFrom: null,
   };
-  const registryPath = path.join(options.home, 'registry.yaml');
+  const registryPath = path.join(options.home, "registry.yaml");
 
   fsExistSync
     .onCall(0)
@@ -209,15 +209,15 @@ test('throws if provided chain does not exist in the registry', async (t) => {
   t.assert(fsReadFileSync.calledOnceWith(registryPath));
 });
 
-test('copies existing registry', async (t) => {
+test("copies existing registry", async (t) => {
   const options: Options = {
-    home: '/home/user',
-    src: 'local_wasm',
-    dest: 'local_gaia',
-    registryFrom: '/home/user/.relayer-home',
+    home: "/home/user",
+    src: "local_wasm",
+    dest: "local_gaia",
+    registryFrom: "/home/user/.relayer-home",
   };
-  const appPath = path.join(options.home, 'app.yaml');
-  const registryPath = path.join(options.home, 'registry.yaml');
+  const appPath = path.join(options.home, "app.yaml");
+  const registryPath = path.join(options.home, "registry.yaml");
 
   fsExistSync.returns(false);
   fsMkdirSync.returns(options.home);
@@ -239,7 +239,7 @@ test('copies existing registry', async (t) => {
   const [calledAppPath, contents] = fsWriteFileSync.getCall(0).args;
   const appYamlRegexp = new RegExp(
     `src: ${options.src}\ndest: ${options.dest}\nmnemonic: [\\w ]+`,
-    'mg'
+    "mg"
   );
   t.is(calledAppPath, appPath);
   t.regex(contents as string, appYamlRegexp);
@@ -252,7 +252,7 @@ test('copies existing registry', async (t) => {
 
 test('exits earlier when "src" and "dest" are not set', async (t) => {
   const options: Options = {
-    home: '/home/user',
+    home: "/home/user",
     src: null,
     dest: null,
     registryFrom: null,

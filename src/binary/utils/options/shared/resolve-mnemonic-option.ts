@@ -1,8 +1,8 @@
-import fs from 'fs';
-import readline from 'readline';
+import fs from "fs";
+import readline from "readline";
 
-import { AppConfig } from '../../../types';
-import { resolveOption } from '../resolve-option';
+import { AppConfig } from "../../../types";
+import { resolveOption } from "../resolve-option";
 
 async function readMnemonicFromStdin(interactive: boolean) {
   if (!interactive) {
@@ -16,10 +16,10 @@ async function readMnemonicFromStdin(interactive: boolean) {
 
   const mnemonic = await new Promise<string>((resolve, reject) => {
     const timeout = setTimeout(() => {
-      reject(new Error('Timeout for entering mnemonic exceeded.'));
+      reject(new Error("Timeout for entering mnemonic exceeded."));
     }, 60 * 1000);
 
-    readlineInterface.question('enter mnemonic phrase: ', (stdin) => {
+    readlineInterface.question("enter mnemonic phrase: ", (stdin) => {
       readlineInterface.close();
       clearTimeout(timeout);
       resolve(stdin);
@@ -35,7 +35,7 @@ function readMnemonicFromFile(keyFile: string | null) {
   }
 
   return () => {
-    return fs.readFileSync(keyFile, 'utf-8').trim();
+    return fs.readFileSync(keyFile, "utf-8").trim();
   };
 }
 
@@ -69,8 +69,8 @@ export async function resolveMnemonicOption(
   ];
 
   if (!optional) {
-    return resolveOption('mnemonic', { required: true })(...args);
+    return resolveOption("mnemonic", { required: true })(...args);
   }
 
-  return resolveOption('mnemonic')(...args);
+  return resolveOption("mnemonic")(...args);
 }

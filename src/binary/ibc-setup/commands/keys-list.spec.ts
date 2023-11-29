@@ -1,14 +1,14 @@
-import fs from 'fs';
+import fs from "fs";
 
-import test from 'ava';
-import sinon from 'sinon';
+import test from "ava";
+import sinon from "sinon";
 
-import { generateMnemonic } from '../../utils/generate-mnemonic';
+import { generateMnemonic } from "../../utils/generate-mnemonic";
 
-import { Options, run } from './keys-list';
+import { Options, run } from "./keys-list";
 
-const fsReadFileSync = sinon.stub(fs, 'readFileSync');
-const consoleLog = sinon.stub(console, 'log');
+const fsReadFileSync = sinon.stub(fs, "readFileSync");
+const consoleLog = sinon.stub(console, "log");
 
 test.beforeEach(() => {
   sinon.reset();
@@ -33,9 +33,9 @@ chains:
     rpc:
       - http://localhost:26655`;
 
-test('lists addresses for every chain in the registry', async (t) => {
+test("lists addresses for every chain in the registry", async (t) => {
   const options: Options = {
-    home: '/home/user',
+    home: "/home/user",
     mnemonic: generateMnemonic(),
   };
 

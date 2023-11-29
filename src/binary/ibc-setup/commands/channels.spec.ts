@@ -1,27 +1,27 @@
-import fs from 'fs';
-import os from 'os';
+import fs from "fs";
+import os from "os";
 
-import test from 'ava';
-import { State as ChannelState } from 'cosmjs-types/ibc/core/channel/v1/channel';
-import sinon from 'sinon';
+import test from "ava";
+import { State as ChannelState } from "cosmjs-types/ibc/core/channel/v1/channel";
+import sinon from "sinon";
 
-import { testutils } from '../../../lib';
-import { ChannelPair, Link } from '../../../lib/link';
-import { Logger } from '../../create-logger';
-import { signingClient } from '../../utils/signing-client';
+import { testutils } from "../../../lib";
+import { ChannelPair, Link } from "../../../lib/link";
+import { Logger } from "../../create-logger";
+import { signingClient } from "../../utils/signing-client";
 
 const { TestLogger } = testutils;
 
 const { ics20 } = testutils;
 
-import { gaiaChain, wasmdChain } from './chains';
-import { channelStateAsText, Options, run } from './channels';
+import { gaiaChain, wasmdChain } from "./chains";
+import { channelStateAsText, Options, run } from "./channels";
 
-const fsReadFileSync = sinon.stub(fs, 'readFileSync');
-const consoleLog = sinon.stub(console, 'log');
+const fsReadFileSync = sinon.stub(fs, "readFileSync");
+const consoleLog = sinon.stub(console, "log");
 
 const mnemonic =
-  'enlist hip relief stomach skate base shallow young switch frequent cry park';
+  "enlist hip relief stomach skate base shallow young switch frequent cry park";
 
 const registryYaml = `
 version: 1
@@ -52,7 +52,7 @@ test.before(async () => {
   const ibcClientWasm = await signingClient(wasmdChain, mnemonic);
   link = await Link.createWithNewConnections(ibcClientGaia, ibcClientWasm);
   channel = await link.createChannel(
-    'A',
+    "A",
     gaiaChain.ics20Port,
     wasmdChain.ics20Port,
     ics20.ordering,
@@ -60,15 +60,15 @@ test.before(async () => {
   );
 });
 
-test('lists channels for given chain (A)', async (t) => {
+test("lists channels for given chain (A)", async (t) => {
   const logger = new TestLogger();
 
   const options: Options = {
-    chain: 'local_gaia',
+    chain: "local_gaia",
     port: null,
     connection: null,
     mnemonic: null,
-    home: '/home/user',
+    home: "/home/user",
   };
 
   fsReadFileSync.returns(registryYaml);
@@ -85,22 +85,22 @@ test('lists channels for given chain (A)', async (t) => {
           channel.src.portId,
           link.endA.connectionID,
           channelStateAsText(ChannelState.STATE_OPEN),
-        ].join('\\s+'),
-        'm'
+        ].join("\\s+"),
+        "m"
       )
     )
   );
 });
 
-test('lists channels for given chain (B)', async (t) => {
+test("lists channels for given chain (B)", async (t) => {
   const logger = new TestLogger();
 
   const options: Options = {
-    chain: 'local_wasm',
+    chain: "local_wasm",
     port: null,
     connection: null,
     mnemonic: null,
-    home: '/home/user',
+    home: "/home/user",
   };
 
   fsReadFileSync.returns(registryYaml);
@@ -117,22 +117,22 @@ test('lists channels for given chain (B)', async (t) => {
           channel.dest.portId,
           link.endB.connectionID,
           channelStateAsText(ChannelState.STATE_OPEN),
-        ].join('\\s+'),
-        'm'
+        ].join("\\s+"),
+        "m"
       )
     )
   );
 });
 
-test('filters channels by port', async (t) => {
+test("filters channels by port", async (t) => {
   const logger = new TestLogger();
 
   const options: Options = {
-    chain: 'local_gaia',
+    chain: "local_gaia",
     port: channel.src.portId,
     connection: null,
     mnemonic: null,
-    home: '/home/user',
+    home: "/home/user",
   };
 
   fsReadFileSync.returns(registryYaml);
@@ -152,15 +152,15 @@ test('filters channels by port', async (t) => {
   t.assert(everyChannelHasValidPort);
 });
 
-test('filters channels by port (non-existing port)', async (t) => {
+test("filters channels by port (non-existing port)", async (t) => {
   const logger = new TestLogger();
 
   const options: Options = {
-    chain: 'local_gaia',
-    port: 'unknown_port',
+    chain: "local_gaia",
+    port: "unknown_port",
     connection: null,
     mnemonic: null,
-    home: '/home/user',
+    home: "/home/user",
   };
 
   fsReadFileSync.returns(registryYaml);
@@ -170,15 +170,15 @@ test('filters channels by port (non-existing port)', async (t) => {
   t.assert(consoleLog.getCall(-1).calledWithMatch(/No channels found/));
 });
 
-test('filters channels by connection', async (t) => {
+test("filters channels by connection", async (t) => {
   const logger = new TestLogger();
 
   const options: Options = {
-    chain: 'local_wasm',
+    chain: "local_wasm",
     port: null,
     connection: link.endA.connectionID,
     mnemonic: null,
-    home: '/home/user',
+    home: "/home/user",
   };
 
   fsReadFileSync.returns(registryYaml);
@@ -200,15 +200,15 @@ test('filters channels by connection', async (t) => {
   t.assert(everyChannelHasValidConnection);
 });
 
-test('filters channels by connection (non-existing connection)', async (t) => {
+test("filters channels by connection (non-existing connection)", async (t) => {
   const logger = new TestLogger();
 
   const options: Options = {
-    chain: 'local_gaia',
+    chain: "local_gaia",
     port: null,
-    connection: 'unknown_connection',
+    connection: "unknown_connection",
     mnemonic: null,
-    home: '/home/user',
+    home: "/home/user",
   };
 
   fsReadFileSync.returns(registryYaml);
@@ -218,15 +218,15 @@ test('filters channels by connection (non-existing connection)', async (t) => {
   t.assert(consoleLog.getCall(-1).calledWithMatch(/No channels found/));
 });
 
-test('filters channels by port and connection', async (t) => {
+test("filters channels by port and connection", async (t) => {
   const logger = new TestLogger();
 
   const options: Options = {
-    chain: 'local_gaia',
+    chain: "local_gaia",
     port: channel.src.portId,
     connection: link.endA.connectionID,
     mnemonic: null,
-    home: '/home/user',
+    home: "/home/user",
   };
 
   fsReadFileSync.returns(registryYaml);
@@ -248,15 +248,15 @@ test('filters channels by port and connection', async (t) => {
   t.assert(everyChannelHasValidPortAndConnection);
 });
 
-test('filters channels by port and connection (non-existing connection)', async (t) => {
+test("filters channels by port and connection (non-existing connection)", async (t) => {
   const logger = new TestLogger();
 
   const options: Options = {
-    chain: 'local_gaia',
+    chain: "local_gaia",
     port: channel.src.portId,
-    connection: 'unknown_connection',
+    connection: "unknown_connection",
     mnemonic: null,
-    home: '/home/user',
+    home: "/home/user",
   };
 
   fsReadFileSync.returns(registryYaml);

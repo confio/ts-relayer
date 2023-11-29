@@ -1,5 +1,5 @@
-import test from 'ava';
-import { MsgTransfer } from 'cosmjs-types/ibc/applications/transfer/v1/tx';
+import test from "ava";
+import { MsgTransfer } from "cosmjs-types/ibc/applications/transfer/v1/tx";
 
 import {
   gaia,
@@ -8,17 +8,17 @@ import {
   setup,
   TestLogger,
   wasmd,
-} from './helpers';
-import { buildCreateClientArgs, prepareConnectionHandshake } from './ibcclient';
-import { Link } from './link';
+} from "./helpers";
+import { buildCreateClientArgs, prepareConnectionHandshake } from "./ibcclient";
+import { Link } from "./link";
 import {
   buildClientState,
   buildConsensusState,
   parseAcksFromTxEvents,
   parsePacketsFromEvents,
-} from './utils';
+} from "./utils";
 
-test.serial('create gaia client on wasmd', async (t) => {
+test.serial("create gaia client on wasmd", async (t) => {
   const logger = new TestLogger();
   const [src, dest] = await setup(gaia, wasmd, logger);
 
@@ -35,14 +35,14 @@ test.serial('create gaia client on wasmd', async (t) => {
     src.revisionHeight(header.height)
   );
   const res = await dest.createTendermintClient(cliState, conState);
-  t.assert(res.clientId.startsWith('07-tendermint-'));
+  t.assert(res.clientId.startsWith("07-tendermint-"));
 
   await dest.waitOneBlock();
   const postClients = await dest.query.ibc.client.allStates();
   t.is(postClients.clientStates.length, preLen + 1);
 });
 
-test.serial('create and update wasmd client on gaia', async (t) => {
+test.serial("create and update wasmd client on gaia", async (t) => {
   const [src, dest] = await setup(gaia, wasmd);
 
   const header = await src.latestHeader();
@@ -88,7 +88,7 @@ function sameBigInt(a?: bigint, b?: bigint) {
 }
 
 // make 2 clients, and try to establish a connection
-test.serial('perform connection handshake', async (t) => {
+test.serial("perform connection handshake", async (t) => {
   const [src, dest] = await setup(gaia, wasmd);
 
   // client on dest -> src
@@ -97,7 +97,7 @@ test.serial('perform connection handshake', async (t) => {
     args.clientState,
     args.consensusState
   );
-  t.assert(destClientId.startsWith('07-tendermint-'));
+  t.assert(destClientId.startsWith("07-tendermint-"));
 
   // client on src -> dest
   const args2 = await buildCreateClientArgs(dest, 5000);
@@ -105,14 +105,14 @@ test.serial('perform connection handshake', async (t) => {
     args2.clientState,
     args2.consensusState
   );
-  t.assert(srcClientId.startsWith('07-tendermint-'));
+  t.assert(srcClientId.startsWith("07-tendermint-"));
 
   // connectionInit on src
   const { connectionId: srcConnId } = await src.connOpenInit(
     srcClientId,
     destClientId
   );
-  t.assert(srcConnId.startsWith('connection-'), srcConnId);
+  t.assert(srcConnId.startsWith("connection-"), srcConnId);
 
   // connectionTry on dest
   const proof = await prepareConnectionHandshake(
@@ -127,7 +127,7 @@ test.serial('perform connection handshake', async (t) => {
     destClientId,
     proof
   );
-  t.assert(destConnId.startsWith('connection-'), destConnId);
+  t.assert(destConnId.startsWith("connection-"), destConnId);
 
   // connectionAck on src
   const proofAck = await prepareConnectionHandshake(
@@ -150,13 +150,13 @@ test.serial('perform connection handshake', async (t) => {
   await dest.connOpenConfirm(destConnId, proofConfirm);
 });
 
-test.serial('transfer message and send packets', async (t) => {
+test.serial("transfer message and send packets", async (t) => {
   const logger = new TestLogger();
   // set up ics20 channel
   const [nodeA, nodeB] = await setup(gaia, wasmd);
   const link = await Link.createWithNewConnections(nodeA, nodeB, logger);
   const channels = await link.createChannel(
-    'A',
+    "A",
     gaia.ics20Port,
     wasmd.ics20Port,
     ics20.ordering,
@@ -171,7 +171,7 @@ test.serial('transfer message and send packets', async (t) => {
 
   // submit a transfer message
   const destHeight = await nodeB.timeoutHeight(500); // valid for 500 blocks
-  const token = { amount: '12345', denom: gaia.denomFee };
+  const token = { amount: "12345", denom: gaia.denomFee };
   const transferResult = await nodeA.transferTokens(
     channels.src.portId,
     channels.src.channelId,
@@ -196,8 +196,8 @@ test.serial('transfer message and send packets', async (t) => {
   const postBalance = await nodeB.query.bank.allBalances(recipient);
   t.is(postBalance.length, 1);
   const recvCoin = postBalance[0];
-  t.is(recvCoin.amount, '12345');
-  t.assert(recvCoin.denom.startsWith('ibc/'), recvCoin.denom);
+  t.is(recvCoin.amount, "12345");
+  t.assert(recvCoin.denom.startsWith("ibc/"), recvCoin.denom);
 
   // get the acknowledgement from the receivePacket tx
   const acks = parseAcksFromTxEvents(relayResult.events);
@@ -212,13 +212,13 @@ test.serial('transfer message and send packets', async (t) => {
   // Do we need to check the result? or just see the tx succeeded?
 });
 
-test.serial('tests parsing with multi-message', async (t) => {
+test.serial("tests parsing with multi-message", async (t) => {
   const logger = new TestLogger();
   // set up ics20 channel
   const [nodeA, nodeB] = await setup(gaia, wasmd, logger);
   const link = await Link.createWithNewConnections(nodeA, nodeB, logger);
   const channels = await link.createChannel(
-    'A',
+    "A",
     gaia.ics20Port,
     wasmd.ics20Port,
     ics20.ordering,
@@ -231,7 +231,7 @@ test.serial('tests parsing with multi-message', async (t) => {
 
   // submit a send message - no events
   const { events: sendEvents } = await nodeA.sendTokens(srcAddr, [
-    { amount: '5000', denom: gaia.denomFee },
+    { amount: "5000", denom: gaia.denomFee },
   ]);
   t.assert(
     logger.verbose.calledWithMatch(/Send tokens to/),
@@ -251,23 +251,23 @@ test.serial('tests parsing with multi-message', async (t) => {
   // submit 2 transfer messages
   const timeoutHeight = await nodeB.timeoutHeight(500);
   const msg = {
-    typeUrl: '/ibc.applications.transfer.v1.MsgTransfer',
+    typeUrl: "/ibc.applications.transfer.v1.MsgTransfer",
     value: MsgTransfer.fromPartial({
       sourcePort: channels.src.portId,
       sourceChannel: channels.src.channelId,
       sender: nodeA.senderAddress,
-      token: { amount: '6000', denom: gaia.denomFee },
+      token: { amount: "6000", denom: gaia.denomFee },
       receiver: destAddr,
       timeoutHeight,
     }),
   };
   const msg2 = {
-    typeUrl: '/ibc.applications.transfer.v1.MsgTransfer',
+    typeUrl: "/ibc.applications.transfer.v1.MsgTransfer",
     value: MsgTransfer.fromPartial({
       sourcePort: channels.src.portId,
       sourceChannel: channels.src.channelId,
       sender: nodeA.senderAddress,
-      token: { amount: '9000', denom: gaia.denomFee },
+      token: { amount: "9000", denom: gaia.denomFee },
       receiver: destAddr,
       timeoutHeight,
     }),
