@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.11.1
+
+### Patch Changes
+
+- 7356b9f: Bump CosmJS to 0.32.1
+
 ## 0.11.0
 
 ### Minor Changes
