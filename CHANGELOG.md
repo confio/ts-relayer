@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.11.2
+
+### Patch Changes
+
+- fa4e21a: Switching to tx events from deprecated tx raw logs
+
 ## 0.11.1
 
 ### Patch Changes
