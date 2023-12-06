@@ -1,6 +1,8 @@
 # Relayer
 
-Typescript implementation of an [IBC](https://ibcprotocol.org/) Relayer.
+[![npm version](https://img.shields.io/npm/v/@confio/relayer.svg)](https://www.npmjs.com/package/@confio/relayer)
+
+TypeScript implementation of an [IBC](https://www.ibcprotocol.dev/) Relayer.
 
 To get a good overview of what it can do, please
 [check our feature matrix](./FEATURES.md)
