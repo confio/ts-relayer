@@ -8,7 +8,6 @@ import {
   Event,
   GasPrice,
   isDeliverTxFailure,
-  logs,
   QueryClient,
   setupAuthExtension,
   setupBankExtension,
@@ -686,12 +685,12 @@ export class IbcClient {
       throw new Error(createDeliverTxFailureMessage(result));
     }
 
-    const parsedLogs = logs.parseRawLog(result.rawLog);
-    const clientId = logs.findAttribute(
-      parsedLogs,
-      "create_client",
-      "client_id"
-    ).value;
+    const clientId = result.events
+      .find((x) => x.type == "create_client")
+      ?.attributes.find((x) => x.key == "client_id")?.value;
+    if (!clientId) {
+      throw new Error("Could not read TX events.");
+    }
 
     return {
       events: result.events,
@@ -774,12 +773,14 @@ export class IbcClient {
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
     }
-    const parsedLogs = logs.parseRawLog(result.rawLog);
-    const connectionId = logs.findAttribute(
-      parsedLogs,
-      "connection_open_init",
-      "connection_id"
-    ).value;
+
+    const connectionId = result.events
+      .find((x) => x.type == "connection_open_init")
+      ?.attributes.find((x) => x.key == "connection_id")?.value;
+    if (!connectionId) {
+      throw new Error("Could not read TX events.");
+    }
+
     this.logger.debug(`Connection open init successful: ${connectionId}`);
     return {
       events: result.events,
@@ -848,12 +849,14 @@ export class IbcClient {
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
     }
-    const parsedLogs = logs.parseRawLog(result.rawLog);
-    const myConnectionId = logs.findAttribute(
-      parsedLogs,
-      "connection_open_try",
-      "connection_id"
-    ).value;
+
+    const myConnectionId = result.events
+      .find((x) => x.type == "connection_open_try")
+      ?.attributes.find((x) => x.key == "connection_id")?.value;
+    if (!myConnectionId) {
+      throw new Error("Could not read TX events.");
+    }
+
     this.logger.debug(
       `Connection open try successful: ${myConnectionId} => ${connectionId}`
     );
@@ -1000,12 +1003,14 @@ export class IbcClient {
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
     }
-    const parsedLogs = logs.parseRawLog(result.rawLog);
-    const channelId = logs.findAttribute(
-      parsedLogs,
-      "channel_open_init",
-      "channel_id"
-    ).value;
+
+    const channelId = result.events
+      .find((x) => x.type == "channel_open_init")
+      ?.attributes.find((x) => x.key == "channel_id")?.value;
+    if (!channelId) {
+      throw new Error("Could not read TX events.");
+    }
+
     this.logger.debug(`Channel open init successful: ${channelId}`);
     return {
       events: result.events,
@@ -1061,12 +1066,14 @@ export class IbcClient {
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
     }
-    const parsedLogs = logs.parseRawLog(result.rawLog);
-    const channelId = logs.findAttribute(
-      parsedLogs,
-      "channel_open_try",
-      "channel_id"
-    ).value;
+
+    const channelId = result.events
+      .find((x) => x.type == "channel_open_try")
+      ?.attributes.find((x) => x.key == "channel_id")?.value;
+    if (!channelId) {
+      throw new Error("Could not read TX events.");
+    }
+
     this.logger.debug(
       `Channel open try successful: ${channelId} => ${remote.channelId})`
     );
