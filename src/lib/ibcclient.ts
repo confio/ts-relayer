@@ -61,7 +61,6 @@ import {
   SignedHeader,
 } from "cosmjs-types/tendermint/types/types";
 import { ValidatorSet } from "cosmjs-types/tendermint/types/validator";
-import cloneDeep from "lodash/cloneDeep";
 
 import { Logger, NoopLogger } from "./logger";
 import { IbcExtension, setupIbcExtension } from "./queries/ibc";
