@@ -46,12 +46,12 @@ export async function run(options: Options, logger: Logger) {
         const client = await signingClient(
           data,
           options.mnemonic,
-          logger.child({ label: chain })
+          logger.child({ label: chain }),
         );
         const gasPrice = GasPrice.fromString(data.gas_price);
         const coin = await client.query.bank.balance(address, gasPrice.denom);
         return [chain, coin];
-      })
+      }),
     )
   )
     .filter((result): result is PromiseFulfilledResult<[string, Coin]> => {

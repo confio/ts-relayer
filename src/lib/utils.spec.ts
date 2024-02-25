@@ -26,7 +26,7 @@ test("parsePacketsFromEvents", (t) => {
         {
           key: fromBase64("c3BlbmRlcg=="),
           value: fromBase64(
-            "anVubzEwMHM0NXM0aDk0cWRrY2FmbW1ycWZsdGxyZ3lxd3luNmUwNWp4Mg=="
+            "anVubzEwMHM0NXM0aDk0cWRrY2FmbW1ycWZsdGxyZ3lxd3luNmUwNWp4Mg==",
           ),
         },
         {
@@ -41,7 +41,7 @@ test("parsePacketsFromEvents", (t) => {
         {
           key: fromBase64("cmVjZWl2ZXI="),
           value: fromBase64(
-            "anVubzE3eHBmdmFrbTJhbWc5NjJ5bHM2Zjg0ejNrZWxsOGM1bHh0cW12cA=="
+            "anVubzE3eHBmdmFrbTJhbWc5NjJ5bHM2Zjg0ejNrZWxsOGM1bHh0cW12cA==",
           ),
         },
         {
@@ -56,13 +56,13 @@ test("parsePacketsFromEvents", (t) => {
         {
           key: fromBase64("cmVjaXBpZW50"),
           value: fromBase64(
-            "anVubzE3eHBmdmFrbTJhbWc5NjJ5bHM2Zjg0ejNrZWxsOGM1bHh0cW12cA=="
+            "anVubzE3eHBmdmFrbTJhbWc5NjJ5bHM2Zjg0ejNrZWxsOGM1bHh0cW12cA==",
           ),
         },
         {
           key: fromBase64("c2VuZGVy"),
           value: fromBase64(
-            "anVubzEwMHM0NXM0aDk0cWRrY2FmbW1ycWZsdGxyZ3lxd3luNmUwNWp4Mg=="
+            "anVubzEwMHM0NXM0aDk0cWRrY2FmbW1ycWZsdGxyZ3lxd3luNmUwNWp4Mg==",
           ),
         },
         {
@@ -77,7 +77,7 @@ test("parsePacketsFromEvents", (t) => {
         {
           key: fromBase64("c2VuZGVy"),
           value: fromBase64(
-            "anVubzEwMHM0NXM0aDk0cWRrY2FmbW1ycWZsdGxyZ3lxd3luNmUwNWp4Mg=="
+            "anVubzEwMHM0NXM0aDk0cWRrY2FmbW1ycWZsdGxyZ3lxd3luNmUwNWp4Mg==",
           ),
         },
       ],
@@ -97,7 +97,7 @@ test("parsePacketsFromEvents", (t) => {
         {
           key: fromBase64("YWNjX3NlcQ=="),
           value: fromBase64(
-            "anVubzEwMHM0NXM0aDk0cWRrY2FmbW1ycWZsdGxyZ3lxd3luNmUwNWp4Mi8xMjQ5Mg=="
+            "anVubzEwMHM0NXM0aDk0cWRrY2FmbW1ycWZsdGxyZ3lxd3luNmUwNWp4Mi8xMjQ5Mg==",
           ),
         },
       ],
@@ -108,7 +108,7 @@ test("parsePacketsFromEvents", (t) => {
         {
           key: fromBase64("c2lnbmF0dXJl"),
           value: fromBase64(
-            "Sm42eW9WYlFPdFIxWlNHRW1lQmQ4c2VaOTl5RHlqdlJ2eU8rR1hGL1FGaDh3bzR2Tm5EckFFUzNxNmk0Sy9XTnhhdkNFRDAxVXNSK0hJYVB2djdRNkE9PQ=="
+            "Sm42eW9WYlFPdFIxWlNHRW1lQmQ4c2VaOTl5RHlqdlJ2eU8rR1hGL1FGaDh3bzR2Tm5EckFFUzNxNmk0Sy9XTnhhdkNFRDAxVXNSK0hJYVB2djdRNkE9PQ==",
           ),
         },
       ],
@@ -132,7 +132,7 @@ test("parsePacketsFromEvents", (t) => {
         {
           key: fromBase64("c2VuZGVy"),
           value: fromBase64(
-            "anVubzEwMHM0NXM0aDk0cWRrY2FmbW1ycWZsdGxyZ3lxd3luNmUwNWp4Mg=="
+            "anVubzEwMHM0NXM0aDk0cWRrY2FmbW1ycWZsdGxyZ3lxd3luNmUwNWp4Mg==",
           ),
         },
       ],
@@ -143,7 +143,7 @@ test("parsePacketsFromEvents", (t) => {
         {
           key: fromBase64("X2NvbnRyYWN0X2FkZHJlc3M="),
           value: fromBase64(
-            "anVubzE0eWYyNHBmY3pjc2xjaGRyMDR1NXAyeXc5enhmNmN2czN2aGU5cjlzcmY1cGc2eTJwN25xZHFuN2tu"
+            "anVubzE0eWYyNHBmY3pjc2xjaGRyMDR1NXAyeXc5enhmNmN2czN2aGU5cjlzcmY1cGc2eTJwN25xZHFuN2tu",
           ),
         },
       ],
@@ -154,7 +154,7 @@ test("parsePacketsFromEvents", (t) => {
         {
           key: fromBase64("X2NvbnRyYWN0X2FkZHJlc3M="),
           value: fromBase64(
-            "anVubzFlN3ZzNzZtYXJrc2h1czM5ZXlmZWZoMnkzdDlndWdlNHQwa3ZxeWEzcTZ2YW1nc2VqaDRxOGx4dHE5"
+            "anVubzFlN3ZzNzZtYXJrc2h1czM5ZXlmZWZoMnkzdDlndWdlNHQwa3ZxeWEzcTZ2YW1nc2VqaDRxOGx4dHE5",
           ),
         },
       ],
@@ -165,7 +165,7 @@ test("parsePacketsFromEvents", (t) => {
         {
           key: fromBase64("X2NvbnRyYWN0X2FkZHJlc3M="),
           value: fromBase64(
-            "anVubzFlN3ZzNzZtYXJrc2h1czM5ZXlmZWZoMnkzdDlndWdlNHQwa3ZxeWEzcTZ2YW1nc2VqaDRxOGx4dHE5"
+            "anVubzFlN3ZzNzZtYXJrc2h1czM5ZXlmZWZoMnkzdDlndWdlNHQwa3ZxeWEzcTZ2YW1nc2VqaDRxOGx4dHE5",
           ),
         },
         {
@@ -188,13 +188,13 @@ test("parsePacketsFromEvents", (t) => {
         {
           key: fromBase64("cGFja2V0X2RhdGE="),
           value: fromBase64(
-            "eyJhZnRlciI6IjE2NjYxNjkwMDM0MTM1NzgyNjkiLCJzZW5kZXIiOiJqdW5vMTR5ZjI0cGZjemNzbGNoZHIwNHU1cDJ5dzl6eGY2Y3ZzM3ZoZTlyOXNyZjVwZzZ5MnA3bnFkcW43a24iLCJqb2JfaWQiOiJzaW1vbi1yb2xsLTEifQ=="
+            "eyJhZnRlciI6IjE2NjYxNjkwMDM0MTM1NzgyNjkiLCJzZW5kZXIiOiJqdW5vMTR5ZjI0cGZjemNzbGNoZHIwNHU1cDJ5dzl6eGY2Y3ZzM3ZoZTlyOXNyZjVwZzZ5MnA3bnFkcW43a24iLCJqb2JfaWQiOiJzaW1vbi1yb2xsLTEifQ==",
           ),
         },
         {
           key: fromBase64("cGFja2V0X2RhdGFfaGV4"),
           value: fromBase64(
-            "N2IyMjYxNjY3NDY1NzIyMjNhMjIzMTM2MzYzNjMxMzYzOTMwMzAzMzM0MzEzMzM1MzczODMyMzYzOTIyMmMyMjczNjU2ZTY0NjU3MjIyM2EyMjZhNzU2ZTZmMzEzNDc5NjYzMjM0NzA2NjYzN2E2MzczNmM2MzY4NjQ3MjMwMzQ3NTM1NzAzMjc5NzczOTdhNzg2NjM2NjM3NjczMzM3NjY4NjUzOTcyMzk3MzcyNjYzNTcwNjczNjc5MzI3MDM3NmU3MTY0NzE2ZTM3NmI2ZTIyMmMyMjZhNmY2MjVmNjk2NDIyM2EyMjczNjk2ZDZmNmUyZDcyNmY2YzZjMmQzMTIyN2Q="
+            "N2IyMjYxNjY3NDY1NzIyMjNhMjIzMTM2MzYzNjMxMzYzOTMwMzAzMzM0MzEzMzM1MzczODMyMzYzOTIyMmMyMjczNjU2ZTY0NjU3MjIyM2EyMjZhNzU2ZTZmMzEzNDc5NjYzMjM0NzA2NjYzN2E2MzczNmM2MzY4NjQ3MjMwMzQ3NTM1NzAzMjc5NzczOTdhNzg2NjM2NjM3NjczMzM3NjY4NjUzOTcyMzk3MzcyNjYzNTcwNjczNjc5MzI3MDM3NmU3MTY0NzE2ZTM3NmI2ZTIyMmMyMjZhNmY2MjVmNjk2NDIyM2EyMjczNjk2ZDZmNmUyZDcyNmY2YzZjMmQzMTIyN2Q=",
           ),
         },
         {
@@ -204,7 +204,7 @@ test("parsePacketsFromEvents", (t) => {
         {
           key: fromBase64("cGFja2V0X2RzdF9wb3J0"),
           value: fromBase64(
-            "d2FzbS5ub2lzMWo3bTRmNjhscnVjZWc1eHEzZ2ZrZmRnZGd6MDJ2aHZscTJwNjd2Zjl2M2h3ZHlkYWF0M3NhanpjeTU="
+            "d2FzbS5ub2lzMWo3bTRmNjhscnVjZWc1eHEzZ2ZrZmRnZGd6MDJ2aHZscTJwNjd2Zjl2M2h3ZHlkYWF0M3NhanpjeTU=",
           ),
         },
         {
@@ -218,7 +218,7 @@ test("parsePacketsFromEvents", (t) => {
         {
           key: fromBase64("cGFja2V0X3NyY19wb3J0"),
           value: fromBase64(
-            "d2FzbS5qdW5vMWU3dnM3Nm1hcmtzaHVzMzlleWZlZmgyeTN0OWd1Z2U0dDBrdnF5YTNxNnZhbWdzZWpoNHE4bHh0cTk="
+            "d2FzbS5qdW5vMWU3dnM3Nm1hcmtzaHVzMzlleWZlZmgyeTN0OWd1Z2U0dDBrdnF5YTNxNnZhbWdzZWpoNHE4bHh0cTk=",
           ),
         },
         {
@@ -237,7 +237,7 @@ test("parsePacketsFromEvents", (t) => {
         {
           key: fromBase64("X2NvbnRyYWN0X2FkZHJlc3M="),
           value: fromBase64(
-            "anVubzFlN3ZzNzZtYXJrc2h1czM5ZXlmZWZoMnkzdDlndWdlNHQwa3ZxeWEzcTZ2YW1nc2VqaDRxOGx4dHE5"
+            "anVubzFlN3ZzNzZtYXJrc2h1czM5ZXlmZWZoMnkzdDlndWdlNHQwa3ZxeWEzcTZ2YW1nc2VqaDRxOGx4dHE5",
           ),
         },
       ],
@@ -248,7 +248,7 @@ test("parsePacketsFromEvents", (t) => {
         {
           key: fromBase64("X2NvbnRyYWN0X2FkZHJlc3M="),
           value: fromBase64(
-            "anVubzFlN3ZzNzZtYXJrc2h1czM5ZXlmZWZoMnkzdDlndWdlNHQwa3ZxeWEzcTZ2YW1nc2VqaDRxOGx4dHE5"
+            "anVubzFlN3ZzNzZtYXJrc2h1czM5ZXlmZWZoMnkzdDlndWdlNHQwa3ZxeWEzcTZ2YW1nc2VqaDRxOGx4dHE5",
           ),
         },
         {
@@ -271,13 +271,13 @@ test("parsePacketsFromEvents", (t) => {
         {
           key: fromBase64("cGFja2V0X2RhdGE="),
           value: fromBase64(
-            "eyJhZnRlciI6IjE2NjYxNjkwMDM0MTM1NzgyNjkiLCJzZW5kZXIiOiJqdW5vMTR5ZjI0cGZjemNzbGNoZHIwNHU1cDJ5dzl6eGY2Y3ZzM3ZoZTlyOXNyZjVwZzZ5MnA3bnFkcW43a24iLCJqb2JfaWQiOiJzaW1vbi1yb2xsLTIifQ=="
+            "eyJhZnRlciI6IjE2NjYxNjkwMDM0MTM1NzgyNjkiLCJzZW5kZXIiOiJqdW5vMTR5ZjI0cGZjemNzbGNoZHIwNHU1cDJ5dzl6eGY2Y3ZzM3ZoZTlyOXNyZjVwZzZ5MnA3bnFkcW43a24iLCJqb2JfaWQiOiJzaW1vbi1yb2xsLTIifQ==",
           ),
         },
         {
           key: fromBase64("cGFja2V0X2RhdGFfaGV4"),
           value: fromBase64(
-            "N2IyMjYxNjY3NDY1NzIyMjNhMjIzMTM2MzYzNjMxMzYzOTMwMzAzMzM0MzEzMzM1MzczODMyMzYzOTIyMmMyMjczNjU2ZTY0NjU3MjIyM2EyMjZhNzU2ZTZmMzEzNDc5NjYzMjM0NzA2NjYzN2E2MzczNmM2MzY4NjQ3MjMwMzQ3NTM1NzAzMjc5NzczOTdhNzg2NjM2NjM3NjczMzM3NjY4NjUzOTcyMzk3MzcyNjYzNTcwNjczNjc5MzI3MDM3NmU3MTY0NzE2ZTM3NmI2ZTIyMmMyMjZhNmY2MjVmNjk2NDIyM2EyMjczNjk2ZDZmNmUyZDcyNmY2YzZjMmQzMjIyN2Q="
+            "N2IyMjYxNjY3NDY1NzIyMjNhMjIzMTM2MzYzNjMxMzYzOTMwMzAzMzM0MzEzMzM1MzczODMyMzYzOTIyMmMyMjczNjU2ZTY0NjU3MjIyM2EyMjZhNzU2ZTZmMzEzNDc5NjYzMjM0NzA2NjYzN2E2MzczNmM2MzY4NjQ3MjMwMzQ3NTM1NzAzMjc5NzczOTdhNzg2NjM2NjM3NjczMzM3NjY4NjUzOTcyMzk3MzcyNjYzNTcwNjczNjc5MzI3MDM3NmU3MTY0NzE2ZTM3NmI2ZTIyMmMyMjZhNmY2MjVmNjk2NDIyM2EyMjczNjk2ZDZmNmUyZDcyNmY2YzZjMmQzMjIyN2Q=",
           ),
         },
         {
@@ -287,7 +287,7 @@ test("parsePacketsFromEvents", (t) => {
         {
           key: fromBase64("cGFja2V0X2RzdF9wb3J0"),
           value: fromBase64(
-            "d2FzbS5ub2lzMWo3bTRmNjhscnVjZWc1eHEzZ2ZrZmRnZGd6MDJ2aHZscTJwNjd2Zjl2M2h3ZHlkYWF0M3NhanpjeTU="
+            "d2FzbS5ub2lzMWo3bTRmNjhscnVjZWc1eHEzZ2ZrZmRnZGd6MDJ2aHZscTJwNjd2Zjl2M2h3ZHlkYWF0M3NhanpjeTU=",
           ),
         },
         {
@@ -301,7 +301,7 @@ test("parsePacketsFromEvents", (t) => {
         {
           key: fromBase64("cGFja2V0X3NyY19wb3J0"),
           value: fromBase64(
-            "d2FzbS5qdW5vMWU3dnM3Nm1hcmtzaHVzMzlleWZlZmgyeTN0OWd1Z2U0dDBrdnF5YTNxNnZhbWdzZWpoNHE4bHh0cTk="
+            "d2FzbS5qdW5vMWU3dnM3Nm1hcmtzaHVzMzlleWZlZmgyeTN0OWd1Z2U0dDBrdnF5YTNxNnZhbWdzZWpoNHE4bHh0cTk=",
           ),
         },
         {
@@ -320,7 +320,7 @@ test("parsePacketsFromEvents", (t) => {
         {
           key: fromBase64("X2NvbnRyYWN0X2FkZHJlc3M="),
           value: fromBase64(
-            "anVubzFlN3ZzNzZtYXJrc2h1czM5ZXlmZWZoMnkzdDlndWdlNHQwa3ZxeWEzcTZ2YW1nc2VqaDRxOGx4dHE5"
+            "anVubzFlN3ZzNzZtYXJrc2h1czM5ZXlmZWZoMnkzdDlndWdlNHQwa3ZxeWEzcTZ2YW1nc2VqaDRxOGx4dHE5",
           ),
         },
       ],
@@ -331,7 +331,7 @@ test("parsePacketsFromEvents", (t) => {
         {
           key: fromBase64("X2NvbnRyYWN0X2FkZHJlc3M="),
           value: fromBase64(
-            "anVubzFlN3ZzNzZtYXJrc2h1czM5ZXlmZWZoMnkzdDlndWdlNHQwa3ZxeWEzcTZ2YW1nc2VqaDRxOGx4dHE5"
+            "anVubzFlN3ZzNzZtYXJrc2h1czM5ZXlmZWZoMnkzdDlndWdlNHQwa3ZxeWEzcTZ2YW1nc2VqaDRxOGx4dHE5",
           ),
         },
         {
@@ -354,13 +354,13 @@ test("parsePacketsFromEvents", (t) => {
         {
           key: fromBase64("cGFja2V0X2RhdGE="),
           value: fromBase64(
-            "eyJhZnRlciI6IjE2NjYxNjkwMDM0MTM1NzgyNjkiLCJzZW5kZXIiOiJqdW5vMTR5ZjI0cGZjemNzbGNoZHIwNHU1cDJ5dzl6eGY2Y3ZzM3ZoZTlyOXNyZjVwZzZ5MnA3bnFkcW43a24iLCJqb2JfaWQiOiJzaW1vbi1yb2xsLTMifQ=="
+            "eyJhZnRlciI6IjE2NjYxNjkwMDM0MTM1NzgyNjkiLCJzZW5kZXIiOiJqdW5vMTR5ZjI0cGZjemNzbGNoZHIwNHU1cDJ5dzl6eGY2Y3ZzM3ZoZTlyOXNyZjVwZzZ5MnA3bnFkcW43a24iLCJqb2JfaWQiOiJzaW1vbi1yb2xsLTMifQ==",
           ),
         },
         {
           key: fromBase64("cGFja2V0X2RhdGFfaGV4"),
           value: fromBase64(
-            "N2IyMjYxNjY3NDY1NzIyMjNhMjIzMTM2MzYzNjMxMzYzOTMwMzAzMzM0MzEzMzM1MzczODMyMzYzOTIyMmMyMjczNjU2ZTY0NjU3MjIyM2EyMjZhNzU2ZTZmMzEzNDc5NjYzMjM0NzA2NjYzN2E2MzczNmM2MzY4NjQ3MjMwMzQ3NTM1NzAzMjc5NzczOTdhNzg2NjM2NjM3NjczMzM3NjY4NjUzOTcyMzk3MzcyNjYzNTcwNjczNjc5MzI3MDM3NmU3MTY0NzE2ZTM3NmI2ZTIyMmMyMjZhNmY2MjVmNjk2NDIyM2EyMjczNjk2ZDZmNmUyZDcyNmY2YzZjMmQzMzIyN2Q="
+            "N2IyMjYxNjY3NDY1NzIyMjNhMjIzMTM2MzYzNjMxMzYzOTMwMzAzMzM0MzEzMzM1MzczODMyMzYzOTIyMmMyMjczNjU2ZTY0NjU3MjIyM2EyMjZhNzU2ZTZmMzEzNDc5NjYzMjM0NzA2NjYzN2E2MzczNmM2MzY4NjQ3MjMwMzQ3NTM1NzAzMjc5NzczOTdhNzg2NjM2NjM3NjczMzM3NjY4NjUzOTcyMzk3MzcyNjYzNTcwNjczNjc5MzI3MDM3NmU3MTY0NzE2ZTM3NmI2ZTIyMmMyMjZhNmY2MjVmNjk2NDIyM2EyMjczNjk2ZDZmNmUyZDcyNmY2YzZjMmQzMzIyN2Q=",
           ),
         },
         {
@@ -370,7 +370,7 @@ test("parsePacketsFromEvents", (t) => {
         {
           key: fromBase64("cGFja2V0X2RzdF9wb3J0"),
           value: fromBase64(
-            "d2FzbS5ub2lzMWo3bTRmNjhscnVjZWc1eHEzZ2ZrZmRnZGd6MDJ2aHZscTJwNjd2Zjl2M2h3ZHlkYWF0M3NhanpjeTU="
+            "d2FzbS5ub2lzMWo3bTRmNjhscnVjZWc1eHEzZ2ZrZmRnZGd6MDJ2aHZscTJwNjd2Zjl2M2h3ZHlkYWF0M3NhanpjeTU=",
           ),
         },
         {
@@ -384,7 +384,7 @@ test("parsePacketsFromEvents", (t) => {
         {
           key: fromBase64("cGFja2V0X3NyY19wb3J0"),
           value: fromBase64(
-            "d2FzbS5qdW5vMWU3dnM3Nm1hcmtzaHVzMzlleWZlZmgyeTN0OWd1Z2U0dDBrdnF5YTNxNnZhbWdzZWpoNHE4bHh0cTk="
+            "d2FzbS5qdW5vMWU3dnM3Nm1hcmtzaHVzMzlleWZlZmgyeTN0OWd1Z2U0dDBrdnF5YTNxNnZhbWdzZWpoNHE4bHh0cTk=",
           ),
         },
         {
@@ -413,7 +413,7 @@ test("parsePacketsFromEvents", (t) => {
       "wasm.nois1j7m4f68lruceg5xq3gfkfdgdgz02vhvlq2p67vf9v3hwdydaat3sajzcy5",
     destinationChannel: "channel-10",
     data: fromHex(
-      "7b226166746572223a2231363636313639303033343133353738323639222c2273656e646572223a226a756e6f3134796632347066637a63736c636864723034753570327977397a7866366376733376686539723973726635706736793270376e7164716e376b6e222c226a6f625f6964223a2273696d6f6e2d726f6c6c2d31227d"
+      "7b226166746572223a2231363636313639303033343133353738323639222c2273656e646572223a226a756e6f3134796632347066637a63736c636864723034753570327977397a7866366376733376686539723973726635706736793270376e7164716e376b6e222c226a6f625f6964223a2273696d6f6e2d726f6c6c2d31227d",
     ),
     timeoutHeight: {
       revisionHeight: BigInt("0"),
@@ -430,7 +430,7 @@ test("parsePacketsFromEvents", (t) => {
       "wasm.nois1j7m4f68lruceg5xq3gfkfdgdgz02vhvlq2p67vf9v3hwdydaat3sajzcy5",
     destinationChannel: "channel-10",
     data: fromHex(
-      "7b226166746572223a2231363636313639303033343133353738323639222c2273656e646572223a226a756e6f3134796632347066637a63736c636864723034753570327977397a7866366376733376686539723973726635706736793270376e7164716e376b6e222c226a6f625f6964223a2273696d6f6e2d726f6c6c2d32227d"
+      "7b226166746572223a2231363636313639303033343133353738323639222c2273656e646572223a226a756e6f3134796632347066637a63736c636864723034753570327977397a7866366376733376686539723973726635706736793270376e7164716e376b6e222c226a6f625f6964223a2273696d6f6e2d726f6c6c2d32227d",
     ),
     timeoutHeight: {
       revisionHeight: BigInt("0"),
@@ -447,7 +447,7 @@ test("parsePacketsFromEvents", (t) => {
       "wasm.nois1j7m4f68lruceg5xq3gfkfdgdgz02vhvlq2p67vf9v3hwdydaat3sajzcy5",
     destinationChannel: "channel-10",
     data: fromHex(
-      "7b226166746572223a2231363636313639303033343133353738323639222c2273656e646572223a226a756e6f3134796632347066637a63736c636864723034753570327977397a7866366376733376686539723973726635706736793270376e7164716e376b6e222c226a6f625f6964223a2273696d6f6e2d726f6c6c2d33227d"
+      "7b226166746572223a2231363636313639303033343133353738323639222c2273656e646572223a226a756e6f3134796632347066637a63736c636864723034753570327977397a7866366376733376686539723973726635706736793270376e7164716e376b6e222c226a6f625f6964223a2273696d6f6e2d726f6c6c2d33227d",
     ),
     timeoutHeight: {
       revisionHeight: BigInt("0"),
@@ -461,7 +461,7 @@ test("parsePacketsFromTxEvents works for one packet", (t) => {
   // curl -sS "https://juno-testnet-rpc.polkachu.com/tx?hash=0x502E6F4AEA3FB185DD894D0DC14E013C45E6F52AC00A0B5224F6876A1CA107DB" | jq .result.tx_result.log -r
   // and then replace \" with \\" to get the correct JavaScript escaping
   const events = JSON.parse(
-    '[{"type":"execute","attributes":[{"key":"_contract_address","value":"juno19pam0vncl2s3etn4e7rqxvpq2gkyu9wg2czfvsph6dgvp00fsrxqzjt5sr"},{"key":"_contract_address","value":"juno1e7vs76markshus39eyfefh2y3t9guge4t0kvqya3q6vamgsejh4q8lxtq9"}]},{"type":"message","attributes":[{"key":"action","value":"/cosmwasm.wasm.v1.MsgExecuteContract"},{"key":"module","value":"wasm"},{"key":"sender","value":"juno100s45s4h94qdkcafmmrqfltlrgyqwyn6e05jx2"}]},{"type":"send_packet","attributes":[{"key":"packet_channel_ordering","value":"ORDER_UNORDERED"},{"key":"packet_connection","value":"connection-31"},{"key":"packet_data","value":"{\\"after\\":\\"1666164035856871113\\",\\"sender\\":\\"juno19pam0vncl2s3etn4e7rqxvpq2gkyu9wg2czfvsph6dgvp00fsrxqzjt5sr\\",\\"job_id\\":\\"dapp-1-1666164017\\"}"},{"key":"packet_data_hex","value":"7b226166746572223a2231363636313634303335383536383731313133222c2273656e646572223a226a756e6f313970616d30766e636c32733365746e34653772717876707132676b797539776732637a66767370683664677670303066737278717a6a74357372222c226a6f625f6964223a22646170702d312d31363636313634303137227d"},{"key":"packet_dst_channel","value":"channel-10"},{"key":"packet_dst_port","value":"wasm.nois1j7m4f68lruceg5xq3gfkfdgdgz02vhvlq2p67vf9v3hwdydaat3sajzcy5"},{"key":"packet_sequence","value":"7489"},{"key":"packet_src_channel","value":"channel-42"},{"key":"packet_src_port","value":"wasm.juno1e7vs76markshus39eyfefh2y3t9guge4t0kvqya3q6vamgsejh4q8lxtq9"},{"key":"packet_timeout_height","value":"0-0"},{"key":"packet_timeout_timestamp","value":"1666167632856871113"}]},{"type":"wasm","attributes":[{"key":"_contract_address","value":"juno1e7vs76markshus39eyfefh2y3t9guge4t0kvqya3q6vamgsejh4q8lxtq9"},{"key":"action","value":"execute_get_next_randomness"}]}]'
+    '[{"type":"execute","attributes":[{"key":"_contract_address","value":"juno19pam0vncl2s3etn4e7rqxvpq2gkyu9wg2czfvsph6dgvp00fsrxqzjt5sr"},{"key":"_contract_address","value":"juno1e7vs76markshus39eyfefh2y3t9guge4t0kvqya3q6vamgsejh4q8lxtq9"}]},{"type":"message","attributes":[{"key":"action","value":"/cosmwasm.wasm.v1.MsgExecuteContract"},{"key":"module","value":"wasm"},{"key":"sender","value":"juno100s45s4h94qdkcafmmrqfltlrgyqwyn6e05jx2"}]},{"type":"send_packet","attributes":[{"key":"packet_channel_ordering","value":"ORDER_UNORDERED"},{"key":"packet_connection","value":"connection-31"},{"key":"packet_data","value":"{\\"after\\":\\"1666164035856871113\\",\\"sender\\":\\"juno19pam0vncl2s3etn4e7rqxvpq2gkyu9wg2czfvsph6dgvp00fsrxqzjt5sr\\",\\"job_id\\":\\"dapp-1-1666164017\\"}"},{"key":"packet_data_hex","value":"7b226166746572223a2231363636313634303335383536383731313133222c2273656e646572223a226a756e6f313970616d30766e636c32733365746e34653772717876707132676b797539776732637a66767370683664677670303066737278717a6a74357372222c226a6f625f6964223a22646170702d312d31363636313634303137227d"},{"key":"packet_dst_channel","value":"channel-10"},{"key":"packet_dst_port","value":"wasm.nois1j7m4f68lruceg5xq3gfkfdgdgz02vhvlq2p67vf9v3hwdydaat3sajzcy5"},{"key":"packet_sequence","value":"7489"},{"key":"packet_src_channel","value":"channel-42"},{"key":"packet_src_port","value":"wasm.juno1e7vs76markshus39eyfefh2y3t9guge4t0kvqya3q6vamgsejh4q8lxtq9"},{"key":"packet_timeout_height","value":"0-0"},{"key":"packet_timeout_timestamp","value":"1666167632856871113"}]},{"type":"wasm","attributes":[{"key":"_contract_address","value":"juno1e7vs76markshus39eyfefh2y3t9guge4t0kvqya3q6vamgsejh4q8lxtq9"},{"key":"action","value":"execute_get_next_randomness"}]}]',
   );
   const packets = parsePacketsFromEvents(events);
   t.is(packets.length, 1);
@@ -474,7 +474,7 @@ test("parsePacketsFromTxEvents works for one packet", (t) => {
       "wasm.nois1j7m4f68lruceg5xq3gfkfdgdgz02vhvlq2p67vf9v3hwdydaat3sajzcy5",
     destinationChannel: "channel-10",
     data: fromHex(
-      "7b226166746572223a2231363636313634303335383536383731313133222c2273656e646572223a226a756e6f313970616d30766e636c32733365746e34653772717876707132676b797539776732637a66767370683664677670303066737278717a6a74357372222c226a6f625f6964223a22646170702d312d31363636313634303137227d"
+      "7b226166746572223a2231363636313634303335383536383731313133222c2273656e646572223a226a756e6f313970616d30766e636c32733365746e34653772717876707132676b797539776732637a66767370683664677670303066737278717a6a74357372222c226a6f625f6964223a22646170702d312d31363636313634303137227d",
     ),
     timeoutHeight: {
       revisionHeight: BigInt("0"),
@@ -543,7 +543,7 @@ test("time-based timeouts properly", (t) => {
   t.is(greaterThanSelfWithNanos, true);
   const greaterThanSelf = timeGreater(
     nanosFromDateTime(time3),
-    secondsFromDateNanos(time3)
+    secondsFromDateNanos(time3),
   );
   t.is(greaterThanSelf, false);
 });

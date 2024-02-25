@@ -3,7 +3,7 @@ export type LogMethod = (
   /* The string to be logged */
   message: string,
   /* Optional object to be JSON-stringified by the logger */
-  meta?: Record<string, unknown>
+  meta?: Record<string, unknown>,
 ) => Logger;
 
 // Logger interface with a subset of methods from https://github.com/winstonjs/winston/blob/v3.3.3/index.d.ts#L107-L115

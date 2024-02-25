@@ -28,7 +28,7 @@ program.description("Typescript implementation of an IBC relayer");
 const startCommand = program
   .command("start")
   .description(
-    "Relay all packets over all channels on pre-configured connection"
+    "Relay all packets over all channels on pre-configured connection",
   )
   .addOption(homeOption)
   .addOption(srcOption)
@@ -40,22 +40,22 @@ const startCommand = program
   .addOption(destConnection)
   .option(
     "--enable-metrics",
-    "Enable Prometheus metrics collection and GET /metrics endpoint"
+    "Enable Prometheus metrics collection and GET /metrics endpoint",
   )
   .option(
-    `--metrics-port <port>', 'Specify port for GET /metrics http server (default: ${startDefaults.metricsPort})`
+    `--metrics-port <port>', 'Specify port for GET /metrics http server (default: ${startDefaults.metricsPort})`,
   )
   .option(
     "--poll <frequency>",
-    `How many seconds we sleep between checking for packets (default: ${startDefaults.poll})`
+    `How many seconds we sleep between checking for packets (default: ${startDefaults.poll})`,
   )
   .option(
     "--max-age-src <seconds>",
-    `How old can the client on src chain be, before we update it (default: ${startDefaults.maxAgeSrc})`
+    `How old can the client on src chain be, before we update it (default: ${startDefaults.maxAgeSrc})`,
   )
   .option(
     "--max-age-dest <seconds>",
-    `How old can the client on dest chain be, before we update it (default: ${startDefaults.maxAgeDest})`
+    `How old can the client on dest chain be, before we update it (default: ${startDefaults.maxAgeDest})`,
   )
   .option("--scan-from-src <height>")
   .option("--scan-from-dest <height>")
@@ -71,5 +71,5 @@ program.parseAsync(process.argv).then(
   (err) => {
     console.error(err);
     process.exit(5);
-  }
+  },
 );

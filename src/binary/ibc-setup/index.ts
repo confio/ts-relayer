@@ -41,14 +41,14 @@ program.description("Collection of commands to quickly setup a relayer");
 const initCommand = program
   .command("init")
   .description(
-    "Initialize relayer's home directory with registry.yaml and app.yaml configuration files"
+    "Initialize relayer's home directory with registry.yaml and app.yaml configuration files",
   )
   .addOption(homeOption)
   .addOption(srcOption)
   .addOption(destOption)
   .option(
     "--registry-from <path>",
-    "Copy existing relayer registry from given home directory"
+    "Copy existing relayer registry from given home directory",
   )
   .action(loggerWithErrorBoundary(init));
 addLoggerOptionsTo(initCommand);
@@ -56,7 +56,7 @@ addLoggerOptionsTo(initCommand);
 const ics20Command = program
   .command("ics20")
   .description(
-    "Create new unordered channel (ics20-1) for given chains, ports, and connections"
+    "Create new unordered channel (ics20-1) for given chains, ports, and connections",
   )
   .addOption(homeOption)
   .addOption(srcTrust)
@@ -152,5 +152,5 @@ program.parseAsync(process.argv).then(
   (err) => {
     console.error(err);
     process.exit(5);
-  }
+  },
 );

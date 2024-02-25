@@ -44,15 +44,15 @@ export async function keysList(flags: Flags, _logger: Logger) {
 
 export async function getAddresses(
   registryChains: Record<string, Chain>,
-  mnemonic: string
+  mnemonic: string,
 ): Promise<[chain: string, data: Chain, address: string][]> {
   const chains = Object.entries(registryChains);
 
   return (
     await Promise.all(
       chains.map(([, data]) =>
-        deriveAddress(mnemonic, data.prefix, data.hd_path)
-      )
+        deriveAddress(mnemonic, data.prefix, data.hd_path),
+      ),
     )
   ).map((address, index) => [chains[index][0], chains[index][1], address]);
 }

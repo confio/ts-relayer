@@ -51,11 +51,11 @@ export async function connect(flags: Flags, logger: Logger) {
   const dest = resolveOption("dest", { required: true })(app.dest);
   const srcTrust = resolveOption("srcTrust", { integer: true })(
     flags.srcTrust,
-    process.env.RELAYER_SRC_TRUST
+    process.env.RELAYER_SRC_TRUST,
   );
   const destTrust = resolveOption("destTrust", { integer: true })(
     flags.destTrust,
-    process.env.RELAYER_DEST_TRUST
+    process.env.RELAYER_DEST_TRUST,
   );
 
   const options: Options = {
@@ -89,7 +89,7 @@ export async function run(options: Options, app: AppConfig, logger: Logger) {
     nodeB,
     logger,
     options.srcTrust,
-    options.destTrust
+    options.destTrust,
   );
 
   const appYaml = yaml.dump(
@@ -100,7 +100,7 @@ export async function run(options: Options, app: AppConfig, logger: Logger) {
     },
     {
       lineWidth: 1000,
-    }
+    },
   );
 
   fs.writeFileSync(path.join(options.home, appFile), appYaml, {
@@ -108,6 +108,6 @@ export async function run(options: Options, app: AppConfig, logger: Logger) {
   });
 
   console.log(
-    `Created connections ${link.endA.connectionID} (${link.endA.clientID}) <=> ${link.endB.connectionID} (${link.endB.clientID})`
+    `Created connections ${link.endA.connectionID} (${link.endA.clientID}) <=> ${link.endB.connectionID} (${link.endB.clientID})`,
   );
 }

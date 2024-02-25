@@ -51,7 +51,7 @@ export class Endpoint {
   public constructor(
     client: IbcClient,
     clientID: string,
-    connectionID: string
+    connectionID: string,
   ) {
     this.client = client;
     this.clientID = clientID;
@@ -90,7 +90,7 @@ export class Endpoint {
           height,
           sender: "",
         }));
-      })
+      }),
     );
 
     return ([] as PacketWithMetadata[]).concat(...resultsNested);
@@ -114,7 +114,7 @@ export class Endpoint {
         parsePacketsFromTendermintEvents(result.events).map((packet) => ({
           packet,
           height,
-        }))
+        })),
     );
     return resultsNested.flat();
   }
@@ -157,7 +157,7 @@ export class Endpoint {
           txHash: toHex(hash).toUpperCase(),
           txEvents: events,
           ...ack,
-        })
+        }),
       );
     });
     return out;

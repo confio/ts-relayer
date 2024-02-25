@@ -36,7 +36,7 @@ function copyRegistryFile(from: string, to: string) {
   } catch (error) {
     if (isNoExistError(error)) {
       throw new Error(
-        `No such file: ${from}. Make sure that "--registry-from" points at existing relayer's home dir.`
+        `No such file: ${from}. Make sure that "--registry-from" points at existing relayer's home dir.`,
       );
     } else {
       throw error;
@@ -47,7 +47,7 @@ function copyRegistryFile(from: string, to: string) {
 async function pullRegistryFromRemote(writeTo: string) {
   try {
     const registryFromRemote = await axios.get(
-      "https://raw.githubusercontent.com/confio/ts-relayer/main/demo/registry.yaml"
+      "https://raw.githubusercontent.com/confio/ts-relayer/main/demo/registry.yaml",
     );
     fs.writeFileSync(writeTo, registryFromRemote.data);
     console.log(`Pulled default ${registryFile} from remote.`);
@@ -63,7 +63,7 @@ export async function init(flags: Flags, _logger: Logger) {
     home: resolveHomeOption({ homeFlag: flags.home }),
     registryFrom: resolveOption("registryFrom")(
       flags.registryFrom,
-      process.env.RELAYER_REGISTRY_FROM
+      process.env.RELAYER_REGISTRY_FROM,
     ),
   };
 
@@ -90,7 +90,7 @@ export async function run(options: Options) {
     if (options.registryFrom) {
       copyRegistryFile(
         path.join(options.registryFrom, registryFile),
-        registryFilePath
+        registryFilePath,
       );
     } else {
       await pullRegistryFromRemote(registryFilePath);
@@ -101,7 +101,7 @@ export async function run(options: Options) {
 
   if (!options.src || !options.dest) {
     console.log(
-      `Exited early. Registry file downloaded to ${registryFilePath}. Please edit that file and add any chains you wish. Then complete the initialization by running ibc-setup init --src <chain-1> --dest <chain-2>.`
+      `Exited early. Registry file downloaded to ${registryFilePath}. Please edit that file and add any chains you wish. Then complete the initialization by running ibc-setup init --src <chain-1> --dest <chain-2>.`,
     );
     return;
   }
@@ -113,7 +113,7 @@ export async function run(options: Options) {
 
     if (!chainData) {
       throw new Error(
-        `Chain ${chain} is missing in the registry, either check the spelling or add the chain definition to ${registryFilePath}.`
+        `Chain ${chain} is missing in the registry, either check the spelling or add the chain definition to ${registryFilePath}.`,
       );
     }
 
@@ -130,7 +130,7 @@ export async function run(options: Options) {
     },
     {
       lineWidth: 1000, // to ensure mnemonic is not split on multiple lines
-    }
+    },
   );
 
   fs.writeFileSync(appFilePath, appYaml, { encoding: "utf-8" });

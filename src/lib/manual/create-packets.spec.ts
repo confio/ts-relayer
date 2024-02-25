@@ -29,7 +29,7 @@ test.serial.skip("send valid packets on existing channel", async (t) => {
     dest,
     wasmd.prefix,
     channels.src,
-    srcAmounts
+    srcAmounts,
   );
   t.is(srcAmounts.length, srcPackets.length);
 
@@ -41,7 +41,7 @@ test.serial.skip("send valid packets on existing channel", async (t) => {
     src,
     gaia.prefix,
     channels.dest,
-    destAmounts
+    destAmounts,
   );
   t.is(destAmounts.length, destPackets.length);
 });

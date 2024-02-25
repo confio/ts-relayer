@@ -16,7 +16,7 @@ export async function keysGenerate(flags: Flags, _logger: Logger) {
   const options = {
     keyFile: resolveOption("keyFile")(
       flags.keyFile,
-      process.env.RELAYER_KEY_FILE
+      process.env.RELAYER_KEY_FILE,
     ),
   };
 

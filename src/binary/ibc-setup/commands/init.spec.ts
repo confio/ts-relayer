@@ -23,7 +23,7 @@ sinon.replace(
   sinon.fake.returns({
     isDirectory: () => true,
     isFile: () => true,
-  })
+  }),
 );
 
 const registryYaml = `
@@ -81,14 +81,14 @@ test("creates app.yaml", async (t) => {
   const [calledAppPath, contents] = fsWriteFileSync.getCall(0).args;
   const appYamlRegexp = new RegExp(
     `src: ${options.src}\ndest: ${options.dest}\nmnemonic: [\\w ]+`,
-    "mg"
+    "mg",
   );
   t.is(calledAppPath, appPath);
   t.regex(contents as string, appYamlRegexp);
 
   t.assert(consoleLog.getCall(-2).calledWithMatch(/Source address: [\w ]+/));
   t.assert(
-    consoleLog.getCall(-1).calledWithMatch(/Destination address: [\w ]+/)
+    consoleLog.getCall(-1).calledWithMatch(/Destination address: [\w ]+/),
   );
 });
 
@@ -127,14 +127,14 @@ test.only("initialize home directory, pull registry.yaml and create app.yaml", a
   const [calledAppPath, contents] = fsWriteFileSync.getCall(1).args;
   const appYamlRegexp = new RegExp(
     `src: ${options.src}\ndest: ${options.dest}\nmnemonic: [\\w ]+`,
-    "mg"
+    "mg",
   );
   t.is(calledAppPath, appPath);
   t.regex(contents as string, appYamlRegexp);
 
   t.assert(consoleLog.getCall(-2).calledWithMatch(/Source address: [\w ]+/));
   t.assert(
-    consoleLog.getCall(-1).calledWithMatch(/Destination address: [\w ]+/)
+    consoleLog.getCall(-1).calledWithMatch(/Destination address: [\w ]+/),
   );
 });
 
@@ -232,21 +232,21 @@ test("copies existing registry", async (t) => {
   t.assert(
     fsCopyFileSync.calledOnceWith(
       path.join(options.registryFrom as string, registryFile),
-      registryPath
-    )
+      registryPath,
+    ),
   );
 
   const [calledAppPath, contents] = fsWriteFileSync.getCall(0).args;
   const appYamlRegexp = new RegExp(
     `src: ${options.src}\ndest: ${options.dest}\nmnemonic: [\\w ]+`,
-    "mg"
+    "mg",
   );
   t.is(calledAppPath, appPath);
   t.regex(contents as string, appYamlRegexp);
 
   t.assert(consoleLog.getCall(-2).calledWithMatch(/Source address: [\w ]+/));
   t.assert(
-    consoleLog.getCall(-1).calledWithMatch(/Destination address: [\w ]+/)
+    consoleLog.getCall(-1).calledWithMatch(/Destination address: [\w ]+/),
   );
 });
 

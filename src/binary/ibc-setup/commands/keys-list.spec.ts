@@ -46,6 +46,6 @@ test("lists addresses for every chain in the registry", async (t) => {
   t.assert(fsReadFileSync.calledOnce);
   t.assert(consoleLog.calledOnce);
   t.assert(
-    consoleLog.calledWithMatch(/local_wasm: [a-z0-9]+\nlocal_gaia: [a-z0-9]+/)
+    consoleLog.calledWithMatch(/local_wasm: [a-z0-9]+\nlocal_gaia: [a-z0-9]+/),
   );
 });

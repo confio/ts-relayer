@@ -35,7 +35,7 @@ export async function connections(flags: Flags, logger: Logger) {
   const keyFile = resolveKeyFileOption({ keyFileFlag: flags.keyFile, app });
   const chain = resolveOption("chain", { required: true })(
     flags.chain,
-    process.env.RELAYER_CHAIN
+    process.env.RELAYER_CHAIN,
   );
 
   const mnemonic = await resolveMnemonicOption(
@@ -45,7 +45,7 @@ export async function connections(flags: Flags, logger: Logger) {
       keyFile,
       app,
     },
-    true // mnemonic is optional
+    true, // mnemonic is optional
   );
 
   const options: Options = {

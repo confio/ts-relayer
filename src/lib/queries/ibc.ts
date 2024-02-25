@@ -53,7 +53,7 @@ import {
 import { ProofOps } from "cosmjs-types/tendermint/crypto/proof";
 
 function decodeTendermintClientStateAny(
-  clientState: Any | undefined
+  clientState: Any | undefined,
 ): TendermintClientState {
   if (clientState?.typeUrl !== "/ibc.lightclients.tendermint.v1.ClientState") {
     throw new Error(`Unexpected client state type: ${clientState?.typeUrl}`);
@@ -62,7 +62,7 @@ function decodeTendermintClientStateAny(
 }
 
 function decodeTendermintConsensusStateAny(
-  clientState: Any | undefined
+  clientState: Any | undefined,
 ): TendermintConsensusState {
   if (
     clientState?.typeUrl !== "/ibc.lightclients.tendermint.v1.ConsensusState"
@@ -81,123 +81,123 @@ export interface IbcExtension {
     readonly channel: {
       readonly channel: (
         portId: string,
-        channelId: string
+        channelId: string,
       ) => Promise<QueryChannelResponse>;
       readonly channels: (
-        paginationKey?: Uint8Array
+        paginationKey?: Uint8Array,
       ) => Promise<QueryChannelsResponse>;
       readonly allChannels: () => Promise<QueryChannelsResponse>;
       readonly connectionChannels: (
         connection: string,
-        paginationKey?: Uint8Array
+        paginationKey?: Uint8Array,
       ) => Promise<QueryConnectionChannelsResponse>;
       readonly allConnectionChannels: (
-        connection: string
+        connection: string,
       ) => Promise<QueryConnectionChannelsResponse>;
       readonly clientState: (
         portId: string,
-        channelId: string
+        channelId: string,
       ) => Promise<QueryChannelClientStateResponse>;
       readonly consensusState: (
         portId: string,
         channelId: string,
         revisionNumber: number,
-        revisionHeight: number
+        revisionHeight: number,
       ) => Promise<QueryChannelConsensusStateResponse>;
       readonly packetCommitment: (
         portId: string,
         channelId: string,
-        sequence: bigint
+        sequence: bigint,
       ) => Promise<QueryPacketCommitmentResponse>;
       readonly packetCommitments: (
         portId: string,
         channelId: string,
-        paginationKey?: Uint8Array
+        paginationKey?: Uint8Array,
       ) => Promise<QueryPacketCommitmentsResponse>;
       readonly allPacketCommitments: (
         portId: string,
-        channelId: string
+        channelId: string,
       ) => Promise<QueryPacketCommitmentsResponse>;
       readonly packetReceipt: (
         portId: string,
         channelId: string,
-        sequence: number
+        sequence: number,
       ) => Promise<QueryPacketReceiptResponse>;
       readonly packetAcknowledgement: (
         portId: string,
         channelId: string,
-        sequence: number
+        sequence: number,
       ) => Promise<QueryPacketAcknowledgementResponse>;
       readonly packetAcknowledgements: (
         portId: string,
         channelId: string,
-        paginationKey?: Uint8Array
+        paginationKey?: Uint8Array,
       ) => Promise<QueryPacketAcknowledgementsResponse>;
       readonly allPacketAcknowledgements: (
         portId: string,
-        channelId: string
+        channelId: string,
       ) => Promise<QueryPacketAcknowledgementsResponse>;
       readonly unreceivedPackets: (
         portId: string,
         channelId: string,
-        packetCommitmentSequences: readonly number[]
+        packetCommitmentSequences: readonly number[],
       ) => Promise<QueryUnreceivedPacketsResponse>;
       readonly unreceivedAcks: (
         portId: string,
         channelId: string,
-        packetAckSequences: readonly number[]
+        packetAckSequences: readonly number[],
       ) => Promise<QueryUnreceivedAcksResponse>;
       readonly nextSequenceReceive: (
         portId: string,
-        channelId: string
+        channelId: string,
       ) => Promise<QueryNextSequenceReceiveResponse>;
     };
     readonly client: {
       readonly state: (clientId: string) => Promise<QueryClientStateResponse>;
       readonly states: (
-        paginationKey?: Uint8Array
+        paginationKey?: Uint8Array,
       ) => Promise<QueryClientStatesResponse>;
       readonly allStates: () => Promise<QueryClientStatesResponse>;
       readonly consensusState: (
         clientId: string,
-        height?: number
+        height?: number,
       ) => Promise<QueryConsensusStateResponse>;
       readonly consensusStates: (
         clientId: string,
-        paginationKey?: Uint8Array
+        paginationKey?: Uint8Array,
       ) => Promise<QueryConsensusStatesResponse>;
       readonly allConsensusStates: (
-        clientId: string
+        clientId: string,
       ) => Promise<QueryConsensusStatesResponse>;
       readonly params: () => Promise<QueryClientParamsResponse>;
       readonly stateTm: (clientId: string) => Promise<TendermintClientState>;
       readonly statesTm: (
-        paginationKey?: Uint8Array
+        paginationKey?: Uint8Array,
       ) => Promise<TendermintClientState[]>;
       readonly allStatesTm: () => Promise<TendermintClientState[]>;
       readonly consensusStateTm: (
         clientId: string,
-        height?: Height
+        height?: Height,
       ) => Promise<TendermintConsensusState>;
     };
     readonly connection: {
       readonly connection: (
-        connectionId: string
+        connectionId: string,
       ) => Promise<QueryConnectionResponse>;
       readonly connections: (
-        paginationKey?: Uint8Array
+        paginationKey?: Uint8Array,
       ) => Promise<QueryConnectionsResponse>;
       readonly allConnections: () => Promise<QueryConnectionsResponse>;
       readonly clientConnections: (
-        clientId: string
+        clientId: string,
       ) => Promise<QueryClientConnectionsResponse>;
       readonly clientState: (
-        connectionId: string
+        connectionId: string,
       ) => Promise<QueryConnectionClientStateResponse>;
       readonly consensusState: (
         connectionId: string,
         revisionNumber: number,
-        revisionHeight: number
+        revisionHeight: number,
       ) => Promise<QueryConnectionConsensusStateResponse>;
     };
     readonly proof: {
@@ -205,47 +205,47 @@ export interface IbcExtension {
         readonly channel: (
           portId: string,
           channelId: string,
-          proofHeight: Height
+          proofHeight: Height,
         ) => Promise<QueryChannelResponse>;
         readonly receiptProof: (
           portId: string,
           channelId: string,
           sequence: number,
-          proofHeight: Height
+          proofHeight: Height,
         ) => Promise<Uint8Array>;
         readonly packetCommitment: (
           portId: string,
           channelId: string,
           sequence: bigint,
-          proofHeight: Height
+          proofHeight: Height,
         ) => Promise<QueryPacketCommitmentResponse>;
         readonly packetAcknowledgement: (
           portId: string,
           channelId: string,
           sequence: number,
-          proofHeight: Height
+          proofHeight: Height,
         ) => Promise<QueryPacketAcknowledgementResponse>;
         readonly nextSequenceReceive: (
           portId: string,
           channelId: string,
-          proofHeight: Height
+          proofHeight: Height,
         ) => Promise<QueryNextSequenceReceiveResponse>;
       };
       readonly client: {
         readonly state: (
           clientId: string,
-          proofHeight: Height
+          proofHeight: Height,
         ) => Promise<QueryClientStateResponse & { proofHeight: Height }>;
         readonly consensusState: (
           clientId: string,
           consensusHeight: Height,
-          proofHeight: Height
+          proofHeight: Height,
         ) => Promise<QueryConsensusStateResponse>;
       };
       readonly connection: {
         readonly connection: (
           connectionId: string,
-          proofHeight: Height
+          proofHeight: Height,
         ) => Promise<QueryConnectionResponse>;
       };
     };
@@ -290,7 +290,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
         },
         connectionChannels: async (
           connection: string,
-          paginationKey?: Uint8Array
+          paginationKey?: Uint8Array,
         ) =>
           channelQueryService.ConnectionChannels({
             connection,
@@ -322,7 +322,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           portId: string,
           channelId: string,
           revisionNumber: number,
-          revisionHeight: number
+          revisionHeight: number,
         ) =>
           channelQueryService.ChannelConsensusState({
             portId,
@@ -333,7 +333,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
         packetCommitment: async (
           portId: string,
           channelId: string,
-          sequence: bigint
+          sequence: bigint,
         ) =>
           channelQueryService.PacketCommitment({
             portId,
@@ -343,7 +343,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
         packetCommitments: async (
           portId: string,
           channelId: string,
-          paginationKey?: Uint8Array
+          paginationKey?: Uint8Array,
         ) =>
           channelQueryService.PacketCommitments({
             channelId,
@@ -371,7 +371,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
         packetReceipt: async (
           portId: string,
           channelId: string,
-          sequence: number
+          sequence: number,
         ) =>
           channelQueryService.PacketReceipt({
             portId,
@@ -381,7 +381,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
         packetAcknowledgement: async (
           portId: string,
           channelId: string,
-          sequence: number
+          sequence: number,
         ) =>
           channelQueryService.PacketAcknowledgement({
             portId,
@@ -391,7 +391,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
         packetAcknowledgements: async (
           portId: string,
           channelId: string,
-          paginationKey?: Uint8Array
+          paginationKey?: Uint8Array,
         ) => {
           const request = QueryPacketAcknowledgementsRequest.fromPartial({
             portId,
@@ -402,7 +402,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
         },
         allPacketAcknowledgements: async (
           portId: string,
-          channelId: string
+          channelId: string,
         ) => {
           const acknowledgements = [];
           let response: QueryPacketAcknowledgementsResponse;
@@ -413,9 +413,8 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
               portId,
               pagination: createPagination(key),
             });
-            response = await channelQueryService.PacketAcknowledgements(
-              request
-            );
+            response =
+              await channelQueryService.PacketAcknowledgements(request);
             acknowledgements.push(...response.acknowledgements);
             key = response.pagination?.nextKey;
           } while (key && key.length);
@@ -427,19 +426,19 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
         unreceivedPackets: async (
           portId: string,
           channelId: string,
-          packetCommitmentSequences: readonly number[]
+          packetCommitmentSequences: readonly number[],
         ) =>
           channelQueryService.UnreceivedPackets({
             portId,
             channelId,
             packetCommitmentSequences: packetCommitmentSequences.map((s) =>
-              BigInt(s)
+              BigInt(s),
             ),
           }),
         unreceivedAcks: async (
           portId: string,
           channelId: string,
-          packetAckSequences: readonly number[]
+          packetAckSequences: readonly number[],
         ) =>
           channelQueryService.UnreceivedAcks({
             portId,
@@ -483,7 +482,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
                   ? BigInt(consensusHeight)
                   : undefined,
               latestHeight: consensusHeight === undefined,
-            })
+            }),
           ),
         consensusStates: (clientId: string, paginationKey?: Uint8Array) =>
           clientQueryService.ConsensusStates({
@@ -516,7 +515,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             pagination: createPagination(paginationKey),
           });
           return clientStates.map(({ clientState }) =>
-            decodeTendermintClientStateAny(clientState)
+            decodeTendermintClientStateAny(clientState),
           );
         },
         allStatesTm: async () => {
@@ -531,12 +530,12 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             key = response.pagination?.nextKey;
           } while (key && key.length);
           return clientStates.map(({ clientState }) =>
-            decodeTendermintClientStateAny(clientState)
+            decodeTendermintClientStateAny(clientState),
           );
         },
         consensusStateTm: async (
           clientId: string,
-          consensusHeight?: Height
+          consensusHeight?: Height,
         ) => {
           const response = await clientQueryService.ConsensusState(
             QueryConsensusStateRequest.fromPartial({
@@ -544,7 +543,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
               revisionHeight: consensusHeight?.revisionHeight,
               revisionNumber: consensusHeight?.revisionNumber,
               latestHeight: consensusHeight === undefined,
-            })
+            }),
           );
           return decodeTendermintConsensusStateAny(response.consensusState);
         },
@@ -587,7 +586,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             QueryConnectionConsensusStateRequest.fromPartial({
               connectionId,
               revisionHeight: BigInt(revisionHeight),
-            })
+            }),
           ),
       },
       proof: {
@@ -597,16 +596,16 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           channel: async (
             portId: string,
             channelId: string,
-            proofHeight: Height
+            proofHeight: Height,
           ) => {
             // key: https://github.com/cosmos/cosmos-sdk/blob/ef0a7344af345882729598bc2958a21143930a6b/x/ibc/24-host/keys.go#L117-L120
             const key = toAscii(
-              `channelEnds/ports/${portId}/channels/${channelId}`
+              `channelEnds/ports/${portId}/channels/${channelId}`,
             );
             const proven = await base.queryRawProof(
               "ibc",
               key,
-              Number(proofHeight.revisionHeight)
+              Number(proofHeight.revisionHeight),
             );
             const channel = Channel.decode(proven.value);
             const proof = convertProofsToIcs23(proven.proof);
@@ -622,15 +621,15 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             portId: string,
             channelId: string,
             sequence: number,
-            proofHeight: Height
+            proofHeight: Height,
           ) => {
             const key = toAscii(
-              `receipts/ports/${portId}/channels/${channelId}/sequences/${sequence}`
+              `receipts/ports/${portId}/channels/${channelId}/sequences/${sequence}`,
             );
             const proven = await base.queryRawProof(
               "ibc",
               key,
-              Number(proofHeight.revisionHeight)
+              Number(proofHeight.revisionHeight),
             );
             const proof = convertProofsToIcs23(proven.proof);
             return proof;
@@ -639,15 +638,15 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             portId: string,
             channelId: string,
             sequence: bigint,
-            proofHeight: Height
+            proofHeight: Height,
           ) => {
             const key = toAscii(
-              `commitments/ports/${portId}/channels/${channelId}/sequences/${sequence}`
+              `commitments/ports/${portId}/channels/${channelId}/sequences/${sequence}`,
             );
             const proven = await base.queryRawProof(
               "ibc",
               key,
-              Number(proofHeight.revisionHeight)
+              Number(proofHeight.revisionHeight),
             );
             const commitment = proven.value;
             const proof = convertProofsToIcs23(proven.proof);
@@ -661,15 +660,15 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             portId: string,
             channelId: string,
             sequence: number,
-            proofHeight: Height
+            proofHeight: Height,
           ) => {
             const key = toAscii(
-              `acks/ports/${portId}/channels/${channelId}/sequences/${sequence}`
+              `acks/ports/${portId}/channels/${channelId}/sequences/${sequence}`,
             );
             const proven = await base.queryRawProof(
               "ibc",
               key,
-              Number(proofHeight.revisionHeight)
+              Number(proofHeight.revisionHeight),
             );
             const acknowledgement = proven.value;
             const proof = convertProofsToIcs23(proven.proof);
@@ -682,19 +681,19 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           nextSequenceReceive: async (
             portId: string,
             channelId: string,
-            proofHeight: Height
+            proofHeight: Height,
           ) => {
             const key = toAscii(
-              `nextSequenceRecv/ports/${portId}/channels/${channelId}`
+              `nextSequenceRecv/ports/${portId}/channels/${channelId}`,
             );
             const proven = await base.queryRawProof(
               "ibc",
               key,
-              Number(proofHeight.revisionHeight)
+              Number(proofHeight.revisionHeight),
             );
             const nextSequenceReceive = Uint64.fromBytes(
               [...proven.value],
-              "be"
+              "be",
             ).toBigInt();
             const proof = convertProofsToIcs23(proven.proof);
             return {
@@ -710,7 +709,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             const proven = await base.queryRawProof(
               "ibc",
               toAscii(key),
-              Number(proofHeight.revisionHeight)
+              Number(proofHeight.revisionHeight),
             );
             const clientState = Any.decode(proven.value);
             const proof = convertProofsToIcs23(proven.proof);
@@ -723,14 +722,14 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           consensusState: async (
             clientId: string,
             consensusHeight: Height,
-            proofHeight: Height
+            proofHeight: Height,
           ) => {
             const height = heightQueryString(consensusHeight);
             const key = `clients/${clientId}/consensusStates/${height}`;
             const proven = await base.queryRawProof(
               "ibc",
               toAscii(key),
-              Number(proofHeight.revisionHeight)
+              Number(proofHeight.revisionHeight),
             );
             const consensusState = Any.decode(proven.value);
             const proof = convertProofsToIcs23(proven.proof);
@@ -747,7 +746,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             const proven = await base.queryRawProof(
               "ibc",
               toAscii(key),
-              Number(proofHeight.revisionHeight)
+              Number(proofHeight.revisionHeight),
             );
             const connection = ConnectionEnd.decode(proven.value);
             const proof = convertProofsToIcs23(proven.proof);

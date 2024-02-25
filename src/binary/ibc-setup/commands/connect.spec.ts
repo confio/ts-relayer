@@ -114,7 +114,7 @@ test.serial("connects two chains", async (t) => {
 dest: local_gaia
 srcConnection: .+
 destConnection: .+
-`
+`,
   );
   t.assert(fsWriteFileSync.calledOnce);
   t.is(args[0], path.join(options.home, appFile));
@@ -125,7 +125,7 @@ destConnection: .+
   const nextAllConnectionsWasm =
     await ibcClientWasm.query.ibc.connection.allConnections();
   const destConnectionIdMatch = /destConnection: (?<connection>.+)/.exec(
-    args[1]
+    args[1],
   );
   const destConnectionId = destConnectionIdMatch?.groups?.connection;
   assert(destConnectionId);
@@ -142,11 +142,11 @@ destConnection: .+
 
   t.is(
     nextAllConnectionsWasm.connections.length,
-    allConnectionsWasm.connections.length + 1
+    allConnectionsWasm.connections.length + 1,
   );
   t.is(
     nextAllConnectionsGaia.connections.length,
-    allConnectionsGaia.connections.length + 1
+    allConnectionsGaia.connections.length + 1,
   );
   t.assert(nextConnectionWasm.connection);
   t.assert(nextConnectionGaia.connection);
@@ -185,11 +185,11 @@ test.serial("connects two chains fails with too low gas", async (t) => {
   // no connection can be made
   t.is(
     nextAllConnectionsWasm.connections.length,
-    allConnectionsWasm.connections.length
+    allConnectionsWasm.connections.length,
   );
   t.is(
     nextAllConnectionsGaia.connections.length,
-    allConnectionsGaia.connections.length
+    allConnectionsGaia.connections.length,
   );
 });
 
@@ -226,10 +226,10 @@ test.serial("connects two chains with explicit high gas works", async (t) => {
   // one connection is made
   t.is(
     nextAllConnectionsWasm.connections.length,
-    allConnectionsWasm.connections.length + 1
+    allConnectionsWasm.connections.length + 1,
   );
   t.is(
     nextAllConnectionsGaia.connections.length,
-    allConnectionsGaia.connections.length + 1
+    allConnectionsGaia.connections.length + 1,
   );
 });

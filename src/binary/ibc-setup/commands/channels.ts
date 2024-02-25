@@ -38,12 +38,12 @@ export async function channels(flags: Flags, logger: Logger) {
   const keyFile = resolveKeyFileOption({ keyFileFlag: flags.keyFile, app });
   const chain = resolveOption("chain", { required: true })(
     flags.chain,
-    process.env.RELAYER_CHAIN
+    process.env.RELAYER_CHAIN,
   );
   const port = resolveOption("port")(flags.port, process.env.RELAYER_PORT);
   const connection = resolveOption("connection")(
     flags.connection,
-    process.env.RELAYER_CONNECTION
+    process.env.RELAYER_CONNECTION,
   );
 
   const mnemonic = await resolveMnemonicOption(
@@ -53,7 +53,7 @@ export async function channels(flags: Flags, logger: Logger) {
       keyFile,
       app,
     },
-    true // mnemonic is optional
+    true, // mnemonic is optional
   );
 
   const options: Options = {
@@ -108,13 +108,13 @@ export async function run(options: Options, logger: Logger) {
 
   const channels = allChannels
     .filter(
-      (channel) => (options.port ? channel.portId === options.port : true) // don't filter if port is not specified
+      (channel) => (options.port ? channel.portId === options.port : true), // don't filter if port is not specified
     )
     .filter(
       (channel) =>
         options.connection
           ? channel.connectionHops.includes(options.connection)
-          : true // don't filter if connection is not specified
+          : true, // don't filter if connection is not specified
     )
     .map((channel) => [
       channel.channelId,
@@ -132,7 +132,7 @@ export async function run(options: Options, logger: Logger) {
       : "";
 
     console.log(
-      `No channels found for chain "${options.chain}"${conditionalPortInfo}${conditionalConnectionInfo}.`
+      `No channels found for chain "${options.chain}"${conditionalPortInfo}${conditionalConnectionInfo}.`,
     );
 
     return;

@@ -7,7 +7,7 @@ import { CosmWasmSigner } from "..";
 export function init(
   owner: string,
   symbol: string,
-  amount: string
+  amount: string,
 ): Record<string, unknown> {
   return {
     decimals: 6,
@@ -25,7 +25,7 @@ export function init(
 export async function balance(
   cosmwasm: CosmWasmSigner,
   cw20Addr: string,
-  senderAddress?: string
+  senderAddress?: string,
 ): Promise<string> {
   const query = {
     balance: {
@@ -40,7 +40,7 @@ export async function balance(
 export function sendTokens(
   targetAddr: string,
   amount: string,
-  msg: Record<string, unknown>
+  msg: Record<string, unknown>,
 ): Record<string, unknown> {
   const encoded = toBase64(toUtf8(JSON.stringify(msg)));
   const sendMsg = {

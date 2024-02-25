@@ -48,17 +48,17 @@ type Params = {
 
 export async function resolveMnemonicOption(
   params: Params,
-  optional: true
+  optional: true,
 ): Promise<string | null>;
 
 export async function resolveMnemonicOption(
   params: Params,
-  optional?: false
+  optional?: false,
 ): Promise<string>;
 
 export async function resolveMnemonicOption(
   { interactiveFlag, keyFile, mnemonicFlag, app }: Params,
-  optional = false
+  optional = false,
 ) {
   const args = [
     await readMnemonicFromStdin(interactiveFlag),

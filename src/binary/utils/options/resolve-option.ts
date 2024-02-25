@@ -5,30 +5,30 @@ type Args<T = string> = Array<(T | undefined | null) | (() => T | null)>;
 // if required and integer then it's a number
 export function resolveOption(
   identifier: string,
-  options: { required: true; integer: true }
+  options: { required: true; integer: true },
 ): (...args: Args<string | number>) => number;
 
 // if not required and integer then it's a number or null
 export function resolveOption(
   identifier: string,
-  options: { required?: false; integer: true }
+  options: { required?: false; integer: true },
 ): (...args: Args<string | number>) => number | null;
 
 // if not required and not integer then it's a string or null
 export function resolveOption(
   identifier: string,
-  options?: { required?: false; integer?: false }
+  options?: { required?: false; integer?: false },
 ): (...args: Args) => string | null;
 
 // if required and not integer then it's a string
 export function resolveOption(
   identifier: string,
-  options: { required: true; integer?: false }
+  options: { required: true; integer?: false },
 ): (...args: Args) => string;
 
 export function resolveOption(
   identifier: string,
-  optionsParam?: { required?: boolean; integer?: boolean }
+  optionsParam?: { required?: boolean; integer?: boolean },
 ) {
   return (...args: Args) => {
     const options = {
@@ -50,7 +50,7 @@ export function resolveOption(
 
       if (isNaN(parsedValue)) {
         throw new InvalidOptionError(
-          `"${identifier}" option has value "${value}" while it must be an integer.`
+          `"${identifier}" option has value "${value}" while it must be an integer.`,
         );
       }
 

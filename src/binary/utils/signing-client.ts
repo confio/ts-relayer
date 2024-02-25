@@ -9,7 +9,7 @@ import { Chain } from "../types";
 export async function signingClient(
   chain: Chain,
   mnemonic: string,
-  logger?: Logger
+  logger?: Logger,
 ): Promise<IbcClient> {
   const hdPathsToSpread = chain.hd_path
     ? { hdPaths: [stringToPath(chain.hd_path)] }
@@ -38,7 +38,7 @@ export async function signingClient(
     chain.rpc[0],
     signer,
     address,
-    options
+    options,
   );
   return client;
 }

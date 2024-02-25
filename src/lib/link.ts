@@ -112,7 +112,7 @@ export class Link {
     nodeB: IbcClient,
     connA: string,
     connB: string,
-    logger?: Logger
+    logger?: Logger,
   ): Promise<Link> {
     const [chainA, chainB] = [nodeA.chainId, nodeB.chainId];
 
@@ -129,35 +129,35 @@ export class Link {
     }
     if (!connectionA.counterparty) {
       throw new Error(
-        `[${chainA}] Counterparty not found for connection with ID ${connA}`
+        `[${chainA}] Counterparty not found for connection with ID ${connA}`,
       );
     }
     if (!connectionB.counterparty) {
       throw new Error(
-        `[${chainB}] Counterparty not found for connection with ID ${connB}`
+        `[${chainB}] Counterparty not found for connection with ID ${connB}`,
       );
     }
     // ensure the connection is open
     if (connectionA.state != State.STATE_OPEN) {
       throw new Error(
-        `Connection on ${chainA} must be in state open, it has state ${connectionA.state}`
+        `Connection on ${chainA} must be in state open, it has state ${connectionA.state}`,
       );
     }
     if (connectionB.state != State.STATE_OPEN) {
       throw new Error(
-        `Connection on ${chainB} must be in state open, it has state ${connectionB.state}`
+        `Connection on ${chainB} must be in state open, it has state ${connectionB.state}`,
       );
     }
 
     const [clientIdA, clientIdB] = [connectionA.clientId, connectionB.clientId];
     if (clientIdA !== connectionB.counterparty.clientId) {
       throw new Error(
-        `Client ID ${connectionA.clientId} for connection with ID ${connA} does not match counterparty client ID ${connectionB.counterparty.clientId} for connection with ID ${connB}`
+        `Client ID ${connectionA.clientId} for connection with ID ${connA} does not match counterparty client ID ${connectionB.counterparty.clientId} for connection with ID ${connB}`,
       );
     }
     if (clientIdB !== connectionA.counterparty.clientId) {
       throw new Error(
-        `Client ID ${connectionB.clientId} for connection with ID ${connB} does not match counterparty client ID ${connectionA.counterparty.clientId} for connection with ID ${connA}`
+        `Client ID ${connectionB.clientId} for connection with ID ${connB} does not match counterparty client ID ${connectionA.counterparty.clientId} for connection with ID ${connA}`,
       );
     }
     const [clientStateA, clientStateB] = await Promise.all([
@@ -166,12 +166,12 @@ export class Link {
     ]);
     if (nodeA.chainId !== clientStateB.chainId) {
       throw new Error(
-        `Chain ID ${nodeA.chainId} for connection with ID ${connA} does not match remote chain ID ${clientStateA.chainId}`
+        `Chain ID ${nodeA.chainId} for connection with ID ${connA} does not match remote chain ID ${clientStateA.chainId}`,
       );
     }
     if (nodeB.chainId !== clientStateA.chainId) {
       throw new Error(
-        `Chain ID ${nodeB.chainId} for connection with ID ${connB} does not match remote chain ID ${clientStateB.chainId}`
+        `Chain ID ${nodeB.chainId} for connection with ID ${connB} does not match remote chain ID ${clientStateB.chainId}`,
       );
     }
 
@@ -183,12 +183,12 @@ export class Link {
       link.assertHeadersMatchConsensusState(
         "A",
         clientIdA,
-        clientStateA.latestHeight
+        clientStateA.latestHeight,
       ),
       link.assertHeadersMatchConsensusState(
         "B",
         clientIdB,
-        clientStateB.latestHeight
+        clientStateB.latestHeight,
       ),
     ]);
 
@@ -205,7 +205,7 @@ export class Link {
   public async assertHeadersMatchConsensusState(
     proofSide: Side,
     clientId: string,
-    height?: Height
+    height?: Height,
   ): Promise<void> {
     const { src, dest } = this.getEnds(proofSide);
 
@@ -218,7 +218,7 @@ export class Link {
     if (
       !arrayContentEquals(
         consensusState.nextValidatorsHash,
-        header.nextValidatorsHash
+        header.nextValidatorsHash,
       )
     ) {
       throw new Error(`NextValidatorHash doesn't match ConsensusState.`);
@@ -247,13 +247,13 @@ export class Link {
     // number of seconds the client (on B pointing to A) is valid without update
     trustPeriodA?: number | null,
     // number of seconds the client (on A pointing to B) is valid without update
-    trustPeriodB?: number | null
+    trustPeriodB?: number | null,
   ): Promise<Link> {
     const [clientIdA, clientIdB] = await createClients(
       nodeA,
       nodeB,
       trustPeriodA,
-      trustPeriodB
+      trustPeriodB,
     );
 
     // wait a block to ensure we have proper proofs for creating a connection (this has failed on CI before)
@@ -262,7 +262,7 @@ export class Link {
     // connectionInit on nodeA
     const { connectionId: connIdA } = await nodeA.connOpenInit(
       clientIdA,
-      clientIdB
+      clientIdB,
     );
 
     // connectionTry on nodeB
@@ -271,7 +271,7 @@ export class Link {
       nodeB,
       clientIdA,
       clientIdB,
-      connIdA
+      connIdA,
     );
     const { connectionId: connIdB } = await nodeB.connOpenTry(clientIdB, proof);
 
@@ -281,7 +281,7 @@ export class Link {
       nodeA,
       clientIdB,
       clientIdA,
-      connIdB
+      connIdB,
     );
     await nodeA.connOpenAck(connIdA, proofAck);
 
@@ -291,7 +291,7 @@ export class Link {
       nodeB,
       clientIdA,
       clientIdB,
-      connIdA
+      connIdA,
     );
     await nodeB.connOpenConfirm(connIdB, proofConfirm);
 
@@ -336,16 +336,16 @@ export class Link {
    */
   public async updateClientIfStale(
     sender: Side,
-    maxAge: number
+    maxAge: number,
   ): Promise<Height | null> {
     this.logger.verbose(
       `Checking if ${this.otherChain(sender)} has recent header of ${this.chain(
-        sender
-      )}`
+        sender,
+      )}`,
     );
     const { src, dest } = this.getEnds(sender);
     const knownHeader = await dest.client.query.ibc.client.consensusStateTm(
-      dest.clientID
+      dest.clientID,
     );
     const currentHeader = await src.client.latestHeader();
 
@@ -353,7 +353,7 @@ export class Link {
     const knownSeconds = Number(knownHeader.timestamp?.seconds);
     if (knownSeconds) {
       const curSeconds = Number(
-        timestampFromDateNanos(currentHeader.time).seconds
+        timestampFromDateNanos(currentHeader.time).seconds,
       );
       if (curSeconds - knownSeconds < maxAge) {
         return null;
@@ -373,12 +373,12 @@ export class Link {
    */
   public async updateClientToHeight(
     source: Side,
-    minHeight: number
+    minHeight: number,
   ): Promise<Height> {
     this.logger.info(
       `Check whether client on ${this.otherChain(
-        source
-      )} >= height ${minHeight}`
+        source,
+      )} >= height ${minHeight}`,
     );
     const { src, dest } = this.getEnds(source);
     const client = await dest.client.query.ibc.client.stateTm(dest.clientID);
@@ -400,12 +400,12 @@ export class Link {
     srcPort: string,
     destPort: string,
     ordering: Order,
-    version: string
+    version: string,
   ): Promise<ChannelPair> {
     this.logger.info(
       `Create channel with sender ${this.chain(
-        sender
-      )}: ${srcPort} => ${destPort}`
+        sender,
+      )}: ${srcPort} => ${destPort}`,
     );
     const { src, dest } = this.getEnds(sender);
     // init on src
@@ -414,7 +414,7 @@ export class Link {
       destPort,
       ordering,
       src.connectionID,
-      version
+      version,
     );
 
     // try on dest
@@ -423,7 +423,7 @@ export class Link {
       dest.client,
       dest.clientID,
       srcPort,
-      channelIdSrc
+      channelIdSrc,
     );
 
     const { channelId: channelIdDest } = await dest.client.channelOpenTry(
@@ -433,7 +433,7 @@ export class Link {
       dest.connectionID,
       version,
       version,
-      proof
+      proof,
     );
 
     // ack on src
@@ -442,14 +442,14 @@ export class Link {
       src.client,
       src.clientID,
       destPort,
-      channelIdDest
+      channelIdDest,
     );
     await src.client.channelOpenAck(
       srcPort,
       channelIdSrc,
       channelIdDest,
       version,
-      proofAck
+      proofAck,
     );
 
     // confirm on dest
@@ -458,7 +458,7 @@ export class Link {
       dest.client,
       dest.clientID,
       srcPort,
-      channelIdSrc
+      channelIdSrc,
     );
     await dest.client.channelOpenConfirm(destPort, channelIdDest, proofConfirm);
 
@@ -495,12 +495,12 @@ export class Link {
   public async checkAndRelayPacketsAndAcks(
     relayFrom: RelayedHeights,
     timedoutThresholdBlocks = 0,
-    timedoutThresholdSeconds = 0
+    timedoutThresholdSeconds = 0,
   ): Promise<RelayedHeights> {
     const { heights } = await this.doCheckAndRelay(
       relayFrom,
       timedoutThresholdBlocks,
-      timedoutThresholdSeconds
+      timedoutThresholdSeconds,
     );
     this.logger.verbose("next heights to relay", heights as any); // eslint-disable-line @typescript-eslint/no-explicit-any
     return heights;
@@ -509,7 +509,7 @@ export class Link {
   protected async doCheckAndRelay(
     relayFrom: RelayedHeights,
     timedoutThresholdBlocks = 0,
-    timedoutThresholdSeconds = 0
+    timedoutThresholdSeconds = 0,
   ): Promise<{ heights: RelayedHeights; info: RelayInfo }> {
     // FIXME: is there a cleaner way to get the height we query at?
     const [packetHeightA, packetHeightB, packetsA, packetsB] =
@@ -530,7 +530,7 @@ export class Link {
         : packetsB;
 
     const cutoffHeightA = await this.endB.client.timeoutHeight(
-      timedoutThresholdBlocks
+      timedoutThresholdBlocks,
     );
     const cutoffTimeA =
       secondsFromDateNanos(await this.endB.client.currentTime()) +
@@ -538,11 +538,11 @@ export class Link {
     const { toSubmit: submitA, toTimeout: timeoutA } = splitPendingPackets(
       cutoffHeightA,
       cutoffTimeA,
-      filteredPacketsA
+      filteredPacketsA,
     );
 
     const cutoffHeightB = await this.endA.client.timeoutHeight(
-      timedoutThresholdBlocks
+      timedoutThresholdBlocks,
     );
     const cutoffTimeB =
       secondsFromDateNanos(await this.endA.client.currentTime()) +
@@ -550,7 +550,7 @@ export class Link {
     const { toSubmit: submitB, toTimeout: timeoutB } = splitPendingPackets(
       cutoffHeightB,
       cutoffTimeB,
-      filteredPacketsB
+      filteredPacketsB,
     );
 
     // FIXME: use the returned acks first? Then query for others?
@@ -598,7 +598,7 @@ export class Link {
 
   public async getPendingPackets(
     source: Side,
-    opts: QueryOpts = {}
+    opts: QueryOpts = {},
   ): Promise<PacketWithMetadata[]> {
     this.logger.verbose(`Get pending packets on ${this.chain(source)}`);
     const { src, dest } = this.getEnds(source);
@@ -608,12 +608,12 @@ export class Link {
     const query = async (
       port: string,
       channel: string,
-      sequences: readonly number[]
+      sequences: readonly number[],
     ) => {
       const res = await dest.client.query.ibc.channel.unreceivedPackets(
         port,
         channel,
-        sequences
+        sequences,
       );
       return res.sequences.map((seq) => Number(seq));
     };
@@ -621,7 +621,7 @@ export class Link {
     // This gets the subset of packets that were already processed on the receiving chain
     const unreceived = await this.filterUnreceived(toFilter, query, packetId);
     const unreceivedPackets = allPackets.filter(({ packet }) =>
-      unreceived[packetId(packet)].has(Number(packet.sequence))
+      unreceived[packetId(packet)].has(Number(packet.sequence)),
     );
 
     // However, some of these may have already been submitted as timeouts on the source chain. Check and filter
@@ -633,20 +633,20 @@ export class Link {
           await src.client.query.ibc.channel.packetCommitment(
             sourcePort,
             sourceChannel,
-            sequence
+            sequence,
           );
           return packet;
         } catch {
           return undefined;
         }
-      })
+      }),
     );
     return valid.filter(isDefined);
   }
 
   public async getPendingAcks(
     source: Side,
-    opts: QueryOpts = {}
+    opts: QueryOpts = {},
   ): Promise<AckWithMetadata[]> {
     this.logger.verbose(`Get pending acks on ${this.chain(source)}`);
     const { src, dest } = this.getEnds(source);
@@ -659,19 +659,19 @@ export class Link {
     const query = async (
       port: string,
       channel: string,
-      sequences: readonly number[]
+      sequences: readonly number[],
     ) => {
       const res = await dest.client.query.ibc.channel.unreceivedAcks(
         port,
         channel,
-        sequences
+        sequences,
       );
       return res.sequences.map((seq) => Number(seq));
     };
     const unreceived = await this.filterUnreceived(toFilter, query, ackId);
 
     return filteredAcks.filter(({ originalPacket: packet }) =>
-      unreceived[ackId(packet)].has(Number(packet.sequence))
+      unreceived[ackId(packet)].has(Number(packet.sequence)),
     );
   }
 
@@ -680,9 +680,9 @@ export class Link {
     unreceivedQuery: (
       port: string,
       channel: string,
-      sequences: readonly number[]
+      sequences: readonly number[],
     ) => Promise<number[]>,
-    idFunc: (packet: Packet) => string
+    idFunc: (packet: Packet) => string,
   ): Promise<Record<string, Set<number>>> {
     if (packets.length === 0) {
       return {};
@@ -696,7 +696,7 @@ export class Link {
           [key]: [...(sorted[key] ?? []), Number(packet.sequence)],
         };
       },
-      {}
+      {},
     );
     const unreceivedResponses = await Promise.all(
       Object.entries(packetsPerDestination).map(
@@ -704,8 +704,8 @@ export class Link {
           const [port, channel] = destination.split(idDelim);
           const notfound = await unreceivedQuery(port, channel, sequences);
           return { key: destination, sequences: notfound };
-        }
-      )
+        },
+      ),
     );
     const unreceived = unreceivedResponses.reduce(
       (nested: Record<string, Set<number>>, { key, sequences }) => {
@@ -714,7 +714,7 @@ export class Link {
           [key]: new Set(sequences),
         };
       },
-      {}
+      {},
     );
     return unreceived;
   }
@@ -733,12 +733,12 @@ export class Link {
   // Returns all the acks that are associated with the just submitted packets
   public async relayPackets(
     source: Side,
-    packets: readonly PacketWithMetadata[]
+    packets: readonly PacketWithMetadata[],
   ): Promise<AckWithMetadata[]> {
     this.logger.info(
       `Relay ${packets.length} packets from ${this.chain(
-        source
-      )} => ${this.otherChain(source)}`
+        source,
+      )} => ${this.otherChain(source)}`,
     );
     if (packets.length === 0) {
       return [];
@@ -751,7 +751,7 @@ export class Link {
 
     const submit = packets.map(({ packet }) => packet);
     const proofs = await Promise.all(
-      submit.map((packet) => src.client.getPacketProof(packet, headerHeight))
+      submit.map((packet) => src.client.getPacketProof(packet, headerHeight)),
     );
     const { events, height, transactionHash } =
       await dest.client.receivePackets(submit, proofs, headerHeight);
@@ -771,12 +771,12 @@ export class Link {
   // Returns the block height the acks were included in, or null if no acks sent
   public async relayAcks(
     source: Side,
-    acks: readonly AckWithMetadata[]
+    acks: readonly AckWithMetadata[],
   ): Promise<number | null> {
     this.logger.info(
       `Relay ${acks.length} acks from ${this.chain(
-        source
-      )} => ${this.otherChain(source)}`
+        source,
+      )} => ${this.otherChain(source)}`,
     );
     if (acks.length === 0) {
       return null;
@@ -789,12 +789,12 @@ export class Link {
     const headerHeight = await this.updateClientToHeight(source, neededHeight);
 
     const proofs = await Promise.all(
-      acks.map((ack) => src.client.getAckProof(ack, headerHeight))
+      acks.map((ack) => src.client.getAckProof(ack, headerHeight)),
     );
     const { height } = await dest.client.acknowledgePackets(
       acks,
       proofs,
-      headerHeight
+      headerHeight,
     );
     return height;
   }
@@ -803,10 +803,10 @@ export class Link {
   // We need to relay a proof from dest -> source
   public async timeoutPackets(
     source: Side,
-    packets: readonly PacketWithMetadata[]
+    packets: readonly PacketWithMetadata[],
   ): Promise<number | null> {
     this.logger.info(
-      `Timeout ${packets.length} packets sent from ${this.chain(source)}`
+      `Timeout ${packets.length} packets sent from ${this.chain(source)}`,
     );
     if (packets.length === 0) {
       return null;
@@ -830,11 +830,11 @@ export class Link {
         const { nextSequenceReceive: sequence } =
           await dest.client.query.ibc.channel.nextSequenceReceive(
             packet.destinationPort,
-            packet.destinationChannel
+            packet.destinationChannel,
           );
         const proof = await dest.client.getTimeoutProof(fakeAck, headerHeight);
         return { proof, sequence };
-      })
+      }),
     );
     const proofs = proofAndSeqs.map(({ proof }) => proof);
     const seqs = proofAndSeqs.map(({ sequence }) => sequence);
@@ -843,7 +843,7 @@ export class Link {
       rawPackets,
       proofs,
       seqs,
-      headerHeight
+      headerHeight,
     );
     return height;
   }
@@ -885,20 +885,20 @@ async function createClients(
   // number of seconds the client (on B pointing to A) is valid without update
   trustPeriodA?: number | null,
   // number of seconds the client (on A pointing to B) is valid without update
-  trustPeriodB?: number | null
+  trustPeriodB?: number | null,
 ): Promise<string[]> {
   // client on B pointing to A
   const args = await buildCreateClientArgs(nodeA, trustPeriodA);
   const { clientId: clientIdB } = await nodeB.createTendermintClient(
     args.clientState,
-    args.consensusState
+    args.consensusState,
   );
 
   // client on A pointing to B
   const args2 = await buildCreateClientArgs(nodeB, trustPeriodB);
   const { clientId: clientIdA } = await nodeA.createTendermintClient(
     args2.clientState,
-    args2.consensusState
+    args2.consensusState,
   );
 
   return [clientIdA, clientIdB];

@@ -99,9 +99,9 @@ test("lists chains with non-zero balance", async (t) => {
           "musselnet\\s+1musselnetdenom\\s+",
           "local_wasm\\s+2wasmdenom\\s+",
           "local_gaia\\s+3gaiadenom\\s+",
-        ].join(os.EOL)
-      )
-    )
+        ].join(os.EOL),
+      ),
+    ),
   );
 });
 
@@ -132,9 +132,9 @@ test("omits chains with zero balance", async (t) => {
         [
           "musselnet\\s+1musselnetdenom\\s+",
           "local_gaia\\s+3gaiadenom\\s+",
-        ].join(os.EOL)
-      )
-    )
+        ].join(os.EOL),
+      ),
+    ),
   );
 });
 
