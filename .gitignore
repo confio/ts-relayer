@@ -8,3 +8,6 @@ coverage
 proto/
 # only commit yarn.lock
 package-lock.json
+
+# MacOS
+.DS_Store
