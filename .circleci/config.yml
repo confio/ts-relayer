@@ -88,9 +88,9 @@ jobs:
             curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash -
             sudo apt-get install -y nodejs
       - run:
-          name: Set yarn version to latest stable
+          name: Install yarn
           command: |
-            yarn set version latest
+            sudo npm install --global yarn
       - run:
           name: Version information
           command: echo "node $(node --version)"; echo "yarn $(yarn --version)"
