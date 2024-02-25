@@ -13,7 +13,7 @@ test.serial("submit multiple tx, query all packets", async (t) => {
     gaia.ics20Port,
     wasmd.ics20Port,
     ics20.ordering,
-    ics20.version
+    ics20.version,
   );
 
   // no packets here
@@ -35,7 +35,7 @@ test.serial("submit multiple tx, query all packets", async (t) => {
       channels.src.channelId,
       token,
       recipient,
-      destHeight
+      destHeight,
     );
     // console.log(JSON.stringify(logs[0].events, undefined, 2));
     txHeights.push(height);
@@ -51,7 +51,7 @@ test.serial("submit multiple tx, query all packets", async (t) => {
   t.is(packets2.length, 3);
   t.deepEqual(
     packets2.map(({ height }) => height),
-    txHeights
+    txHeights,
   );
 
   // filter by minimum height
@@ -86,12 +86,12 @@ test.serial("submit multiple tx, query all packets", async (t) => {
   const headerHeight = await nodeB.doUpdateClient(link.endB.clientID, nodeA);
   const sendPackets = packets3.map(({ packet }) => packet);
   const proofs = await Promise.all(
-    sendPackets.map((packet) => nodeA.getPacketProof(packet, headerHeight))
+    sendPackets.map((packet) => nodeA.getPacketProof(packet, headerHeight)),
   );
   const { events: relayEvents } = await nodeB.receivePackets(
     sendPackets,
     proofs,
-    headerHeight
+    headerHeight,
   );
   const txAcks = parseAcksFromTxEvents(relayEvents);
   t.is(txAcks.length, 2);

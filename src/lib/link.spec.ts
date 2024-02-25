@@ -44,8 +44,8 @@ test.serial("initialized connection and start channel handshake", async (t) => {
       wasmd.ics20Port,
       ics20.ordering,
       link.endA.connectionID,
-      ics20.version
-    )
+      ics20.version,
+    ),
   );
   // we need to wait a block for a new checkTx state, and proper sequences
   await src.waitOneBlock();
@@ -57,8 +57,8 @@ test.serial("initialized connection and start channel handshake", async (t) => {
       wasmd.ics20Port,
       ics20.ordering,
       link.endA.connectionID,
-      "ics27"
-    )
+      "ics27",
+    ),
   );
   // we need to wait a block for a new checkTx state, and proper sequences
   await src.waitOneBlock();
@@ -69,7 +69,7 @@ test.serial("initialized connection and start channel handshake", async (t) => {
     wasmd.ics20Port,
     ics20.ordering,
     link.endA.connectionID,
-    ics20.version
+    ics20.version,
   );
   t.assert(channelIdSrc.startsWith("channel-"), channelIdSrc);
 });
@@ -86,7 +86,7 @@ test.serial(
       wasmd.ics20Port,
       ics20.ordering,
       link.endA.connectionID,
-      ics20.version
+      ics20.version,
     );
 
     // open a channel
@@ -95,7 +95,7 @@ test.serial(
       gaia.ics20Port,
       wasmd.ics20Port,
       ics20.ordering,
-      ics20.version
+      ics20.version,
     );
 
     // ensure we bound expected ports
@@ -107,12 +107,12 @@ test.serial(
     // query data
     const { channel } = await link.endB.client.query.ibc.channel.channel(
       wasmd.ics20Port,
-      channels.dest.channelId
+      channels.dest.channelId,
     );
     t.is(channel?.state, State.STATE_OPEN);
     t.is(channel?.ordering, ics20.ordering);
     t.is(channel?.counterparty?.channelId, channels.src.channelId);
-  }
+  },
 );
 
 // createWithExistingConnections
@@ -129,26 +129,26 @@ test.serial("reuse existing connections", async (t) => {
     gaia.ics20Port,
     wasmd.ics20Port,
     ics20.ordering,
-    ics20.version
+    ics20.version,
   );
 
   const newLink = await Link.createWithExistingConnections(
     src,
     dest,
     connA,
-    connB
+    connB,
   );
 
   const channelSrc = await newLink.endA.client.query.ibc.channel.channel(
     gaia.ics20Port,
-    oldChannels.src.channelId
+    oldChannels.src.channelId,
   );
   t.is(channelSrc.channel?.state, State.STATE_OPEN);
   t.is(channelSrc.channel?.ordering, ics20.ordering);
   t.is(channelSrc.channel?.counterparty?.channelId, oldChannels.dest.channelId);
   const channelDest = await newLink.endB.client.query.ibc.channel.channel(
     wasmd.ics20Port,
-    oldChannels.dest.channelId
+    oldChannels.dest.channelId,
   );
   t.is(channelDest.channel?.state, State.STATE_OPEN);
   t.is(channelDest.channel?.ordering, ics20.ordering);
@@ -161,7 +161,7 @@ test.serial("reuse existing connections", async (t) => {
     wasmd.ics20Port,
     gaia.ics20Port,
     ics20.ordering,
-    ics20.version
+    ics20.version,
   );
   t.notDeepEqual(newChannels.dest, oldChannels.src);
 });
@@ -180,14 +180,14 @@ test.serial(
       wasmd.ics20Port,
       ics20.ordering,
       connA,
-      ics20.version
+      ics20.version,
     );
     const proof = await prepareChannelHandshake(
       src,
       dest,
       oldLink.endB.clientID,
       gaia.ics20Port,
-      srcChannelId
+      srcChannelId,
     );
     const { channelId: destChannelId } = await dest.channelOpenTry(
       wasmd.ics20Port,
@@ -196,18 +196,18 @@ test.serial(
       connB,
       ics20.version,
       ics20.version,
-      proof
+      proof,
     );
 
     const newLink = await Link.createWithExistingConnections(
       src,
       dest,
       connA,
-      connB
+      connB,
     );
     const channelSrc = await newLink.endA.client.query.ibc.channel.channel(
       gaia.ics20Port,
-      srcChannelId
+      srcChannelId,
     );
     t.is(channelSrc.channel?.state, State.STATE_INIT);
     t.is(channelSrc.channel?.ordering, ics20.ordering);
@@ -215,7 +215,7 @@ test.serial(
     t.is(channelSrc.channel?.counterparty?.channelId, "");
     const channelDest = await newLink.endB.client.query.ibc.channel.channel(
       wasmd.ics20Port,
-      destChannelId
+      destChannelId,
     );
     t.is(channelDest.channel?.state, State.STATE_TRYOPEN);
     t.is(channelDest.channel?.ordering, ics20.ordering);
@@ -228,13 +228,13 @@ test.serial(
       wasmd.ics20Port,
       gaia.ics20Port,
       ics20.ordering,
-      ics20.version
+      ics20.version,
     );
     t.notDeepEqual(newChannels.dest, {
       portId: gaia.ics20Port,
       channelId: srcChannelId,
     });
-  }
+  },
 );
 
 test.serial("errors when reusing an invalid connection", async (t) => {
@@ -246,7 +246,7 @@ test.serial("errors when reusing an invalid connection", async (t) => {
   const connA = "whatever";
   const connB = "unreal";
   await t.throwsAsync(() =>
-    Link.createWithExistingConnections(src, dest, connA, connB)
+    Link.createWithExistingConnections(src, dest, connA, connB),
   );
 });
 
@@ -257,7 +257,7 @@ test.serial(`errors when reusing connections on the same node`, async (t) => {
   const connA = oldLink.endA.connectionID;
 
   await t.throwsAsync(() =>
-    Link.createWithExistingConnections(src, src, connA, connA)
+    Link.createWithExistingConnections(src, src, connA, connA),
   );
 });
 
@@ -270,7 +270,7 @@ test.serial(`errors when reusing connections which don’t match`, async (t) => 
   const connB = oldLink2.endB.connectionID;
 
   await t.throwsAsync(() =>
-    Link.createWithExistingConnections(src, dest, connA, connB)
+    Link.createWithExistingConnections(src, dest, connA, connB),
   );
 });
 
@@ -283,7 +283,7 @@ test.serial("submit multiple tx, get unreceived packets", async (t) => {
     gaia.ics20Port,
     wasmd.ics20Port,
     ics20.ordering,
-    ics20.version
+    ics20.version,
   );
 
   // no packets here
@@ -298,7 +298,7 @@ test.serial("submit multiple tx, get unreceived packets", async (t) => {
     nodeB,
     wasmd.prefix,
     channels.src,
-    amounts
+    amounts,
   );
   // ensure these are different
   t.assert(txHeights[1] > txHeights[0], txHeights.toString());
@@ -311,7 +311,7 @@ test.serial("submit multiple tx, get unreceived packets", async (t) => {
   t.is(packets.length, 3);
   t.deepEqual(
     packets.map(({ height }) => height),
-    txHeights
+    txHeights,
   );
 
   // ensure no acks yet
@@ -360,14 +360,14 @@ test.serial(
       gaia.ics20Port,
       wasmd.ics20Port,
       ics20.ordering,
-      ics20.version
+      ics20.version,
     );
     const channels2 = await link.createChannel(
       "A",
       gaia.ics20Port,
       wasmd.ics20Port,
       ics20.ordering,
-      ics20.version
+      ics20.version,
     );
     t.not(channels1.src.channelId, channels2.src.channelId);
 
@@ -383,7 +383,7 @@ test.serial(
       nodeB,
       wasmd.prefix,
       channels1.src,
-      amounts
+      amounts,
     );
     const tx2 = await transferTokens(
       nodeA,
@@ -391,7 +391,7 @@ test.serial(
       nodeB,
       wasmd.prefix,
       channels2.src,
-      amounts
+      amounts,
     );
     const txHeights = {
       channels1: tx1.map((height) => ({
@@ -414,7 +414,7 @@ test.serial(
         height,
         channelId: packet.sourceChannel,
       })),
-      [...txHeights.channels1, ...txHeights.channels2]
+      [...txHeights.channels1, ...txHeights.channels2],
     );
 
     // ensure no acks yet
@@ -440,7 +440,7 @@ test.serial(
     // make sure we ack on different channels (and different sequences)
     t.not(
       acks[0].originalPacket.sourceChannel,
-      acks[3].originalPacket.sourceChannel
+      acks[3].originalPacket.sourceChannel,
     );
     t.not(acks[0].originalPacket.sequence, acks[3].originalPacket.sequence);
     await link.relayAcks("B", [acks[0], acks[3]]);
@@ -452,7 +452,7 @@ test.serial(
     // and it matches the ones we did not send
     t.deepEqual(postAcks[0], acks[1]);
     t.deepEqual(postAcks[1], acks[2]);
-  }
+  },
 );
 
 test.serial(
@@ -485,7 +485,7 @@ test.serial(
     const updateB = await link.updateClientIfStale("B", 2);
     assert(updateB);
     t.assert(Number(updateB.revisionHeight) > heightB);
-  }
+  },
 );
 
 test.serial(
@@ -500,14 +500,14 @@ test.serial(
       gaia.ics20Port,
       wasmd.ics20Port,
       ics20.ordering,
-      ics20.version
+      ics20.version,
     );
 
     const checkPending = async (
       packA: number,
       packB: number,
       ackA: number,
-      ackB: number
+      ackB: number,
     ) => {
       const packetsA = await link.getPendingPackets("A");
       t.is(packetsA.length, packA);
@@ -535,7 +535,7 @@ test.serial(
       wasmd.prefix,
       channels.src,
       amountsA,
-      5000 // never time out
+      5000, // never time out
     );
     // send 2 from B -> A
     const amountsB = [76543, 12345];
@@ -546,7 +546,7 @@ test.serial(
       gaia.prefix,
       channels.dest,
       amountsB,
-      5000 // never time out
+      5000, // never time out
     );
     await nodeA.waitOneBlock();
 
@@ -585,7 +585,7 @@ test.serial(
 
     // ensure those packets were sent, and their acks as well
     await checkPending(0, 0, 0, 0);
-  }
+  },
 );
 
 test.serial("timeout expired packets", async (t) => {
@@ -598,7 +598,7 @@ test.serial("timeout expired packets", async (t) => {
     gaia.ics20Port,
     wasmd.ics20Port,
     ics20.ordering,
-    ics20.version
+    ics20.version,
   );
 
   // no packets here
@@ -631,7 +631,7 @@ test.serial("timeout expired packets", async (t) => {
       token,
       recipient,
       timeoutHeights[i],
-      timeoutTimes[i]
+      timeoutTimes[i],
     );
     txHeights.push(height);
   }
@@ -646,7 +646,7 @@ test.serial("timeout expired packets", async (t) => {
   t.is(packets.length, 3);
   t.deepEqual(
     packets.map(({ height }) => height),
-    txHeights
+    txHeights,
   );
 
   // ensure no acks yet
@@ -665,7 +665,7 @@ test.serial("timeout expired packets", async (t) => {
   const { toSubmit, toTimeout } = splitPendingPackets(
     currentHeight,
     currentTime,
-    packets
+    packets,
   );
   t.is(toSubmit.length, 1);
   t.is(toTimeout.length, 2);

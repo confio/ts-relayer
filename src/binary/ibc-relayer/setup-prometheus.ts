@@ -32,7 +32,7 @@ export function setupPrometheus({
 }): Metrics {
   if (initialized) {
     throw new Error(
-      `"setupPrometheus" func shouldn't be initialized more than once.`
+      `"setupPrometheus" func shouldn't be initialized more than once.`,
     );
   }
   initialized = true;

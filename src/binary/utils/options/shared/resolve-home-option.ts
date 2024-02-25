@@ -9,6 +9,6 @@ export function resolveHomeOption({ homeFlag }: Params) {
   return resolveOption("home", { required: true })(
     homeFlag,
     process.env.RELAYER_HOME,
-    getDefaultHomePath
+    getDefaultHomePath,
   );
 }

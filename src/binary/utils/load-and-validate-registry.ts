@@ -48,10 +48,10 @@ export function loadAndValidateRegistry(filepath: string): Registry {
   const validate = ajv.compile(schema);
   if (!validate(registry)) {
     const errors = (validate.errors ?? []).map(
-      ({ dataPath, message }) => `"${dataPath}" ${message}`
+      ({ dataPath, message }) => `"${dataPath}" ${message}`,
     );
     throw new Error(
-      [`${registryFile} validation failed.`, ...errors].join(os.EOL)
+      [`${registryFile} validation failed.`, ...errors].join(os.EOL),
     );
   }
 

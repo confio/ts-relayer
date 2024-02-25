@@ -36,7 +36,7 @@ test("resolves to default level for invalid log-level", (t) => {
 
   t.deepEqual(
     bootstrap({ logLevel: "something-invalid", verbose: true, quiet: true }),
-    [defaultLevel, "something-invalid"]
+    [defaultLevel, "something-invalid"],
   );
 
   t.deepEqual(bootstrap({ logLevel: "", verbose: true, quiet: true }), [

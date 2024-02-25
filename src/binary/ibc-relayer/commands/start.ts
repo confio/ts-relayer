@@ -26,17 +26,17 @@ type ResolveHeightsParams = {
 
 function resolveHeights(
   { scanFromSrc, scanFromDest, home }: ResolveHeightsParams,
-  logger: Logger
+  logger: Logger,
 ): RelayedHeights | null {
   if (!scanFromSrc && scanFromDest) {
     throw new InvalidOptionError(
-      `You have defined "scanFromDest" but no "scanFromSrc". Both or none "scanFromSrc" and "scanFromDest" must be present.`
+      `You have defined "scanFromDest" but no "scanFromSrc". Both or none "scanFromSrc" and "scanFromDest" must be present.`,
     );
   }
 
   if (scanFromSrc && !scanFromDest) {
     throw new InvalidOptionError(
-      `You have defined "scanFromSrc" but no "scanFromDest". Both or none "scanFromSrc" and "scanFromDest" must be present.`
+      `You have defined "scanFromSrc" but no "scanFromDest". Both or none "scanFromSrc" and "scanFromDest" must be present.`,
     );
   }
 
@@ -55,12 +55,12 @@ function resolveHeights(
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const heights = require(lastQueriedHeightsFilePath);
     logger.info(
-      `Use last queried heights from ${lastQueriedHeightsFilePath} file.`
+      `Use last queried heights from ${lastQueriedHeightsFilePath} file.`,
     );
     return heights;
   } catch {
     logger.info(
-      "Scanning the entire history for packets... This may take some time."
+      "Scanning the entire history for packets... This may take some time.",
     );
   }
 
@@ -134,30 +134,30 @@ export async function start(flags: Flags, logger: Logger) {
   const src = resolveOption("src", { required: true })(
     flags.src,
     app?.src,
-    process.env.RELAYER_SRC
+    process.env.RELAYER_SRC,
   );
   const dest = resolveOption("dest", { required: true })(
     flags.dest,
     app?.dest,
-    process.env.RELAYER_DEST
+    process.env.RELAYER_DEST,
   );
 
   const srcConnection = resolveOption("srcConnection", { required: true })(
     flags.srcConnection,
     app?.srcConnection,
-    process.env.RELAYER_SRC_CONNECTION
+    process.env.RELAYER_SRC_CONNECTION,
   );
 
   const destConnection = resolveOption("destConnection", { required: true })(
     flags.destConnection,
     app?.destConnection,
-    process.env.RELAYER_DEST_CONNECTION
+    process.env.RELAYER_DEST_CONNECTION,
   );
 
   // TODO: add this in app.yaml, process.env
   const poll = resolveOption("poll", { required: true, integer: true })(
     flags.poll,
-    defaults.poll
+    defaults.poll,
   );
   const maxAgeSrc = resolveOption("maxAgeSrc", {
     required: true,
@@ -170,11 +170,11 @@ export async function start(flags: Flags, logger: Logger) {
 
   const scanFromSrc = resolveOption("scanFromSrc", { integer: true })(
     flags.scanFromSrc,
-    process.env.RELAYER_SCAN_FROM_SRC
+    process.env.RELAYER_SCAN_FROM_SRC,
   );
   const scanFromDest = resolveOption("scanFromDest", { integer: true })(
     flags.scanFromDest,
-    process.env.RELAYER_SCAN_FROM_DEST
+    process.env.RELAYER_SCAN_FROM_DEST,
   );
   const enableMetrics =
     flags.enableMetrics ||
@@ -188,7 +188,7 @@ export async function start(flags: Flags, logger: Logger) {
     flags.metricsPort,
     process.env.RELAYER_METRICS_PORT,
     app?.metricsPort,
-    defaults.metricsPort
+    defaults.metricsPort,
   );
 
   const heights = resolveHeights({ scanFromSrc, scanFromDest, home }, logger);
@@ -236,19 +236,19 @@ async function run(options: Options, logger: Logger) {
   const nodeA = await signingClient(
     srcChain,
     options.mnemonic,
-    logger.child({ label: srcChain.chain_id })
+    logger.child({ label: srcChain.chain_id }),
   );
   const nodeB = await signingClient(
     destChain,
     options.mnemonic,
-    logger.child({ label: destChain.chain_id })
+    logger.child({ label: destChain.chain_id }),
   );
   const link = await Link.createWithExistingConnections(
     nodeA,
     nodeB,
     options.srcConnection,
     options.destConnection,
-    logger
+    logger,
   );
 
   await relayerLoop(link, options, logger, metrics);
@@ -258,12 +258,12 @@ async function relayerLoop(
   link: Link,
   options: Options,
   logger: Logger,
-  metrics: Metrics
+  metrics: Metrics,
 ) {
   let nextRelay = options.heights ?? {};
   const lastQueriedHeightsFilePath = path.join(
     options.home,
-    lastQueriedHeightsFile
+    lastQueriedHeightsFile,
   );
 
   const done = false;
@@ -274,7 +274,7 @@ async function relayerLoop(
 
       fs.writeFileSync(
         lastQueriedHeightsFilePath,
-        JSON.stringify(nextRelay, null, 2)
+        JSON.stringify(nextRelay, null, 2),
       );
 
       // ensure the headers are up to date (only submits if old and we didn't just update them above)

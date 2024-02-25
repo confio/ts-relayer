@@ -32,7 +32,7 @@ test.serial("create gaia client on wasmd", async (t) => {
     await src.getChainId(),
     1000,
     500,
-    src.revisionHeight(header.height)
+    src.revisionHeight(header.height),
   );
   const res = await dest.createTendermintClient(cliState, conState);
   t.assert(res.clientId.startsWith("07-tendermint-"));
@@ -52,7 +52,7 @@ test.serial("create and update wasmd client on gaia", async (t) => {
     await src.getChainId(),
     1000,
     500,
-    src.revisionHeight(header.height)
+    src.revisionHeight(header.height),
   );
   const { clientId } = await dest.createTendermintClient(cliState, conState);
   const state = await dest.query.ibc.client.stateTm(clientId);
@@ -95,7 +95,7 @@ test.serial("perform connection handshake", async (t) => {
   const args = await buildCreateClientArgs(src, 5000);
   const { clientId: destClientId } = await dest.createTendermintClient(
     args.clientState,
-    args.consensusState
+    args.consensusState,
   );
   t.assert(destClientId.startsWith("07-tendermint-"));
 
@@ -103,14 +103,14 @@ test.serial("perform connection handshake", async (t) => {
   const args2 = await buildCreateClientArgs(dest, 5000);
   const { clientId: srcClientId } = await src.createTendermintClient(
     args2.clientState,
-    args2.consensusState
+    args2.consensusState,
   );
   t.assert(srcClientId.startsWith("07-tendermint-"));
 
   // connectionInit on src
   const { connectionId: srcConnId } = await src.connOpenInit(
     srcClientId,
-    destClientId
+    destClientId,
   );
   t.assert(srcConnId.startsWith("connection-"), srcConnId);
 
@@ -120,12 +120,12 @@ test.serial("perform connection handshake", async (t) => {
     dest,
     srcClientId,
     destClientId,
-    srcConnId
+    srcConnId,
   );
   // now post and hope it is accepted
   const { connectionId: destConnId } = await dest.connOpenTry(
     destClientId,
-    proof
+    proof,
   );
   t.assert(destConnId.startsWith("connection-"), destConnId);
 
@@ -135,7 +135,7 @@ test.serial("perform connection handshake", async (t) => {
     src,
     destClientId,
     srcClientId,
-    destConnId
+    destConnId,
   );
   await src.connOpenAck(srcConnId, proofAck);
 
@@ -145,7 +145,7 @@ test.serial("perform connection handshake", async (t) => {
     dest,
     srcClientId,
     destClientId,
-    srcConnId
+    srcConnId,
   );
   await dest.connOpenConfirm(destConnId, proofConfirm);
 });
@@ -160,7 +160,7 @@ test.serial("transfer message and send packets", async (t) => {
     gaia.ics20Port,
     wasmd.ics20Port,
     ics20.ordering,
-    ics20.version
+    ics20.version,
   );
   t.is(channels.src.portId, gaia.ics20Port);
 
@@ -177,7 +177,7 @@ test.serial("transfer message and send packets", async (t) => {
     channels.src.channelId,
     token,
     recipient,
-    destHeight
+    destHeight,
   );
 
   const packets = parsePacketsFromEvents(transferResult.events);
@@ -222,7 +222,7 @@ test.serial("tests parsing with multi-message", async (t) => {
     gaia.ics20Port,
     wasmd.ics20Port,
     ics20.ordering,
-    ics20.version
+    ics20.version,
   );
 
   // make an account on remote chain for testing
@@ -235,11 +235,11 @@ test.serial("tests parsing with multi-message", async (t) => {
   ]);
   t.assert(
     logger.verbose.calledWithMatch(/Send tokens to/),
-    logger.verbose.callCount.toString()
+    logger.verbose.callCount.toString(),
   );
   t.assert(
     logger.debug.calledWithMatch(/Send tokens:/),
-    logger.debug.callCount.toString()
+    logger.debug.callCount.toString(),
   );
 
   const sendPackets = parsePacketsFromEvents(sendEvents);
@@ -283,12 +283,12 @@ test.serial("tests parsing with multi-message", async (t) => {
   await nodeA.waitOneBlock();
   const headerHeight = await nodeB.doUpdateClient(link.endB.clientID, nodeA);
   const proofs = await Promise.all(
-    multiPackets.map((packet) => nodeA.getPacketProof(packet, headerHeight))
+    multiPackets.map((packet) => nodeA.getPacketProof(packet, headerHeight)),
   );
   const { events: relayEvents } = await nodeB.receivePackets(
     multiPackets,
     proofs,
-    headerHeight
+    headerHeight,
   );
 
   // no recv packets here
@@ -302,7 +302,7 @@ test.serial("tests parsing with multi-message", async (t) => {
   await nodeB.waitOneBlock();
   const ackHeaderHeight = await nodeA.doUpdateClient(link.endA.clientID, nodeB);
   const ackProofs = await Promise.all(
-    relayAcks.map((ack) => nodeB.getAckProof(ack, ackHeaderHeight))
+    relayAcks.map((ack) => nodeB.getAckProof(ack, ackHeaderHeight)),
   );
   await nodeA.acknowledgePackets(relayAcks, ackProofs, ackHeaderHeight);
 });

@@ -26,11 +26,11 @@ function validateLevel(level: string | null): level is Level {
 }
 
 export function resolveLevel(
-  flags: LoggerFlags
+  flags: LoggerFlags,
 ): [level: Level, invalidInputLevel: string | null] {
   const level = resolveOption("logLevel")(
     flags.logLevel,
-    process.env.RELAYER_LOG_LEVEL
+    process.env.RELAYER_LOG_LEVEL,
   );
 
   if (level !== null && !validateLevel(level)) {
@@ -72,14 +72,14 @@ export function createLogger(flags: LoggerFlags): Logger {
     levels,
     format: winston.format.combine(
       winston.format.errors({ stack: true }),
-      winston.format.json()
+      winston.format.json(),
     ),
     transports: [
       new winston.transports.Console({
         handleExceptions: true,
         format: winston.format.combine(
           winston.format.colorize(),
-          simpleFormat(flags.stackTrace)
+          simpleFormat(flags.stackTrace),
         ),
       }),
 
@@ -90,10 +90,10 @@ export function createLogger(flags: LoggerFlags): Logger {
   if (invalidInputLevel !== null) {
     logger.error(
       `Invalid log-level "${invalidInputLevel}". Please use one of: ${Object.keys(
-        levels
+        levels,
       )
         .map((level) => `"${level}"`)
-        .join(", ")}`
+        .join(", ")}`,
     );
   }
 

@@ -28,7 +28,7 @@ export class TestLogger implements Logger {
         ((message: string, meta?: Record<string, unknown>): Logger => {
           logFn(message, meta ? JSON.stringify(meta) : undefined);
           return this;
-        }).bind(this)
+        }).bind(this),
       );
     const createFake = (() => sinon.fake.returns(this)).bind(this);
 
@@ -182,7 +182,7 @@ function extras(): {
 export async function signingClient(
   opts: SigningOpts,
   mnemonic: string,
-  logger?: Logger
+  logger?: Logger,
 ): Promise<IbcClient> {
   const signer = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, {
     prefix: opts.prefix,
@@ -199,14 +199,14 @@ export async function signingClient(
     opts.tendermintUrlHttp,
     signer,
     address,
-    options
+    options,
   );
   return client;
 }
 
 export async function signingCosmWasmClient(
   opts: SigningOpts,
-  mnemonic: string
+  mnemonic: string,
 ): Promise<CosmWasmSigner> {
   const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, {
     prefix: opts.prefix,
@@ -220,7 +220,7 @@ export async function signingCosmWasmClient(
   const sign = await SigningCosmWasmClient.connectWithSigner(
     opts.tendermintUrlHttp,
     wallet,
-    options
+    options,
   );
 
   return { sign, senderAddress };
@@ -233,7 +233,7 @@ export async function setupGaiaWasm(logger?: Logger): Promise<IbcClient[]> {
 export async function setup(
   srcConfig: ChainDefinition,
   destConfig: ChainDefinition,
-  logger?: Logger
+  logger?: Logger,
 ): Promise<IbcClient[]> {
   // create apps and fund an account
   const mnemonic = generateMnemonic();
@@ -261,7 +261,7 @@ export async function setupWasmClient(): Promise<CosmWasmSigner> {
 export async function fundAccount(
   opts: FundingOpts,
   rcpt: string,
-  amount: string
+  amount: string,
 ): Promise<void> {
   const client = await signingClient(opts, opts.faucet.mnemonic);
   const feeTokens = {
@@ -289,7 +289,7 @@ export async function transferTokens(
   destPrefix: string,
   channel: ChannelInfo,
   amounts: number[],
-  timeout?: number
+  timeout?: number,
 ): Promise<number[]> {
   const txHeights: number[] = [];
   const destRcpt = randomAddress(destPrefix);
@@ -305,7 +305,7 @@ export async function transferTokens(
       channel.channelId,
       token,
       destRcpt,
-      destHeight
+      destHeight,
     );
     txHeights.push(height);
   }

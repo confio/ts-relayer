@@ -56,7 +56,7 @@ test.before(async () => {
     gaiaChain.ics20Port,
     wasmdChain.ics20Port,
     ics20.ordering,
-    ics20.version
+    ics20.version,
   );
 });
 
@@ -86,9 +86,9 @@ test("lists channels for given chain (A)", async (t) => {
           link.endA.connectionID,
           channelStateAsText(ChannelState.STATE_OPEN),
         ].join("\\s+"),
-        "m"
-      )
-    )
+        "m",
+      ),
+    ),
   );
 });
 
@@ -118,9 +118,9 @@ test("lists channels for given chain (B)", async (t) => {
           link.endB.connectionID,
           channelStateAsText(ChannelState.STATE_OPEN),
         ].join("\\s+"),
-        "m"
-      )
-    )
+        "m",
+      ),
+    ),
   );
 });
 
@@ -145,7 +145,9 @@ test("filters channels by port", async (t) => {
     .split(os.EOL)
     .slice(1, -1) // remove table head and last empty line
     .every((value) =>
-      new RegExp(`[^\\s]+\\s+${options.port}\\s+[^\\s]+\\s+[^\\s]+`).test(value)
+      new RegExp(`[^\\s]+\\s+${options.port}\\s+[^\\s]+\\s+[^\\s]+`).test(
+        value,
+      ),
     );
 
   t.notRegex(output, /No channels found/);
@@ -192,8 +194,8 @@ test("filters channels by connection", async (t) => {
     .slice(1, -1) // remove table head and last empty line
     .every((value) =>
       new RegExp(`[^\\s]+\\s+[^\\s]+\\s+${options.connection}\\s+[^\\s]+`).test(
-        value
-      )
+        value,
+      ),
     );
 
   t.notRegex(output, /No channels found/);
@@ -240,8 +242,8 @@ test("filters channels by port and connection", async (t) => {
     .slice(1, -1) // remove table head and last empty line
     .every((value) =>
       new RegExp(
-        `[^\\s]+\\s+${options.port}\\s+${options.connection}\\s+[^\\s]+`
-      ).test(value)
+        `[^\\s]+\\s+${options.port}\\s+${options.connection}\\s+[^\\s]+`,
+      ).test(value),
     );
 
   t.notRegex(output, /No channels found/);

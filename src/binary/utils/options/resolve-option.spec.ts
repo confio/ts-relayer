@@ -24,7 +24,7 @@ test("leftmost defined option takes precedence", (t) => {
     stringOption1,
     stringOption1,
     stringOption1,
-    undefined
+    undefined,
   );
   t.is(option3, stringOption2);
 
@@ -40,7 +40,7 @@ test("leftmost defined option takes precedence", (t) => {
     undefined,
     null,
     4,
-    "7"
+    "7",
   );
   t.is(option6, 4);
 });
@@ -49,14 +49,14 @@ test("resolves function arguments", (t) => {
   const option1 = resolveOption("option")(
     undefined,
     functionWithString,
-    stringOption1
+    stringOption1,
   );
   t.is(option1, "function option");
 
   const option2 = resolveOption("option")(
     functionWithString,
     undefined,
-    undefined
+    undefined,
   );
   t.is(option2, "function option");
 
@@ -65,7 +65,7 @@ test("resolves function arguments", (t) => {
     functionWithNull,
     functionWithString,
     stringOption1,
-    undefined
+    undefined,
   );
   t.is(option3, "function option");
 
@@ -74,7 +74,7 @@ test("resolves function arguments", (t) => {
     functionWithNull,
     functionWithNumber,
     stringOption1,
-    undefined
+    undefined,
   );
   t.is(option4, 5);
 
@@ -83,7 +83,7 @@ test("resolves function arguments", (t) => {
     undefined,
     null,
     stringOption1,
-    undefined
+    undefined,
   );
   t.is(option5, 5);
 });
@@ -94,7 +94,7 @@ test("returns null for undefined/null options", (t) => {
     functionWithNull,
     null,
     undefined,
-    functionWithNull
+    functionWithNull,
   );
   t.is(option1, null);
 
@@ -104,7 +104,7 @@ test("returns null for undefined/null options", (t) => {
   const option3 = resolveOption("option")(
     functionWithNull,
     functionWithNull,
-    functionWithNull
+    functionWithNull,
   );
   t.is(option3, null);
 });
@@ -115,21 +115,21 @@ test("returns null for undefined/null options (integers)", (t) => {
     functionWithNull,
     null,
     undefined,
-    functionWithNull
+    functionWithNull,
   );
   t.is(option1, null);
 
   const option2 = resolveOption("option", { integer: true })(
     undefined,
     null,
-    undefined
+    undefined,
   );
   t.is(option2, null);
 
   const option3 = resolveOption("option", { integer: true })(
     functionWithNull,
     functionWithNull,
-    functionWithNull
+    functionWithNull,
   );
   t.is(option3, null);
 });
@@ -140,7 +140,7 @@ test("throws if resolved value is not an integer", (t) => {
       "Abcdefgh",
       stringOption1,
       () => null,
-      undefined
+      undefined,
     );
   t.throws(option1, {
     instanceOf: InvalidOptionError,
@@ -152,7 +152,7 @@ test("throws if resolved value is not an integer", (t) => {
       null,
       "seven",
       () => null,
-      undefined
+      undefined,
     );
   t.throws(option2, {
     instanceOf: InvalidOptionError,
@@ -166,7 +166,7 @@ test("throws if all options are undefined or null", (t) => {
       undefined,
       null,
       () => null,
-      undefined
+      undefined,
     );
   t.throws(option1, { instanceOf: InvalidOptionError, message: /is required/ });
 
@@ -175,7 +175,7 @@ test("throws if all options are undefined or null", (t) => {
       undefined,
       null,
       () => null,
-      undefined
+      undefined,
     );
   t.throws(option2, { instanceOf: InvalidOptionError, message: /is required/ });
 });

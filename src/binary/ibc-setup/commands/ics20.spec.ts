@@ -83,7 +83,7 @@ test.serial("ics20 create channels with new connection", async (t) => {
 dest: local_gaia
 srcConnection: .+
 destConnection: .+
-`
+`,
   );
   t.assert(fsWriteFileSync.calledOnce);
   t.is(args[0], path.join(options.home, appFile));
@@ -103,7 +103,7 @@ destConnection: .+
   const nextAllConnectionsGaia =
     await ibcClientGaia.query.ibc.connection.allConnections();
   const destConnectionIdMatch = /destConnection: (?<connection>.+)/.exec(
-    args[1]
+    args[1],
   );
   const destConnectionId = destConnectionIdMatch?.groups?.connection;
   assert(destConnectionId);
@@ -112,11 +112,11 @@ destConnection: .+
 
   t.is(
     nextAllConnectionsWasm.connections.length,
-    allConnectionsWasm.connections.length + 1
+    allConnectionsWasm.connections.length + 1,
   );
   t.is(
     nextAllConnectionsGaia.connections.length,
-    allConnectionsGaia.connections.length + 1
+    allConnectionsGaia.connections.length + 1,
   );
   t.assert(nextConnectionWasm.connection);
   t.assert(nextConnectionGaia.connection);
@@ -129,7 +129,7 @@ test.serial("ics20 create channels with existing connection", async (t) => {
   const ibcClientWasm = await signingClient(wasmdChain, mnemonic);
   const link = await Link.createWithNewConnections(
     ibcClientWasm,
-    ibcClientGaia
+    ibcClientGaia,
   );
 
   const allConnectionsGaia =
@@ -163,7 +163,7 @@ test.serial("ics20 create channels with existing connection", async (t) => {
 dest: local_gaia
 srcConnection: ${link.endA.connectionID}
 destConnection: ${link.endB.connectionID}
-`
+`,
   );
 
   t.assert(fsWriteFileSync.calledOnce);
@@ -180,10 +180,10 @@ destConnection: ${link.endB.connectionID}
 
   t.is(
     nextAllConnectionsWasm.connections.length,
-    allConnectionsWasm.connections.length
+    allConnectionsWasm.connections.length,
   );
   t.is(
     nextAllConnectionsGaia.connections.length,
-    allConnectionsGaia.connections.length
+    allConnectionsGaia.connections.length,
   );
 });

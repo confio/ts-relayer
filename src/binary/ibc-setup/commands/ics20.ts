@@ -57,13 +57,13 @@ function resolveConnections({
 }: AppConfig): Connections {
   if (!srcConnection && destConnection) {
     throw new Error(
-      `You have defined "destConnection" but no "srcConnection". Both "srcConnection" and "destConnection" must be present.`
+      `You have defined "destConnection" but no "srcConnection". Both "srcConnection" and "destConnection" must be present.`,
     );
   }
 
   if (srcConnection && !destConnection) {
     throw new Error(
-      `You have defined "srcConnection" but no "destConnection". Both "srcConnection" and "destConnection" must be present.`
+      `You have defined "srcConnection" but no "destConnection". Both "srcConnection" and "destConnection" must be present.`,
     );
   }
 
@@ -97,19 +97,19 @@ export async function ics20(flags: Flags, logger: Logger): Promise<void> {
   // we apply default ports later, once we have the registry
   const srcPort = resolveOption("srcPort")(
     flags.srcPort,
-    process.env.RELAYER_SRC_PORT
+    process.env.RELAYER_SRC_PORT,
   );
   const destPort = resolveOption("destPort")(
     flags.destPort,
-    process.env.RELAYER_DEST_PORT
+    process.env.RELAYER_DEST_PORT,
   );
   const srcTrust = resolveOption("srcTrust", { integer: true })(
     flags.srcTrust,
-    process.env.RELAYER_SRC_TRUST
+    process.env.RELAYER_SRC_TRUST,
   );
   const destTrust = resolveOption("destTrust", { integer: true })(
     flags.destTrust,
-    process.env.RELAYER_DEST_TRUST
+    process.env.RELAYER_DEST_TRUST,
   );
   const connections = resolveConnections(app);
 
@@ -126,7 +126,7 @@ export async function ics20(flags: Flags, logger: Logger): Promise<void> {
       destTrust,
     },
     app,
-    logger
+    logger,
   );
 }
 
@@ -134,7 +134,7 @@ async function resolveLink(
   nodeA: IbcClient,
   nodeB: IbcClient,
   { connections, srcTrust, destTrust }: Options,
-  logger: Logger
+  logger: Logger,
 ) {
   if (connections) {
     const link = await Link.createWithExistingConnections(
@@ -142,14 +142,14 @@ async function resolveLink(
       nodeB,
       connections.src,
       connections.dest,
-      logger
+      logger,
     );
     console.log(
       `Used existing connections [${link.endA.chainId()}, ${
         link.endA.connectionID
       }, ${link.endA.clientID}] <=> [${link.endB.chainId()}, ${
         link.endB.connectionID
-      }, ${link.endB.clientID}]`
+      }, ${link.endB.clientID}]`,
     );
     return link;
   }
@@ -159,14 +159,14 @@ async function resolveLink(
     nodeB,
     logger,
     srcTrust,
-    destTrust
+    destTrust,
   );
   console.log(
     `Created connections [${link.endA.chainId()}, ${link.endA.connectionID}, ${
       link.endA.clientID
     }] <=> [${link.endB.chainId()}, ${link.endB.connectionID}, ${
       link.endB.clientID
-    }]`
+    }]`,
   );
   return link;
 }
@@ -174,7 +174,7 @@ async function resolveLink(
 export async function run(
   options: Options,
   app: AppConfig,
-  logger: Logger
+  logger: Logger,
 ): Promise<void> {
   const registryFilePath = path.join(options.home, registryFile);
   const { chains } = loadAndValidateRegistry(registryFilePath);
@@ -204,7 +204,7 @@ export async function run(
     },
     {
       lineWidth: 1000,
-    }
+    },
   );
 
   fs.writeFileSync(appFilePath, appYaml, { encoding: "utf-8" });
@@ -213,12 +213,12 @@ export async function run(
   const srcPort = resolveOption("src-port", { required: true })(
     options.srcPort,
     srcChain.ics20_port,
-    defaults.port
+    defaults.port,
   );
   const destPort = resolveOption("dest-port", { required: true })(
     options.destPort,
     destChain.ics20_port,
-    defaults.port
+    defaults.port,
   );
 
   const channel = await link.createChannel(
@@ -226,7 +226,7 @@ export async function run(
     srcPort,
     destPort,
     ordering,
-    version
+    version,
   );
 
   const output = [

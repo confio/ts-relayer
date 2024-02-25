@@ -64,20 +64,20 @@ export async function channel(flags: Flags, logger: Logger) {
   const srcConnection = resolveOption("srcConnection", { required: true })(
     flags.srcConnection,
     app.srcConnection,
-    process.env.RELAYER_SRC_CONNECTION
+    process.env.RELAYER_SRC_CONNECTION,
   );
   const destConnection = resolveOption("destConnection", { required: true })(
     flags.destConnection,
     app.destConnection,
-    process.env.RELAYER_DEST_CONNECTION
+    process.env.RELAYER_DEST_CONNECTION,
   );
   const srcPort = resolveOption("srcPort", { required: true })(
     flags.srcPort,
-    process.env.RELAYER_SRC_PORT
+    process.env.RELAYER_SRC_PORT,
   );
   const destPort = resolveOption("destPort", { required: true })(
     flags.destPort,
-    process.env.RELAYER_DEST_PORT
+    process.env.RELAYER_DEST_PORT,
   );
   const version =
     resolveOption("version")(flags.version, process.env.RELAYER_VERSION) ??
@@ -114,12 +114,12 @@ export async function run(options: Options, logger: Logger) {
   const nodeA = await signingClient(
     srcChain,
     options.mnemonic,
-    logger.child({ label: srcChain.chain_id })
+    logger.child({ label: srcChain.chain_id }),
   );
   const nodeB = await signingClient(
     destChain,
     options.mnemonic,
-    logger.child({ label: destChain.chain_id })
+    logger.child({ label: destChain.chain_id }),
   );
 
   const link = await Link.createWithExistingConnections(
@@ -127,7 +127,7 @@ export async function run(options: Options, logger: Logger) {
     nodeB,
     options.srcConnection,
     options.destConnection,
-    logger
+    logger,
   );
 
   const ordering = options.ordered
@@ -139,7 +139,7 @@ export async function run(options: Options, logger: Logger) {
     options.srcPort,
     options.destPort,
     ordering,
-    options.version
+    options.version,
   );
 
   const output = [

@@ -48,7 +48,7 @@ test.serial("lists connections", async (t) => {
 
   const link = await Link.createWithNewConnections(
     ibcClientGaia,
-    ibcClientWasm
+    ibcClientWasm,
   );
 
   const options: Options = {

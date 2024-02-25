@@ -37,7 +37,7 @@ test.serial("set up channel with ics20 contract", async (t) => {
     codeIds.ics20,
     ics20Msg,
     "ICS",
-    "auto"
+    "auto",
   );
   t.truthy(ics20Addr);
 
@@ -52,7 +52,7 @@ test.serial("set up channel with ics20 contract", async (t) => {
     gaia.ics20Port,
     wasmPort,
     ics20.ordering,
-    ics20.version
+    ics20.version,
   );
 });
 
@@ -66,7 +66,7 @@ test.serial("send packets with ics20 contract", async (t) => {
     codeIds.cw20,
     initMsg,
     "CASH",
-    "auto"
+    "auto",
   );
   t.truthy(cw20Addr);
   let bal = await balance(cosmwasm, cw20Addr);
@@ -88,7 +88,7 @@ test.serial("send packets with ics20 contract", async (t) => {
     codeIds.ics20,
     ics20Msg,
     "ICSX",
-    "auto"
+    "auto",
   );
   t.truthy(ics20Addr);
 
@@ -103,7 +103,7 @@ test.serial("send packets with ics20 contract", async (t) => {
     gaia.ics20Port,
     wasmPort,
     ics20.ordering,
-    ics20.version
+    ics20.version,
   );
 
   // send cw20 tokens to ics20 contract and create a new packet
@@ -117,7 +117,7 @@ test.serial("send packets with ics20 contract", async (t) => {
     cw20Addr,
     sendMsg,
     "auto",
-    "Send CW20 tokens via ICS20"
+    "Send CW20 tokens via ICS20",
   );
 
   // let's see if the balance went down
@@ -148,7 +148,7 @@ test.serial("send packets with ics20 contract", async (t) => {
     channels.src.channelId,
     ibcCoin,
     dest.senderAddress,
-    timeoutHeight
+    timeoutHeight,
   );
   await src.waitOneBlock();
 
@@ -173,7 +173,7 @@ test.serial("send packets with ics20 contract", async (t) => {
     channels.src.channelId,
     nativeCoin,
     dest.senderAddress,
-    timeoutHeight2
+    timeoutHeight2,
   );
   await src.waitOneBlock();
 

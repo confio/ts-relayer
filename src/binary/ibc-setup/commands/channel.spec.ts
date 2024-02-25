@@ -50,7 +50,7 @@ test.serial("creates channel for given connections and ports", async (t) => {
   const ibcClientWasm = await signingClient(wasmdChain, mnemonic);
   const link = await Link.createWithNewConnections(
     ibcClientWasm,
-    ibcClientGaia
+    ibcClientGaia,
   );
 
   const options: Options = {
@@ -81,8 +81,8 @@ test.serial("creates channel for given connections and ports", async (t) => {
           ".+: (?<srcPort>.+)/(?<srcChannel>.+) \\(.+\\)",
           ".+: (?<destPort>.+)/(?<destChannel>.+) \\(.+\\)",
         ]),
-      ].join(os.EOL)
-    )
+      ].join(os.EOL),
+    ),
   );
 
   assert(match);
@@ -90,13 +90,13 @@ test.serial("creates channel for given connections and ports", async (t) => {
 
   const querySrcChannel = await ibcClientWasm.query.ibc.channel.channel(
     match.groups.srcPort,
-    match.groups.srcChannel
+    match.groups.srcChannel,
   );
   t.assert(querySrcChannel.channel);
 
   const queryDestChannel = await ibcClientGaia.query.ibc.channel.channel(
     match.groups.destPort,
-    match.groups.destChannel
+    match.groups.destChannel,
   );
   t.assert(queryDestChannel.channel);
 });

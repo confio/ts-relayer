@@ -28,7 +28,7 @@ export interface Ack {
 }
 
 export function createDeliverTxFailureMessage(
-  result: DeliverTxResponse
+  result: DeliverTxResponse,
 ): string {
   return `Error when broadcasting tx ${result.transactionHash} at height ${result.height}. Code: ${result.code}; Raw log: ${result.rawLog}`;
 }
@@ -64,13 +64,13 @@ export function parseRevisionNumber(chainId: string): bigint {
 // may will run the transform if value is defined, otherwise returns undefined
 export function may<T, U>(
   transform: (val: T) => U,
-  value: T | null | undefined
+  value: T | null | undefined,
 ): U | undefined {
   return value === undefined || value === null ? undefined : transform(value);
 }
 
 export function mapRpcPubKeyToProto(
-  pubkey?: RpcPubKey
+  pubkey?: RpcPubKey,
 ): ProtoPubKey | undefined {
   if (pubkey === undefined) {
     return undefined;
@@ -88,13 +88,13 @@ export function mapRpcPubKeyToProto(
   } else {
     throw new Error(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      `Unknown validator pubkey type: ${(pubkey as any).algorithm}`
+      `Unknown validator pubkey type: ${(pubkey as any).algorithm}`,
     );
   }
 }
 
 export function timestampFromDateNanos(
-  date: ReadonlyDateWithNanoseconds
+  date: ReadonlyDateWithNanoseconds,
 ): Timestamp {
   const nanos = (date.getTime() % 1000) * 1000000 + (date.nanoseconds ?? 0);
   return Timestamp.fromPartial({
@@ -104,13 +104,13 @@ export function timestampFromDateNanos(
 }
 
 export function secondsFromDateNanos(
-  date: ReadonlyDateWithNanoseconds
+  date: ReadonlyDateWithNanoseconds,
 ): number {
   return Math.floor(date.getTime() / 1000);
 }
 
 export function buildConsensusState(
-  header: tendermint34.Header | tendermint37.Header
+  header: tendermint34.Header | tendermint37.Header,
 ): TendermintConsensusState {
   return TendermintConsensusState.fromPartial({
     timestamp: timestampFromDateNanos(header.time),
@@ -126,7 +126,7 @@ export function buildClientState(
   chainId: string,
   unbondingPeriodSec: number,
   trustPeriodSec: number,
-  height: Height
+  height: Height,
 ): TendermintClientState {
   // Copied here until https://github.com/confio/ics23/issues/36 is resolved
   // https://github.com/confio/ics23/blob/master/js/src/proofs.ts#L11-L26
@@ -187,7 +187,7 @@ export function buildClientState(
 }
 
 export function parsePacketsFromBlockResult(
-  result: tendermint34.BlockResultsResponse | tendermint37.BlockResultsResponse
+  result: tendermint34.BlockResultsResponse | tendermint37.BlockResultsResponse,
 ): Packet[] {
   return parsePacketsFromTendermintEvents([
     ...result.beginBlockEvents,
@@ -205,7 +205,7 @@ export function parsePacketsFromEvents(events: readonly Event[]): Packet[] {
  * and parsed the events into `Packet`s.
  */
 export function parsePacketsFromTendermintEvents(
-  events: readonly (tendermint34.Event | tendermint37.Event)[]
+  events: readonly (tendermint34.Event | tendermint37.Event)[],
 ): Packet[] {
   return parsePacketsFromEvents(events.map(fromTendermintEvent));
 }
@@ -221,10 +221,10 @@ export function parseHeightAttribute(attribute?: string): Height | undefined {
   }
 
   const revisionNumber = BigInt(
-    isNaN(Number(timeoutRevisionNumber)) ? 0 : timeoutRevisionNumber
+    isNaN(Number(timeoutRevisionNumber)) ? 0 : timeoutRevisionNumber,
   );
   const revisionHeight = BigInt(
-    isNaN(Number(timeoutRevisionHeight)) ? 0 : timeoutRevisionHeight
+    isNaN(Number(timeoutRevisionHeight)) ? 0 : timeoutRevisionHeight,
   );
   // note: 0 revisionNumber is allowed. If there is bad data, '' or '0-0', we will get 0 for the height
   if (revisionHeight == 0n) {
@@ -242,7 +242,7 @@ export function parsePacket({ type, attributes }: Event): Packet {
       ...acc,
       [key]: value,
     }),
-    {}
+    {},
   );
 
   return Packet.fromPartial({
@@ -281,7 +281,7 @@ export function parseAck({ type, attributes }: Event): Ack {
       ...acc,
       [key]: value,
     }),
-    {}
+    {},
   );
   const originalPacket = Packet.fromPartial({
     sequence: may(BigInt, attributesObj.packet_sequence),
@@ -343,7 +343,7 @@ export function timeGreater(a: bigint | undefined, b: number): boolean {
 export function splitPendingPackets(
   currentHeight: Height,
   currentTime: number, // in seconds
-  packets: readonly PacketWithMetadata[]
+  packets: readonly PacketWithMetadata[],
 ): {
   readonly toSubmit: readonly PacketWithMetadata[];
   readonly toTimeout: readonly PacketWithMetadata[];
@@ -366,7 +366,7 @@ export function splitPendingPackets(
     {
       toSubmit: [] as readonly PacketWithMetadata[],
       toTimeout: [] as readonly PacketWithMetadata[],
-    }
+    },
   );
 }
 

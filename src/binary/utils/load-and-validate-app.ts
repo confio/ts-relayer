@@ -51,7 +51,7 @@ export function loadAndValidateApp(home: string) {
 
   if (!validate(app)) {
     const errors = (validate.errors ?? []).map(
-      ({ dataPath, message }) => `"${dataPath}" ${message}`
+      ({ dataPath, message }) => `"${dataPath}" ${message}`,
     );
     throw new Error([`${appFile} validation failed.`, ...errors].join(os.EOL));
   }

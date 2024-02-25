@@ -86,7 +86,7 @@ type CometCommitResponse =
 
 function deepCloneAndMutate<T extends Record<string, unknown>>(
   object: T,
-  mutateFn: (deepClonedObject: T) => void
+  mutateFn: (deepClonedObject: T) => void,
 ): Record<string, unknown> {
   const deepClonedObject = cloneDeep(object);
   mutateFn(deepClonedObject);
@@ -215,7 +215,7 @@ export class IbcClient {
     endpoint: string,
     signer: OfflineSigner,
     senderAddress: string,
-    options: IbcClientOptions
+    options: IbcClientOptions,
   ): Promise<IbcClient> {
     // override any registry setup, use the other options
     const mergedOptions = {
@@ -225,7 +225,7 @@ export class IbcClient {
     const signingClient = await SigningStargateClient.connectWithSigner(
       endpoint,
       signer,
-      mergedOptions
+      mergedOptions,
     );
     const tmClient = await connectComet(endpoint);
     const chainId = await signingClient.getChainId();
@@ -234,7 +234,7 @@ export class IbcClient {
       tmClient,
       senderAddress,
       chainId,
-      options
+      options,
     );
   }
 
@@ -243,7 +243,7 @@ export class IbcClient {
     tmClient: CometClient,
     senderAddress: string,
     chainId: string,
-    options: IbcClientOptions
+    options: IbcClientOptions,
   ) {
     this.sign = signingClient;
     this.tm = tmClient;
@@ -252,7 +252,7 @@ export class IbcClient {
       setupAuthExtension,
       setupBankExtension,
       setupIbcExtension,
-      setupStakingExtension
+      setupStakingExtension,
     );
     this.senderAddress = senderAddress;
     this.chainId = chainId;
@@ -280,7 +280,7 @@ export class IbcClient {
     }
     if (height.revisionNumber !== this.revisionNumber) {
       throw new Error(
-        `Using incorrect revisionNumber ${height.revisionNumber} on chain with ${this.revisionNumber}`
+        `Using incorrect revisionNumber ${height.revisionNumber} on chain with ${this.revisionNumber}`,
       );
     }
     return height;
@@ -346,7 +346,7 @@ export class IbcClient {
     this.logger.verbose(
       height === undefined
         ? "Get latest commit"
-        : `Get commit for height ${height}`
+        : `Get commit for height ${height}`,
     );
     return this.tm.commit(height);
   }
@@ -363,9 +363,8 @@ export class IbcClient {
   }
 
   public async getSignedHeader(height?: number): Promise<SignedHeader> {
-    const { header: rpcHeader, commit: rpcCommit } = await this.getCommit(
-      height
-    );
+    const { header: rpcHeader, commit: rpcCommit } =
+      await this.getCommit(height);
     const header = Header.fromPartial({
       ...rpcHeader,
       version: {
@@ -414,10 +413,10 @@ export class IbcClient {
     }));
     const totalPower = validators.validators.reduce(
       (accumulator, v) => accumulator + v.votingPower,
-      BigInt(0)
+      BigInt(0),
     );
     const proposer = mappedValidators.find((val) =>
-      arrayContentEquals(val.address, proposerAddress)
+      arrayContentEquals(val.address, proposerAddress),
     );
     return ValidatorSet.fromPartial({
       validators: mappedValidators,
@@ -464,7 +463,7 @@ export class IbcClient {
   public async getConnectionProof(
     clientId: string,
     connectionId: string,
-    headerHeight: Height | number
+    headerHeight: Height | number,
   ): Promise<ConnectionHandshakeProof> {
     const proofHeight = this.ensureRevisionHeight(headerHeight);
     const queryHeight = subtractBlock(proofHeight, 1n);
@@ -484,7 +483,7 @@ export class IbcClient {
     const { proof: proofConnection } =
       await this.query.ibc.proof.connection.connection(
         connectionId,
-        queryHeight
+        queryHeight,
       );
 
     // get the consensus proof
@@ -492,7 +491,7 @@ export class IbcClient {
       await this.query.ibc.proof.client.consensusState(
         clientId,
         consensusHeight,
-        queryHeight
+        queryHeight,
       );
 
     return {
@@ -515,7 +514,7 @@ export class IbcClient {
   // note: the queries will be for the block before this header, so the proofs match up (appHash is on H+1)
   public async getChannelProof(
     id: ChannelInfo,
-    headerHeight: Height | number
+    headerHeight: Height | number,
   ): Promise<ChannelHandshake> {
     const proofHeight = this.ensureRevisionHeight(headerHeight);
     const queryHeight = subtractBlock(proofHeight, 1n);
@@ -523,7 +522,7 @@ export class IbcClient {
     const { proof } = await this.query.ibc.proof.channel.channel(
       id.portId,
       id.channelId,
-      queryHeight
+      queryHeight,
     );
 
     return {
@@ -535,7 +534,7 @@ export class IbcClient {
 
   public async getPacketProof(
     packet: Packet,
-    headerHeight: Height | number
+    headerHeight: Height | number,
   ): Promise<Uint8Array> {
     const proofHeight = this.ensureRevisionHeight(headerHeight);
     const queryHeight = subtractBlock(proofHeight, 1n);
@@ -544,7 +543,7 @@ export class IbcClient {
       packet.sourcePort,
       packet.sourceChannel,
       packet.sequence,
-      queryHeight
+      queryHeight,
     );
 
     return proof;
@@ -552,7 +551,7 @@ export class IbcClient {
 
   public async getAckProof(
     { originalPacket }: Ack,
-    headerHeight: Height | number
+    headerHeight: Height | number,
   ): Promise<Uint8Array> {
     const proofHeight = this.ensureRevisionHeight(headerHeight);
     const queryHeight = subtractBlock(proofHeight, 1n);
@@ -561,7 +560,7 @@ export class IbcClient {
       originalPacket.destinationPort,
       originalPacket.destinationChannel,
       Number(originalPacket.sequence),
-      queryHeight
+      queryHeight,
     );
     const { proof } = res;
     return proof;
@@ -569,7 +568,7 @@ export class IbcClient {
 
   public async getTimeoutProof(
     { originalPacket }: Ack,
-    headerHeight: Height | number
+    headerHeight: Height | number,
   ): Promise<Uint8Array> {
     const proofHeight = this.ensureRevisionHeight(headerHeight);
     const queryHeight = subtractBlock(proofHeight, 1n);
@@ -578,7 +577,7 @@ export class IbcClient {
       originalPacket.destinationPort,
       originalPacket.destinationChannel,
       Number(originalPacket.sequence),
-      queryHeight
+      queryHeight,
     );
     return proof;
   }
@@ -592,7 +591,7 @@ export class IbcClient {
   // Returns the height that was updated to.
   public async doUpdateClient(
     clientId: string,
-    src: IbcClient
+    src: IbcClient,
   ): Promise<Height> {
     const { latestHeight } = await this.query.ibc.client.stateTm(clientId);
     const header = await src.buildHeader(toIntHeight(latestHeight));
@@ -606,7 +605,7 @@ export class IbcClient {
   public async sendTokens(
     recipientAddress: string,
     transferAmount: readonly Coin[],
-    memo?: string
+    memo?: string,
   ): Promise<MsgResult> {
     this.logger.verbose(`Send tokens to ${recipientAddress}`);
     this.logger.debug("Send tokens:", {
@@ -620,7 +619,7 @@ export class IbcClient {
       recipientAddress,
       transferAmount,
       "auto",
-      memo
+      memo,
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -642,7 +641,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       msgs,
-      "auto"
+      "auto",
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -656,7 +655,7 @@ export class IbcClient {
 
   public async createTendermintClient(
     clientState: TendermintClientState,
-    consensusState: TendermintConsensusState
+    consensusState: TendermintConsensusState,
   ): Promise<CreateClientResult> {
     this.logger.verbose(`Create Tendermint client`);
     const senderAddress = this.senderAddress;
@@ -679,7 +678,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [createMsg],
-      "auto"
+      "auto",
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -702,7 +701,7 @@ export class IbcClient {
 
   public async updateTendermintClient(
     clientId: string,
-    header: TendermintHeader
+    header: TendermintHeader,
   ): Promise<MsgResult> {
     this.logger.verbose(`Update Tendermint client ${clientId}`);
     const senderAddress = this.senderAddress;
@@ -723,16 +722,16 @@ export class IbcClient {
       deepCloneAndMutate(updateMsg, (mutableMsg) => {
         if (mutableMsg.value.clientMessage?.value) {
           mutableMsg.value.clientMessage.value = toBase64AsAny(
-            mutableMsg.value.clientMessage.value
+            mutableMsg.value.clientMessage.value,
           );
         }
-      })
+      }),
     );
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [updateMsg],
-      "auto"
+      "auto",
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -746,7 +745,7 @@ export class IbcClient {
 
   public async connOpenInit(
     clientId: string,
-    remoteClientId: string
+    remoteClientId: string,
   ): Promise<CreateConnectionResult> {
     this.logger.info(`Connection open init: ${clientId} => ${remoteClientId}`);
     const senderAddress = this.senderAddress;
@@ -768,7 +767,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      "auto"
+      "auto",
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -792,10 +791,10 @@ export class IbcClient {
 
   public async connOpenTry(
     myClientId: string,
-    proof: ConnectionHandshakeProof
+    proof: ConnectionHandshakeProof,
   ): Promise<CreateConnectionResult> {
     this.logger.info(
-      `Connection open try: ${myClientId} => ${proof.clientId} (${proof.connectionId})`
+      `Connection open try: ${myClientId} => ${proof.clientId} (${proof.connectionId})`,
     );
     const senderAddress = this.senderAddress;
     const {
@@ -832,19 +831,19 @@ export class IbcClient {
       "MsgConnectionOpenTry",
       deepCloneAndMutate(msg, (mutableMsg) => {
         mutableMsg.value.proofClient = toBase64AsAny(
-          mutableMsg.value.proofClient
+          mutableMsg.value.proofClient,
         );
         mutableMsg.value.proofConsensus = toBase64AsAny(
-          mutableMsg.value.proofConsensus
+          mutableMsg.value.proofConsensus,
         );
         mutableMsg.value.proofInit = toBase64AsAny(mutableMsg.value.proofInit);
-      })
+      }),
     );
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      "auto"
+      "auto",
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -858,7 +857,7 @@ export class IbcClient {
     }
 
     this.logger.debug(
-      `Connection open try successful: ${myConnectionId} => ${connectionId}`
+      `Connection open try successful: ${myConnectionId} => ${connectionId}`,
     );
     return {
       events: result.events,
@@ -870,10 +869,10 @@ export class IbcClient {
 
   public async connOpenAck(
     myConnectionId: string,
-    proof: ConnectionHandshakeProof
+    proof: ConnectionHandshakeProof,
   ): Promise<MsgResult> {
     this.logger.info(
-      `Connection open ack: ${myConnectionId} => ${proof.connectionId}`
+      `Connection open ack: ${myConnectionId} => ${proof.connectionId}`,
     );
     const senderAddress = this.senderAddress;
     const {
@@ -904,19 +903,19 @@ export class IbcClient {
       "MsgConnectionOpenAck",
       deepCloneAndMutate(msg, (mutableMsg) => {
         mutableMsg.value.proofConsensus = toBase64AsAny(
-          mutableMsg.value.proofConsensus
+          mutableMsg.value.proofConsensus,
         );
         mutableMsg.value.proofTry = toBase64AsAny(mutableMsg.value.proofTry);
         mutableMsg.value.proofClient = toBase64AsAny(
-          mutableMsg.value.proofClient
+          mutableMsg.value.proofClient,
         );
-      })
+      }),
     );
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      "auto"
+      "auto",
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -930,7 +929,7 @@ export class IbcClient {
 
   public async connOpenConfirm(
     myConnectionId: string,
-    proof: ConnectionHandshakeProof
+    proof: ConnectionHandshakeProof,
   ): Promise<MsgResult> {
     this.logger.info(`Connection open confirm: ${myConnectionId}`);
     const senderAddress = this.senderAddress;
@@ -948,13 +947,13 @@ export class IbcClient {
       "MsgConnectionOpenConfirm",
       deepCloneAndMutate(msg, (mutableMsg) => {
         mutableMsg.value.proofAck = toBase64AsAny(mutableMsg.value.proofAck);
-      })
+      }),
     );
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      "auto"
+      "auto",
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -971,10 +970,10 @@ export class IbcClient {
     remotePortId: string,
     ordering: Order,
     connectionId: string,
-    version: string
+    version: string,
   ): Promise<CreateChannelResult> {
     this.logger.verbose(
-      `Channel open init: ${portId} => ${remotePortId} (${connectionId})`
+      `Channel open init: ${portId} => ${remotePortId} (${connectionId})`,
     );
     const senderAddress = this.senderAddress;
     const msg = {
@@ -998,7 +997,7 @@ export class IbcClient {
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      "auto"
+      "auto",
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -1027,10 +1026,10 @@ export class IbcClient {
     connectionId: string,
     version: string,
     counterpartyVersion: string,
-    proof: ChannelHandshake
+    proof: ChannelHandshake,
   ): Promise<CreateChannelResult> {
     this.logger.verbose(
-      `Channel open try: ${portId} => ${remote.portId} (${remote.channelId})`
+      `Channel open try: ${portId} => ${remote.portId} (${remote.channelId})`,
     );
     const senderAddress = this.senderAddress;
     const { proofHeight, proof: proofInit } = proof;
@@ -1055,13 +1054,13 @@ export class IbcClient {
       "MsgChannelOpenTry",
       deepCloneAndMutate(msg, (mutableMsg) => {
         mutableMsg.value.proofInit = toBase64AsAny(mutableMsg.value.proofInit);
-      })
+      }),
     );
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      "auto"
+      "auto",
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -1075,7 +1074,7 @@ export class IbcClient {
     }
 
     this.logger.debug(
-      `Channel open try successful: ${channelId} => ${remote.channelId})`
+      `Channel open try successful: ${channelId} => ${remote.channelId})`,
     );
     return {
       events: result.events,
@@ -1090,10 +1089,10 @@ export class IbcClient {
     channelId: string,
     counterpartyChannelId: string,
     counterpartyVersion: string,
-    proof: ChannelHandshake
+    proof: ChannelHandshake,
   ): Promise<MsgResult> {
     this.logger.verbose(
-      `Channel open ack for port ${portId}: ${channelId} => ${counterpartyChannelId}`
+      `Channel open ack for port ${portId}: ${channelId} => ${counterpartyChannelId}`,
     );
     const senderAddress = this.senderAddress;
     const { proofHeight, proof: proofTry } = proof;
@@ -1113,13 +1112,13 @@ export class IbcClient {
       "MsgChannelOpenAck",
       deepCloneAndMutate(msg, (mutableMsg) => {
         mutableMsg.value.proofTry = toBase64AsAny(mutableMsg.value.proofTry);
-      })
+      }),
     );
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      "auto"
+      "auto",
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -1134,10 +1133,10 @@ export class IbcClient {
   public async channelOpenConfirm(
     portId: string,
     channelId: string,
-    proof: ChannelHandshake
+    proof: ChannelHandshake,
   ): Promise<MsgResult> {
     this.logger.verbose(
-      `Chanel open confirm for port ${portId}: ${channelId} => ${proof.id.channelId}`
+      `Chanel open confirm for port ${portId}: ${channelId} => ${proof.id.channelId}`,
     );
     const senderAddress = this.senderAddress;
     const { proofHeight, proof: proofAck } = proof;
@@ -1155,13 +1154,13 @@ export class IbcClient {
       "MsgChannelOpenConfirm",
       deepCloneAndMutate(msg, (mutableMsg) => {
         mutableMsg.value.proofAck = toBase64AsAny(mutableMsg.value.proofAck);
-      })
+      }),
     );
 
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       [msg],
-      "auto"
+      "auto",
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -1176,7 +1175,7 @@ export class IbcClient {
   public receivePacket(
     packet: Packet,
     proofCommitment: Uint8Array,
-    proofHeight?: Height
+    proofHeight?: Height,
   ): Promise<MsgResult> {
     return this.receivePackets([packet], [proofCommitment], proofHeight);
   }
@@ -1184,12 +1183,12 @@ export class IbcClient {
   public async receivePackets(
     packets: readonly Packet[],
     proofCommitments: readonly Uint8Array[],
-    proofHeight?: Height
+    proofHeight?: Height,
   ): Promise<MsgResult> {
     this.logger.verbose(`Receive ${packets.length} packets..`);
     if (packets.length !== proofCommitments.length) {
       throw new Error(
-        `Have ${packets.length} packets, but ${proofCommitments.length} proofs`
+        `Have ${packets.length} packets, but ${proofCommitments.length} proofs`,
       );
     }
     if (packets.length === 0) {
@@ -1202,7 +1201,7 @@ export class IbcClient {
       const packet = packets[i];
       this.logger.verbose(
         `Sending packet #${packet.sequence} from ${this.chainId}:${packet.sourceChannel}`,
-        presentPacketData(packet.data)
+        presentPacketData(packet.data),
       );
       const msg = {
         typeUrl: "/ibc.core.channel.v1.MsgRecvPacket",
@@ -1219,20 +1218,20 @@ export class IbcClient {
       msgs: msgs.map((msg) =>
         deepCloneAndMutate(msg, (mutableMsg) => {
           mutableMsg.value.proofCommitment = toBase64AsAny(
-            mutableMsg.value.proofCommitment
+            mutableMsg.value.proofCommitment,
           );
           if (mutableMsg.value.packet?.data) {
             mutableMsg.value.packet.data = toBase64AsAny(
-              mutableMsg.value.packet.data
+              mutableMsg.value.packet.data,
             );
           }
-        })
+        }),
       ),
     });
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       msgs,
-      "auto"
+      "auto",
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -1247,7 +1246,7 @@ export class IbcClient {
   public acknowledgePacket(
     ack: Ack,
     proofAcked: Uint8Array,
-    proofHeight?: Height
+    proofHeight?: Height,
   ): Promise<MsgResult> {
     return this.acknowledgePackets([ack], [proofAcked], proofHeight);
   }
@@ -1255,12 +1254,12 @@ export class IbcClient {
   public async acknowledgePackets(
     acks: readonly Ack[],
     proofAckeds: readonly Uint8Array[],
-    proofHeight?: Height
+    proofHeight?: Height,
   ): Promise<MsgResult> {
     this.logger.verbose(`Acknowledge ${acks.length} packets...`);
     if (acks.length !== proofAckeds.length) {
       throw new Error(
-        `Have ${acks.length} acks, but ${proofAckeds.length} proofs`
+        `Have ${acks.length} acks, but ${proofAckeds.length} proofs`,
       );
     }
     if (acks.length === 0) {
@@ -1278,7 +1277,7 @@ export class IbcClient {
         {
           packet: presentPacketData(packet.data),
           ack: presentPacketData(acknowledgement),
-        }
+        },
       );
       const msg = {
         typeUrl: "/ibc.core.channel.v1.MsgAcknowledgement",
@@ -1296,23 +1295,23 @@ export class IbcClient {
       msgs: msgs.map((msg) =>
         deepCloneAndMutate(msg, (mutableMsg) => {
           mutableMsg.value.acknowledgement = toBase64AsAny(
-            mutableMsg.value.acknowledgement
+            mutableMsg.value.acknowledgement,
           );
           mutableMsg.value.proofAcked = toBase64AsAny(
-            mutableMsg.value.proofAcked
+            mutableMsg.value.proofAcked,
           );
           if (mutableMsg.value.packet?.data) {
             mutableMsg.value.packet.data = toBase64AsAny(
-              mutableMsg.value.packet.data
+              mutableMsg.value.packet.data,
             );
           }
-        })
+        }),
       ),
     });
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       msgs,
-      "auto"
+      "auto",
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -1328,13 +1327,13 @@ export class IbcClient {
     packet: Packet,
     proofUnreceived: Uint8Array,
     nextSequenceRecv: bigint,
-    proofHeight: Height
+    proofHeight: Height,
   ): Promise<MsgResult> {
     return this.timeoutPackets(
       [packet],
       [proofUnreceived],
       [nextSequenceRecv],
-      proofHeight
+      proofHeight,
     );
   }
 
@@ -1342,7 +1341,7 @@ export class IbcClient {
     packets: Packet[],
     proofsUnreceived: Uint8Array[],
     nextSequenceRecv: bigint[],
-    proofHeight: Height
+    proofHeight: Height,
   ): Promise<MsgResult> {
     if (packets.length !== proofsUnreceived.length) {
       throw new Error("Packets and proofs must be same length");
@@ -1359,7 +1358,7 @@ export class IbcClient {
       const packet = packets[i];
       this.logger.verbose(
         `Timeout packet #${packet.sequence} from ${this.chainId}:${packet.sourceChannel}`,
-        presentPacketData(packet.data)
+        presentPacketData(packet.data),
       );
 
       const msg = {
@@ -1380,19 +1379,19 @@ export class IbcClient {
         deepCloneAndMutate(msg, (mutableMsg) => {
           if (mutableMsg.value.packet?.data) {
             mutableMsg.value.packet.data = toBase64AsAny(
-              mutableMsg.value.packet.data
+              mutableMsg.value.packet.data,
             );
           }
           mutableMsg.value.proofUnreceived = toBase64AsAny(
-            mutableMsg.value.proofUnreceived
+            mutableMsg.value.proofUnreceived,
           );
-        })
+        }),
       ),
     });
     const result = await this.sign.signAndBroadcast(
       senderAddress,
       msgs,
-      "auto"
+      "auto",
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -1411,7 +1410,7 @@ export class IbcClient {
     receiver: string,
     timeoutHeight?: Height,
     /** timeout in seconds (SigningStargateClient converts to nanoseconds) */
-    timeoutTime?: number
+    timeoutTime?: number,
   ): Promise<MsgResult> {
     this.logger.verbose(`Transfer tokens to ${receiver}`);
     const result = await this.sign.sendIbcTokens(
@@ -1422,7 +1421,7 @@ export class IbcClient {
       sourceChannel,
       timeoutHeight,
       timeoutTime,
-      "auto"
+      "auto",
     );
     if (isDeliverTxFailure(result)) {
       throw new Error(createDeliverTxFailureMessage(result));
@@ -1444,7 +1443,7 @@ export interface CreateClientArgs {
 // if the trusting period is not set, it will use 2/3 of the unbonding period
 export async function buildCreateClientArgs(
   src: IbcClient,
-  trustPeriodSec?: number | null
+  trustPeriodSec?: number | null,
 ): Promise<CreateClientArgs> {
   const header = await src.latestHeader();
   const consensusState = buildConsensusState(header);
@@ -1456,7 +1455,7 @@ export async function buildCreateClientArgs(
     src.chainId,
     unbondingPeriodSec,
     trustPeriodSec,
-    src.revisionHeight(header.height)
+    src.revisionHeight(header.height),
   );
   return { consensusState, clientState };
 }
@@ -1466,7 +1465,7 @@ export async function prepareConnectionHandshake(
   dest: IbcClient,
   clientIdSrc: string,
   clientIdDest: string,
-  connIdSrc: string
+  connIdSrc: string,
 ): Promise<ConnectionHandshakeProof> {
   // ensure the last transaction was committed to the header (one block after it was included)
   await src.waitOneBlock();
@@ -1477,7 +1476,7 @@ export async function prepareConnectionHandshake(
   const proof = await src.getConnectionProof(
     clientIdSrc,
     connIdSrc,
-    headerHeight
+    headerHeight,
   );
   return proof;
 }
@@ -1487,7 +1486,7 @@ export async function prepareChannelHandshake(
   dest: IbcClient,
   clientIdDest: string,
   portId: string,
-  channelId: string
+  channelId: string,
 ): Promise<ChannelHandshake> {
   // ensure the last transaction was committed to the header (one block after it was included)
   await src.waitOneBlock();

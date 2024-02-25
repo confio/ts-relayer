@@ -6,7 +6,7 @@ import { AckWithMetadata, RelayInfo, testutils } from "..";
 const { setupWasmClient } = testutils;
 
 export async function setupContracts(
-  contracts: Record<string, string>
+  contracts: Record<string, string>,
 ): Promise<Record<string, number>> {
   const cosmwasm = await setupWasmClient();
 
@@ -20,7 +20,7 @@ export async function setupContracts(
       cosmwasm.senderAddress,
       wasm,
       "auto",
-      `Upload ${name}`
+      `Upload ${name}`,
     );
     console.debug(`Upload ${name} with CodeID: ${receipt.codeId}`);
     results[name] = receipt.codeId;
@@ -58,7 +58,7 @@ export function assertAckErrors(acks: AckWithMetadata[]) {
 export function assertPacketsFromA(
   relay: RelayInfo,
   count: number,
-  success: boolean
+  success: boolean,
 ) {
   if (relay.packetsFromA !== count) {
     throw new Error(`Expected ${count} packets, got ${relay.packetsFromA}`);
@@ -76,7 +76,7 @@ export function assertPacketsFromA(
 export function assertPacketsFromB(
   relay: RelayInfo,
   count: number,
-  success: boolean
+  success: boolean,
 ) {
   if (relay.packetsFromB !== count) {
     throw new Error(`Expected ${count} packets, got ${relay.packetsFromB}`);
