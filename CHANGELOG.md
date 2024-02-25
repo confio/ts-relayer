@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.11.3
+
+### Patch Changes
+
+- 36e7f68: Remove unused direct protobufjs dependency
+- 2a0b251: Bump prettier to version 3 and reformat code
+- b158173: Bump tsconfig-paths to 3.15.0
+- 24efe38: Bump axios dependency to ^1.6.7
+
 ## 0.11.2
 
 ### Patch Changes
