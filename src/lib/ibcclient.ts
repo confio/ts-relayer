@@ -61,7 +61,6 @@ import {
   SignedHeader,
 } from "cosmjs-types/tendermint/types/types";
 import { ValidatorSet } from "cosmjs-types/tendermint/types/validator";
-import cloneDeep from "lodash/cloneDeep";
 
 import { Logger, NoopLogger } from "./logger";
 import { IbcExtension, setupIbcExtension } from "./queries/ibc";
@@ -88,7 +87,7 @@ function deepCloneAndMutate<T extends Record<string, unknown>>(
   object: T,
   mutateFn: (deepClonedObject: T) => void,
 ): Record<string, unknown> {
-  const deepClonedObject = cloneDeep(object);
+  const deepClonedObject = structuredClone(object);
   mutateFn(deepClonedObject);
 
   return deepClonedObject;

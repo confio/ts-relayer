@@ -16,7 +16,7 @@ You can see an example of embedding the relayer in a [webapp below](#Web-App).
 
 ## Requirements
 
-- [Node.js 14.16.1](https://nodejs.org/en/blog/release/v14.16.1/) or later
+- [Node.js](https://nodejs.org/) 18 or later
 - RPC addresses of 2 full nodes on compatible, IBC-enabled chains
 - See [Chain Requirements below](#Chain-Requirements) for details of what chains are supported
 

@@ -29,7 +29,7 @@
     "proto": "./scripts/proto/get-proto.sh && ./scripts/proto/define-proto.sh && yarn fix"
   },
   "engines": {
-    "node": ">=12"
+    "node": ">=18"
   },
   "dependencies": {
     "@cosmjs/cosmwasm-stargate": "^0.32.1",
@@ -48,7 +48,6 @@
     "cosmjs-types": "^0.9.0",
     "fast-safe-stringify": "2.0.4",
     "js-yaml": "4.0.0",
-    "lodash": "4.17.21",
     "prom-client": "13.1.0",
     "table": "^6.7.1",
     "triple-beam": "1.3.0",
@@ -59,8 +58,7 @@
     "@changesets/cli": "^2.16.0",
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
     "@types/js-yaml": "^4.0.0",
-    "@types/lodash": "^4.14.168",
-    "@types/node": "^14.14.25",
+    "@types/node": "^18",
     "@types/sinon": "^9.0.10",
     "@types/triple-beam": "^1.3.2",
     "@typescript-eslint/eslint-plugin": "^5",
