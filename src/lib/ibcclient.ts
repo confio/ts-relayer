@@ -368,6 +368,7 @@ export class IbcClient {
       ...rpcHeader,
       version: {
         block: BigInt(rpcHeader.version.block),
+        app: BigInt(rpcHeader.version.app),
       },
       height: BigInt(rpcHeader.height),
       time: timestampFromDateNanos(rpcHeader.time),
