@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.12.0
+
+### Minor Changes
+
+- e07e0c2: Bump min Node.js version to 18 and remove lodash dependency
+
+### Patch Changes
+
+- 347ba8c: fix header failed basic validation error for app version != 0
+
 ## 0.11.3
 
 ### Patch Changes
