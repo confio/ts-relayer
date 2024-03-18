@@ -13,7 +13,7 @@ as a daemon (unix service), the default home directory for `ibc-relayer` will be
 On the other hand, the user-focused `ibc-setup` will default to `$HOME/.ibc-setup` as the "home"
 directory.
 
-This may be overriden via the `RELAYER_HOME` env variable, or `--home` CLI flag.
+This may be overridden via the `RELAYER_HOME` env variable, or `--home` CLI flag.
 
 ## Registry Format
 

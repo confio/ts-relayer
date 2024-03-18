@@ -66,7 +66,7 @@ to send tokens to their account.
 
 ## Multiple Relayer Keys
 
-Allow the relayer to have multiple accounts under it's control, which it can switch when one runs low,
+Allow the relayer to have multiple accounts under its control, which it can switch when one runs low,
 or simply to allow sending more messages concurrently without worrying about sequence numbers.
 
 We could also support fee grants here (SDK v0.42+), so we could have eg. 10 signing keys that all pull
